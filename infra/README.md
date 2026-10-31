@@ -13,7 +13,7 @@ Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md
 
 > **Costos.** Crear o iniciar instancias consume créditos de AWS. Ningún script crea recursos
 > facturables sin `--apply --approve <rol>`. El modo por defecto, `--plan`, no cambia nada.
-> Detenga las instancias al terminar cada sesión (`infra/teardown.sh --stop`).
+> Detenga las instancias al terminar cada sesión (`bash infra/teardown.sh --stop --apply`).
 
 ---
 
@@ -160,7 +160,7 @@ Confirme las tarifas vigentes antes de cada sesión con `bash infra/bootstrap-se
 ### Ejecución por sesiones (estimación para completar HU-01)
 
 Cada sesión empieza con la autorización de las operaciones facturables que contiene y termina con
-`bash infra/teardown.sh --stop`. El costo por hora con las seis instancias encendidas es de 0.300
+`bash infra/teardown.sh --stop --apply`. El costo por hora con las seis instancias encendidas es de 0.300
 USD (EC2 e IPv4), más el EBS, que se cobra mientras los volúmenes existen.
 
 | Sesión | Contenido | Operaciones facturables que se autorizan | Duración | Costo estimado |
@@ -179,14 +179,14 @@ USD (EC2 e IPv4), más el EBS, que se cobra mientras los volúmenes existen.
 **Barreras de costo:**
 - Configure **AWS Budgets** con alertas en 10, 25, 50 y 75 USD (los dos primeros presupuestos no
   tienen cargo; verifíquelo).
-- Al cerrar cada sesión, ejecute `teardown.sh --stop` y confirme que no queda nada encendido:
+- Al cerrar cada sesión, ejecute `teardown.sh --stop --apply` y confirme que no queda nada encendido:
   ```bash
   aws ec2 describe-instances --region us-east-2 \
     --filters Name=tag:Project,Values=circleguard Name=instance-state-name,Values=running \
     --query 'Reservations[].Instances[].InstanceId'
   ```
 - Si el consumo supera **25 USD** antes de terminar HU-01, se detiene todo y se revisa.
-- Al finalizar la evaluación, ejecute `teardown.sh --destroy`, como pide el enunciado.
+- Al finalizar la evaluación, ejecute `teardown.sh --destroy --apply`, como pide el enunciado.
 - **Fuera de HU-01:** E1.5 necesitará ambientes más grandes, porque `t3.small` no basta para los
   servicios núcleo, y eso aumentará el costo por hora.
 - **[Por verificar] Rendimiento inicial:** las T3 en modo `standard` no reciben créditos de
@@ -217,9 +217,10 @@ Solo lectura. Termina con código 1 si alguna comprobación falla.
 ## Detener o destruir
 
 ```bash
-bash infra/teardown.sh --stop               # detiene las instancias (conserva datos)
-bash infra/teardown.sh --destroy            # elimina instancias (y sus DATOS), red y pares de llaves de HU-01
-bash infra/teardown.sh --destroy --purge-secrets   # además borra /circleguard/* de SSM
+bash infra/teardown.sh --destroy                  # --plan por defecto: inventario y lo que eliminaría, sin cambios
+bash infra/teardown.sh --stop --apply             # detiene las instancias (conserva datos)
+bash infra/teardown.sh --destroy --apply          # elimina instancias (y sus DATOS), red y pares de llaves de HU-01
+bash infra/teardown.sh --destroy --purge-secrets --apply   # además borra /circleguard/* de SSM
 ```
 `--destroy` requiere tener adjunta, además de la del operador, la política
 `config/iam/hu01-teardown-policy.json`.
@@ -240,7 +241,7 @@ bash infra/bootstrap-jenkins.sh --target local --apply      # http://localhost:8
 bash infra/bootstrap-sonarqube.sh --target local --apply    # http://localhost:9000
 bash infra/bootstrap-nexus.sh --target local --apply        # http://localhost:8081 (registro en localhost:5000)
 bash infra/verify-infra.sh --target local
-bash infra/teardown.sh --target local --stop                # nunca borra volúmenes
+bash infra/teardown.sh --target local --stop --apply        # nunca borra volúmenes
 ```
 Para iniciar sesión en local, el usuario es `admin` y la contraseña está en
 `~/.circleguard/secrets/tools/<herramienta>/`. Léala solo en su propia terminal.

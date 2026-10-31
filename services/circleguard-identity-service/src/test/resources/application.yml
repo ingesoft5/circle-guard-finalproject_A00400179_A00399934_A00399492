@@ -15,6 +15,6 @@ spring:
       ddl-auto: create-drop
 
 vault:
-  secret: "746573742d7365637265742d33322d63686172732d6c6f6e672d313233343536" # hex for "test-secret-..."
-  salt: "deadbeef"      # hex for encryption
-  hash-salt: "12345678" # hex for hashing
+  secret: "746573742d666978747572652d6e6f742d612d7265616c2d7661756c742d6b6579" # fictitious, test-only (hex of "test-fixture-not-a-real-vault-key")
+  salt: "abcdef0123456789" # fictitious, test-only hex salt
+  hash-salt: "0123456789abcdef" # fictitious, test-only

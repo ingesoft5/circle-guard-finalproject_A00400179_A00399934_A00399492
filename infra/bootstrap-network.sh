@@ -39,7 +39,7 @@ ensure_vpc() {
     aws_ ec2 wait vpc-available --vpc-ids "$id"
     created "vpc $name ($id) $VPC_CIDR"
   else
-    cg_dry_run create-vpc --cidr-block "$VPC_CIDR"
+    cg_dry_run create-vpc --cidr-block "$VPC_CIDR" --tag-specifications "$(cg_tag_spec vpc "$name" network shared)"
     planned "crear vpc $name $VPC_CIDR"
     VPC_ID=new
     return
@@ -66,7 +66,7 @@ ensure_igw() {
       --query InternetGateway.InternetGatewayId --output text)
     created "internet gateway $name ($id)"
   else
-    cg_dry_run create-internet-gateway
+    cg_dry_run create-internet-gateway --tag-specifications "$(cg_tag_spec internet-gateway "$name" network shared)"
     planned "crear internet gateway $name y adjuntarlo a la VPC"
     IGW_ID=new
     return
@@ -103,7 +103,8 @@ ensure_subnet() {
       --tag-specifications "$(cg_tag_spec subnet "$name" network "$tier")" --query Subnet.SubnetId --output text)
     created "subred $name ($id) $cidr"
   else
-    cg_dry_run create-subnet --vpc-id "$VPC_ID" --cidr-block "$cidr" --availability-zone "$AWS_AZ"
+    cg_dry_run create-subnet --vpc-id "$VPC_ID" --cidr-block "$cidr" --availability-zone "$AWS_AZ" \
+      --tag-specifications "$(cg_tag_spec subnet "$name" network "$tier")"
     planned "crear subred $name $cidr"
     SUBNET_ID[$tier]=new
     return
@@ -134,7 +135,7 @@ ensure_route_table() {
       --query RouteTable.RouteTableId --output text)
     created "tabla de rutas $name ($id)"
   else
-    cg_dry_run create-route-table --vpc-id "$VPC_ID"
+    cg_dry_run create-route-table --vpc-id "$VPC_ID" --tag-specifications "$(cg_tag_spec route-table "$name" network shared)"
     planned "crear tabla de rutas $name y asociar las 4 subredes"
     return
   fi
@@ -196,7 +197,8 @@ ensure_sg() {
       --tag-specifications "$(cg_tag_spec security-group "$name" "$key" "$tier")" --query GroupId --output text)
     created "grupo de seguridad $name ($id)"
   else
-    cg_dry_run create-security-group --vpc-id "$VPC_ID" --group-name "$name" --description "$(sg_description "$key")"
+    cg_dry_run create-security-group --vpc-id "$VPC_ID" --group-name "$name" --description "$(sg_description "$key")" \
+      --tag-specifications "$(cg_tag_spec security-group "$name" "$key" "$tier")"
     planned "crear grupo de seguridad $name"
     SG_ID[$key]=new
     return

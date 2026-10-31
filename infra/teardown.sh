@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # HU-01 · Stops or removes ONLY the resources created by the HU-01 scripts (tags
-# Project=circleguard and ManagedBy=infra-bootstrap). It always lists the affected resources
-# first; nothing is removed by default.
-#   --stop      stops the instances (data kept; only the EBS volumes keep being billed)
-#   --destroy   terminates the instances (their volumes and DATA are deleted) and removes the
-#               network and the key pairs; requires typing a confirmation phrase
-#   --purge-secrets  with --destroy, also deletes /circleguard/* from SSM (second phrase)
+# Project=circleguard and ManagedBy=infra-bootstrap). Like every other script, the default mode
+# is --plan: it lists the affected resources and what would be done, without changing anything.
+#   --stop --apply      stops the instances (data kept; only the EBS volumes keep being billed)
+#   --destroy --apply   terminates the instances (their volumes and DATA are deleted) and removes
+#                       the network and the key pairs; also requires typing a confirmation phrase
+#   --purge-secrets     with --destroy, also deletes /circleguard/* from SSM (second phrase)
 # --target local stops or removes the local tool stacks; Docker volumes are always kept.
 
 # shellcheck source=bootstrap/lib/common.sh
@@ -15,12 +15,13 @@ source "$INFRA_DIR/bootstrap/lib/aws.sh"
 
 usage() {
   cat <<'EOF'
-Uso: infra/teardown.sh --stop [--yes] | --destroy [--purge-secrets] [--target aws|local]
-  --stop           detiene las instancias de HU-01 (conserva datos; el EBS se sigue cobrando).
-  --destroy        elimina instancias (y sus datos), red y pares de llaves de HU-01.
-                   Exige escribir 'DESTRUIR circleguard' (o exportar CG_CONFIRM con esa frase).
-  --purge-secrets  junto con --destroy, borra también los secretos /circleguard/* de SSM.
-  --target local   detiene o elimina los stacks locales; los volúmenes Docker se conservan.
+Uso: infra/teardown.sh (--stop | --destroy [--purge-secrets]) [--plan | --apply [--yes]] [--target aws|local]
+  Sin --apply (por defecto --plan) solo muestra el inventario y lo que haría.
+  --stop --apply     detiene las instancias de HU-01 (conserva datos; el EBS se sigue cobrando).
+  --destroy --apply  elimina instancias (y sus datos), red y pares de llaves de HU-01.
+                     Exige escribir 'DESTRUIR circleguard' (o exportar CG_CONFIRM con esa frase).
+  --purge-secrets    junto con --destroy, borra también los secretos /circleguard/* de SSM.
+  --target local     detiene o elimina los stacks locales; los volúmenes Docker se conservan.
 EOF
 }
 
@@ -51,6 +52,10 @@ stop_aws() {
     unchanged "no hay instancias de $PROJECT en ejecución"
     return
   fi
+  if ! is_apply; then
+    planned "detener las instancias: $ids (use --apply para hacerlo)"
+    return
+  fi
   $CG_ASSUME_YES || confirm DETENER "Se detendrán: $ids."
   # shellcheck disable=SC2086
   aws_ ec2 stop-instances --instance-ids $ids >/dev/null
@@ -62,6 +67,12 @@ stop_aws() {
 destroy_aws() {
   local ids vpc sg rule_ids rtb assoc igw subnet key names
   inventory
+  if ! is_apply; then
+    planned "terminar instancias (y sus volúmenes), revocar reglas y eliminar grupos de seguridad, tabla de rutas, internet gateway, subredes, VPC y pares de llaves de $PROJECT"
+    if [[ " ${CG_ARGS[*]} " == *" --purge-secrets "* ]]; then planned "borrar los secretos /$PROJECT/* de SSM"; fi
+    info "modo --plan: no se eliminó nada (use --apply y confirme la frase para ejecutar)"
+    return
+  fi
   warn "--destroy elimina las instancias y sus volúmenes: se PIERDEN los datos de Jenkins, SonarQube y Nexus."
   confirm "DESTRUIR $PROJECT" "Esta operación no se puede deshacer."
 
@@ -137,8 +148,14 @@ local_stacks() {
         unchanged "stack local $project ya detenido"
         continue
       fi
+      if ! is_apply; then
+        planned "detener el stack local $project (use --apply)"
+        continue
+      fi
       (cd "$dir" && docker compose stop) >&2
       updated "stack local $project detenido"
+    elif ! is_apply; then
+      planned "eliminar los contenedores del stack local $project, conservando sus volúmenes (use --apply)"
     else
       (cd "$dir" && docker compose down) >&2
       updated "stack local $project eliminado (sus volúmenes Docker se conservan)"
@@ -160,7 +177,6 @@ for arg in "${CG_ARGS[@]}"; do
   esac
 done
 [[ -n "$ACTION" ]] || { usage; exit 1; }
-CG_MODE=$ACTION
 cg_start_log "teardown-$ACTION"
 if [[ "$CG_TARGET" == local ]]; then
   require_cmd docker
