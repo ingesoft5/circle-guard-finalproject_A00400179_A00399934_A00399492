@@ -1,0 +1,17 @@
+# Jenkins Configuration as Code of CircleGuard (HU-01).
+# ${...} values are resolved by JCasC from the container environment, which
+# infra/bootstrap-jenkins.sh fills from the secret manager. Nothing secret is versioned.
+jenkins:
+  systemMessage: "CircleGuard - Jenkins aprovisionado por infra/bootstrap-jenkins.sh (HU-01). Configuracion gestionada como codigo."
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_USER}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+unclassified:
+  location:
+    url: "${CG_JENKINS_URL}"

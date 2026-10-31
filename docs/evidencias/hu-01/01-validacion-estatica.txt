@@ -1,0 +1,41 @@
+# Validación estática de HU-01 - 2026-10-31T05:31Z - WSL 24.04, bash 5.2.21(1)-release
+
+## bash -n (18 scripts)
+  OK infra/bootstrap-all.sh
+  OK infra/bootstrap-env.sh
+  OK infra/bootstrap-jenkins.sh
+  OK infra/bootstrap-network.sh
+  OK infra/bootstrap-nexus.sh
+  OK infra/bootstrap-secrets.sh
+  OK infra/bootstrap-servers.sh
+  OK infra/bootstrap-sonarqube.sh
+  OK infra/bootstrap/host/setup-docker.sh
+  OK infra/bootstrap/jenkins/configure.sh
+  OK infra/bootstrap/lib/aws.sh
+  OK infra/bootstrap/lib/common.sh
+  OK infra/bootstrap/lib/remote.sh
+  OK infra/bootstrap/nexus/configure.sh
+  OK infra/bootstrap/sonarqube/configure.sh
+  OK infra/scan-secrets.sh
+  OK infra/teardown.sh
+  OK infra/verify-infra.sh
+  total OK: 18/18
+
+## CRLF en scripts
+  ninguno
+
+## shellcheck v0.11.0 (todas las severidades, siguiendo source)
+  0 hallazgos en 18 scripts
+
+## JSON / YAML
+  JSON OK infra/config/iam/hu01-operator-policy.json
+  JSON OK infra/bootstrap/nexus/repositories/circleguard-docker.json
+  YAML OK infra/bootstrap/jenkins/casc/jenkins.yaml
+  YAML OK services/circleguard-auth-service/src/main/resources/application.yml
+  YAML OK services/circleguard-dashboard-service/src/main/resources/application.yml
+  YAML OK services/circleguard-file-service/src/main/resources/application.yml
+  YAML OK services/circleguard-form-service/src/main/resources/application.yml
+  YAML OK services/circleguard-gateway-service/src/main/resources/application.yml
+  YAML OK services/circleguard-identity-service/src/main/resources/application.yml
+  YAML OK services/circleguard-notification-service/src/main/resources/application.yml
+  YAML OK services/circleguard-promotion-service/src/main/resources/application.yml

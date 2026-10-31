@@ -45,5 +45,12 @@ subprojects {
 
     tasks.withType<Test> {
         useJUnitPlatform()
+        // HU-01: application.yml no longer ships secrets. Tests get ephemeral random values that
+        // are never persisted; a value already exported in the environment takes precedence.
+        val random = java.security.SecureRandom()
+        fun randomHex(bytes: Int) = ByteArray(bytes).also { random.nextBytes(it) }.joinToString("") { "%02x".format(it) }
+        listOf("CG_JWT_SECRET" to 32, "CG_QR_SECRET" to 32, "CG_VAULT_SECRET" to 32, "CG_VAULT_SALT" to 8, "CG_VAULT_HASH_SALT" to 8)
+            .filter { (name, _) -> System.getenv(name) == null }
+            .forEach { (name, bytes) -> environment(name, randomHex(bytes)) }
     }
 }

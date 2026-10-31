@@ -3,8 +3,8 @@ spring:
     name: circleguard-form-service
   datasource:
     url: jdbc:postgresql://localhost:5432/circleguard_form
-    username: admin
-    password: password
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

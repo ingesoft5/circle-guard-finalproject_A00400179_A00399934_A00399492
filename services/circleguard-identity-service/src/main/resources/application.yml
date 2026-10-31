@@ -6,8 +6,8 @@ spring:
       enabled: true
   datasource:
     url: jdbc:postgresql://localhost:5432/circleguard_identity
-    username: admin
-    password: password
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,12 +17,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 vault:
-  secret: "746573742d7365637265742d33322d63686172732d6c6f6e672d313233343536"
-  salt: "deadbeef"
-  hash-salt: "12345678"
+  secret: "${CG_VAULT_SECRET}"
+  salt: "${CG_VAULT_SALT}"
+  hash-salt: "${CG_VAULT_HASH_SALT}"
 
 jwt:
-  secret: "my-super-secret-dev-key-32-chars-long-12345678"
+  secret: "${CG_JWT_SECRET}"
 
 server:
   port: 8083

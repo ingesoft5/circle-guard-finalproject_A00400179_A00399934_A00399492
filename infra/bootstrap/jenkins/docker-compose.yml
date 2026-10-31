@@ -1,0 +1,32 @@
+# Jenkins controller of CircleGuard (HU-01), configured entirely by JCasC (casc/jenkins.yaml):
+# no setup wizard and no manual steps. Variables come from the .env that
+# infra/bootstrap-jenkins.sh writes next to this file (mode 0600, never versioned).
+name: circleguard-jenkins
+
+services:
+  jenkins:
+    build:
+      context: .
+    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144
+    container_name: cg-jenkins
+    restart: ${RESTART_POLICY:-unless-stopped}
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      CASC_JENKINS_CONFIG: /usr/share/jenkins/casc/jenkins.yaml
+      JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER:?Defina JENKINS_ADMIN_USER}
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:?Defina JENKINS_ADMIN_PASSWORD}
+      CG_JENKINS_URL: ${CG_JENKINS_URL:?Defina CG_JENKINS_URL}
+    ports:
+      - "${BIND_ADDRESS:?Defina BIND_ADDRESS}:${JENKINS_HTTP_PORT:-8080}:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./casc/jenkins.yaml:/usr/share/jenkins/casc/jenkins.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:8080/login || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+volumes:
+  jenkins_home:

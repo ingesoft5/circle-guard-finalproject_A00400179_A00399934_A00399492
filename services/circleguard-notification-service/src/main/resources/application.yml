@@ -23,11 +23,11 @@ auth:
     url: ${AUTH_API_URL:http://localhost:8180}
 
 jwt:
-  secret: "my-super-secret-dev-key-32-chars-long-12345678"
+  secret: "${CG_JWT_SECRET}"
   expiration: 3600000
 
 qr:
-  secret: "my-qr-secret-key-for-dev-1234567890"
+  secret: "${CG_QR_SECRET}"
   expiration: 300
 
 server:
