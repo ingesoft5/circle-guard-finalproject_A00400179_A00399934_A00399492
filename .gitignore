@@ -63,8 +63,9 @@ services/*/bin/
 # Secret scanning reports (no values, but they reveal locations)
 infra/security/reports/
 
-# Infrastructure run logs (HU-01)
+# Infrastructure run logs (HU-01). Sanitized copies kept as evidence are versioned.
 infra/logs/
+!docs/evidencias/hu-01/local/*.log
 
 # Temporary files
 *.tmp

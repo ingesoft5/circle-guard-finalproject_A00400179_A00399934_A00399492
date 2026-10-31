@@ -28,7 +28,7 @@ IGW_ID=""
 
 ensure_vpc() {
   local name="$PROJECT-vpc" id cidr dns
-  id=$(cg_find describe-vpcs 'Vpcs[0].VpcId' "$name")
+  id=$(cg_find describe-vpcs 'Vpcs[].VpcId' "$name")
   if nz "$id"; then
     cidr=$(aws_ ec2 describe-vpcs --vpc-ids "$id" --query 'Vpcs[0].CidrBlock' --output text)
     [[ "$cidr" == "$VPC_CIDR" ]] || die "La VPC $name ($id) tiene CIDR $cidr y se esperaba $VPC_CIDR: no se modifica una VPC existente."
@@ -58,7 +58,7 @@ ensure_vpc() {
 
 ensure_igw() {
   local name="$PROJECT-igw" id attached
-  id=$(cg_find describe-internet-gateways 'InternetGateways[0].InternetGatewayId' "$name")
+  id=$(cg_find describe-internet-gateways 'InternetGateways[].InternetGatewayId' "$name")
   if nz "$id"; then
     unchanged "internet gateway $name ($id)"
   elif is_apply; then
@@ -93,7 +93,7 @@ ensure_subnet() {
     SUBNET_ID[$tier]=new
     return
   fi
-  id=$(cg_find describe-subnets 'Subnets[0].SubnetId' "$name")
+  id=$(cg_find describe-subnets 'Subnets[].SubnetId' "$name")
   if nz "$id"; then
     read -r actual az <<<"$(aws_ ec2 describe-subnets --subnet-ids "$id" --query 'Subnets[0].[CidrBlock,AvailabilityZone]' --output text)"
     [[ "$actual" == "$cidr" && "$az" == "$AWS_AZ" ]] || die "La subred $name ($id) es $actual en $az; se esperaba $cidr en $AWS_AZ."
@@ -126,7 +126,7 @@ ensure_route_table() {
     planned "crear tabla de rutas $name (0.0.0.0/0 -> internet gateway) y asociar las 4 subredes"
     return
   fi
-  id=$(cg_find describe-route-tables 'RouteTables[0].RouteTableId' "$name")
+  id=$(cg_find describe-route-tables 'RouteTables[].RouteTableId' "$name")
   if nz "$id"; then
     unchanged "tabla de rutas $name ($id)"
   elif is_apply; then
@@ -205,14 +205,12 @@ ensure_sg() {
 }
 
 # desired_rules: "<sg key> <in|out> <tcp port> <cidr:X|sg:KEY>" lines. Everything not listed
-# is denied: no rule ever connects two environments.
+# is denied: no rule ever connects two environments, and the tool UIs (plain HTTP) are never
+# opened to the Internet: administrators reach them through an SSH tunnel (infra/tunnel.sh).
 desired_rules() {
   local c k e
   for c in "${ADMIN[@]}"; do
     for k in "${SG_KEYS[@]}"; do echo "$k in 22 cidr:$c"; done
-    echo "jenkins in $JENKINS_HTTP_PORT cidr:$c"
-    echo "sonarqube in $SONARQUBE_HTTP_PORT cidr:$c"
-    echo "nexus in $NEXUS_HTTP_PORT cidr:$c"
   done
   echo "sonarqube in $SONARQUBE_HTTP_PORT sg:jenkins"
   echo "nexus in $NEXUS_HTTP_PORT sg:jenkins"

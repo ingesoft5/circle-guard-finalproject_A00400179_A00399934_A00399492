@@ -1,0 +1,7 @@
+05:26:03 INFO      registro de la ejecución: infra/logs/teardown-stop-20261031T052603Z.log (modo plan, destino local)
+05:26:03 UNCHANGED stack local circleguard-jenkins ya detenido
+05:26:03 UNCHANGED stack local circleguard-sonarqube ya detenido
+ Container cg-nexus Stopping 
+ Container cg-nexus Stopped 
+05:26:06 UPDATED   stack local circleguard-nexus detenido
+05:26:06 SUMMARY   teardown-stop created=0 updated=1 unchanged=2 planned=0

@@ -1,0 +1,72 @@
+# Mínimo privilegio: acciones de AWS usadas por los scripts frente a las políticas IAM (análisis estático)
+# hu01-operator-policy.json: 44 acciones · hu01-teardown-policy.json: 10 acciones · usadas: 50
+
+## Usadas SIN permiso (debe estar vacío): ninguna
+## Concedidas y no usadas (exceso): ninguna
+## Implícitas: ec2:CreateTags (requerida por --tag-specifications al crear; limitada con ec2:CreateAction)
+## KMS: solo a través de SSM (kms:ViaService = ssm.us-east-2.amazonaws.com): kms:Decrypt, kms:Encrypt, kms:GenerateDataKey
+## Destructivas (política teardown) usadas fuera de teardown.sh (debe estar vacío): ninguna
+## Destructivas presentes en la política del operador (debe estar vacío): ninguna
+
+## Restricciones adicionales de la política del operador
+  DescribeOnlyWhatTheScriptsRead             {"StringEquals": {"aws:RequestedRegion": "us-east-2"}}
+  CreateNetworkOnlyWithProjectTag            {"StringEquals": {"aws:RequestedRegion": "us-east-2", "aws:RequestTag/Project": "circleguard"}}
+  TagOnlyWhileCreating                       {"StringEquals": {"aws:RequestedRegion": "us-east-2", "ec2:CreateAction": ["CreateVpc", "CreateSubnet", "CreateInternetGateway", "CreateRouteTable", "CreateSecurityGroup", "ImportKeyPair", "RunInstances"]}}
+  RunOnlyApprovedInstanceTypesWithImdsV2     {"StringEquals": {"aws:RequestTag/Project": "circleguard", "ec2:InstanceType": ["t3.small", "t3.medium", "t3.large"], "ec2:MetadataHttpTokens": "required"}}
+  RunOnlyEncryptedSmallGp3Volumes            {"StringEquals": {"aws:RequestTag/Project": "circleguard", "ec2:VolumeType": "gp3"}, "Bool": {"ec2:Encrypted": "true"}, "NumericLessThanEquals": {"ec2:VolumeSize": "40"}}
+  RunOnlyCanonicalUbuntuImages               {"StringEquals": {"ec2:Owner": "099720109477"}}
+  RunOnlyInsideCircleGuardNetwork            {"StringEquals": {"aws:ResourceTag/Project": "circleguard"}}
+  OperateOnlyCircleGuardResources            {"StringEquals": {"aws:RequestedRegion": "us-east-2", "aws:ResourceTag/Project": "circleguard"}}
+  SecureStringThroughSsmOnly                 {"StringEquals": {"kms:ViaService": "ssm.us-east-2.amazonaws.com"}}
+
+## Detalle: acción -> política -> scripts
+  ec2:AssociateRouteTable                      operador  bootstrap-network.sh
+  ec2:AttachInternetGateway                    operador  bootstrap-network.sh
+  ec2:AuthorizeSecurityGroupEgress             operador  bootstrap-network.sh
+  ec2:AuthorizeSecurityGroupIngress            operador  bootstrap-network.sh
+  ec2:CreateInternetGateway                    operador  bootstrap-network.sh
+  ec2:CreateRoute                              operador  bootstrap-network.sh
+  ec2:CreateRouteTable                         operador  bootstrap-network.sh
+  ec2:CreateSecurityGroup                      operador  bootstrap-network.sh
+  ec2:CreateSubnet                             operador  bootstrap-network.sh
+  ec2:CreateVpc                                operador  bootstrap-network.sh
+  ec2:DeleteInternetGateway                    teardown  teardown.sh
+  ec2:DeleteKeyPair                            teardown  teardown.sh
+  ec2:DeleteRouteTable                         teardown  teardown.sh
+  ec2:DeleteSecurityGroup                      teardown  teardown.sh
+  ec2:DeleteSubnet                             teardown  teardown.sh
+  ec2:DeleteVpc                                teardown  teardown.sh
+  ec2:DescribeAvailabilityZones                operador  aws.sh
+  ec2:DescribeImages                           operador  bootstrap-servers.sh
+  ec2:DescribeInstanceCreditSpecifications     operador  bootstrap-servers.sh
+  ec2:DescribeInstances                        operador  aws.sh, bootstrap-servers.sh, teardown.sh, verify-infra.sh
+  ec2:DescribeInternetGateways                 operador  bootstrap-network.sh, teardown.sh, verify-infra.sh
+  ec2:DescribeKeyPairs                         operador  bootstrap-secrets.sh, bootstrap-servers.sh, teardown.sh, verify-infra.sh
+  ec2:DescribeRouteTables                      operador  bootstrap-network.sh, teardown.sh, verify-infra.sh
+  ec2:DescribeSecurityGroupRules               operador  bootstrap-network.sh, teardown.sh, verify-infra.sh
+  ec2:DescribeSecurityGroups                   operador  aws.sh, teardown.sh, verify-infra.sh
+  ec2:DescribeSubnets                          operador  bootstrap-network.sh, bootstrap-servers.sh, teardown.sh, verify-infra.sh
+  ec2:DescribeVolumes                          operador  teardown.sh
+  ec2:DescribeVpcAttribute                     operador  bootstrap-network.sh
+  ec2:DescribeVpcs                             operador  bootstrap-network.sh, teardown.sh, verify-infra.sh
+  ec2:DetachInternetGateway                    teardown  teardown.sh
+  ec2:DisassociateRouteTable                   teardown  teardown.sh
+  ec2:ImportKeyPair                            operador  bootstrap-secrets.sh
+  ec2:ModifyInstanceCreditSpecification        operador  bootstrap-servers.sh
+  ec2:ModifyInstanceMetadataOptions            operador  bootstrap-servers.sh
+  ec2:ModifySubnetAttribute                    operador  bootstrap-network.sh
+  ec2:ModifyVpcAttribute                       operador  bootstrap-network.sh
+  ec2:ReplaceRoute                             operador  bootstrap-network.sh
+  ec2:RevokeSecurityGroupEgress                operador  bootstrap-network.sh, teardown.sh
+  ec2:RevokeSecurityGroupIngress               operador  bootstrap-network.sh, teardown.sh
+  ec2:RunInstances                             operador  bootstrap-servers.sh
+  ec2:StartInstances                           operador  bootstrap-servers.sh
+  ec2:StopInstances                            operador  teardown.sh
+  ec2:TerminateInstances                       teardown  teardown.sh
+  pricing:GetProducts                          operador  bootstrap-servers.sh
+  ssm:AddTagsToResource                        operador  common.sh
+  ssm:DeleteParameters                         teardown  teardown.sh
+  ssm:GetParameter                             operador  bootstrap-servers.sh, common.sh
+  ssm:GetParametersByPath                      operador  teardown.sh, verify-infra.sh
+  ssm:PutParameter                             operador  common.sh
+  sts:GetCallerIdentity                        operador  aws.sh

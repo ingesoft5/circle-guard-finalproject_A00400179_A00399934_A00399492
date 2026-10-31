@@ -1,0 +1,14 @@
+05:20:34 INFO      registro de la ejecución: infra/logs/bootstrap-sonarqube-20261031T052034Z.log (modo apply, destino local)
+05:20:40 INFO      destino local: Docker 29.2.0
+05:20:40 UNCHANGED sonarqube: ~/.circleguard/local/sonarqube/docker-compose.yml
+05:20:40 UNCHANGED sonarqube: ~/.circleguard/local/sonarqube/.env (0600, contenido no mostrado)
+05:20:40 INFO      sonarqube: docker compose up -d (sin reconstruir: el contexto no cambió)
+ Container cg-sonarqube-db Running 
+ Container cg-sonarqube Running 
+ Container cg-sonarqube-db Waiting 
+ Container cg-sonarqube-db Healthy 
+05:20:42 UNCHANGED sonarqube: contenedores sin cambios (circleguard-sonarqube)
+05:20:43 UNCHANGED sonarqube: SonarQube en estado UP con base de datos PostgreSQL persistente
+05:20:43 UNCHANGED sonarqube: el administrador usa la contraseña gestionada
+05:20:43 UNCHANGED sonarqube: acceso anónimo denegado (HTTP 401, sonar.forceAuthentication)
+05:20:43 SUMMARY   bootstrap-sonarqube created=0 updated=0 unchanged=6 planned=0

@@ -147,7 +147,7 @@ ensure_server() {
     return 0
   fi
 
-  subnet=$(cg_find describe-subnets 'Subnets[0].SubnetId' "$PROJECT-subnet-$tier")
+  subnet=$(cg_find describe-subnets 'Subnets[].SubnetId' "$PROJECT-subnet-$tier")
   sg=$(cg_sg_id "$role")
   key="$PROJECT-$tier"
   RUN_ARGS=(--image-id "$AMI" --instance-type "$type" --key-name "$key" --subnet-id "$subnet" --security-group-ids "$sg"

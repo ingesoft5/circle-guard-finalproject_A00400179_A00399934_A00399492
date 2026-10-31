@@ -1,6 +1,6 @@
-# Validación estática de HU-01 - 2026-10-31T05:31Z - WSL 24.04, bash 5.2.21(1)-release
+# Validación estática de HU-01 - 2026-10-31T16:39Z - WSL 24.04, bash 5.2.21(1)-release
 
-## bash -n (18 scripts)
+## bash -n (19 scripts)
   OK infra/bootstrap-all.sh
   OK infra/bootstrap-env.sh
   OK infra/bootstrap-jenkins.sh
@@ -18,19 +18,24 @@
   OK infra/bootstrap/sonarqube/configure.sh
   OK infra/scan-secrets.sh
   OK infra/teardown.sh
+  OK infra/tunnel.sh
   OK infra/verify-infra.sh
-  total OK: 18/18
+  total OK: 19/19
 
 ## CRLF en scripts
   ninguno
 
 ## shellcheck v0.11.0 (todas las severidades, siguiendo source)
-  0 hallazgos en 18 scripts
+  0 hallazgos en 19 scripts
 
 ## JSON / YAML
   JSON OK infra/config/iam/hu01-operator-policy.json
+  JSON OK infra/config/iam/hu01-teardown-policy.json
   JSON OK infra/bootstrap/nexus/repositories/circleguard-docker.json
   YAML OK infra/bootstrap/jenkins/casc/jenkins.yaml
+  YAML OK infra/bootstrap/jenkins/docker-compose.yml
+  YAML OK infra/bootstrap/nexus/docker-compose.yml
+  YAML OK infra/bootstrap/sonarqube/docker-compose.yml
   YAML OK services/circleguard-auth-service/src/main/resources/application.yml
   YAML OK services/circleguard-dashboard-service/src/main/resources/application.yml
   YAML OK services/circleguard-file-service/src/main/resources/application.yml

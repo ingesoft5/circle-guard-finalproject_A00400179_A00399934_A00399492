@@ -143,7 +143,15 @@ cg_sync_secret() {
   want=$(printf '%s\n' "$content" | sha256sum | cut -d' ' -f1)
   have=$(_cg_remote_sha "$1")
   if [[ "$want" == "$have" ]]; then
-    unchanged "$HOST_ROLE: $1 (0600, contenido no mostrado)"
+    q=$(printf '%q' "$1")
+    if [[ $(cg_root "stat -c '%a' $q") == 600 ]]; then
+      unchanged "$HOST_ROLE: $1 (0600, contenido no mostrado)"
+    elif is_apply; then
+      cg_root "chmod 600 $q"
+      updated "$HOST_ROLE: permisos de $1 restaurados a 0600"
+    else
+      planned "$HOST_ROLE: restaurar permisos 0600 de $1"
+    fi
     return 0
   fi
   if ! is_apply; then
@@ -157,8 +165,7 @@ cg_sync_secret() {
 
 # cg_tool_bootstrap <tool>: shared flow of bootstrap-jenkins/sonarqube/nexus.sh.
 # The caller defines TOOL_FILES (relative to infra/bootstrap/<tool>/), TOOL_ENV (non-secret
-# KEY=VALUE lines) and TOOL_SECRETS (names in the tools/<tool> scope). CG_TOOL_ENV_HOOK may
-# name a function that fills TOOL_ENV once the host (and its public IP) is known.
+# KEY=VALUE lines) and TOOL_SECRETS (names in the tools/<tool> scope).
 cg_tool_bootstrap() {
   local tool=$1 src="$INFRA_DIR/bootstrap/$1" project="circleguard-$1" dir f env_content before after
   cg_target_preflight
@@ -166,7 +173,6 @@ cg_tool_bootstrap() {
     planned "$tool: preparar el host, publicar el stack y configurarlo cuando la instancia esté en ejecución"
     return 0
   fi
-  if [[ -n "${CG_TOOL_ENV_HOOK:-}" ]]; then "$CG_TOOL_ENV_HOOK"; fi
   if [[ "$CG_TARGET" == aws ]]; then
     cg_wait_ssh
     cg_run_on_host "$INFRA_DIR/bootstrap/host/setup-docker.sh" "$tool" "$CG_MODE"
@@ -182,7 +188,7 @@ cg_tool_bootstrap() {
   cg_sync_secret "$dir/.env" <<<"$env_content"
   env_content=""
 
-  before=$(cg_root "docker ps -a --filter label=com.docker.compose.project=$project --format '{{.Names}}={{.ID}}' | sort")
+  before=$(cg_root "docker ps -a --filter label=com.docker.compose.project=$project --format '{{.Names}}={{.ID}}={{.State}}' | sort")
   if is_apply; then
     # Images are rebuilt only when the build context changed: every BuildKit build gets a new
     # digest (provenance timestamp), so an unconditional --build would recreate containers.
@@ -190,7 +196,7 @@ cg_tool_bootstrap() {
     [[ "$CG_FILES_CHANGED" == true ]] && build=--build
     info "$tool: docker compose up -d ${build:-(sin reconstruir: el contexto no cambió)}"
     cg_root "cd $(printf '%q' "$dir") && docker compose up -d $build --remove-orphans --quiet-pull" >&2
-    after=$(cg_root "docker ps -a --filter label=com.docker.compose.project=$project --format '{{.Names}}={{.ID}}' | sort")
+    after=$(cg_root "docker ps -a --filter label=com.docker.compose.project=$project --format '{{.Names}}={{.ID}}={{.State}}' | sort")
     if [[ "$before" == "$after" ]]; then
       unchanged "$tool: contenedores sin cambios ($project)"
     elif [[ -z "$before" ]]; then

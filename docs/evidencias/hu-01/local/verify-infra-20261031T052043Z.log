@@ -1,0 +1,9 @@
+05:20:43 INFO      registro de la ejecución: infra/logs/verify-infra-20261031T052043Z.log (modo plan, destino local)
+05:20:48 INFO      destino local: Docker 29.2.0
+05:20:48 INFO      jenkins: stack local no desplegado o detenido; se omite
+05:20:49 PASS      sonarqube: estado del sistema
+05:20:49 PASS      sonarqube: contenedor saludable
+05:20:49 PASS      sonarqube: base de datos saludable
+05:20:49 PASS      sonarqube: acceso anónimo denegado
+05:20:49 INFO      nexus: stack local no desplegado o detenido; se omite
+05:20:49 SUMMARY   verify-infra pass=4 fail=0
