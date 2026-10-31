@@ -1,0 +1,15 @@
+05:10:52 INFO      registro de la ejecución: infra/logs/bootstrap-jenkins-20261031T051052Z.log (modo apply, destino local)
+05:10:55 INFO      destino local: Docker 29.2.0
+05:10:55 UNCHANGED jenkins: ~/.circleguard/local/jenkins/docker-compose.yml
+05:10:55 UNCHANGED jenkins: ~/.circleguard/local/jenkins/Dockerfile
+05:10:55 UNCHANGED jenkins: ~/.circleguard/local/jenkins/plugins.txt
+05:10:55 UNCHANGED jenkins: ~/.circleguard/local/jenkins/casc/jenkins.yaml
+05:10:55 UNCHANGED jenkins: ~/.circleguard/local/jenkins/.env (0600, contenido no mostrado)
+05:10:55 INFO      jenkins: docker compose up -d (sin reconstruir: el contexto no cambió)
+ Container cg-jenkins Running 
+05:10:56 UNCHANGED jenkins: contenedores sin cambios (circleguard-jenkins)
+05:10:57 UNCHANGED jenkins: Jenkins responde en /login sin asistente inicial (JCasC)
+05:10:57 UNCHANGED jenkins: el administrador gestionado inicia sesión (contraseña del gestor de secretos)
+05:10:57 UNCHANGED jenkins: acceso anónimo denegado (HTTP 403)
+05:10:57 UNCHANGED jenkins: plugin Configuration as Code activo
+05:10:57 SUMMARY   bootstrap-jenkins created=0 updated=0 unchanged=10 planned=0

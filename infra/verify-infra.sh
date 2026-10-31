@@ -32,6 +32,28 @@ expect() { # expect <description> <expected> <actual>
 remote() { cg_root "$1" 2>/dev/null || true; }
 local_code() { curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$1" || true; }
 
+# via_tunnel <local port> <remote port> <path>: HTTP code obtained through a temporary SSH
+# tunnel to the selected host (the administrative access path of infra/tunnel.sh).
+via_tunnel() {
+  local pid code
+  ssh -i "$HOST_KEY" -N -o BatchMode=yes -o ExitOnForwardFailure=yes -o StrictHostKeyChecking=accept-new \
+    -o HostKeyAlias="$HOST_ID" -o UserKnownHostsFile="$SSH_KEY_DIR/known_hosts" -o LogLevel=ERROR \
+    -L "127.0.0.1:$1:127.0.0.1:$2" "$SSH_USER@$HOST_PUBLIC_IP" &
+  pid=$!
+  sleep 3
+  code=$(local_code "http://127.0.0.1:$1$3")
+  kill "$pid" 2>/dev/null || true
+  wait "$pid" 2>/dev/null || true
+  echo "$code"
+}
+
+# admin_access <tool> <ip> <port> <path> <tunnel port>: UI unreachable from the Internet and
+# reachable through the SSH tunnel.
+admin_access() {
+  expect "$1: UI NO expuesta a Internet (puerto $3)" 000 "$(local_code "http://$2:$3$4")"
+  expect "$1: UI accesible por túnel SSH" 200 "$(via_tunnel "$5" "$3" "$4")"
+}
+
 # present <tool>: with --target local only the stacks that are running are checked (stacks are
 # validated one at a time on Docker Desktop and stopped afterwards).
 present() {
@@ -49,9 +71,7 @@ check_tools() {
     ip=$HOST_PUBLIC_IP
     expect "jenkins: /login en el host" 200 "$(remote "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:$JENKINS_HTTP_PORT/login")"
     expect "jenkins: contenedor saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-jenkins")"
-    if [[ "$CG_TARGET" == aws ]]; then
-      expect "jenkins: UI accesible para ADMIN_CIDRS" 200 "$(local_code "http://$ip:$JENKINS_HTTP_PORT/login")"
-    fi
+    if [[ "$CG_TARGET" == aws ]]; then admin_access jenkins "$ip" "$JENKINS_HTTP_PORT" /login 18080; fi
   else
     fail "jenkins: la instancia no está en ejecución"
   fi
@@ -63,9 +83,7 @@ check_tools() {
     expect "sonarqube: contenedor saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-sonarqube")"
     expect "sonarqube: base de datos saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-sonarqube-db")"
     expect "sonarqube: acceso anónimo denegado" 401 "$(remote "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:$SONARQUBE_HTTP_PORT/api/projects/search")"
-    if [[ "$CG_TARGET" == aws ]]; then
-      expect "sonarqube: UI accesible para ADMIN_CIDRS" 200 "$(local_code "http://$ip:$SONARQUBE_HTTP_PORT/api/system/status")"
-    fi
+    if [[ "$CG_TARGET" == aws ]]; then admin_access sonarqube "$ip" "$SONARQUBE_HTTP_PORT" /api/system/status 19000; fi
   else
     fail "sonarqube: la instancia no está en ejecución"
   fi
@@ -79,7 +97,7 @@ check_tools() {
     expect "nexus: contenedor saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-nexus")"
     expect "nexus: registro Docker exige autenticación" 401 "$(remote "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:$docker_port/v2/")"
     if [[ "$CG_TARGET" == aws ]]; then
-      expect "nexus: UI accesible para ADMIN_CIDRS" 200 "$(local_code "http://$ip:$NEXUS_HTTP_PORT/service/rest/v1/status")"
+      admin_access nexus "$ip" "$NEXUS_HTTP_PORT" /service/rest/v1/status 18081
       expect "nexus: registro Docker NO expuesto a Internet" 000 "$(local_code "http://$ip:$NEXUS_DOCKER_PORT/v2/")"
     fi
   else

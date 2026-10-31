@@ -13,7 +13,7 @@ flowchart TB
 
         subgraph vpc["VPC circleguard-vpc · 10.20.0.0/16 · us-east-2a · Internet Gateway (sin NAT Gateway)"]
             subgraph tools["Subred tools · 10.20.0.0/24"]
-                jenkins["Jenkins LTS 2.580.2<br/>t3.medium · :8080<br/>JCasC, sin asistente"]
+                jenkins["Jenkins LTS 2.580.2<br/>t3.medium · :8080 solo en 127.0.0.1<br/>JCasC, sin asistente"]
                 sonar["SonarQube 26.10 + PostgreSQL 16<br/>t3.large · :9000"]
                 nexus["Nexus Repository 3.96.5<br/>t3.large · :8081 UI/API<br/>:8082 registro circleguard-docker"]
             end
@@ -29,7 +29,7 @@ flowchart TB
         end
     end
 
-    ops -- "SSH 22 · UI 8080 / 9000 / 8081" --> tools
+    ops -- "SSH 22 · UIs solo por túnel SSH (infra/tunnel.sh)" --> tools
     ops -- "SSH 22" --> envdev & envstage & envprod
     ops -. "bootstrap: lee secretos<br/>y los envía por SSH" .-> ssm
     jenkins -- "9000" --> sonar
@@ -42,6 +42,8 @@ flowchart TB
 ```
 
 `x--x` = tráfico **bloqueado**: ningún grupo de seguridad permite comunicación entre ambientes.
+Desde Internet solo se acepta SSH (22) desde `ADMIN_CIDRS`: las interfaces HTTP de las
+herramientas no se exponen, y su administración pasa por un túnel SSH cifrado.
 
 ## Comunicación permitida
 
@@ -49,8 +51,8 @@ Grupos de seguridad de `infra/bootstrap-network.sh`. Todo lo que no figura aquí
 
 | Origen | Destino | Puerto | Propósito |
 |---|---|---|---|
-| `ADMIN_CIDRS` | todos los servidores | 22 | Aprovisionamiento por SSH |
-| `ADMIN_CIDRS` | jenkins · sonarqube · nexus | 8080 · 9000 · 8081 | Interfaces administrativas |
+| `ADMIN_CIDRS` | todos los servidores | 22 | Aprovisionamiento por SSH, y túnel SSH hacia las UIs de jenkins (8080), sonarqube (9000) y nexus (8081) |
+| Internet (incluido `ADMIN_CIDRS`) | 8080 · 9000 · 8081 · 8082 | — | **Denegado**: las UIs HTTP no se exponen |
 | `sg-jenkins` | `sg-sonarqube` | 9000 | Análisis estático (lo usará E1.4) |
 | `sg-jenkins` | `sg-nexus` | 8081 · 8082 | Publicación de artefactos e imágenes (E1.3/E1.4) |
 | `sg-jenkins` | `sg-env-{dev,stage,prod}` | 22 | Despliegue (E1.5) |

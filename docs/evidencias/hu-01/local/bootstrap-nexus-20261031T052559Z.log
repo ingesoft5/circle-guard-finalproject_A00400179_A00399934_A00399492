@@ -1,0 +1,12 @@
+05:25:59 INFO      registro de la ejecución: infra/logs/bootstrap-nexus-20261031T052559Z.log (modo apply, destino local)
+05:26:01 INFO      destino local: Docker 29.2.0
+05:26:01 UNCHANGED nexus: ~/.circleguard/local/nexus/docker-compose.yml
+05:26:01 UNCHANGED nexus: ~/.circleguard/local/nexus/repositories/circleguard-docker.json
+05:26:01 UNCHANGED nexus: ~/.circleguard/local/nexus/.env (0600, contenido no mostrado)
+05:26:01 INFO      nexus: docker compose up -d (sin reconstruir: el contexto no cambió)
+ Container cg-nexus Running 
+05:26:02 UNCHANGED nexus: contenedores sin cambios (circleguard-nexus)
+05:26:02 UNCHANGED nexus: Nexus en línea y admitiendo escritura
+05:26:02 UNCHANGED nexus: el administrador usa la contraseña gestionada
+05:26:02 INFO        nexus: ERROR: Nexus Community Edition exige aceptar su EULA. Revíselo y, si el equipo lo acepta, defina NEXUS_ACCEPT_EULA=true en infra/config/aws.env
+05:26:02 ERROR     falló configure.sh en nexus

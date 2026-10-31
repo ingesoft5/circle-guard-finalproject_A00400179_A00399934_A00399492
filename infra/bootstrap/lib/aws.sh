@@ -40,9 +40,18 @@ cg_tags() {
 }
 cg_tag_spec() { printf 'ResourceType=%s,Tags=[%s]' "$1" "$(cg_tags "$2" "$3" "$4")"; }
 
-# cg_find <describe-command> <query> <Name tag>: id of a tagged resource, or None.
+# cg_one <description> <ids>: the single id, None when absent; stops on duplicates instead of
+# picking one at random (a duplicate means somebody created resources outside the scripts).
+cg_one() {
+  local count
+  count=$(wc -w <<<"$2")
+  ((count <= 1)) || die "Hay $count recursos '$1' duplicados ($2): revíselos manualmente; no se elige uno al azar."
+  if ((count == 1)); then echo "$2" | tr -d '[:space:]'; else echo None; fi
+}
+
+# cg_find <describe-command> <list query> <Name tag>: id of the tagged resource, or None.
 cg_find() {
-  aws_ ec2 "$1" --filters "Name=tag:Project,Values=$PROJECT" "Name=tag:Name,Values=$3" --query "$2" --output text
+  cg_one "$3" "$(aws_ ec2 "$1" --filters "Name=tag:Project,Values=$PROJECT" "Name=tag:Name,Values=$3" --query "$2" --output text)"
 }
 
 # is_real <id>: a real AWS id (not a planned placeholder).
@@ -89,8 +98,8 @@ cg_instance_name() { echo "$PROJECT-$1"; }
 cg_sg_name() { echo "$PROJECT-sg-$1"; }
 
 cg_sg_id() {
-  aws_ ec2 describe-security-groups --filters "Name=tag:Project,Values=$PROJECT" "Name=group-name,Values=$(cg_sg_name "$1")" \
-    --query 'SecurityGroups[0].GroupId' --output text
+  cg_one "$(cg_sg_name "$1")" "$(aws_ ec2 describe-security-groups --filters "Name=tag:Project,Values=$PROJECT" \
+    "Name=group-name,Values=$(cg_sg_name "$1")" --query 'SecurityGroups[].GroupId' --output text)"
 }
 
 # cg_find_instances <role> [states]: "id state type public-ip private-ip" per instance.

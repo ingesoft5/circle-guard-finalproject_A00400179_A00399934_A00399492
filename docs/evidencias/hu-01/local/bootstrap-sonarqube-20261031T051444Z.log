@@ -1,0 +1,30 @@
+05:14:44 INFO      registro de la ejecución: infra/logs/bootstrap-sonarqube-20261031T051444Z.log (modo apply, destino local)
+05:14:46 INFO      destino local: Docker 29.2.0
+05:14:46 CREATED   sonarqube: ~/.circleguard/local/sonarqube/docker-compose.yml
+05:14:46 CREATED   sonarqube: ~/.circleguard/local/sonarqube/.env (0600, contenido no mostrado)
+05:14:46 INFO      sonarqube: docker compose up -d --build
+ Network circleguard-sonarqube_default Creating 
+ Network circleguard-sonarqube_default Created 
+ Volume circleguard-sonarqube_sonarqube_extensions Creating 
+ Volume circleguard-sonarqube_sonarqube_extensions Created 
+ Volume circleguard-sonarqube_sonarqube_logs Creating 
+ Volume circleguard-sonarqube_sonarqube_logs Created 
+ Volume circleguard-sonarqube_sonar_db_data Creating 
+ Volume circleguard-sonarqube_sonar_db_data Created 
+ Volume circleguard-sonarqube_sonarqube_data Creating 
+ Volume circleguard-sonarqube_sonarqube_data Created 
+ Container cg-sonarqube-db Creating 
+ Container cg-sonarqube-db Created 
+ Container cg-sonarqube Creating 
+ Container cg-sonarqube Created 
+ Container cg-sonarqube-db Starting 
+ Container cg-sonarqube-db Started 
+ Container cg-sonarqube-db Waiting 
+ Container cg-sonarqube-db Healthy 
+ Container cg-sonarqube Starting 
+ Container cg-sonarqube Started 
+05:15:00 CREATED   sonarqube: stack circleguard-sonarqube desplegado con Docker Compose
+05:18:04 UNCHANGED sonarqube: SonarQube en estado UP con base de datos PostgreSQL persistente
+05:18:04 UPDATED   sonarqube: contraseña de fábrica del administrador reemplazada por la gestionada
+05:18:04 UNCHANGED sonarqube: acceso anónimo denegado (HTTP 401, sonar.forceAuthentication)
+05:18:04 SUMMARY   bootstrap-sonarqube created=3 updated=1 unchanged=2 planned=0

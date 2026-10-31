@@ -1,0 +1,38 @@
+# Verificación de arranque de los 8 microservicios con las variables de entorno (criterio 6) - 2026-10-31
+#
+# Entorno: JARs (gradle bootJar) ejecutados en WSL Ubuntu 24.04 con JDK 21.0.13, sobre una copia del árbol de
+# trabajo fuera de OneDrive. PostgreSQL 16.15 EFÍMERO (contenedor --rm, datos en tmpfs, sin volúmenes) publicado
+# solo en 127.0.0.1:15432 para no chocar con el PostgreSQL nativo de Windows; init-db.sql creó las 6 bases.
+# Credenciales: C:\Users\<usuario>\.circleguard\dev.env y dev-app.env (fuera del repositorio y de OneDrive).
+# Se quitó a propósito el puente SPRING_DATASOURCE_*/SPRING_NEO4J_*/SPRING_LDAP_* para probar los ${...} del
+# YAML. Solo se sobrescribió SPRING_DATASOURCE_URL para apuntar al puerto 15432.
+# Ningún log de arranque contiene valores secretos (comparación directa: 0 de 15 logs).
+
+## A) CON las variables de entorno
+  auth          ARRANCÓ (Started AuthServiceApplication in 26.5 s)      | Flyway aplicado y pool JDBC conectado con POSTGRES_*
+  identity      ARRANCÓ (Started IdentityServiceApplication in 18.1 s)  | Flyway aplicado y pool JDBC conectado; CG_VAULT_* aceptados
+  dashboard     ARRANCÓ (Started DashboardApplication in 10.3 s)        | Flyway aplicado y pool JDBC conectado
+  form          ARRANCÓ (Started FormApplication in 19.4 s)             | Flyway aplicado y pool JDBC conectado
+  gateway       ARRANCÓ (Started GatewayServiceApplication in 8.9 s)    | CG_JWT_SECRET y CG_QR_SECRET resueltos
+  notification  ARRANCÓ (Started NotificationApplication in 11.5 s)
+  file          ARRANCÓ (Started FileApplication in 7.7 s)
+  promotion     PARCIAL: Flyway aplicado y pool JDBC conectado con POSTGRES_*; falla después en Neo4jSchemaConfig
+                (@PostConstruct) por "Unable to connect to localhost:7687": falta un Neo4j. La verificación completa
+                requiere la imagen neo4j:5.26.32-community (352 MB), pendiente de autorización.
+
+## B) SIN ninguna credencial en el entorno (comprueba que no existen valores por defecto inseguros)
+  auth          NO ARRANCA -> Could not resolve placeholder 'CG_JWT_SECRET'
+  identity      NO ARRANCA -> Could not resolve placeholder 'CG_JWT_SECRET'
+  gateway       NO ARRANCA -> Could not resolve placeholder 'CG_QR_SECRET'
+  promotion     NO ARRANCA -> Could not resolve placeholder 'CG_JWT_SECRET'
+  dashboard     NO ARRANCA -> PostgreSQL rechaza el usuario literal "${POSTGRES_USER}" (no hay usuario por defecto)
+  form          NO ARRANCA -> PostgreSQL rechaza el usuario literal "${POSTGRES_USER}"
+  notification  ARRANCA: no consume ninguna credencial de CircleGuard. Sus propiedades jwt.secret y qr.secret no
+                las usa ningún @Value del servicio, y su única URL por defecto (AUTH_API_URL) no es un secreto.
+
+## Valores por defecto revisados (código y YAML)
+  - application.yml: ninguna credencial con valor por defecto ${VAR:...}. Solo AUTH_API_URL (una URL) lo tiene.
+  - identity @Value("${vault.hash-salt:<valor por defecto>}"): queda anulado porque vault.hash-salt siempre está
+    definido como ${CG_VAULT_HASH_SALT}; sin la variable, el servicio no arranca en lugar de usar el valor fijo.
+  - notification: los valores por defecto de Gotify y Twilio (MOCK_TOKEN, AC_MOCK_SID) son marcadores de
+    integraciones simuladas, no credenciales; quedan fuera del alcance de HU-01.

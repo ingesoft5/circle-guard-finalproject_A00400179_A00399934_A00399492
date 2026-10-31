@@ -28,12 +28,14 @@ Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md
 | `bootstrap-jenkins.sh`, `bootstrap-sonarqube.sh`, `bootstrap-nexus.sh` | Preparan el host, despliegan el stack y configuran la herramienta por código o API |
 | `bootstrap-env.sh <env>` | Prepara el host de `dev`, `stage` o `prod` (Docker, Compose y `.env` propio) |
 | `verify-infra.sh` | Verificación de solo lectura: salud, aislamiento, credenciales y *snapshot* |
+| `tunnel.sh <herramienta>` | Acceso administrativo a Jenkins, SonarQube o Nexus por **túnel SSH** (las UIs nunca se exponen a Internet) |
 | `teardown.sh` | Detiene (`--stop`) o elimina (`--destroy`) **solo** los recursos de HU-01 |
 | `scan-secrets.sh` | Escaneo de secretos con Gitleaks (árbol de trabajo e historial) |
 | `config/aws.env` | Configuración **no secreta**: región, CIDR, tipos, puertos, precios de referencia |
 | `config/envs/<env>.env` | Subred, tipo y disco de cada ambiente |
 | `config/secrets.catalog` | **Nombres** y generadores de los secretos (nunca valores) |
-| `config/iam/hu01-operator-policy.json` | Política IAM de mínimo privilegio para el operador |
+| `config/iam/hu01-operator-policy.json` | Política IAM de mínimo privilegio para operar (crear, configurar, detener, verificar) |
+| `config/iam/hu01-teardown-policy.json` | Permisos destructivos, separados: se adjuntan **solo** para `teardown.sh --destroy` |
 | `bootstrap/lib/*.sh` | Librerías: utilidades comunes, AWS y transporte SSH/local |
 | `bootstrap/host/setup-docker.sh` | Se ejecuta en el host: Docker Engine, Compose, rotación de logs, `vm.max_map_count` |
 | `bootstrap/{jenkins,sonarqube,nexus}/` | Stacks Compose con imágenes fijadas y scripts de configuración por API |
@@ -67,6 +69,20 @@ Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md
    y configúrela con `aws configure --profile circleguard-hu01` (o `aws sso login`). Las credenciales
    quedan en `~/.aws`, fuera del repositorio. Indique el perfil en
    `infra/config/operator.local.env` (copie [`operator.local.env.example`](config/operator.local.env.example)).
+
+   La política del operador:
+   - solo permite las acciones que usan los scripts (contraste estático en
+     [`06-iam-minimo-privilegio.txt`](../docs/evidencias/hu-01/06-iam-minimo-privilegio.txt));
+   - funciona únicamente en `us-east-2`;
+   - exige la etiqueta `Project=circleguard` para crear o modificar recursos;
+   - limita EC2 a `t3.small`, `t3.medium` y `t3.large` con IMDSv2, y los discos a gp3 cifrados de
+     40 GiB como máximo;
+   - acepta solo AMIs de Canonical y secretos bajo `/circleguard/*`;
+   - **no incluye ninguna acción destructiva.**
+
+   Para destruir, adjunte temporalmente
+   [`hu01-teardown-policy.json`](config/iam/hu01-teardown-policy.json) y retírela al terminar.
+   Valide ambas políticas con IAM Access Analyzer antes de usarlas (es gratuito).
 4. **Docker Desktop** con integración WSL, solo para la validación local y para Gitleaks.
 5. Los scripts se ejecutan desde la raíz del repositorio con `bash infra/<script>.sh`.
 
@@ -110,6 +126,7 @@ Cada paso admite `--plan` (por defecto), que muestra lo que haría y valida perm
 | 5. Herramientas | `bash infra/bootstrap-{jenkins,sonarqube,nexus}.sh --apply` | Horas de instancia |
 | 6. Ambientes | `bash infra/bootstrap-env.sh dev --apply` (y `stage`, `prod`) | Horas de instancia |
 | 7. Verificación | `bash infra/verify-infra.sh` | Horas de instancia |
+| 8. Acceso administrativo | `bash infra/tunnel.sh jenkins` (o `sonarqube`, `nexus`) y abrir `http://localhost:8080` | Horas de instancia |
 
 **Comando único** (reconstrucción desde cero, después de aprobar el costo):
 ```bash
@@ -119,24 +136,62 @@ bash infra/bootstrap-all.sh --apply --approve all        # FACTURABLE: construye
 Con `--approve jenkins,sonarqube` solo se crean o inician esos servidores, y los pasos de los
 demás roles se omiten.
 
-### Estimación de costos (topología A, precios de referencia On-Demand en us-east-2)
+### Presupuesto por recurso (topología A, precios de referencia On-Demand en us-east-2)
 
-| Rol | Tipo | EC2 USD/h | IPv4 USD/h | EBS USD/mes | Total USD/h | USD/día (24 h) | USD/mes (730 h) |
-|---|---|---|---|---|---|---|---|
-| jenkins | t3.medium | 0.0416 | 0.005 | 2.40 (30 GiB) | 0.0499 | 1.20 | 36.42 |
-| sonarqube | t3.large | 0.0832 | 0.005 | 2.40 (30 GiB) | 0.0915 | 2.20 | 66.79 |
-| nexus | t3.large | 0.0832 | 0.005 | 3.20 (40 GiB) | 0.0926 | 2.22 | 67.59 |
-| env-dev / env-stage / env-prod | t3.small ×3 | 0.0208 c/u | 0.005 c/u | 1.60 c/u (20 GiB) | 0.0280 c/u | 0.67 c/u | 20.43 c/u |
-| **Total** | | | | **12.80** | **0.318** | **7.63** | **232.1** |
+Confirme las tarifas vigentes antes de cada sesión con `bash infra/bootstrap-servers.sh --prices`
+(AWS Pricing API, solo lectura).
 
-- **Encendida 24/7, la plataforma agota 100 USD en unos 13 días.** Trabaje por sesiones y
-  detenga las instancias al terminar.
-- Detenida, solo se cobra el EBS (unos 0.42 USD/día): las IPv4 automáticas se liberan y no hay
-  Elastic IP.
-- Créditos de CPU en modo `standard`, así que no hay cargos por ráfagas. No hay NAT Gateway ni
-  balanceadores.
-- `bash infra/bootstrap-servers.sh --prices` consulta la AWS Pricing API (solo lectura) para
-  confirmar las tarifas vigentes.
+| Recurso | Cantidad | Tarifa | Encendido (USD/h) | Detenido | USD/día (24 h encendido) | USD/mes (730 h) |
+|---|---|---|---|---|---|---|
+| EC2 Jenkins `t3.medium` | 1 | 0.0416/h | 0.0416 | 0 | 1.00 | 30.37 |
+| EC2 SonarQube `t3.large` | 1 | 0.0832/h | 0.0832 | 0 | 2.00 | 60.74 |
+| EC2 Nexus `t3.large` | 1 | 0.0832/h | 0.0832 | 0 | 2.00 | 60.74 |
+| EC2 dev, stage y prod `t3.small` | 3 | 0.0208/h c/u | 0.0624 | 0 | 1.50 | 45.55 |
+| IPv4 pública (automática, sin Elastic IP) | 6 | 0.005/h c/u | 0.0300 | 0 (se libera) | 0.72 | 21.90 |
+| EBS gp3 cifrado (30 + 30 + 40 + 3×20 GiB) | 160 GiB | 0.08/GB-mes | 0.0175 | **0.0175/h** | 0.42 | 12.80 |
+| Transferencia de salida | < 1 GB | 100 GB/mes gratis | 0 | 0 | 0 | 0 |
+| SSM Parameter Store estándar y KMS `aws/ssm` | 35 parámetros | Sin cargo (capa gratuita de KMS) | 0 | 0 | 0 | 0 |
+| VPC, subredes, IGW, rutas, grupos de seguridad, pares de llaves | — | Sin cargo | 0 | 0 | 0 | 0 |
+| NAT Gateway, balanceadores, Elastic IP, *snapshots*, ráfagas T3 | — | **No se usan** | 0 | 0 | 0 | 0 |
+| **Total** | | | **0.318** | **0.42 USD/día** | **7.63** | **232.1** |
+
+**Encendida 24/7, la plataforma agota los 100 USD en unos 13 días.** Por eso se trabaja por sesiones.
+
+### Ejecución por sesiones (estimación para completar HU-01)
+
+Cada sesión empieza con la autorización de las operaciones facturables que contiene y termina con
+`bash infra/teardown.sh --stop`. El costo por hora con las seis instancias encendidas es de 0.300
+USD (EC2 e IPv4), más el EBS, que se cobra mientras los volúmenes existen.
+
+| Sesión | Contenido | Operaciones facturables que se autorizan | Duración | Costo estimado |
+|---|---|---|---|---|
+| S0 | IAM, AWS CLI, `--prices`, `bootstrap-all.sh --plan`, Access Analyzer | Ninguna | — | 0 |
+| S1 | Red, secretos y llaves (`bootstrap-network.sh` y `bootstrap-secrets.sh --apply`) | Ninguna (recursos sin cargo) | — | 0 |
+| S2 | Jenkins: crear, configurar, verificar y segunda ejecución | `run-instances` jenkins | 1.5 h | 0.07 |
+| S3 | SonarQube y Nexus: crear y configurar (Nexus, según la decisión sobre el EULA) | `run-instances` sonarqube y nexus | 2 h | 0.35 |
+| S4 | dev, stage y prod: crear, configurar, aislamiento y credenciales | `run-instances` ×3 (con las 6 encendidas) | 2 h | 0.60 |
+| S5 | Idempotencia: `bootstrap-all` ×2 con *snapshot* y `diff` | `start-instances` ×6 si estaban detenidas | 1.5 h | 0.45 |
+| S6 | Reconstrucción desde cero: `teardown --destroy` y `bootstrap-all --approve all` | `terminate-instances` ×6 y `run-instances` ×6 | 3 h | 0.90 |
+| — | Contingencia para depuración y reintentos | Según la sesión | 6 h | 1.80 |
+| — | EBS mientras existe la plataforma (hasta 10 días) | — | 10 días | 4.21 |
+| **Total HU-01** | | | | **≈ 8.4 USD**, unos **12.6 USD con un 50 % de margen** |
+
+**Barreras de costo:**
+- Configure **AWS Budgets** con alertas en 10, 25, 50 y 75 USD (los dos primeros presupuestos no
+  tienen cargo; verifíquelo).
+- Al cerrar cada sesión, ejecute `teardown.sh --stop` y confirme que no queda nada encendido:
+  ```bash
+  aws ec2 describe-instances --region us-east-2 \
+    --filters Name=tag:Project,Values=circleguard Name=instance-state-name,Values=running \
+    --query 'Reservations[].Instances[].InstanceId'
+  ```
+- Si el consumo supera **25 USD** antes de terminar HU-01, se detiene todo y se revisa.
+- Al finalizar la evaluación, ejecute `teardown.sh --destroy`, como pide el enunciado.
+- **Fuera de HU-01:** E1.5 necesitará ambientes más grandes, porque `t3.small` no basta para los
+  servicios núcleo, y eso aumentará el costo por hora.
+- **[Por verificar] Rendimiento inicial:** las T3 en modo `standard` no reciben créditos de
+  lanzamiento, así que el primer arranque de SonarQube o Nexus puede ser lento. Los scripts esperan
+  hasta 10 minutos y se pueden reejecutar sin riesgo.
 
 ## Idempotencia: cómo demostrarla
 
@@ -166,6 +221,8 @@ bash infra/teardown.sh --stop               # detiene las instancias (conserva d
 bash infra/teardown.sh --destroy            # elimina instancias (y sus DATOS), red y pares de llaves de HU-01
 bash infra/teardown.sh --destroy --purge-secrets   # además borra /circleguard/* de SSM
 ```
+`--destroy` requiere tener adjunta, además de la del operador, la política
+`config/iam/hu01-teardown-policy.json`.
 - `--destroy` lista los recursos afectados y exige escribir `DESTRUIR circleguard`.
   `--purge-secrets` exige una segunda frase.
 - Solo actúa sobre recursos con las etiquetas `Project=circleguard` y `ManagedBy=infra-bootstrap`.
@@ -221,12 +278,16 @@ set -a; . "$HOME/.circleguard/dev.env"; . "$HOME/.circleguard/dev-app.env"; set 
 
 | Servidor | Puerto | Acceso permitido |
 |---|---|---|
-| todos | 22/tcp | `ADMIN_CIDRS`. Además, Jenkins puede llegar a dev, stage y prod |
-| jenkins | 8080/tcp | `ADMIN_CIDRS` |
-| sonarqube | 9000/tcp | `ADMIN_CIDRS` y Jenkins |
-| nexus | 8081/tcp (UI/API) | `ADMIN_CIDRS` y Jenkins |
-| nexus | 8082/tcp (registro Docker) | Jenkins, dev, stage y prod. **No** expuesto a Internet |
+| todos | 22/tcp | Solo `ADMIN_CIDRS` (llave SSH, sin contraseña). Además, Jenkins puede llegar a dev, stage y prod |
+| jenkins | 8080/tcp | Escucha **solo en 127.0.0.1** del host: se accede con `tunnel.sh jenkins` |
+| sonarqube | 9000/tcp | Jenkins por la red privada. Administración con `tunnel.sh sonarqube` |
+| nexus | 8081/tcp (UI/API) | Jenkins por la red privada. Administración con `tunnel.sh nexus` |
+| nexus | 8082/tcp (registro Docker) | Jenkins, dev, stage y prod por la red privada |
 | salida de todos | 80, 443/tcp | Paquetes, imágenes y plugins |
+
+**Ninguna interfaz HTTP está abierta a Internet**, ni siquiera para la IP del operador. El tráfico
+administrativo viaja cifrado dentro del túnel SSH, así que no hace falta TLS para la administración
+en la Parte 1. TLS para los servicios expuestos corresponde a E2.6.
 
 Volúmenes Docker: `circleguard-jenkins_jenkins_home`, `circleguard-sonarqube_{sonarqube_data,sonarqube_extensions,sonarqube_logs,sonar_db_data}`
 y `circleguard-nexus_nexus-data`. En EC2 viven en el EBS cifrado de cada instancia.
@@ -238,6 +299,7 @@ y `circleguard-nexus_nexus-data`. En EC2 viven en el EBS cifrado de cada instanc
 | `No hay credenciales AWS válidas` | Configure el perfil IAM (`aws configure --profile ...`) y `AWS_PROFILE` en `operator.local.env` |
 | `Se detectó la cuenta raíz` | Use una identidad IAM con la política de `config/iam/` |
 | `Sin acceso SSH` | Su IP pública cambió: vuelva a ejecutar `bootstrap-network.sh --apply` (actualiza `ADMIN_CIDRS`) o defínala |
+| La UI no responde en `http://<ip-publica>:8080` | Es intencional: las UIs no se exponen a Internet. Use `bash infra/tunnel.sh jenkins` y abra `http://localhost:8080` |
 | `No hay una instancia '<rol>' en ejecución` | Créela o iníciela con `bootstrap-servers.sh --apply --approve <rol>` |
 | `Nexus Community Edition exige aceptar su EULA` | Decisión del equipo: revise el EULA y defina `NEXUS_ACCEPT_EULA=true` |
 | El puerto 5432 está ocupado en Windows | Un PostgreSQL nativo usa ese puerto: el middleware local no puede publicar 5432 mientras siga activo. Deténgalo (es su decisión) o use otra máquina. Los scripts nunca lo tocan |
@@ -250,8 +312,10 @@ y `circleguard-nexus_nexus-data`. En EC2 viven en el EBS cifrado de cada instanc
 
 - Las credenciales del commit inicial `6f254ed` (ya publicado) se consideran **comprometidas**.
   Ningún ambiente las reutiliza y el historial no se reescribe (decisión del equipo).
-- Jenkins, SonarQube y Nexus se sirven por **HTTP** hasta E2.6 (TLS). El acceso está limitado a
-  `ADMIN_CIDRS`; no los abra a `0.0.0.0/0`.
+- Jenkins, SonarQube y Nexus hablan **HTTP**. Por eso sus puertos no se abren a Internet: la
+  administración pasa por el túnel SSH (`tunnel.sh`). No añada reglas que abran 8080, 9000 u 8081:
+  `bootstrap-network.sh` las revocaría en la siguiente ejecución. Exponer Jenkins a los *webhooks*
+  de GitHub (E1.4) exigirá TLS o un relé, y queda fuera de HU-01.
 - Los `.env` de los hosts (`0600 root`) y las variables de los contenedores son visibles para
   root en el host (`docker inspect`). Es un riesgo aceptado para la Parte 1.
 - **Riesgo residual:** las migraciones Flyway `V2`/`V3` de auth-service crean usuarios de prueba
