@@ -3,8 +3,8 @@ spring:
     name: circleguard-dashboard-service
   datasource:
     url: jdbc:postgresql://localhost:5432/circleguard_dashboard
-    username: admin
-    password: password
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

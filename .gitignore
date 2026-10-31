@@ -46,3 +46,27 @@ web-build/
 *_data/
 pgdata/
 neo4jdata/
+
+# Secrets and local environment (HU-01)
+.env
+.env.*
+!.env.example
+*.local.env
+*.pem
+*.key
+*.p12
+*.pfx
+
+# IDE build output inside services (contained copies of configuration)
+services/*/bin/
+
+# Secret scanning reports (no values, but they reveal locations)
+infra/security/reports/
+
+# Infrastructure run logs (HU-01)
+infra/logs/
+
+# Temporary files
+*.tmp
+*.swp
+*~

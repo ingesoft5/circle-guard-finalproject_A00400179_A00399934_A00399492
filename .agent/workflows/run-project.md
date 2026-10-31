@@ -13,7 +13,7 @@ Ensure Docker Desktop is running on Windows and integrated with WSL.
 
 // turbo
 2. Start the infrastructure (PostgreSQL, Neo4j, Kafka, Redis, LDAP):
-   `docker-compose -f docker-compose.dev.yml up -d`
+   `docker compose -f docker-compose.dev.yml --env-file "$HOME/.circleguard/dev.env" up -d` (credentials file outside the repository, created from `.env.example`)
 
 ### 2. Backend Services (Spring Boot)
 Ensure the Gradle wrapper has executable permissions:
@@ -42,5 +42,5 @@ Prepare and launch the React Native application.
 
 ### 4. Verification
 - **API Gateway:** [http://localhost:8080](http://localhost:8080)
-- **Neo4j Browser:** [http://localhost:7474](http://localhost:7474) (Login: `neo4j/password`)
+- **Neo4j Browser:** [http://localhost:7474](http://localhost:7474) (Login: user `neo4j`, password from `NEO4J_PASSWORD` in your local env file, see `.env.example`)
 - **Dashboard API:** [http://localhost:8085/api/v1/analytics/trends/{id}](http://localhost:8085/api/v1/analytics/trends/{id})

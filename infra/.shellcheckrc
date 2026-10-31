@@ -1,0 +1,6 @@
+# ShellCheck settings of the HU-01 scripts.
+# Follow the sourced libraries relative to each script's directory.
+source-path=SCRIPTDIR
+external-sources=true
+# AWS CLI --query expressions (JMESPath) use backtick literals inside single quotes on purpose.
+disable=SC2016

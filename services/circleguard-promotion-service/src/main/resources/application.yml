@@ -3,8 +3,8 @@ spring:
     name: circleguard-promotion-service
   datasource:
     url: jdbc:postgresql://localhost:5432/circleguard_promotion
-    username: admin
-    password: password
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -16,7 +16,7 @@ spring:
     uri: bolt://localhost:7687
     authentication:
       username: neo4j
-      password: password
+      password: ${NEO4J_PASSWORD}
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
@@ -35,5 +35,5 @@ server:
   port: 8088
 
 jwt:
-  secret: "my-super-secret-dev-key-32-chars-long-12345678"
+  secret: "${CG_JWT_SECRET}"
   expiration: 3600000

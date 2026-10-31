@@ -1,0 +1,14 @@
+# Gitleaks v8.30.1 - árbol de trabajo (archivos que se versionarían) - 20261031T053354Z
+# Valores redactados. ACTIVO=0 => PASS
+== worktree: 11 hallazgos PRUEBA=9 RESIDUAL=2
+  PRUEBA    services/circleguard-auth-service/src/test/resources/application.yml:2  [circleguard-yaml-literal-credential]
+  PRUEBA    services/circleguard-auth-service/src/test/resources/application.yml:12  [circleguard-yaml-literal-credential]
+  PRUEBA    services/circleguard-identity-service/src/test/java/com/circleguard/identity/util/IdentityEncryptionConverterTest.java:10  [generic-api-key]
+  PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:11  [circleguard-yaml-literal-credential]
+  PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:18  [circleguard-yaml-literal-credential]
+  PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:18  [circleguard-yaml-literal-credential]
+  PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:19  [circleguard-yaml-literal-credential]
+  PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:20  [circleguard-yaml-literal-credential]
+  PRUEBA    services/circleguard-promotion-service/src/test/resources/application-test.yml:14  [circleguard-yaml-literal-credential]
+  RESIDUAL  services/circleguard-auth-service/src/main/resources/db/migration/V2__seed_test_users.sql:2  [circleguard-sql-plaintext-password]
+  RESIDUAL  services/circleguard-auth-service/src/main/resources/db/migration/V3__fix_user_passwords.sql:2  [circleguard-sql-plaintext-password]

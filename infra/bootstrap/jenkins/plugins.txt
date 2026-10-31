@@ -1,0 +1,2 @@
+# Plugins required by HU-01 only (Configuration as Code). Pipeline plugins belong to E1.4.
+configuration-as-code:2144.ve8c697101488

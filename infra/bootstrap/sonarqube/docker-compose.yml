@@ -1,0 +1,56 @@
+# SonarQube Community Build with a persistent PostgreSQL database (HU-01).
+# The database is not published outside the Compose network. Variables come from the .env that
+# infra/bootstrap-sonarqube.sh writes next to this file (mode 0600, never versioned).
+name: circleguard-sonarqube
+
+services:
+  sonarqube:
+    image: sonarqube:26.10.0.133078-community
+    container_name: cg-sonarqube
+    restart: ${RESTART_POLICY:-unless-stopped}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD:?Defina SONAR_DB_PASSWORD}
+    ports:
+      - "${BIND_ADDRESS:?Defina BIND_ADDRESS}:${SONARQUBE_HTTP_PORT:-9000}:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    ulimits:
+      nofile:
+        soft: 131072
+        hard: 131072
+      nproc: 8192
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/api/system/status | grep -q '\"status\":\"UP\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 180s
+
+  db:
+    image: postgres:16.15
+    container_name: cg-sonarqube-db
+    restart: ${RESTART_POLICY:-unless-stopped}
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: ${SONAR_DB_PASSWORD:?Defina SONAR_DB_PASSWORD}
+      POSTGRES_DB: sonar
+    volumes:
+      - sonar_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar -d sonar"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonar_db_data:

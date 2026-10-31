@@ -1,0 +1,46 @@
+# Gitleaks configuration of CircleGuard (HU-01). Used by infra/scan-secrets.sh.
+# Extends the default ruleset with rules for low-entropy credentials: the default rules target
+# high-entropy tokens and would miss weak passwords written in YAML, Compose or docs.
+# There is deliberately no allowlist: findings in tests or in immutable migrations are reported
+# and classified by infra/scan-secrets.sh, never hidden.
+title = "circleguard"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "circleguard-yaml-literal-credential"
+description = "Literal credential or key in a YAML file (password, secret, salt)"
+regex = '''(?im)^[ \t]*(?:password|secret|salt|hash-salt|secret-key|access-key)[ \t]*:[ \t]*["']?([^\s"'$#{][^\s"'#]*)'''
+secretGroup = 1
+path = '''(?i)\.ya?ml$'''
+keywords = ["password", "secret", "salt", "access-key", "secret-key"]
+
+[[rules]]
+id = "circleguard-env-literal-credential"
+description = "Literal value assigned to an environment-style credential variable (Compose, .env, scripts)"
+# The name must not follow "${": ${VAR:?message} is an interpolation, not an assignment.
+regex = '''(?:^|[^{A-Za-z0-9_])[A-Z0-9_]*(?:PASSWORD|SECRET|SALT)[A-Z0-9_]*[ \t]*[:=][ \t]*["']?([^\s"'$(][^\s"']*)'''
+secretGroup = 1
+keywords = ["password", "secret", "salt"]
+
+[[rules]]
+id = "circleguard-neo4j-literal-auth"
+description = "Literal Neo4j credential (neo4j/<password>) in configuration or documentation"
+regex = '''(?:^|[\s:`'"=(,])neo4j/([^\s`'"$/{}()]{3,})'''
+secretGroup = 1
+keywords = ["neo4j/"]
+
+[[rules]]
+id = "circleguard-python-auth-tuple"
+description = "Literal (user, password) tuple in Python code"
+regex = '''(?i)\bauth\s*=\s*\(\s*['"][^'"]+['"]\s*,\s*['"]([^'"]+)['"]\s*\)'''
+secretGroup = 1
+keywords = ["auth"]
+
+[[rules]]
+id = "circleguard-sql-plaintext-password"
+description = "Plaintext password disclosed in a SQL comment"
+regex = '''(?im)^--.*\b(?:password is|hash for)\b\s*["']([^"']+)["']'''
+secretGroup = 1
+keywords = ["password", "hash for"]

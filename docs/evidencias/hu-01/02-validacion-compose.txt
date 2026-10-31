@@ -1,0 +1,29 @@
+# Validación de Docker Compose (sin imprimir la configuración resuelta) - 2026-10-31T05:32Z
+
+## docker-compose.dev.yml (criterio 4)
+  sin variables -> error while interpolating services.postgres.environment.POSTGRES_USER: required variable POSTGRES_USER is missing a value: Defina POSTGRES_USER en .env (ver .env.example)
+  con .env.example sin completar -> error while interpolating services.postgres.environment.POSTGRES_USER: required variable POSTGRES_USER is missing a value: Defina POSTGRES_USER en .env (ver .env.example)
+  con dev.env (fuera del repo y de OneDrive) -> config -q OK
+  NAME                  REQUIRED            DEFAULT VALUE       ALTERNATE VALUE
+  POSTGRES_USER         true                                    
+  POSTGRES_PASSWORD     true                                    
+  NEO4J_PASSWORD        true                                    
+  LDAP_ADMIN_PASSWORD   true                                    
+  servicios: kafka neo4j openldap postgres redis zookeeper 
+  volúmenes persistentes: pgdata neo4jdata 
+
+## infra/bootstrap/jenkins/docker-compose.yml
+  sin variables -> error while interpolating services.jenkins.environment.JENKINS_ADMIN_USER: required variable JENKINS_ADMIN_USER is missing a value: Defina JENKINS_ADMIN_USER
+  con valores ficticios en memoria -> config -q OK
+  jenkins    imagen=circleguard-jenkins:2.580.2-lts-jdk21-casc2144 puertos=['127.0.0.1:8080->8080'] volúmenes=['jenkins_home'] healthcheck=si
+
+## infra/bootstrap/sonarqube/docker-compose.yml
+  sin variables -> error while interpolating services.sonarqube.ports.[]: required variable BIND_ADDRESS is missing a value: Defina BIND_ADDRESS
+  con valores ficticios en memoria -> config -q OK
+  db         imagen=postgres:16.15 puertos=[] volúmenes=['sonar_db_data'] healthcheck=si
+  sonarqube  imagen=sonarqube:26.10.0.133078-community puertos=['127.0.0.1:9000->9000'] volúmenes=['sonarqube_data', 'sonarqube_extensions', 'sonarqube_logs'] healthcheck=si
+
+## infra/bootstrap/nexus/docker-compose.yml
+  sin variables -> error while interpolating services.nexus.ports.[]: required variable BIND_ADDRESS is missing a value: Defina BIND_ADDRESS
+  con valores ficticios en memoria -> config -q OK
+  nexus      imagen=sonatype/nexus3:3.96.5 puertos=['127.0.0.1:8081->8081', '127.0.0.1:8082->8082'] volúmenes=['nexus-data'] healthcheck=si

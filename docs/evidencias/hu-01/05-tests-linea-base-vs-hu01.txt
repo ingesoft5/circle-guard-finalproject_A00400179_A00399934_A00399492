@@ -1,0 +1,72 @@
+# Tests Gradle: línea base (HEAD 6f254ed) frente al árbol de trabajo con la externalización X-1
+# Ejecutados en WSL Ubuntu 24.04 sobre copias exportadas fuera de OneDrive, con JDK 21.0.13 y Gradle 8.14
+# (checksums SHA-256 verificados). En WSL, localhost:5432 está cerrado: los tests no podían alcanzar el
+# PostgreSQL nativo de Windows. Los secretos CG_* de los tests son efímeros (build.gradle.kts).
+
+## Línea base (sin cambios)
+gradle exit=1 duration=358s
+circleguard-auth-service                 tests=1 failures=0 errors=0 skipped=0 
+circleguard-dashboard-service            tests=2 failures=0 errors=0 skipped=0 
+circleguard-file-service                 tests=1 failures=0 errors=0 skipped=0 
+circleguard-form-service                 tests=6 failures=1 errors=0 skipped=0 
+    FAIL AttachmentControllerTest.shouldUploadFile() -> IllegalStateException
+circleguard-gateway-service              tests=3 failures=0 errors=0 skipped=0 
+circleguard-identity-service             tests=8 failures=4 errors=0 skipped=0 
+    FAIL IdentityVaultControllerTest.lookupIdentity_NotFound_Returns404ProblemDetail() -> IllegalStateException
+    FAIL IdentityVaultControllerTest.lookupIdentity_Unauthenticated_Returns401() -> IllegalStateException
+    FAIL IdentityVaultControllerTest.lookupIdentity_WithPermission_ReturnsRealIdentity() -> IllegalStateException
+    FAIL IdentityVaultControllerTest.lookupIdentity_WithoutPermission_Returns403() -> IllegalStateException
+circleguard-notification-service         tests=11 failures=0 errors=0 skipped=0 
+circleguard-promotion-service            tests=16 failures=5 errors=0 skipped=0 
+    FAIL AdministrativeCorrectionTest.initializationError -> IllegalStateException
+    FAIL HealthStatusControllerTest.resolve_WithPermission_CallsResolveStatus() -> AssertionError
+    FAIL HealthStatusControllerTest.confirmPositive_WithPermission_CallsUpdateStatus() -> AssertionError
+    FAIL HealthStatusReevaluationTest.initializationError -> IllegalStateException
+    FAIL PromotionPerformanceTest.initializationError -> IllegalStateException
+6 tests completed, 1 failed
+> Task :services:circleguard-form-service:test FAILED
+8 tests completed, 4 failed
+> Task :services:circleguard-identity-service:test FAILED
+16 tests completed, 5 failed
+> Task :services:circleguard-promotion-service:test FAILED
+FAILURE: Build completed with 3 failures.
+BUILD FAILED in 5m 59s
+
+## Después de X-1 (application.yml con ${...} y valores efímeros en los tests)
+gradle exit=1 duration=298s
+circleguard-auth-service                 tests=1 failures=0 errors=0 skipped=0 
+circleguard-dashboard-service            tests=2 failures=0 errors=0 skipped=0 
+circleguard-file-service                 tests=1 failures=0 errors=0 skipped=0 
+circleguard-form-service                 tests=6 failures=1 errors=0 skipped=0 
+    FAIL AttachmentControllerTest.shouldUploadFile() -> IllegalStateException
+circleguard-gateway-service              tests=3 failures=0 errors=0 skipped=0 
+circleguard-identity-service             tests=8 failures=4 errors=0 skipped=0 
+    FAIL IdentityVaultControllerTest.lookupIdentity_NotFound_Returns404ProblemDetail() -> IllegalStateException
+    FAIL IdentityVaultControllerTest.lookupIdentity_Unauthenticated_Returns401() -> IllegalStateException
+    FAIL IdentityVaultControllerTest.lookupIdentity_WithPermission_ReturnsRealIdentity() -> IllegalStateException
+    FAIL IdentityVaultControllerTest.lookupIdentity_WithoutPermission_Returns403() -> IllegalStateException
+circleguard-notification-service         tests=11 failures=0 errors=0 skipped=0 
+circleguard-promotion-service            tests=16 failures=5 errors=0 skipped=0 
+    FAIL AdministrativeCorrectionTest.initializationError -> IllegalStateException
+    FAIL HealthStatusControllerTest.resolve_WithPermission_CallsResolveStatus() -> AssertionError
+    FAIL HealthStatusControllerTest.confirmPositive_WithPermission_CallsUpdateStatus() -> AssertionError
+    FAIL HealthStatusReevaluationTest.initializationError -> IllegalStateException
+    FAIL PromotionPerformanceTest.initializationError -> IllegalStateException
+6 tests completed, 1 failed
+> Task :services:circleguard-form-service:test FAILED
+8 tests completed, 4 failed
+> Task :services:circleguard-identity-service:test FAILED
+16 tests completed, 5 failed
+> Task :services:circleguard-promotion-service:test FAILED
+FAILURE: Build completed with 3 failures.
+BUILD FAILED in 4m 57s
+
+## Comparación de resultados por test
+IDÉNTICOS: 48 tests, 38 pasan y los mismos 10 fallan antes y después (solo cambia la duración). Sin regresiones.
+
+## Causas raíz de los 10 fallos previos (ajenas a HU-01; corresponden a E1.6)
+- Testcontainers 1.19.3 no detecta Docker Engine 29 ('Could not find a valid Docker environment'):
+    AdministrativeCorrectionTest, HealthStatusReevaluationTest, PromotionPerformanceTest
+- HealthStatusControllerTest (2): 'Status expected:<200> but was:<403>' (configuración de seguridad del test)
+- AttachmentControllerTest.shouldUploadFile: 'Connection refused' (requiere middleware en ejecución)
+- IdentityVaultControllerTest (4): WeakKeyException de 104 bits en el fixture JWT del test de identity
