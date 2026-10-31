@@ -43,4 +43,4 @@ solo lectura).
 ## Pendiente de demostrar en AWS (Etapa 4, con autorización de costos)
 
 `bootstrap-all.sh --apply --approve all` dos veces, `verify-infra.sh --snapshot` antes y después
-(con `diff` vacío) y `teardown.sh --destroy` seguido de una reconstrucción.
+(con `diff` vacío) y `teardown.sh --destroy --apply` seguido de una reconstrucción.

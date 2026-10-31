@@ -1,4 +1,4 @@
-# Validación estática de HU-01 - 2026-10-31T16:39Z - WSL 24.04, bash 5.2.21(1)-release
+# Validación estática de HU-01 - 2026-10-31T19:56Z - WSL 24.04, bash 5.2.21(1)-release
 
 ## bash -n (19 scripts)
   OK infra/bootstrap-all.sh
@@ -37,10 +37,13 @@
   YAML OK infra/bootstrap/nexus/docker-compose.yml
   YAML OK infra/bootstrap/sonarqube/docker-compose.yml
   YAML OK services/circleguard-auth-service/src/main/resources/application.yml
+  YAML OK services/circleguard-auth-service/src/test/resources/application.yml
   YAML OK services/circleguard-dashboard-service/src/main/resources/application.yml
   YAML OK services/circleguard-file-service/src/main/resources/application.yml
   YAML OK services/circleguard-form-service/src/main/resources/application.yml
   YAML OK services/circleguard-gateway-service/src/main/resources/application.yml
   YAML OK services/circleguard-identity-service/src/main/resources/application.yml
+  YAML OK services/circleguard-identity-service/src/test/resources/application.yml
   YAML OK services/circleguard-notification-service/src/main/resources/application.yml
   YAML OK services/circleguard-promotion-service/src/main/resources/application.yml
+  YAML OK services/circleguard-promotion-service/src/test/resources/application-test.yml
