@@ -13,9 +13,9 @@ flowchart TB
 
         subgraph vpc["VPC circleguard-vpc · 10.20.0.0/16 · us-east-2a · Internet Gateway (sin NAT Gateway)"]
             subgraph tools["Subred tools · 10.20.0.0/24"]
-                jenkins["Jenkins LTS 2.580.2<br/>t3.medium · :8080 solo en 127.0.0.1<br/>JCasC, sin asistente"]
-                sonar["SonarQube 26.10 + PostgreSQL 16<br/>t3.large · :9000"]
-                nexus["Nexus Repository 3.96.5<br/>t3.large · :8081 UI/API<br/>:8082 registro circleguard-docker"]
+                jenkins["Jenkins LTS 2.580.2<br/>c7i-flex.large · :8080 solo en 127.0.0.1<br/>JCasC, sin asistente"]
+                sonar["SonarQube 26.10 + PostgreSQL 16<br/>m7i-flex.large · :9000"]
+                nexus["Nexus Repository 3.96.5<br/>m7i-flex.large · :8081 UI/API<br/>:8082 registro circleguard-docker"]
             end
             subgraph dev["Subred dev · 10.20.10.0/24"]
                 envdev["env-dev · t3.small<br/>Docker + Compose<br/>/opt/circleguard/dev/.env"]
@@ -80,9 +80,9 @@ hosts con `nc` y exige `closed` entre ambientes y `open` en los flujos permitido
 
 | Host | Subred | Tipo | Disco | Contenido |
 |---|---|---|---|---|
-| circleguard-jenkins | tools | t3.medium | 30 GiB gp3 cifrado | Jenkins (imagen derivada de la LTS con JCasC fijado) |
-| circleguard-sonarqube | tools | t3.large | 30 GiB gp3 cifrado | SonarQube Community Build y PostgreSQL 16 (sin puerto publicado) |
-| circleguard-nexus | tools | t3.large | 40 GiB gp3 cifrado | Nexus Repository CE y el repositorio Docker hosted `circleguard-docker` (etiquetas inmutables) |
+| circleguard-jenkins | tools | c7i-flex.large | 30 GiB gp3 cifrado | Jenkins (imagen derivada de la LTS con JCasC fijado) |
+| circleguard-sonarqube | tools | m7i-flex.large | 30 GiB gp3 cifrado | SonarQube Community Build y PostgreSQL 16 (sin puerto publicado) |
+| circleguard-nexus | tools | m7i-flex.large | 40 GiB gp3 cifrado | Nexus Repository CE y el repositorio Docker hosted `circleguard-docker` (etiquetas inmutables) |
 | circleguard-env-{dev,stage,prod} | dev · stage · prod | t3.small | 20 GiB gp3 cifrado | Docker Engine y Compose, listo para E1.3/E1.5 |
 
 Todas las instancias usan Ubuntu 24.04 LTS, IMDSv2 obligatorio, créditos de CPU `standard` e

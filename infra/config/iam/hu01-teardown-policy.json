@@ -6,6 +6,8 @@
       "Effect": "Allow",
       "Action": [
         "ec2:TerminateInstances",
+        "ec2:RevokeSecurityGroupIngress",
+        "ec2:RevokeSecurityGroupEgress",
         "ec2:DisassociateRouteTable",
         "ec2:DeleteRouteTable",
         "ec2:DetachInternetGateway",

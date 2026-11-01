@@ -1,0 +1,34 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AssumeTeardownRole",
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": "arn:aws:iam::<ACCOUNT_ID>:role/circleguard-hu01-teardown"
+    },
+    {
+      "Sid": "FindOwnMfaDeviceForTheAssumeRolePrompt",
+      "Effect": "Allow",
+      "Action": "iam:ListMFADevices",
+      "Resource": "arn:aws:iam::<ACCOUNT_ID>:user/${aws:username}"
+    },
+    {
+      "Sid": "CloudShellInUsEast2Only",
+      "Effect": "Allow",
+      "Action": [
+        "cloudshell:CreateEnvironment",
+        "cloudshell:CreateSession",
+        "cloudshell:DeleteEnvironment",
+        "cloudshell:DescribeEnvironments",
+        "cloudshell:GetEnvironmentStatus",
+        "cloudshell:GetFileUploadUrls",
+        "cloudshell:PutCredentials",
+        "cloudshell:StartEnvironment",
+        "cloudshell:StopEnvironment"
+      ],
+      "Resource": "*",
+      "Condition": { "StringEquals": { "aws:RequestedRegion": "us-east-2" } }
+    }
+  ]
+}

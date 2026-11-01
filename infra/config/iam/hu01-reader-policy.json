@@ -1,0 +1,67 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Identity",
+      "Effect": "Allow",
+      "Action": "sts:GetCallerIdentity",
+      "Resource": "*"
+    },
+    {
+      "Sid": "PricingReadOnly",
+      "Effect": "Allow",
+      "Action": "pricing:GetProducts",
+      "Resource": "*"
+    },
+    {
+      "Sid": "ValidatePoliciesWithAccessAnalyzer",
+      "Effect": "Allow",
+      "Action": "access-analyzer:ValidatePolicy",
+      "Resource": "*"
+    },
+    {
+      "Sid": "DescribeOnlyWhatTheScriptsRead",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeAvailabilityZones",
+        "ec2:DescribeImages",
+        "ec2:DescribeInstanceCreditSpecifications",
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceTypeOfferings",
+        "ec2:DescribeInternetGateways",
+        "ec2:DescribeKeyPairs",
+        "ec2:DescribeRouteTables",
+        "ec2:DescribeSecurityGroupRules",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeVolumes",
+        "ec2:DescribeVpcAttribute",
+        "ec2:DescribeVpcs"
+      ],
+      "Resource": "*",
+      "Condition": { "StringEquals": { "aws:RequestedRegion": "us-east-2" } }
+    },
+    {
+      "Sid": "StopOnlyCircleGuardInstances",
+      "Effect": "Allow",
+      "Action": "ec2:StopInstances",
+      "Resource": "arn:aws:ec2:us-east-2:<ACCOUNT_ID>:instance/*",
+      "Condition": { "StringEquals": { "aws:ResourceTag/Project": "circleguard" } }
+    },
+    {
+      "Sid": "SecretNamesWithoutDecryption",
+      "Effect": "Allow",
+      "Action": ["ssm:GetParameter", "ssm:GetParametersByPath"],
+      "Resource": [
+        "arn:aws:ssm:us-east-2:<ACCOUNT_ID>:parameter/circleguard",
+        "arn:aws:ssm:us-east-2:<ACCOUNT_ID>:parameter/circleguard/*"
+      ]
+    },
+    {
+      "Sid": "PublicUbuntuAmiParameter",
+      "Effect": "Allow",
+      "Action": "ssm:GetParameter",
+      "Resource": "arn:aws:ssm:us-east-2::parameter/aws/service/canonical/*"
+    }
+  ]
+}

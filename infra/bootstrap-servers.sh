@@ -3,8 +3,9 @@
 # stage, prod). BILLABLE. The default --plan mode prints the cost preview and validates
 # permissions with --dry-run. Creating or starting an instance requires
 #   --apply --approve <role>[,<role>...]   (or --approve all)
-# Instances use Ubuntu 24.04, encrypted gp3 volumes, IMDSv2 and "standard" CPU credits (no
-# surplus charges). Existing instances are never replaced or resized automatically.
+# Instances use Ubuntu 24.04, encrypted gp3 volumes, IMDSv2 and, on burstable T types, "standard"
+# CPU credits (no surplus charges; flex types have no credits). Existing instances are never
+# replaced or resized automatically.
 
 # shellcheck source=bootstrap/lib/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/bootstrap/lib/common.sh"
@@ -22,7 +23,7 @@ EOF
 }
 
 price_hour() {
-  local var="PRICE_HOUR_${1//./_}"
+  local var="PRICE_HOUR_${1//[.-]/_}"
   [[ -n "${!var:-}" ]] || die "No hay precio de referencia para $1 en infra/config/aws.env"
   printf '%s' "${!var}"
 }
@@ -47,6 +48,23 @@ cost_preview() {
       printf "  %-10s %-10s %7s %9s %9.2f %10.4f %9.2f %10.2f\n", "TOTAL", "", "", "", ebs_month, sum, sum * 24, sum * 730
       printf "  Detenidas solo se cobra el EBS: %.2f USD/día. Sin NAT Gateway ni Elastic IP.\n\n", ebs_month / 30.4
     }' >&2
+}
+
+# budget_preview: estimated cost of the instances this run would create or start, checked
+# against the HU-01 budget before anything billable happens (local estimate: lib/budget.sh).
+budget_preview() {
+  local role rows state new projected=0
+  for role in "${CG_ROLES[@]}"; do
+    is_approved "$role" || continue
+    rows=$(cg_find_instances "$role")
+    state=$(awk '{ print $2 }' <<<"$rows")
+    [[ "$state" == running || "$state" == pending ]] && continue
+    if [[ -z "$rows" ]]; then new=1; else new=0; fi
+    projected=$(awk -v p="$projected" -v h="$(price_hour "$(cg_role_type "$role")")" -v ip="$PRICE_IPV4_HOUR" \
+      -v s="$SESSION_HOURS_ESTIMATE" -v new="$new" -v gib="$(cg_role_volume "$role")" -v gbm="$PRICE_EBS_GP3_GB_MONTH" \
+      -v days="$EBS_RESERVE_DAYS" 'BEGIN { printf "%.4f", p + (h + ip) * s + new * gib * gbm / 730 * 24 * days }')
+  done
+  cg_budget_check "$projected" "esta ejecución (${SESSION_HOURS_ESTIMATE} h y EBS nuevo por ${EBS_RESERVE_DAYS} días)"
 }
 
 pricing_instance() {
@@ -87,10 +105,27 @@ resolve_ami() {
   info "AMI Ubuntu 24.04: $AMI (dispositivo raíz $ROOT_DEVICE)"
 }
 
-reconcile_instance() { # reconcile_instance <id> <name>: free settings that must not drift
+# check_offerings: every configured instance type must be offered in the selected zone.
+check_offerings() {
+  local types t offered
+  types=$(for r in "${CG_ROLES[@]}"; do cg_role_type "$r"; echo; done | sort -u | sed '/^$/d')
+  for t in $types; do
+    offered=$(aws_ ec2 describe-instance-type-offerings --location-type availability-zone \
+      --filters "Name=location,Values=$AWS_AZ" "Name=instance-type,Values=$t" \
+      --query 'InstanceTypeOfferings[0].InstanceType' --output text)
+    [[ "$offered" == "$t" ]] || die "El tipo $t no se ofrece en $AWS_AZ: cambiar la zona o el tipo requiere autorización."
+    info "tipo $t ofrecido en $AWS_AZ"
+  done
+}
+
+is_burstable() { [[ "$1" == t[0-9]* ]]; } # T instances have CPU credits; flex instances do not
+
+reconcile_instance() { # reconcile_instance <id> <name> <type>: free settings that must not drift
   local credits tokens
-  credits=$(aws_ ec2 describe-instance-credit-specifications --instance-ids "$1" --query 'InstanceCreditSpecifications[0].CpuCredits' --output text)
-  if [[ "$credits" == standard ]]; then
+  if ! is_burstable "$3"; then
+    unchanged "$2: $3 no usa créditos de CPU (sin cargos por ráfagas)"
+  elif credits=$(aws_ ec2 describe-instance-credit-specifications --instance-ids "$1" \
+    --query 'InstanceCreditSpecifications[0].CpuCredits' --output text) && [[ "$credits" == standard ]]; then
     unchanged "$2: créditos de CPU en modo standard (sin cargos por ráfagas)"
   elif is_apply; then
     aws_ ec2 modify-instance-credit-specification --instance-credit-specifications "InstanceId=$1,CpuCredits=standard" >/dev/null
@@ -126,19 +161,20 @@ ensure_server() {
       pending)
         aws_ ec2 wait instance-running --instance-ids "$id"
         unchanged "instancia $name ($id) en ejecución"
-        reconcile_instance "$id" "$name"
+        reconcile_instance "$id" "$name" "$current"
         ;;
       running)
         unchanged "instancia $name ($id) $current en ejecución"
-        reconcile_instance "$id" "$name"
+        reconcile_instance "$id" "$name" "$current"
         ;;
       stopping | stopped)
         if is_approved "$role"; then
           [[ "$state" == stopping ]] && aws_ ec2 wait instance-stopped --instance-ids "$id"
           aws_ ec2 start-instances --instance-ids "$id" >/dev/null
+          cg_ledger start "$role" "$id" "$current" "$volume"
           aws_ ec2 wait instance-running --instance-ids "$id"
           updated "instancia $name ($id) iniciada (FACTURABLE desde ahora)"
-          reconcile_instance "$id" "$name"
+          reconcile_instance "$id" "$name" "$current"
         else
           unchanged "instancia $name ($id) detenida (para iniciarla: --apply --approve $role)"
         fi
@@ -153,9 +189,9 @@ ensure_server() {
   RUN_ARGS=(--image-id "$AMI" --instance-type "$type" --key-name "$key" --subnet-id "$subnet" --security-group-ids "$sg"
     --block-device-mappings "DeviceName=$ROOT_DEVICE,Ebs={VolumeSize=$volume,VolumeType=gp3,Encrypted=true,DeleteOnTermination=true}"
     --metadata-options "HttpTokens=required,HttpEndpoint=enabled,HttpPutResponseHopLimit=1"
-    --credit-specification CpuCredits=standard
     --instance-initiated-shutdown-behavior stop
     --tag-specifications "$(cg_tag_spec instance "$name" "$role" "$tier")" "$(cg_tag_spec volume "$name-root" "$role" "$tier")")
+  if is_burstable "$type"; then RUN_ARGS+=(--credit-specification CpuCredits=standard); fi
 
   if ! is_approved "$role"; then
     if nz "$subnet" && nz "$sg"; then
@@ -170,6 +206,7 @@ ensure_server() {
   aws_ ec2 describe-key-pairs --key-names "$key" >/dev/null 2>&1 || die "Falta el par de llaves $key: ejecute infra/bootstrap-secrets.sh --apply"
   id=$(aws_ ec2 run-instances "${RUN_ARGS[@]}" --client-token "$PROJECT-$role-$subnet-$(date -u +%Y%m%d)" \
     --query 'Instances[0].InstanceId' --output text)
+  cg_ledger run "$role" "$id" "$type" "$volume"
   aws_ ec2 wait instance-running --instance-ids "$id"
   created "instancia $name ($id) $type creada (FACTURABLE desde ahora)"
 }
@@ -186,6 +223,8 @@ for role in ${CG_APPROVED//,/ }; do
   [[ "$role" == all ]] || cg_role_tier "$role" >/dev/null
 done
 cost_preview
+budget_preview
+check_offerings
 resolve_ami
 for role in "${CG_ROLES[@]}"; do ensure_server "$role"; done
 cg_summary bootstrap-servers

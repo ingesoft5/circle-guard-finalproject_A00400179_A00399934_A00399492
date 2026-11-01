@@ -12,6 +12,8 @@ cg_target_preflight() {
     info "destino local: Docker $(docker version --format '{{.Server.Version}}')"
   else
     require_cmd ssh sha256sum
+    # Tool and environment bootstraps read secrets with decryption: operator role.
+    [[ -n "$CG_CAPABILITY" ]] || cg_aws_use operate
     cg_aws_preflight
   fi
 }

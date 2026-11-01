@@ -1,0 +1,26 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AssumeReaderAndOperatorRoles",
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": [
+        "arn:aws:iam::<ACCOUNT_ID>:role/circleguard-hu01-reader",
+        "arn:aws:iam::<ACCOUNT_ID>:role/circleguard-hu01-operator"
+      ]
+    },
+    {
+      "Sid": "FindOwnMfaDeviceForTheCliProfile",
+      "Effect": "Allow",
+      "Action": "iam:ListMFADevices",
+      "Resource": "arn:aws:iam::<ACCOUNT_ID>:user/${aws:username}"
+    },
+    {
+      "Sid": "CliSessionsThroughAwsLogin",
+      "Effect": "Allow",
+      "Action": ["signin:AuthorizeOAuth2Access", "signin:CreateOAuth2Token"],
+      "Resource": "*"
+    }
+  ]
+}

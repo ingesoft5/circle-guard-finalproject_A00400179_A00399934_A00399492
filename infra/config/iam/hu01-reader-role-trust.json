@@ -1,0 +1,11 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "OperatorUserReadOnly",
+      "Effect": "Allow",
+      "Principal": { "AWS": "arn:aws:iam::<ACCOUNT_ID>:user/circleguard-hu01-operator" },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

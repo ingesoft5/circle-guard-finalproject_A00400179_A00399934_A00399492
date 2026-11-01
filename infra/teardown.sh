@@ -45,7 +45,7 @@ instance_ids() {
 }
 
 stop_aws() {
-  local ids
+  local ids id
   inventory
   ids=$(instance_ids pending,running)
   if [[ -z "$ids" ]]; then
@@ -61,11 +61,12 @@ stop_aws() {
   aws_ ec2 stop-instances --instance-ids $ids >/dev/null
   # shellcheck disable=SC2086
   aws_ ec2 wait instance-stopped --instance-ids $ids
+  for id in $ids; do cg_ledger stop - "$id" - -; done
   updated "instancias detenidas: $ids (los volúmenes EBS se conservan y se siguen cobrando)"
 }
 
 destroy_aws() {
-  local ids vpc sg rule_ids rtb assoc igw subnet key names
+  local ids id vpc sg rule_ids rtb assoc igw subnet key names
   inventory
   if ! is_apply; then
     planned "terminar instancias (y sus volúmenes), revocar reglas y eliminar grupos de seguridad, tabla de rutas, internet gateway, subredes, VPC y pares de llaves de $PROJECT"
@@ -82,6 +83,7 @@ destroy_aws() {
     aws_ ec2 terminate-instances --instance-ids $ids >/dev/null
     # shellcheck disable=SC2086
     aws_ ec2 wait instance-terminated --instance-ids $ids
+    for id in $ids; do cg_ledger terminate - "$id" - -; done
     updated "instancias terminadas: $ids"
   fi
   vpc=$(aws_ ec2 describe-vpcs --filters "${FILTERS[@]}" --query 'Vpcs[0].VpcId' --output text)
@@ -182,6 +184,9 @@ if [[ "$CG_TARGET" == local ]]; then
   require_cmd docker
   local_stacks "$ACTION"
 else
+  # Stopping only lowers costs and keeps data: the reader role may do it. Destroying needs the
+  # teardown role, which only the teardown user can assume (lib/session.sh).
+  if [[ "$ACTION" == destroy ]] && is_apply; then cg_aws_use destroy; else cg_aws_use read; fi
   cg_aws_preflight
   if [[ "$ACTION" == stop ]]; then stop_aws; else destroy_aws; fi
 fi

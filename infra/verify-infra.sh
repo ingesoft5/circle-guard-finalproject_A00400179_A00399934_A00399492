@@ -17,10 +17,15 @@ source "$INFRA_DIR/bootstrap/lib/remote.sh"
 
 usage() {
   cat <<'EOF'
-Uso: infra/verify-infra.sh [--health] [--isolation] [--credentials] [--snapshot] [--target aws|local]
+Uso: infra/verify-infra.sh [--health] [--isolation] [--credentials] [--snapshot] [--roles=<lista>] [--target aws|local]
   Solo lectura. Termina con código 1 si alguna comprobación falla.
+  --roles=jenkins,sonarqube,...  limita las comprobaciones a los roles creados en la sesión en curso.
 EOF
 }
+
+ROLES=""
+# wanted <role>: with --roles only the listed roles are checked; flows need both ends listed.
+wanted() { [[ -z "$ROLES" || ",$ROLES," == *",$1,"* ]]; }
 
 PASS=0
 FAIL=0
@@ -57,6 +62,10 @@ admin_access() {
 # present <tool>: with --target local only the stacks that are running are checked (stacks are
 # validated one at a time on Docker Desktop and stopped afterwards).
 present() {
+  if ! wanted "$1"; then
+    info "$1: fuera de --roles; se omite"
+    return 1
+  fi
   [[ "$CG_TARGET" == aws ]] && return 0
   [[ -n "$(docker ps -q --filter "name=^cg-$1$" --filter status=running)" ]] && return 0
   info "$1: stack local no desplegado o detenido; se omite"
@@ -108,6 +117,7 @@ check_tools() {
 check_envs() {
   local e
   for e in "${CG_ENVS[@]}"; do
+    wanted "env-$e" || continue
     if ! cg_resolve_host "env-$e" >/dev/null; then
       fail "env-$e: la instancia no está en ejecución"
       continue
@@ -124,6 +134,7 @@ private_ip() { cg_find_instances "$1" running | awk '{print $5}'; }
 # flow <description> <open|closed> <from role> <to role> <port>
 flow() {
   local target result
+  if ! wanted "$3" || ! wanted "$4"; then return 0; fi
   target=$(private_ip "$4")
   nz "$target" || { fail "$1 (la instancia $4 no está en ejecución)"; return; }
   cg_resolve_host "$3" >/dev/null || { fail "$1 (la instancia $3 no está en ejecución)"; return; }
@@ -155,7 +166,7 @@ check_credentials() {
     expect "credenciales: $name distinto en dev, stage y prod" 3 "$distinct"
   done
   for tool in jenkins sonarqube nexus; do
-    if cg_resolve_host "$tool" >/dev/null; then
+    if wanted "$tool" && cg_resolve_host "$tool" >/dev/null; then
       expect "credenciales: .env de $tool con permisos 0600 root" "600 root" "$(remote "stat -c '%a %U' /opt/circleguard/$tool/.env")"
     fi
   done
@@ -206,10 +217,20 @@ snapshot() {
 
 cg_parse_flags "$@"
 cg_load_config
-MODES=("${CG_ARGS[@]}")
+MODES=()
+for arg in "${CG_ARGS[@]}"; do
+  if [[ "$arg" == --roles=* ]]; then
+    ROLES=${arg#--roles=}
+    for r in ${ROLES//,/ }; do cg_role_tier "$r" >/dev/null; done
+  else
+    MODES+=("$arg")
+  fi
+done
 if ((${#MODES[@]} == 0)); then
   if [[ "$CG_TARGET" == aws ]]; then MODES=(--health --isolation --credentials); else MODES=(--health); fi
 fi
+# The checks read hosts and secrets (with decryption): operator role.
+if [[ "$CG_TARGET" == aws ]]; then cg_aws_use operate; fi
 if [[ " ${MODES[*]} " == *" --snapshot "* ]]; then
   cg_aws_preflight 2>/dev/null
   snapshot
