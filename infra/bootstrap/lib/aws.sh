@@ -2,22 +2,27 @@
 # AWS helpers of the HU-01 scripts: identity checks, tags, lookups and roles.
 # Requires common.sh to be sourced first.
 
+# shellcheck source=session.sh
+source "$CG_LIB_DIR/session.sh"
+# shellcheck source=budget.sh
+source "$CG_LIB_DIR/budget.sh"
+
 # shellcheck disable=SC2034 # used by the scripts that source this library
 CG_ROLES=(jenkins sonarqube nexus env-dev env-stage env-prod)
 
-# cg_aws_preflight: validates tools, identity (never the root user), region and zone.
+# cg_aws_preflight: validates tools, the identity of the capability the run needs (by default
+# read for --plan and operate for --apply; see lib/session.sh), region and zone. The scripts
+# never prompt nor handle passwords or MFA codes: those are typed only on the AWS sign-in page.
 cg_aws_preflight() {
-  require_cmd aws python3 curl
-  local arn account state
-  arn=$(aws_ sts get-caller-identity --query Arn --output text 2>/dev/null) ||
-    die "No hay credenciales AWS válidas: configure una identidad IAM (aws configure / aws sso login)."
-  account=$(aws_ sts get-caller-identity --query Account --output text)
-  [[ "$arn" == *":root" ]] &&
-    die "Se detectó la cuenta raíz de AWS. Use una identidad IAM con la política infra/config/iam/hu01-operator-policy.json."
+  require_cmd python3 curl
+  local account state
+  [[ -n "$CG_CAPABILITY" ]] || if is_apply; then cg_aws_use operate; else cg_aws_use read; fi
+  cg_aws_identity
+  account=$(cut -d: -f5 <<<"$CG_AWS_ARN")
   state=$(aws_ ec2 describe-availability-zones --zone-names "$AWS_AZ" --query 'AvailabilityZones[0].State' --output text 2>/dev/null) ||
     die "No se pudo validar la zona $AWS_AZ en $AWS_REGION (región deshabilitada o sin permiso ec2:DescribeAvailabilityZones)."
   [[ "$state" == available ]] || die "La zona $AWS_AZ no está disponible (estado: $state)."
-  info "identidad AWS ${arn##*:} · cuenta ****${account: -4} · región $AWS_REGION · zona $AWS_AZ"
+  info "identidad AWS ${CG_AWS_ARN##*:} · capacidad $CG_CAPABILITY · cuenta ****${account: -4} · región $AWS_REGION · zona $AWS_AZ"
 }
 
 # cg_admin_cidrs: CIDRs allowed to reach SSH and the tool UIs (one per line).
@@ -58,11 +63,16 @@ cg_find() {
 is_real() { [[ "${1:-}" =~ ^[a-z]+-[0-9a-f]+$ ]]; }
 
 # cg_dry_run <ec2 subcommand> [args]: validates permissions and parameters without creating.
+# With the reader role a denial is expected: the check is then left for the operator role.
 cg_dry_run() {
   local out
   if out=$(aws_ ec2 "$@" --dry-run 2>&1); then return 0; fi
   if [[ "$out" == *DryRunOperation* ]]; then
     info "permiso verificado con --dry-run: ec2 $1"
+    return 0
+  fi
+  if [[ "$CG_CAPABILITY" == read && "$out" == *UnauthorizedOperation* ]]; then
+    info "dry-run de ec2 $1 no verificable con el rol de lectura: se valida con el rol de operación"
     return 0
   fi
   die "dry-run de ec2 $1 rechazado: ${out%%$'\n'*}"

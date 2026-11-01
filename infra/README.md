@@ -31,12 +31,14 @@ Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md
 | `tunnel.sh <herramienta>` | Acceso administrativo a Jenkins, SonarQube o Nexus por **túnel SSH** (las UIs nunca se exponen a Internet) |
 | `teardown.sh` | Detiene (`--stop`) o elimina (`--destroy`) **solo** los recursos de HU-01 |
 | `scan-secrets.sh` | Escaneo de secretos con Gitleaks (árbol de trabajo e historial) |
+| `aws-session.sh` | Sesiones AWS temporales: abre la página oficial de AWS (`aws login`); estado y cierre de sesión |
+| `bootstrap-iam.sh` | Inspección de solo lectura de la cuenta, validación con Access Analyzer y creación de los roles y usuarios de HU-01 (con aprobación) |
 | `config/aws.env` | Configuración **no secreta**: región, CIDR, tipos, puertos, precios de referencia |
 | `config/envs/<env>.env` | Subred, tipo y disco de cada ambiente |
 | `config/secrets.catalog` | **Nombres** y generadores de los secretos (nunca valores) |
-| `config/iam/hu01-operator-policy.json` | Política IAM de mínimo privilegio para operar (crear, configurar, detener, verificar) |
-| `config/iam/hu01-teardown-policy.json` | Permisos destructivos, separados: se adjuntan **solo** para `teardown.sh --destroy` |
-| `bootstrap/lib/*.sh` | Librerías: utilidades comunes, AWS y transporte SSH/local |
+| `config/iam/hu01-{reader,operator,teardown}-policy.json` | Permisos de los tres roles: lectura y detener; crear e iniciar sin borrar; destruir solo lo etiquetado |
+| `config/iam/hu01-*-role-trust.json`, `hu01-*-user-policy.json` | Quién asume cada rol y con qué MFA; permisos mínimos de los dos usuarios (sin claves) |
+| `bootstrap/lib/*.sh` | Librerías: utilidades comunes, AWS, sesiones, estimación de costos y transporte SSH/local |
 | `bootstrap/host/setup-docker.sh` | Se ejecuta en el host: Docker Engine, Compose, rotación de logs, `vm.max_map_count` |
 | `bootstrap/{jenkins,sonarqube,nexus}/` | Stacks Compose con imágenes fijadas y scripts de configuración por API |
 
@@ -64,34 +66,123 @@ Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md
    cd /tmp && python3 -c "import zipfile,os; z=zipfile.ZipFile('awscliv2.zip'); [os.chmod(z.extract(i,'.'), (i.external_attr>>16)&0o777 or 0o644) for i in z.infolist()]"
    ./aws/install -i ~/.local/aws-cli -b ~/.local/bin && export PATH="$HOME/.local/bin:$PATH" && aws --version
    ```
-3. **Identidad IAM del operador. No use la cuenta raíz: los scripts la rechazan.** Créela en la
-   consola con la política [`config/iam/hu01-operator-policy.json`](config/iam/hu01-operator-policy.json)
-   y configúrela con `aws configure --profile circleguard-hu01` (o `aws sso login`). Las credenciales
-   quedan en `~/.aws`, fuera del repositorio. Indique el perfil en
-   `infra/config/operator.local.env` (copie [`operator.local.env.example`](config/operator.local.env.example)).
+3. **Acceso a AWS sin claves permanentes.** Ver
+   [Acceso a AWS](#acceso-a-aws-sesiones-temporales-y-autorización-técnica). Cada script elige
+   por sí mismo el perfil de la capacidad que necesita.
 
    La política del operador:
    - solo permite las acciones que usan los scripts (contraste estático en
      [`06-iam-minimo-privilegio.txt`](../docs/evidencias/hu-01/06-iam-minimo-privilegio.txt));
    - funciona únicamente en `us-east-2`;
    - exige la etiqueta `Project=circleguard` para crear o modificar recursos;
-   - limita EC2 a `t3.small`, `t3.medium` y `t3.large` con IMDSv2, y los discos a gp3 cifrados de
+   - limita EC2 a `t3.small`, `c7i-flex.large` y `m7i-flex.large` (aptos para el plan gratuito) con IMDSv2, y los discos a gp3 cifrados de
      40 GiB como máximo;
    - acepta solo AMIs de Canonical y secretos bajo `/circleguard/*`;
    - **no incluye ninguna acción destructiva.**
 
-   Para destruir, adjunte temporalmente
-   [`hu01-teardown-policy.json`](config/iam/hu01-teardown-policy.json) y retírela al terminar.
-   Valide ambas políticas con IAM Access Analyzer antes de usarlas (es gratuito).
+   Destruir solo es posible con el rol de teardown, que asume **otro usuario**
+   ([`hu01-teardown-policy.json`](config/iam/hu01-teardown-policy.json)).
 4. **Docker Desktop** con integración WSL, solo para la validación local y para Gitleaks.
 5. Los scripts se ejecutan desde la raíz del repositorio con `bash infra/<script>.sh`.
+
+## Acceso a AWS: sesiones temporales y autorización técnica
+
+No se crean ni se aceptan claves de acceso permanentes: los scripts se detienen si encuentran una.
+Las contraseñas y los códigos MFA se escriben **solo en la página oficial de AWS**, que
+`aws-session.sh` abre en el navegador con `aws login`. Ningún script, terminal, archivo ni chat
+los recibe. La configuración y las sesiones de la CLI viven en `~/.circleguard/aws` (modo `0700`,
+sistema de archivos de WSL), no en `~/.aws`.
+
+### Identidades
+
+| Identidad | Se obtiene con | Puede | Límite impuesto por AWS |
+|---|---|---|---|
+| `bootstrap`: la identidad que ya usa la cuenta | `aws-session.sh login bootstrap` | Inspección de solo lectura y `bootstrap-iam.sh` | Credenciales temporales; la sesión se cierra al terminar |
+| Rol `circleguard-hu01-reader` | Sesión del usuario operador | Describir, consultar precios, Access Analyzer y **detener** instancias | Solo el usuario operador |
+| Rol `circleguard-hu01-operator` | Sesión del usuario operador + **código MFA en la llamada `AssumeRole`** | Crear e iniciar recursos acotados; **ningún borrado** | MFA obligatorio; sesiones de 1 h como máximo |
+| Rol `circleguard-hu01-teardown` | **Usuario de teardown** + código MFA de menos de 15 min | Borrar solo recursos con `Project=circleguard` | MFA obligatorio; sesiones de 1 h como máximo |
+
+Los usuarios IAM `circleguard-hu01-operator` y `circleguard-hu01-teardown` no tienen claves ni
+permisos propios: solo pueden usar `aws login`, ver su propio dispositivo MFA y asumir sus roles.
+
+### Autorización técnica
+
+1. **Capacidades separadas en AWS.** La lectura no crea ni borra; el operador no borra; destruir
+   solo es posible con el rol de teardown, que únicamente asume el otro usuario.
+2. **La persona abre la ventana con un código MFA.** La sesión de `aws login` no transmite el
+   contexto MFA (comprobado en CloudTrail el 2026-11-01: `mfaAuthenticated=false`). Por eso los
+   roles de operación y de teardown exigen un **código MFA enviado en la propia llamada
+   `AssumeRole`**. Cada código vale una sola vez y abre como máximo 1 h de operación. Sin un
+   código nuevo de la persona, AWS rechaza la operación, la intente quien la intente.
+   - **Destrucción, opción recomendada:** se ejecuta en **AWS CloudShell**, en el navegador, con
+     la sesión del usuario de teardown (contraseña y MFA en la página de AWS). Ninguna credencial
+     de teardown llega a esta máquina.
+   - **Alternativa:** el código se escribe en la petición de la AWS CLI, en una ventana de
+     terminal. Pasa por un proceso local, vale una sola vez y da como máximo 15 minutos para
+     asumir el rol.
+3. **Límites de lo que se puede crear** (política del operador): `us-east-2`,
+   `t3.small/medium/large`, gp3 cifrado de 40 GiB como máximo, AMIs de Canonical y etiqueta
+   `Project=circleguard` obligatoria.
+4. **Barreras de los scripts**, como defensa adicional: `--plan` por defecto, `--apply --approve
+   <rol>` para lo facturable, frase para destruir y estimación local de costos.
+5. **Auditoría:** CloudTrail registra cada llamada con su identidad y si tenía MFA.
+
+**Límite inherente:** mientras no caduque, cualquier proceso del mismo usuario del sistema puede
+usar una credencial temporal que haya recibido la CLI. Por eso las ventanas son cortas, los
+permisos están acotados, `aws-session.sh logout` borra las sesiones locales y la destrucción se
+recomienda desde CloudShell.
+
+### Costos: estimación local frente a facturación real
+
+`bootstrap-servers.sh` se niega a crear o iniciar instancias si la **estimación local** (registro
+`~/.circleguard/budget/ledger.tsv` más la operación pedida) supera `HU01_BUDGET_USD` (15 USD).
+**No es un límite de facturación:** AWS no ofrece un tope de gasto, el registro solo ve lo que
+hacen los scripts y usa precios de referencia. El costo real se consulta en la consola de
+Billing. Una alerta de AWS Budgets, que requiere aprobación para crearla, avisa con horas de retraso.
+
+### Puesta en marcha
+
+```bash
+bash infra/aws-session.sh init                   # ~/.circleguard/aws (0700) y perfiles de inicio de sesión
+bash infra/aws-session.sh login bootstrap        # se abre el navegador: inicie sesión con su identidad actual
+bash infra/bootstrap-iam.sh                      # solo lectura: cuenta, permisos, cuotas, Access Analyzer y plan
+bash infra/bootstrap-iam.sh --audit              # CloudTrail: contexto MFA y escrituras desde el inicio de sesión
+bash infra/bootstrap-iam.sh --apply --approve iam   # CON APROBACIÓN: crea roles y usuarios (sin costo)
+bash infra/bootstrap-quota.sh                    # cuota de vCPU actual y solicitudes previas (solo lectura)
+bash infra/bootstrap-quota.sh --apply --approve quota  # CON APROBACIÓN: pide subir la cuota a 12 vCPU (sin costo)
+bash infra/aws-session.sh logout bootstrap       # la identidad administrativa deja de estar disponible
+```
+
+**Primer acceso de los usuarios** (una vez, en la consola de AWS, con la identidad actual): en
+IAM → Usuarios → `circleguard-hu01-operator` → Credenciales de seguridad:
+- **Habilitar el acceso a la consola** con una contraseña que la persona escribe en esa página.
+- **Asignar un dispositivo MFA**: escanear el código QR con una app de autenticación e
+  introducir dos códigos consecutivos.
+
+Después, lo mismo con `circleguard-hu01-teardown` (en la app es otra entrada). Este usuario solo
+inicia sesión en la consola para usar AWS CloudShell; nunca se usa en la estación de trabajo.
+
+**Cada sesión de trabajo:**
+```bash
+bash infra/aws-session.sh login operator         # navegador: usuario, contraseña y MFA del operador (lectura)
+bash infra/aws-session.sh unlock                 # operación aprobada: ventana donde usted escribe el código MFA (1 h)
+bash infra/aws-session.sh status                 # sesiones activas, sin mostrar credenciales
+bash infra/aws-session.sh logout all             # al terminar
+```
+`unlock` abre una ventana de Windows Terminal en la que la propia AWS CLI pide el código MFA del
+operador; el script que la abre solo espera a que termine. Cada código vale una vez y la sesión
+del rol de operación dura 1 h como máximo.
 
 ## Configuración
 
 - `config/aws.env`: región `us-east-2`, zona `us-east-2a`, CIDR `10.20.0.0/16`, tipos
-  (Jenkins `t3.medium`, SonarQube `t3.large`, Nexus `t3.large`), puertos y precios de referencia.
+  (Jenkins `c7i-flex.large`, SonarQube y Nexus `m7i-flex.large`), puertos, precios de referencia,
+  presupuesto estimado (`HU01_BUDGET_USD`) y cuota de vCPU objetivo (`QUOTA_VCPU_TARGET`).
+  La cuenta está en el **plan gratuito de AWS**, que solo lanza tipos aptos para la capa gratuita;
+  Nexus (≈ 5,4 GiB de JVM) y SonarQube (≈ 3 GiB de JVM y PostgreSQL) necesitan las 8 GiB de
+  `m7i-flex.large`.
 - `config/envs/{dev,stage,prod}.env`: subredes `10.20.{10,20,30}.0/24`, `t3.small`, 20 GiB.
-- `config/operator.local.env` (ignorado): `AWS_PROFILE` y `ADMIN_CIDRS`. Si `ADMIN_CIDRS` está
+- `config/operator.local.env` (ignorado): `ADMIN_CIDRS` (y, si hace falta, `CG_AWS_PROFILE`). Si `ADMIN_CIDRS` está
   vacío, se usa la IP pública actual del operador (`/32`).
 - `NEXUS_ACCEPT_EULA` (en `aws.env`): Nexus Community Edition 3.96.5 **exige aceptar su EULA**
   (<https://links.sonatype.com/products/nxrm/ce-eula>). Es una decisión del equipo: con `false`,
@@ -136,49 +227,68 @@ bash infra/bootstrap-all.sh --apply --approve all        # FACTURABLE: construye
 Con `--approve jenkins,sonarqube` solo se crean o inician esos servidores, y los pasos de los
 demás roles se omiten.
 
-### Presupuesto por recurso (topología A, precios de referencia On-Demand en us-east-2)
+### Presupuesto por recurso (topología A en el plan gratuito, On-Demand en us-east-2)
 
-Confirme las tarifas vigentes antes de cada sesión con `bash infra/bootstrap-servers.sh --prices`
-(AWS Pricing API, solo lectura).
+Tarifas de la AWS Pricing API del 2026-11-01. Confírmelas antes de cada sesión con
+`bash infra/bootstrap-servers.sh --prices` (solo lectura). En el plan gratuito todo se descuenta
+de los créditos y **AWS no cobra más allá de ellos**: el plan termina el 2027-04-30 03:45 UTC
+(`freetier get-account-plan-state`) o al agotarse los créditos.
 
 | Recurso | Cantidad | Tarifa | Encendido (USD/h) | Detenido | USD/día (24 h encendido) | USD/mes (730 h) |
 |---|---|---|---|---|---|---|
-| EC2 Jenkins `t3.medium` | 1 | 0.0416/h | 0.0416 | 0 | 1.00 | 30.37 |
-| EC2 SonarQube `t3.large` | 1 | 0.0832/h | 0.0832 | 0 | 2.00 | 60.74 |
-| EC2 Nexus `t3.large` | 1 | 0.0832/h | 0.0832 | 0 | 2.00 | 60.74 |
-| EC2 dev, stage y prod `t3.small` | 3 | 0.0208/h c/u | 0.0624 | 0 | 1.50 | 45.55 |
+| EC2 Jenkins `c7i-flex.large` (2 vCPU, 4 GiB) | 1 | 0.08479/h | 0.0848 | 0 | 2.03 | 61.90 |
+| EC2 SonarQube `m7i-flex.large` (2 vCPU, 8 GiB) | 1 | 0.09576/h | 0.0958 | 0 | 2.30 | 69.90 |
+| EC2 Nexus `m7i-flex.large` (2 vCPU, 8 GiB) | 1 | 0.09576/h | 0.0958 | 0 | 2.30 | 69.90 |
+| EC2 dev, stage y prod `t3.small` (2 vCPU, 2 GiB) | 3 | 0.0208/h c/u | 0.0624 | 0 | 1.50 | 45.55 |
 | IPv4 pública (automática, sin Elastic IP) | 6 | 0.005/h c/u | 0.0300 | 0 (se libera) | 0.72 | 21.90 |
 | EBS gp3 cifrado (30 + 30 + 40 + 3×20 GiB) | 160 GiB | 0.08/GB-mes | 0.0175 | **0.0175/h** | 0.42 | 12.80 |
 | Transferencia de salida | < 1 GB | 100 GB/mes gratis | 0 | 0 | 0 | 0 |
 | SSM Parameter Store estándar y KMS `aws/ssm` | 35 parámetros | Sin cargo (capa gratuita de KMS) | 0 | 0 | 0 | 0 |
-| VPC, subredes, IGW, rutas, grupos de seguridad, pares de llaves | — | Sin cargo | 0 | 0 | 0 | 0 |
+| VPC, subredes, IGW, rutas, grupos de seguridad, pares de llaves, IAM, CloudShell, Service Quotas | — | Sin cargo | 0 | 0 | 0 | 0 |
 | NAT Gateway, balanceadores, Elastic IP, *snapshots*, ráfagas T3 | — | **No se usan** | 0 | 0 | 0 | 0 |
-| **Total** | | | **0.318** | **0.42 USD/día** | **7.63** | **232.1** |
+| **Total** | | | **0.386** | **0.42 USD/día** | **9.27** | **281.9** |
 
-**Encendida 24/7, la plataforma agota los 100 USD en unos 13 días.** Por eso se trabaja por sesiones.
+**Encendida 24/7, la plataforma agota los 100 USD en unos 11 días.** Por eso se trabaja por sesiones.
 
 ### Ejecución por sesiones (estimación para completar HU-01)
 
 Cada sesión empieza con la autorización de las operaciones facturables que contiene y termina con
-`bash infra/teardown.sh --stop --apply`. El costo por hora con las seis instancias encendidas es de 0.300
-USD (EC2 e IPv4), más el EBS, que se cobra mientras los volúmenes existen.
+`bash infra/teardown.sh --stop --apply`. El costo por hora con las seis instancias encendidas es de
+0.369 USD (EC2 e IPv4), más el EBS, que se cobra mientras los volúmenes existen. **S4, S5 y S6
+necesitan 12 vCPU a la vez**: la cuota actual es de 5 (solo caben 2 instancias encendidas), por
+lo que dependen del aumento solicitado con `bootstrap-quota.sh`.
 
-| Sesión | Contenido | Operaciones facturables que se autorizan | Duración | Costo estimado |
-|---|---|---|---|---|
-| S0 | IAM, AWS CLI, `--prices`, `bootstrap-all.sh --plan`, Access Analyzer | Ninguna | — | 0 |
-| S1 | Red, secretos y llaves (`bootstrap-network.sh` y `bootstrap-secrets.sh --apply`) | Ninguna (recursos sin cargo) | — | 0 |
-| S2 | Jenkins: crear, configurar, verificar y segunda ejecución | `run-instances` jenkins | 1.5 h | 0.07 |
-| S3 | SonarQube y Nexus: crear y configurar (Nexus, según la decisión sobre el EULA) | `run-instances` sonarqube y nexus | 2 h | 0.35 |
-| S4 | dev, stage y prod: crear, configurar, aislamiento y credenciales | `run-instances` ×3 (con las 6 encendidas) | 2 h | 0.60 |
-| S5 | Idempotencia: `bootstrap-all` ×2 con *snapshot* y `diff` | `start-instances` ×6 si estaban detenidas | 1.5 h | 0.45 |
-| S6 | Reconstrucción desde cero: `teardown --destroy` y `bootstrap-all --approve all` | `terminate-instances` ×6 y `run-instances` ×6 | 3 h | 0.90 |
-| — | Contingencia para depuración y reintentos | Según la sesión | 6 h | 1.80 |
-| — | EBS mientras existe la plataforma (hasta 10 días) | — | 10 días | 4.21 |
-| **Total HU-01** | | | | **≈ 8.4 USD**, unos **12.6 USD con un 50 % de margen** |
+| Sesión | Contenido | Operaciones facturables que se autorizan | Duración | Costo | Acumulado* |
+|---|---|---|---|---|---|
+| Preparación | Acceso temporal, Access Analyzer, simulador IAM, `--prices`, planes | Ninguna | — | 0 | 0 |
+| S1 | Red, secretos y llaves (sin cargo) y Jenkins: crear, configurar, 2.ª ejecución y `verify-infra.sh --health --roles=jenkins` | `run-instances` jenkins | 1.5 h | 0.13 | 0.13 |
+| S2 | SonarQube: crear, configurar, 2.ª ejecución y `verify-infra.sh --health --roles=sonarqube` | `run-instances` sonarqube | 1.5 h | 0.15 | 0.29 |
+| S3 | Nexus, **solo si el equipo autoriza el EULA** | `run-instances` nexus | 1.5 h | 0.15 | 0.44 |
+| S4 | dev, stage y prod: crear y configurar; `verify-infra.sh` completo con las 6 encendidas (requiere 12 vCPU) | `start-instances` ×3 y `run-instances` ×3 | 2 h | 0.74 | 1.17 |
+| S5 | Idempotencia: `bootstrap-all` ×2, *snapshot* y `diff` | `start-instances` ×6 | 1.5 h | 0.55 | 1.73 |
+| S6 | Reconstrucción desde cero (destrucción en CloudShell con su propia autorización) | `terminate-instances` ×6 y `run-instances` ×6 | 3 h | 1.11 | 2.83 |
+| — | Contingencia para depuración y reintentos | Según la sesión | 6 h | 2.21 | 5.05 |
+| — | EBS mientras existen los volúmenes (cota de 10 días con los 160 GiB) | — | 10 días | 4.21 | 9.25 |
+| **Total HU-01** | | | | **≈ 9.3 USD**, unos **13.9 USD con un 50 % de margen** (límite: 15 USD) | |
+
+\* El acumulado no incluye el EBS de los días entre sesiones: cada volumen se cobra desde que se
+crea hasta que se destruye (Jenkins 0.079, SonarQube 0.079, Nexus 0.105 y cada ambiente 0.053
+USD/día). El EBS es el costo dominante: con las horas estimadas, los 15 USD alcanzan para unos 17
+días de volúmenes con margen (23 sin él). Sin la aprobación del EULA no se crea Nexus y C1 queda
+incompleto.
+
+**Otros costos:**
+- **Transferencia:** la entrada (imágenes, paquetes, plugins) no se cobra. La salida a Internet es
+  inferior a 1 GB, dentro de los 100 GB gratis al mes. El tráfico entre instancias usa IP privadas
+  en una misma zona, que no se cobra.
+- **Servicios auxiliares:** SSM estándar, KMS `aws/ssm` dentro de la capa gratuita, STS, Access
+  Analyzer, Pricing API y la monitorización básica de CloudWatch no tienen cargo. No se usan
+  *snapshots*, NAT, Elastic IP ni balanceadores.
 
 **Barreras de costo:**
-- Configure **AWS Budgets** con alertas en 10, 25, 50 y 75 USD (los dos primeros presupuestos no
-  tienen cargo; verifíquelo).
+- **AWS Budgets** (requiere aprobación): alertas en 5, 10 y 15 USD. Según la API del plan
+  gratuito, crear un presupuesto de costos es una actividad que suma 20 USD de créditos (igual que
+  lanzar la primera instancia EC2).
 - Al cerrar cada sesión, ejecute `teardown.sh --stop --apply` y confirme que no queda nada encendido:
   ```bash
   aws ec2 describe-instances --region us-east-2 \
@@ -218,15 +328,25 @@ Solo lectura. Termina con código 1 si alguna comprobación falla.
 
 ```bash
 bash infra/teardown.sh --destroy                  # --plan por defecto: inventario y lo que eliminaría, sin cambios
-bash infra/teardown.sh --stop --apply             # detiene las instancias (conserva datos)
-bash infra/teardown.sh --destroy --apply          # elimina instancias (y sus DATOS), red y pares de llaves de HU-01
-bash infra/teardown.sh --destroy --purge-secrets --apply   # además borra /circleguard/* de SSM
+bash infra/teardown.sh --stop --apply             # detiene las instancias (conserva datos); rol de lectura
 ```
-`--destroy` requiere tener adjunta, además de la del operador, la política
-`config/iam/hu01-teardown-policy.json`.
-- `--destroy` lista los recursos afectados y exige escribir `DESTRUIR circleguard`.
-  `--purge-secrets` exige una segunda frase.
+**La destrucción no se ejecuta en la estación de trabajo**: el rol `circleguard-hu01-teardown`
+solo lo asume el usuario `circleguard-hu01-teardown`, con MFA, desde **AWS CloudShell**. Sus
+credenciales nunca existen en esta máquina.
+
+1. `bash infra/aws-session.sh cloudshell-bundle`: paquete con `teardown.sh`, sus librerías y la
+   configuración no secreta (sin secretos ni `operator.local.env`).
+2. En la consola de AWS, inicie sesión como `circleguard-hu01-teardown` (contraseña y MFA en la
+   página de AWS), abra CloudShell en `us-east-2` y cargue el paquete (Acciones → Cargar archivo).
+3. En CloudShell:
+   ```bash
+   tar -xzf circleguard-teardown.tgz
+   bash infra/teardown-cloudshell.sh                          # pide el código MFA; inventario y plan
+   bash infra/teardown-cloudshell.sh --apply                  # destruye: exige escribir 'DESTRUIR circleguard'
+   bash infra/teardown-cloudshell.sh --purge-secrets --apply  # además borra /circleguard/* de SSM
+   ```
 - Solo actúa sobre recursos con las etiquetas `Project=circleguard` y `ManagedBy=infra-bootstrap`.
+- La sesión del rol dura 15 minutos y sus credenciales en caché se borran al salir del script.
 - La llave privada local y su copia en SSM se conservan, salvo que se use `--purge-secrets`.
 
 ## Validación local gratuita (`--target local`)
@@ -297,8 +417,9 @@ y `circleguard-nexus_nexus-data`. En EC2 viven en el EBS cifrado de cada instanc
 
 | Síntoma | Causa y solución |
 |---|---|
-| `No hay credenciales AWS válidas` | Configure el perfil IAM (`aws configure --profile ...`) y `AWS_PROFILE` en `operator.local.env` |
-| `Se detectó la cuenta raíz` | Use una identidad IAM con la política de `config/iam/` |
+| `No hay una sesión AWS válida para el perfil ...` | Inicie la sesión que indica el mensaje: `bash infra/aws-session.sh login operator` (o `teardown`) |
+| `La identidad ... no corresponde a la capacidad ...` | La operación necesita otro rol (por ejemplo, operación fuera de la ventana de 1 h): vuelva a iniciar sesión |
+| `La estimación supera el presupuesto de HU-01` | Estimación local: revise el costo real en Billing y consulte al equipo antes de continuar |
 | `Sin acceso SSH` | Su IP pública cambió: vuelva a ejecutar `bootstrap-network.sh --apply` (actualiza `ADMIN_CIDRS`) o defínala |
 | La UI no responde en `http://<ip-publica>:8080` | Es intencional: las UIs no se exponen a Internet. Use `bash infra/tunnel.sh jenkins` y abra `http://localhost:8080` |
 | `No hay una instancia '<rol>' en ejecución` | Créela o iníciela con `bootstrap-servers.sh --apply --approve <rol>` |

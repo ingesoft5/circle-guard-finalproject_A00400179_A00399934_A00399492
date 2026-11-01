@@ -21,6 +21,7 @@
         "ec2:DescribeImages",
         "ec2:DescribeInstanceCreditSpecifications",
         "ec2:DescribeInstances",
+        "ec2:DescribeInstanceTypeOfferings",
         "ec2:DescribeInternetGateways",
         "ec2:DescribeKeyPairs",
         "ec2:DescribeRouteTables",
@@ -78,7 +79,7 @@
       "Condition": {
         "StringEquals": {
           "aws:RequestTag/Project": "circleguard",
-          "ec2:InstanceType": ["t3.small", "t3.medium", "t3.large"],
+          "ec2:InstanceType": ["t3.small", "c7i-flex.large", "m7i-flex.large"],
           "ec2:MetadataHttpTokens": "required"
         }
       }
