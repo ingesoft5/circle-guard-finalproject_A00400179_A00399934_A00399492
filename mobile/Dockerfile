@@ -7,7 +7,8 @@
 # of the Expo client are rewritten to same-origin paths ("/auth", "/identity", ...)
 # and nginx reverse-proxies those paths to the services on the Compose network.
 # This is a build-time transformation: the repository source is not modified.
-ARG NODE_IMAGE=node:22.22-alpine@sha256:e58326d0d441090181ac150dc2078d3e2cf6a0d42e809aebba3ef5880935ffdd
+# bookworm-slim (glibc) avoids optional native-module issues in the Expo build stage.
+ARG NODE_IMAGE=node:22.22-bookworm-slim@sha256:e21fc383b50d5347dc7a9f1cae45b8f4e2f0d39f7ade28e4eef7d2934522b752
 ARG NGINX_IMAGE=nginxinc/nginx-unprivileged:1.27-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0
 
 FROM ${NODE_IMAGE} AS build

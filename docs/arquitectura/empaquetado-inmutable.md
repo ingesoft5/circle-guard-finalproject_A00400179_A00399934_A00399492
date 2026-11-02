@@ -48,7 +48,7 @@ flowchart LR
   `gradle/wrapper/gradle-wrapper.jar`, que no está versionado.
 - **Runtime**: `eclipse-temurin:21.0.9_10-jre-alpine` fijado por digest.
 - Se crea el usuario/grupo `circleguard` con UID/GID **10001**; `USER 10001:10001`.
-- El cliente web usa `node:22.22-alpine` para el build y
+- El cliente web usa `node:22.22-bookworm-slim` para el build y
   `nginxinc/nginx-unprivileged:1.27-alpine` para el runtime; corre como UID **101**.
 - Etiquetas OCI: `title`, `description`, `version`, `revision`, `created`, `source` y
   `base.name`.
