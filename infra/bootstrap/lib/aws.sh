@@ -30,8 +30,9 @@ cg_aws_preflight() {
 
 # cg_aws_error <output>: "<code> en <operation>: <reason>" of a failed AWS CLI call (an MFA
 # failure of the role shows up as AccessDenied en AssumeRole), without ARNs nor account ids.
+# Other output: its first non-empty line (the CLI starts its errors with an empty line).
 cg_aws_error() {
-  { grep -m1 'An error occurred' <<<"$1" || printf '%s\n' "${1%%$'\n'*}"; } |
+  { grep -m1 'An error occurred' <<<"$1" || grep -m1 -v '^[[:space:]]*$' <<<"$1" || true; } |
     sed -E 's/^.*An error occurred \(([A-Za-z.]+)\) when calling the ([A-Za-z]+) operation: /\1 en \2: /
       s/You are not authorized to perform this operation\. User: .* is not authorized to perform: [^ ]+ //
       s/[0-9]{12}/************/g'
@@ -75,7 +76,9 @@ cg_find() {
 is_real() { [[ "${1:-}" =~ ^[a-z]+-[0-9a-f]+$ ]]; }
 
 # cg_dry_run <ec2 subcommand> [args]: validates permissions and parameters without creating.
-# With the reader role a denial is expected: the check is then left for the operator role.
+# Only the reader role may get a denial (it has no write permissions by design): the check is
+# then left for the operator role. Any other identity, including the operator role selected with
+# CG_AWS_PROFILE in a plan, fails on UnauthorizedOperation like on any other error.
 cg_dry_run() {
   local out
   if out=$(aws_ ec2 "$@" --dry-run 2>&1); then return 0; fi
@@ -83,11 +86,11 @@ cg_dry_run() {
     info "permiso verificado con --dry-run: ec2 $1"
     return 0
   fi
-  if [[ "$CG_CAPABILITY" == read && "$out" == *UnauthorizedOperation* ]]; then
+  if [[ "${CG_AWS_ARN:-}" == *":assumed-role/circleguard-hu01-reader/"* && "$out" == *UnauthorizedOperation* ]]; then
     info "dry-run de ec2 $1 no verificable con el rol de lectura: se valida con el rol de operación"
     return 0
   fi
-  die "dry-run de ec2 $1 rechazado: ${out%%$'\n'*}"
+  die "dry-run de ec2 $1 rechazado${CG_AWS_ARN:+ con ${CG_AWS_ARN##*:}}: $(cg_aws_error "$out")"
 }
 
 cg_role_tier() {
