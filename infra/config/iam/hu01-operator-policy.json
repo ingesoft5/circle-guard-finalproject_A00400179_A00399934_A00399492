@@ -103,11 +103,11 @@
       }
     },
     {
-      "Sid": "RunOnlyCanonicalUbuntuImages",
+      "Sid": "RunOnlyPinnedUbuntuImage",
       "Effect": "Allow",
       "Action": "ec2:RunInstances",
       "Resource": "arn:aws:ec2:us-east-2::image/*",
-      "Condition": { "StringEquals": { "ec2:Owner": "099720109477" } }
+      "Condition": { "StringEquals": { "ec2:ImageID": "ami-0fc53b217ec1ad816" } }
     },
     {
       "Sid": "RunOnlyInsideCircleGuardNetwork",

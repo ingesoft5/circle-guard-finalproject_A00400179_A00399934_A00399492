@@ -79,7 +79,8 @@ Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md
    - exige la etiqueta `Project=circleguard` para crear o modificar recursos;
    - limita EC2 a `t3.small`, `c7i-flex.large` y `m7i-flex.large` (aptos para el plan gratuito) con IMDSv2, y los discos a gp3 cifrados de
      40 GiB como máximo;
-   - acepta solo AMIs de Canonical y secretos bajo `/circleguard/*`;
+   - acepta solo la AMI fijada en `AMI_ID` (Ubuntu 24.04 de Canonical, condición `ec2:ImageID`) y
+     secretos bajo `/circleguard/*`;
    - **no incluye ninguna acción destructiva.**
 
    Destruir solo es posible con el rol de teardown, que asume **otro usuario**
@@ -123,19 +124,21 @@ permisos propios: solo pueden usar `aws login`, ver su propio dispositivo MFA y 
      teardown (contraseña y MFA en la página de AWS). Ninguna credencial de teardown llega a esta
      máquina.
 3. **Límites de lo que se puede crear** (política del operador): `us-east-2`, `t3.small`,
-   `c7i-flex.large` y `m7i-flex.large`, gp3 cifrado de 40 GiB como máximo, AMIs de Canonical y
-   etiqueta `Project=circleguard` obligatoria.
+   `c7i-flex.large` y `m7i-flex.large`, gp3 cifrado de 40 GiB como máximo, solo la AMI fijada en
+   `AMI_ID` y etiqueta `Project=circleguard` obligatoria. Cambiar de AMI exige actualizar a la vez
+   `AMI_ID` (`config/aws.env`) y la sentencia `RunOnlyPinnedUbuntuImage`, y aplicar IAM.
 4. **Barreras de los scripts**, como defensa adicional: `--plan` por defecto, `--apply --approve
    <rol>` para lo facturable, frase para destruir y estimación local de costos.
 5. **Auditoría:** CloudTrail registra cada llamada con su identidad y si tenía MFA.
 
-**Estado de la política `circleguard-hu01-teardown` (2026-11-02, solo lectura).** La plantilla del
-repositorio coincide con la versión **v1**. En AWS, la versión predeterminada es la **v2**,
-creada desde la consola durante el diagnóstico de CloudShell: añade la declaración
-`PreflightZoneCheck` (`ec2:DescribeAvailabilityZones` en `us-east-2`), que es redundante porque
-el rol ya la tiene por la política `circleguard-hu01-reader` adjunta. Volver a la v1 no cambia
-ningún permiso efectivo y elimina la diferencia que `bootstrap-iam.sh` señala; es un cambio de
-IAM pendiente de autorización (ver la [evidencia 12](../docs/evidencias/hu-01/12-preparacion-arquitectura-b.txt)).
+**Estado de la política `circleguard-hu01-teardown`.** En AWS, la versión predeterminada es la
+**v2**, creada desde la consola el 2026-11-02 durante el diagnóstico de CloudShell: añade la
+declaración `PreflightZoneCheck` (`ec2:DescribeAvailabilityZones` en `us-east-2`), que es
+redundante porque el rol ya la tiene por la política `circleguard-hu01-reader` adjunta. Se decidió
+conservarla: desde el commit `b18f27c` la plantilla del repositorio es idéntica a la v2 (orden de
+las sentencias incluido), así que `bootstrap-iam.sh` la muestra UNCHANGED y un `--apply` no la
+cambia (ver la [evidencia 12](../docs/evidencias/hu-01/12-preparacion-arquitectura-b.txt) y la
+sección 9 del [documento 13](../docs/evidencias/hu-01/13-plan-despliegue-fase3.txt)).
 
 **Límite inherente:** mientras no caduque, cualquier proceso del mismo usuario del sistema puede
 usar una credencial temporal que haya recibido la CLI. Por eso las ventanas son cortas, los
