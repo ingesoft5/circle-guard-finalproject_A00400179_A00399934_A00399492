@@ -1,0 +1,6 @@
+# Stage overrides (HU-02): only the web client is published. The services are
+# reached through nginx on the internal Compose network.
+services:
+  web:
+    ports:
+      - "${BIND_ADDRESS:-0.0.0.0}:${WEB_PORT:-3000}:8080"
