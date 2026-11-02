@@ -1,0 +1,359 @@
+# CircleGuard · common Compose stack (HU-02)
+# Do not run this file alone. Use ./deploy/compose-up.sh <env> or:
+#   docker compose --env-file deploy/compose/dev.env \
+#     -f deploy/compose/docker-compose.common.yml \
+#     -f deploy/compose/docker-compose.dev.yml up -d --wait
+# Images are referenced by semantic tag; 'latest' is never used.
+name: ${COMPOSE_PROJECT_NAME:?Defina COMPOSE_PROJECT_NAME}
+
+x-default-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-app-base: &app-base
+  restart: ${RESTART_POLICY:-unless-stopped}
+  init: true
+  stop_grace_period: 30s
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  logging: *default-logging
+  networks:
+    - circleguard
+  mem_limit: ${APP_MEM_LIMIT:-768m}
+  cpus: ${APP_CPUS:-1.0}
+
+x-app-healthcheck: &app-healthcheck
+  interval: 30s
+  timeout: 5s
+  start_period: 120s
+  retries: 8
+
+x-infra-base: &infra-base
+  restart: ${RESTART_POLICY:-unless-stopped}
+  stop_grace_period: 30s
+  security_opt:
+    - no-new-privileges:true
+  logging: *default-logging
+  networks:
+    - circleguard
+
+x-app-environment: &app-environment
+  TZ: ${TZ:-America/Bogota}
+  JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError}
+
+services:
+  # ---------------------------------------------------------------- middleware
+  postgres:
+    <<: *infra-base
+    image: postgres:16.15@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}
+      POSTGRES_DB: circleguard
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../../init-db.sql:/docker-entrypoint-initdb.d/00-init-db.sql:ro
+    mem_limit: ${POSTGRES_MEM_LIMIT:-512m}
+    cpus: ${POSTGRES_CPUS:-1.0}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d postgres"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 12
+
+  neo4j:
+    <<: *infra-base
+    image: neo4j:5.26.32-community@sha256:249a1ec6e3c52d82101a5ed33d6ed2b5ed5b0017b21a28c0bfebc335e87fb177
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?Defina NEO4J_PASSWORD}
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_server_memory_heap_max__size: ${NEO4J_HEAP:-512m}
+      NEO4J_server_memory_pagecache_size: ${NEO4J_PAGECACHE:-256m}
+    volumes:
+      - neo4j-data:/data
+    mem_limit: ${NEO4J_MEM_LIMIT:-1g}
+    cpus: ${NEO4J_CPUS:-1.0}
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p \"$${NEO4J_AUTH#*/}\" 'RETURN 1' >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 12
+
+  zookeeper:
+    <<: *infra-base
+    image: confluentinc/cp-zookeeper:7.6.0@sha256:9babd1c0beaf93189982bdbb9fe4bf194a2730298b640c057817746c19838866
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_HEAP_OPTS: ${ZOOKEEPER_HEAP_OPTS:--Xms128m -Xmx192m}
+      ZOOKEEPER_HEAP_OPTS: ${ZOOKEEPER_HEAP_OPTS:--Xms128m -Xmx192m}
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+    mem_limit: ${ZOOKEEPER_MEM_LIMIT:-256m}
+    cpus: ${ZOOKEEPER_CPUS:-0.5}
+    healthcheck:
+      test: ["CMD-SHELL", "zookeeper-shell localhost:2181 ls / >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      start_period: 30s
+      retries: 10
+
+  kafka:
+    <<: *infra-base
+    image: confluentinc/cp-kafka:7.6.0@sha256:24cdd3a7fa89d2bed150560ebea81ff1943badfa61e51d66bb541a6b0d7fb047
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_HEAP_OPTS: ${KAFKA_HEAP_OPTS:--Xms256m -Xmx512m}
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    mem_limit: ${KAFKA_MEM_LIMIT:-1g}
+    cpus: ${KAFKA_CPUS:-1.0}
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      start_period: 45s
+      retries: 12
+
+  redis:
+    <<: *infra-base
+    image: redis:7.2.5-alpine@sha256:6aaf3f5e6bc8a592fbfe2cccf19eb36d27c39d12dab4f4b01556b7449e7b1f44
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    mem_limit: ${REDIS_MEM_LIMIT:-256m}
+    cpus: ${REDIS_CPUS:-0.5}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 10
+
+  openldap:
+    <<: *infra-base
+    image: osixia/openldap:1.5.0
+    environment:
+      LDAP_ORGANISATION: CircleGuard
+      LDAP_DOMAIN: circleguard.edu
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:?Defina LDAP_ADMIN_PASSWORD}
+    volumes:
+      - ldap-data:/var/lib/ldap
+      - ldap-config:/etc/ldap/slapd.d
+    mem_limit: ${LDAP_MEM_LIMIT:-256m}
+    cpus: ${LDAP_CPUS:-0.5}
+    healthcheck:
+      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost:389 -b dc=circleguard,dc=edu -s base '(objectclass=*)' >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      start_period: 30s
+      retries: 10
+
+  # ----------------------------------------------------------------- services
+  auth:
+    <<: *app-base
+    image: ${IMAGE_REGISTRY:?Defina IMAGE_REGISTRY}/${IMAGE_NAMESPACE:-circleguard}/circleguard-auth-service:${IMAGE_TAG:?Defina IMAGE_TAG}
+    environment:
+      <<: *app-environment
+      POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASSWORD:?Defina LDAP_ADMIN_PASSWORD}
+      CG_JWT_SECRET: ${CG_JWT_SECRET:?Defina CG_JWT_SECRET}
+      CG_QR_SECRET: ${CG_QR_SECRET:?Defina CG_QR_SECRET}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/circleguard_auth
+      SPRING_LDAP_URLS: ldap://openldap:389
+    depends_on:
+      postgres:
+        condition: service_healthy
+      openldap:
+        condition: service_healthy
+    healthcheck:
+      <<: *app-healthcheck
+      test: ["CMD-SHELL", "curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8180/ | grep -qE '^(200|301|302|400|401|403|404)$'"]
+
+  identity:
+    <<: *app-base
+    image: ${IMAGE_REGISTRY:?Defina IMAGE_REGISTRY}/${IMAGE_NAMESPACE:-circleguard}/circleguard-identity-service:${IMAGE_TAG:?Defina IMAGE_TAG}
+    environment:
+      <<: *app-environment
+      POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}
+      CG_JWT_SECRET: ${CG_JWT_SECRET:?Defina CG_JWT_SECRET}
+      CG_VAULT_SECRET: ${CG_VAULT_SECRET:?Defina CG_VAULT_SECRET}
+      CG_VAULT_SALT: ${CG_VAULT_SALT:?Defina CG_VAULT_SALT}
+      CG_VAULT_HASH_SALT: ${CG_VAULT_HASH_SALT:?Defina CG_VAULT_HASH_SALT}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/circleguard_identity
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *app-healthcheck
+      test: ["CMD-SHELL", "curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8083/ | grep -qE '^(200|301|302|400|401|403|404)$'"]
+
+  dashboard:
+    <<: *app-base
+    image: ${IMAGE_REGISTRY:?Defina IMAGE_REGISTRY}/${IMAGE_NAMESPACE:-circleguard}/circleguard-dashboard-service:${IMAGE_TAG:?Defina IMAGE_TAG}
+    environment:
+      <<: *app-environment
+      POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/circleguard_dashboard
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *app-healthcheck
+      test: ["CMD-SHELL", "curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8084/ | grep -qE '^(200|301|302|400|401|403|404)$'"]
+
+  file:
+    <<: *app-base
+    image: ${IMAGE_REGISTRY:?Defina IMAGE_REGISTRY}/${IMAGE_NAMESPACE:-circleguard}/circleguard-file-service:${IMAGE_TAG:?Defina IMAGE_TAG}
+    environment:
+      <<: *app-environment
+    healthcheck:
+      <<: *app-healthcheck
+      test: ["CMD-SHELL", "curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8085/ | grep -qE '^(200|301|302|400|401|403|404)$'"]
+
+  form:
+    <<: *app-base
+    image: ${IMAGE_REGISTRY:?Defina IMAGE_REGISTRY}/${IMAGE_NAMESPACE:-circleguard}/circleguard-form-service:${IMAGE_TAG:?Defina IMAGE_TAG}
+    environment:
+      <<: *app-environment
+      POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/circleguard_form
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      <<: *app-healthcheck
+      test: ["CMD-SHELL", "curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8086/ | grep -qE '^(200|301|302|400|401|403|404)$'"]
+
+  gateway:
+    <<: *app-base
+    image: ${IMAGE_REGISTRY:?Defina IMAGE_REGISTRY}/${IMAGE_NAMESPACE:-circleguard}/circleguard-gateway-service:${IMAGE_TAG:?Defina IMAGE_TAG}
+    environment:
+      <<: *app-environment
+      CG_JWT_SECRET: ${CG_JWT_SECRET:?Defina CG_JWT_SECRET}
+      CG_QR_SECRET: ${CG_QR_SECRET:?Defina CG_QR_SECRET}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      <<: *app-healthcheck
+      test: ["CMD-SHELL", "curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8087/ | grep -qE '^(200|301|302|400|401|403|404)$'"]
+
+  notification:
+    <<: *app-base
+    image: ${IMAGE_REGISTRY:?Defina IMAGE_REGISTRY}/${IMAGE_NAMESPACE:-circleguard}/circleguard-notification-service:${IMAGE_TAG:?Defina IMAGE_TAG}
+    environment:
+      <<: *app-environment
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      AUTH_API_URL: http://auth:8180
+      SPRING_MAIL_HOST: ${MAIL_HOST:-localhost}
+      SPRING_MAIL_PORT: ${MAIL_PORT:-25}
+    depends_on:
+      kafka:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+    healthcheck:
+      <<: *app-healthcheck
+      test: ["CMD-SHELL", "curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8082/ | grep -qE '^(200|301|302|400|401|403|404)$'"]
+
+  promotion:
+    <<: *app-base
+    image: ${IMAGE_REGISTRY:?Defina IMAGE_REGISTRY}/${IMAGE_NAMESPACE:-circleguard}/circleguard-promotion-service:${IMAGE_TAG:?Defina IMAGE_TAG}
+    environment:
+      <<: *app-environment
+      POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Defina NEO4J_PASSWORD}
+      CG_JWT_SECRET: ${CG_JWT_SECRET:?Defina CG_JWT_SECRET}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/circleguard_promotion
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      <<: *app-healthcheck
+      test: ["CMD-SHELL", "curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:8088/ | grep -qE '^(200|301|302|400|401|403|404)$'"]
+
+  web:
+    <<: *app-base
+    image: ${IMAGE_REGISTRY:?Defina IMAGE_REGISTRY}/${IMAGE_NAMESPACE:-circleguard}/circleguard-web:${IMAGE_TAG:?Defina IMAGE_TAG}
+    environment:
+      TZ: ${TZ:-America/Bogota}
+    depends_on:
+      auth:
+        condition: service_healthy
+      identity:
+        condition: service_healthy
+      dashboard:
+        condition: service_healthy
+      file:
+        condition: service_healthy
+      form:
+        condition: service_healthy
+      gateway:
+        condition: service_healthy
+      notification:
+        condition: service_healthy
+      promotion:
+        condition: service_healthy
+    mem_limit: ${WEB_MEM_LIMIT:-128m}
+    cpus: ${WEB_CPUS:-0.5}
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 8
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/healthz || exit 1"]
+
+volumes:
+  postgres-data:
+  neo4j-data:
+  zookeeper-data:
+  zookeeper-log:
+  kafka-data:
+  redis-data:
+  ldap-data:
+  ldap-config:
+
+networks:
+  circleguard:
+    driver: bridge

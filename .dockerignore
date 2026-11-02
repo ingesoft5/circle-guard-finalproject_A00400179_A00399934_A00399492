@@ -1,0 +1,28 @@
+# Build context for the Java images (repository root).
+# Keep it small and free of secrets/local state. The web client has its own
+# .dockerignore because it builds from the mobile/ directory.
+
+.git
+.gitignore
+.gitattributes
+.agent
+.github
+docs
+design-assets
+infra
+deploy
+scratch
+mobile
+**/build
+**/.gradle
+**/bin
+**/node_modules
+**/*.log
+*.pdf
+*.tex
+*.png
+dashboard_test_output.txt
+test-output.txt
+.env
+.env.*
+*.local.env

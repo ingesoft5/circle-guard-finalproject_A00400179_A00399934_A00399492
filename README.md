@@ -167,3 +167,24 @@ We maintain high system integrity via multi-level testing:
 - **FERPA Compliance**: Student identities are never stored in the contact graph.
 - **Right to be Forgotten**: Users can trigger complete data purging via the Identity Vault.
 - **Temporal Privacy**: All contact edges are automatically purged after 14 days.
+
+---
+
+## Container images and environments (HU-02)
+
+The nine images (8 services + Expo web client) and the per-environment Compose stacks are in
+[`deploy/`](deploy/README.md). Quick reference:
+
+```bash
+./deploy/build-images.sh 1.0.0      # multi-stage, non-root, semantic tag
+./deploy/publish-images.sh 1.0.0    # registry (Nexus or equivalent)
+./deploy/compose-up.sh dev          # dev stack with healthchecks
+```
+
+See [`docs/arquitectura/empaquetado-inmutable.md`](docs/arquitectura/empaquetado-inmutable.md)
+for the design and [`docs/evidencias/hu-02/`](docs/evidencias/hu-02/README.md) for the evidence.
+
+## AI usage log
+
+Prompts, responses and decision records are kept in [`docs/iag/`](docs/iag/README.md), as required
+by the course's Level 3 AI collaboration policy.
