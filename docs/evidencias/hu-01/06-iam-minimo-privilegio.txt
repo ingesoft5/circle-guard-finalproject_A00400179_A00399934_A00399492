@@ -13,7 +13,8 @@
 ## Confianza hu01-reader-role-trust.json: user/circleguard-hu01-operator con sin condición MFA (solo lectura y detener)
 ## Confianza hu01-operator-role-trust.json: user/circleguard-hu01-operator con {"Bool": {"aws:MultiFactorAuthPresent": "true"}, "NumericLessThan": {"aws:MultiFactorAuthAge": "3600"}}
 ## Confianza hu01-teardown-role-trust.json: user/circleguard-hu01-teardown con {"Bool": {"aws:MultiFactorAuthPresent": "true"}, "NumericLessThan": {"aws:MultiFactorAuthAge": "900"}}
-## Rol teardown (lectura + teardown): acciones de teardown.sh sin permiso (debe estar vacío): ninguna
+## Rol teardown (lectura + teardown): acciones de teardown.sh y de su preflight sin permiso (debe estar vacío): ninguna
+## Rol teardown: acciones que solo concede la política de lectura adjunta (sts:GetCallerIdentity no requiere permiso): ec2:DescribeAvailabilityZones, ec2:DescribeInstances, ec2:DescribeInternetGateways, ec2:DescribeKeyPairs, ec2:DescribeRouteTables, ec2:DescribeSecurityGroupRules, ec2:DescribeSecurityGroups, ec2:DescribeSubnets, ec2:DescribeVolumes, ec2:DescribeVpcs, ec2:StopInstances, ssm:GetParametersByPath
 
 ## Restricciones adicionales de la política del operador
   DescribeOnlyWhatTheScriptsRead             {"StringEquals": {"aws:RequestedRegion": "us-east-2"}}

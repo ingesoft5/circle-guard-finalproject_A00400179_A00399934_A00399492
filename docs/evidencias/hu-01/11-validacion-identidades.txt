@@ -107,5 +107,73 @@
   Prueba empírica pendiente: pasada 1 h desde el inicio de sesión, AWS debe denegar el rol de
   operación (se observará en S1 o en una prueba dedicada).
 
-## J. Teardown en CloudShell (modo plan): preparado, pendiente de ejecución por el equipo
-  Paquete: ~/.circleguard/cloudshell/circleguard-teardown.tgz (10 archivos, sin secretos).
+## J. Teardown en CloudShell (modo plan): revisión y simulación previas
+  Paquete subido (2026-11-02 02:19 UTC, sha256 d268a748…a5fdd): el equipo lo reempaquetó con el
+  Explorador de Windows (raíz circleguard-teardown/ y 10 metadatos :Zone.Identifier inertes); los
+  10 archivos de código son idénticos byte a byte al árbol de trabajo del repositorio.
+  Revisión del código:
+    - common.sh fija CG_MODE=plan al cargarse y solo --apply lo cambia (ninguna variable de entorno
+      lo altera). Toda llamada que modifica AWS está detrás de is_apply; --destroy --apply además
+      pide la frase 'DESTRUIR circleguard'.
+    - El envoltorio pasa --destroy a teardown.sh para elegir el plan de destrucción; sin --apply se
+      usa la capacidad read (la identidad teardown la satisface) y solo hay lecturas.
+    - El rol teardown tiene adjuntas circleguard-hu01-reader (lecturas del plan) y
+      circleguard-hu01-teardown (solo borrados de recursos con Project=circleguard).
+    - Efectos locales en CloudShell: el perfil en ~/.circleguard/aws/.aws/config (línea CREATED),
+      la caché de la CLI (se borra al salir) y el registro en infra/logs.
+  Simulación local con una CLI falsa (entorno vacío, HOME temporal, sin credenciales ni AWS):
+    cuenta vacía, con --plan y sin argumentos: UNCHANGED · created=0 updated=0 unchanged=1 planned=0
+    con recursos (estado tras S1), --plan: PLAN "terminar instancias…" · created=0 updated=0 planned=1
+    llamadas en los tres casos: sts get-caller-identity x3 (una con el perfil teardown, que en AWS es
+    el AssumeRole con MFA), iam list-mfa-devices, ssm get-parameters-by-path y 12 ec2 describe-*;
+    operaciones de escritura: 0
+
+## K. Primera ejecución en CloudShell (2026-11-02, equipo): se detiene en la comprobación de zona
+  El script se detuvo con "No se pudo validar la zona… (región deshabilitada o sin permiso
+  ec2:DescribeAvailabilityZones)". El texto de AWS citado después ("no identity-based policy allows
+  the ec2:DescribeAvailabilityZones action") procedía de una consulta manual con el usuario base, que
+  no tiene ni debe tener permisos de EC2. Nada se inventarió ni se modificó.
+  La causa real apareció en la ejecución siguiente (sección L): la comprobación de zona era la
+  tercera llamada que pedía un código MFA, y el script ocultaba su error (2>/dev/null) bajo un
+  mensaje genérico de permisos. El rol tiene ese permiso por circleguard-hu01-reader (evidencias 06
+  y 10): la declaración PreflightZoneCheck que se llegó a añadir a la plantilla se retiró, y
+  hu01-teardown-policy.json vuelve a ser idéntica a la versión creada el 2026-11-01.
+
+## L. Segunda ejecución en CloudShell (2026-11-02, equipo): peticiones de MFA repetidas
+  El rol se asumió, se mostró la identidad y se consultó el inventario, pero la AWS CLI pidió el
+  código MFA una y otra vez hasta fallar con "MultiFactorAuthentication failed with invalid MFA one
+  time pass code" (AWS no acepta dos veces el mismo código). Nada se modificó (modo plan).
+  Causa: el perfil pedía sesiones de 900 s y la AWS CLI trata como caducadas las credenciales de rol
+  en caché a las que les quedan menos de 15 min. Cada proceso aws volvía a hacer AssumeRole y a pedir
+  un código: 15 en un plan con la cuenta vacía (teardown-cloudshell.sh, session.sh cg_aws_identity,
+  aws.sh comprobación de zona, 8 describe del inventario, get-parameters-by-path y 3 describe
+  finales). Todas las llamadas de EC2 y SSM se hacían con el rol, y la caché se compartía bien entre
+  procesos: el problema era solo la duración de la sesión.
+  Reproducción con la AWS CLI 2.39.3 real (terminal simulada; STS, IAM, EC2, SSM y las credenciales
+  de CloudShell imitados en 127.0.0.1; ninguna conexión a AWS):
+    5 procesos seguidos con el mismo perfil: 900 s -> 5 AssumeRole · 1800 s -> 1 · 3600 s -> 1
+  Corrección (teardown-cloudshell.sh y lib/aws.sh):
+    - duration_seconds = 1800: un AssumeRole y un código por ejecución; la sesión se reutiliza durante
+      sus primeros 15 min. Un perfil existente con otro valor se actualiza (línea UPDATED). La
+      confianza del rol (MFA de menos de 15 min), los permisos y las políticas no cambian; el rol ya
+      admitía sesiones de hasta 1 h.
+    - Se muestran el rol asumido, la ubicación del perfil (~/.circleguard/aws/.aws/config, no
+      ~/.aws/config) y la identidad antes de la comprobación de zona.
+    - Si la comprobación de zona falla, se muestra el código, la operación y el motivo del error de
+      AWS sin ARN ni número de cuenta (por ejemplo "AccessDenied en AssumeRole: MultiFactorAuthentication
+      failed…"), en lugar de un mensaje genérico de permisos.
+  Prueba del paquete regenerado (sha256 e52b7117…af797), mismo método:
+    versión anterior (crea el perfil de 900 s)   15 peticiones MFA · 15 AssumeRole
+    paquete nuevo sobre ese perfil                 1 · 1 (UPDATED duration_seconds 900 -> 1800)
+    paquete nuevo, segunda ejecución               1 · 1
+    paquete nuevo sin perfil previo                1 · 1
+    en todos: created=0 updated=0 unchanged=1 planned=0, 15 llamadas con el rol, 0 credenciales en
+    caché al salir (cada ejecución pide un código nuevo; la sesión no pasa de una ejecución a otra)
+  Verificación real en AWS CloudShell (2026-11-02, equipo, usuario IAM circleguard-hu01-teardown,
+  us-east-2), con la AWS CLI de CloudShell y el paquete entregado (sha256 e52b7117…af797):
+    bash infra/teardown-cloudshell.sh --plan
+    perfil actualizado: duration_seconds 900 -> 1800 (UPDATED)
+    peticiones de código MFA: 1 (escrito por el equipo en el prompt de la AWS CLI)
+    rol asumido: assumed-role/circleguard-hu01-teardown; identidad correcta
+    inventario completo sin errores
+    resultado: created=0 updated=0 unchanged=1 planned=0 (modo plan: nada se creó, modificó ni eliminó)

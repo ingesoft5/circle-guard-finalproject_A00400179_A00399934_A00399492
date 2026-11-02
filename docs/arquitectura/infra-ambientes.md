@@ -128,7 +128,7 @@ flowchart LR
 |---|---|---|---|
 | Rol `circleguard-hu01-reader` | Describir, precios, Access Analyzer, detener instancias | Sesión `aws login` del operador | Solo el usuario operador |
 | Rol `circleguard-hu01-operator` | Crear e iniciar recursos acotados; ningún borrado ni permiso IAM | Código MFA nuevo en `AssumeRole` | MFA en cada asunción; sesión ≤ 1 h |
-| Rol `circleguard-hu01-teardown` | Borrar recursos con `Project=circleguard` | Usuario de teardown en CloudShell | Solo ese usuario, MFA de menos de 15 min; nunca en la estación |
+| Rol `circleguard-hu01-teardown` | Describir (política de lectura adjunta) y borrar recursos con `Project=circleguard` | Usuario de teardown en CloudShell | Solo ese usuario, MFA de menos de 15 min; nunca en la estación |
 
 El simulador de políticas IAM confirma que ninguna de estas identidades puede crear credenciales,
 modificar permisos, pasar roles, cambiar la cuenta o asumir el rol de teardown

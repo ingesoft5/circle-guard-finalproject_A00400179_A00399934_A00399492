@@ -32,11 +32,24 @@ serial=$(aws iam list-mfa-devices --query 'MFADevices[0].SerialNumber' --output 
 [[ "$serial" == arn:aws:iam::* ]] || die "El usuario circleguard-hu01-teardown no tiene MFA asignado."
 
 # The role profile takes the console credentials of CloudShell (container endpoint) and asks the
-# AWS CLI to prompt for the MFA code; its session lasts 15 minutes.
+# AWS CLI to prompt for the MFA code once per run. Its session lasts 30 minutes: the AWS CLI
+# treats cached role credentials with less than 15 minutes left as expired, so with 15-minute
+# sessions every `aws` call assumed the role again and asked for another code. Profiles created
+# with 900 seconds by earlier versions are updated.
 cg_aws_profile_ensure circleguard-hu01-teardown "role_arn = arn:aws:iam::$account:role/circleguard-hu01-teardown" \
-  "credential_source = EcsContainer" "mfa_serial = $serial" "duration_seconds = 900" "region = $AWS_REGION"
+  "credential_source = EcsContainer" "mfa_serial = $serial" "duration_seconds = 1800" "region = $AWS_REGION"
+old=$(aws configure get duration_seconds --profile circleguard-hu01-teardown </dev/null || true)
+if [[ "$old" != 1800 ]]; then
+  cg_aws_profile_unset circleguard-hu01-teardown duration_seconds
+  cg_aws_profile_setting circleguard-hu01-teardown duration_seconds 1800
+  updated "perfil circleguard-hu01-teardown: duration_seconds ${old:-sin valor} -> 1800"
+fi
 trap 'rm -f "$CG_AWS_HOME/.aws/cli/cache/"*.json' EXIT
 info "escriba el código MFA de circleguard-hu01-teardown cuando la AWS CLI lo pida:"
-aws sts get-caller-identity --profile circleguard-hu01-teardown --query Arn --output text >/dev/null ||
+role=$(aws sts get-caller-identity --profile circleguard-hu01-teardown --query Arn --output text) ||
   die "No se pudo asumir el rol de teardown (código MFA incorrecto o vencido)."
+[[ "$role" == *":assumed-role/circleguard-hu01-teardown/"* ]] || die "Identidad inesperada tras asumir el rol: ${role##*:}."
+# `aws configure list` and ~/.aws/config show CloudShell's own credentials (the user); this
+# script keeps its profile under ~/.circleguard/aws.
+info "rol asumido con MFA: ${role##*:} (perfil en ${CG_AWS_CONFIG/#$HOME/\~})"
 CG_AWS_PROFILE=circleguard-hu01-teardown bash "$INFRA_DIR/teardown.sh" --destroy "$@"
