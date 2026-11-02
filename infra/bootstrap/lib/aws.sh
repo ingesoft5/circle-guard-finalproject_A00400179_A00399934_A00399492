@@ -7,8 +7,11 @@ source "$CG_LIB_DIR/session.sh"
 # shellcheck source=budget.sh
 source "$CG_LIB_DIR/budget.sh"
 
+# Servers of HU-01 (topology B): "ci" runs Jenkins and SonarQube, "nexus" runs Nexus. The
+# environments have no servers in HU-01 (network isolation only); env-* roles remain valid for
+# bootstrap-env.sh if a later story approves environment hosts.
 # shellcheck disable=SC2034 # used by the scripts that source this library
-CG_ROLES=(jenkins sonarqube nexus env-dev env-stage env-prod)
+CG_ROLES=(ci nexus)
 
 # cg_aws_preflight: validates tools, the identity of the capability the run needs (by default
 # read for --plan and operate for --apply; see lib/session.sh), region and zone. The scripts
@@ -89,27 +92,36 @@ cg_dry_run() {
 
 cg_role_tier() {
   case "$1" in
-    jenkins | sonarqube | nexus) echo tools ;;
+    ci | nexus | jenkins | sonarqube) echo tools ;;
     env-dev | env-stage | env-prod) echo "${1#env-}" ;;
     *) die "Rol desconocido: $1" ;;
   esac
 }
 
+# cg_tool_host <tool>: server role that runs a tool.
+cg_tool_host() {
+  case "$1" in
+    jenkins | sonarqube) echo ci ;;
+    nexus) echo nexus ;;
+    *) die "Herramienta desconocida: $1" ;;
+  esac
+}
+
 cg_role_type() {
   case "$1" in
-    jenkins) echo "$JENKINS_INSTANCE_TYPE" ;;
-    sonarqube) echo "$SONARQUBE_INSTANCE_TYPE" ;;
+    ci) echo "$CI_INSTANCE_TYPE" ;;
     nexus) echo "$NEXUS_INSTANCE_TYPE" ;;
     env-*) cg_env_value "${1#env-}" ENV_INSTANCE_TYPE ;;
+    *) die "Rol sin servidor: $1" ;;
   esac
 }
 
 cg_role_volume() {
   case "$1" in
-    jenkins) echo "$JENKINS_VOLUME_GB" ;;
-    sonarqube) echo "$SONARQUBE_VOLUME_GB" ;;
+    ci) echo "$CI_VOLUME_GB" ;;
     nexus) echo "$NEXUS_VOLUME_GB" ;;
     env-*) cg_env_value "${1#env-}" ENV_VOLUME_GB ;;
+    *) die "Rol sin servidor: $1" ;;
   esac
 }
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# HU-01 · EC2 servers: jenkins, sonarqube and nexus, plus one host per environment (dev,
-# stage, prod). BILLABLE. The default --plan mode prints the cost preview and validates
-# permissions with --dry-run. Creating or starting an instance requires
+# HU-01 · EC2 servers (topology B): "ci" (Jenkins + SonarQube) and "nexus". The environments
+# get no servers in HU-01. BILLABLE. The default --plan mode prints the cost preview and
+# validates permissions with --dry-run. Creating or starting an instance requires
 #   --apply --approve <role>[,<role>...]   (or --approve all)
 # Instances use Ubuntu 24.04, encrypted gp3 volumes, IMDSv2 and, on burstable T types, "standard"
-# CPU credits (no surplus charges; flex types have no credits). Existing instances are never
-# replaced or resized automatically.
+# CPU credits (no surplus charges; flex types have no credits). An OS shutdown stops the
+# instance (it is never terminated), which is what the auto-stop timer of the hosts relies on.
+# Existing instances are never replaced or resized automatically.
 
 # shellcheck source=bootstrap/lib/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/bootstrap/lib/common.sh"
@@ -16,9 +17,9 @@ usage() {
   cat <<'EOF'
 Uso: infra/bootstrap-servers.sh [--plan | --apply --approve <roles>] | --prices
   --plan     (por defecto) muestra costos estimados y valida permisos con --dry-run.
-  --apply --approve jenkins,sonarqube,...   crea o inicia SOLO los roles aprobados (FACTURABLE).
+  --apply --approve ci,nexus   crea o inicia SOLO los roles aprobados (FACTURABLE).
   --prices   consulta los precios vigentes en la AWS Pricing API (solo lectura) y termina.
-Roles: jenkins sonarqube nexus env-dev env-stage env-prod (o "all").
+Roles: ci (Jenkins y SonarQube) y nexus (o "all").
 EOF
 }
 
@@ -34,7 +35,8 @@ cost_preview() {
     for role in "${CG_ROLES[@]}"; do
       echo "$role $(cg_role_type "$role") $(cg_role_volume "$role") $(price_hour "$(cg_role_type "$role")")"
     done
-  } | awk -v ip="$PRICE_IPV4_HOUR" -v gbm="$PRICE_EBS_GP3_GB_MONTH" -v date="$PRICES_REFERENCE_DATE" '
+  } | awk -v ip="$PRICE_IPV4_HOUR" -v gbm="$PRICE_EBS_GP3_GB_MONTH" -v date="$PRICES_REFERENCE_DATE" \
+    -v gbout="$PRICE_DATA_OUT_GB" -v gbres="$DATA_OUT_GB_RESERVE" -v stop="$AUTO_STOP_HOURS" '
     BEGIN {
       printf "\nEstimación On-Demand (precios de referencia %s; verificar con --prices)\n", date
       printf "  %-10s %-10s %7s %9s %9s %10s %9s %10s\n", "rol", "tipo", "EC2 h", "IPv4 h", "EBS mes", "total h", "día 24h", "mes 730h"
@@ -46,7 +48,10 @@ cost_preview() {
     }
     END {
       printf "  %-10s %-10s %7s %9s %9.2f %10.4f %9.2f %10.2f\n", "TOTAL", "", "", "", ebs_month, sum, sum * 24, sum * 730
-      printf "  Detenidas solo se cobra el EBS: %.2f USD/día. Sin NAT Gateway ni Elastic IP.\n\n", ebs_month / 30.4
+      printf "  Detenidas solo se cobra el EBS: %.2f USD/día (la IPv4 automática se libera). Sin NAT Gateway ni Elastic IP.\n", ebs_month / 30.4
+      printf "  Transferencia de salida a Internet: %.2f USD/GB (reserva de %d GB = %.2f USD); la entrada no se cobra.\n", gbout, gbres, gbout * gbres
+      if (stop > 0) printf "  Parada automática de los hosts a las %d h del arranque: una sesión olvidada cuesta como máximo %.2f USD.\n\n", stop, (sum - ebs_month / 730) * stop
+      else printf "  Parada automática DESACTIVADA (AUTO_STOP_HOURS=0): detenga las instancias al terminar.\n\n"
     }' >&2
 }
 
@@ -65,6 +70,18 @@ budget_preview() {
       -v days="$EBS_RESERVE_DAYS" 'BEGIN { printf "%.4f", p + (h + ip) * s + new * gib * gbm / 730 * 24 * days }')
   done
   cg_budget_check "$projected" "esta ejecución (${SESSION_HOURS_ESTIMATE} h y EBS nuevo por ${EBS_RESERVE_DAYS} días)"
+}
+
+# sync_stopped: stopped instances the ledger still counts as running (auto-stop timer, console)
+# are recorded as stopped before estimating, with the time AWS reports.
+sync_stopped() {
+  local role id state reason
+  for role in "${CG_ROLES[@]}"; do
+    read -r id state _ <<<"$(cg_find_instances "$role" stopped)"
+    nz "${id:-}" || continue
+    reason=$(aws_ ec2 describe-instances --instance-ids "$id" --query 'Reservations[0].Instances[0].StateTransitionReason' --output text)
+    cg_ledger_sync_stop "$role" "$id" "$reason"
+  done
 }
 
 pricing_instance() {
@@ -220,9 +237,10 @@ fi
 cg_start_log bootstrap-servers
 cg_aws_preflight
 for role in ${CG_APPROVED//,/ }; do
-  [[ "$role" == all ]] || cg_role_tier "$role" >/dev/null
+  [[ "$role" == all ]] || cg_role_type "$role" >/dev/null
 done
 cost_preview
+sync_stopped
 budget_preview
 check_offerings
 resolve_ami

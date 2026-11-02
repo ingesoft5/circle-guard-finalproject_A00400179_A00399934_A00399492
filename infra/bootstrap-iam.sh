@@ -184,7 +184,7 @@ inspect_region_zone() {
   done
   quota=$(try service-quotas get-service-quota --region "$AWS_REGION" --service-code ec2 --quota-code L-1216C47A \
     --query Quota.Value --output text) || true
-  info "cuota vCPU On-Demand estándar en $AWS_REGION: ${quota} · necesarias con las 6 encendidas: $need"
+  info "cuota vCPU On-Demand estándar en $AWS_REGION: ${quota} · necesarias con los ${#CG_ROLES[@]} servidores encendidos: $need"
   if [[ "$quota" =~ ^[0-9.]+$ ]] && awk -v q="$quota" -v n="$need" 'BEGIN { exit !(q < n) }'; then
     warn "la cuota de vCPU es menor que la necesaria: pedir un aumento es una decisión suya (Service Quotas)"
   fi

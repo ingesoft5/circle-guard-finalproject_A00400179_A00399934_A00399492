@@ -165,19 +165,22 @@ cg_sync_secret() {
   if [[ -z "$have" ]]; then created "$HOST_ROLE: $1 (0600, contenido no mostrado)"; else updated "$HOST_ROLE: $1 (0600, contenido no mostrado)"; fi
 }
 
-# cg_tool_bootstrap <tool>: shared flow of bootstrap-jenkins/sonarqube/nexus.sh.
+# cg_tool_bootstrap <tool>: shared flow of bootstrap-jenkins/sonarqube/nexus.sh, on the server
+# that runs the tool (cg_tool_host: Jenkins and SonarQube share "ci").
 # The caller defines TOOL_FILES (relative to infra/bootstrap/<tool>/), TOOL_ENV (non-secret
 # KEY=VALUE lines) and TOOL_SECRETS (names in the tools/<tool> scope).
 cg_tool_bootstrap() {
-  local tool=$1 src="$INFRA_DIR/bootstrap/$1" project="circleguard-$1" dir f env_content before after
+  local tool=$1 src="$INFRA_DIR/bootstrap/$1" project="circleguard-$1" host dir f env_content before after
+  host=$(cg_tool_host "$tool")
   cg_target_preflight
-  if ! cg_resolve_host "$tool"; then
-    planned "$tool: preparar el host, publicar el stack y configurarlo cuando la instancia esté en ejecución"
+  if ! cg_resolve_host "$host"; then
+    planned "$tool: preparar el host $host, publicar el stack y configurarlo cuando la instancia esté en ejecución"
     return 0
   fi
+  if [[ "$CG_TARGET" == local ]]; then HOST_ROLE=$tool; elif [[ "$host" != "$tool" ]]; then HOST_ROLE="$host/$tool"; fi
   if [[ "$CG_TARGET" == aws ]]; then
     cg_wait_ssh
-    cg_run_on_host "$INFRA_DIR/bootstrap/host/setup-docker.sh" "$tool" "$CG_MODE"
+    cg_run_on_host "$INFRA_DIR/bootstrap/host/setup-docker.sh" "$tool" "$CG_MODE" "$AUTO_STOP_HOURS" "$SWAP_GB"
   fi
 
   dir=$(cg_stack_dir "$tool")

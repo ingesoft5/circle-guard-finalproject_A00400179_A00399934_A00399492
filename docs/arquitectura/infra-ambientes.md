@@ -1,8 +1,8 @@
 # Diagrama de ambientes de CircleGuard (HU-01)
 
-Infraestructura de la plataforma en AWS: servidores para Jenkins, SonarQube y Nexus, y tres
-ambientes aislados (`dev`, `stage`, `prod`). Todo se aprovisiona con `infra/bootstrap-*.sh` y
-Docker Compose (ver [infra/README.md](../../infra/README.md)).
+Infraestructura de la plataforma en AWS (topología B, aprobada el 2026-11-02): dos servidores
+para Jenkins, SonarQube y Nexus, y tres ambientes (`dev`, `stage`, `prod`) aislados por red. Todo
+se aprovisiona con `infra/bootstrap-*.sh` y Docker Compose (ver [infra/README.md](../../infra/README.md)).
 
 ```mermaid
 flowchart TB
@@ -13,36 +13,40 @@ flowchart TB
 
         subgraph vpc["VPC circleguard-vpc · 10.20.0.0/16 · us-east-2a · Internet Gateway (sin NAT Gateway)"]
             subgraph tools["Subred tools · 10.20.0.0/24"]
-                jenkins["Jenkins LTS 2.580.2<br/>c7i-flex.large · :8080 solo en 127.0.0.1<br/>JCasC, sin asistente"]
-                sonar["SonarQube 26.10 + PostgreSQL 16<br/>m7i-flex.large · :9000"]
-                nexus["Nexus Repository 3.96.5<br/>m7i-flex.large · :8081 UI/API<br/>:8082 registro circleguard-docker"]
+                subgraph ci["circleguard-ci · m7i-flex.large (2 vCPU, 8 GiB) · 30 GiB gp3 · sg-ci"]
+                    jenkins["Jenkins LTS 2.580.2<br/>:8080 solo en 127.0.0.1<br/>JCasC, sin asistente"]
+                    sonar["SonarQube 26.10 + PostgreSQL 16<br/>:9000 solo en 127.0.0.1"]
+                end
+                subgraph nx["circleguard-nexus · m7i-flex.large (2 vCPU, 8 GiB) · 25 GiB gp3 · sg-nexus"]
+                    nexus["Nexus Repository 3.96.5<br/>heap 2703 MB + directa 2703 MB<br/>:8081 UI/API · :8082 registro<br/>EULA PENDIENTE"]
+                end
             end
-            subgraph dev["Subred dev · 10.20.10.0/24"]
-                envdev["env-dev · t3.small<br/>Docker + Compose<br/>/opt/circleguard/dev/.env"]
+            subgraph dev["Subred dev · 10.20.10.0/24 · sg-env-dev"]
+                envdev["sin servidor en HU-01"]
             end
-            subgraph stage["Subred stage · 10.20.20.0/24"]
-                envstage["env-stage · t3.small<br/>Docker + Compose<br/>/opt/circleguard/stage/.env"]
+            subgraph stage["Subred stage · 10.20.20.0/24 · sg-env-stage"]
+                envstage["sin servidor en HU-01"]
             end
-            subgraph prod["Subred prod · 10.20.30.0/24"]
-                envprod["env-prod · t3.small<br/>Docker + Compose<br/>/opt/circleguard/prod/.env"]
+            subgraph prod["Subred prod · 10.20.30.0/24 · sg-env-prod"]
+                envprod["sin servidor en HU-01"]
             end
         end
     end
 
-    ops -- "SSH 22 · UIs solo por túnel SSH (infra/tunnel.sh)" --> tools
-    ops -- "SSH 22" --> envdev & envstage & envprod
+    ops -- "SSH 22 · UIs solo por túnel SSH (infra/tunnel.sh)" --> ci & nx
     ops -. "bootstrap: lee secretos<br/>y los envía por SSH" .-> ssm
-    jenkins -- "9000" --> sonar
-    jenkins -- "8081 · 8082" --> nexus
-    jenkins -- "SSH 22" --> envdev & envstage & envprod
-    envdev & envstage & envprod -- "8082 pull" --> nexus
-    envdev x--x envstage
-    envstage x--x envprod
-    envdev x--x envprod
+    jenkins -- "127.0.0.1 (mismo host)" --- sonar
+    ci -- "8081 · 8082" --> nexus
+    ci -. "SSH 22 (regla preparada)" .-> dev & stage & prod
+    dev & stage & prod -. "8082 pull (regla preparada)" .-> nexus
+    dev x--x stage
+    stage x--x prod
+    dev x--x prod
 ```
 
 `x--x` = tráfico **bloqueado**: ningún grupo de seguridad permite comunicación entre ambientes.
-Desde Internet solo se acepta SSH (22) desde `ADMIN_CIDRS`: las interfaces HTTP de las
+Las líneas punteadas hacia los ambientes son reglas configuradas para servidores que HU-01 no
+crea. Desde Internet solo se acepta SSH (22) desde `ADMIN_CIDRS`: las interfaces HTTP de las
 herramientas no se exponen, y su administración pasa por un túnel SSH cifrado.
 
 ## Comunicación permitida
@@ -51,44 +55,55 @@ Grupos de seguridad de `infra/bootstrap-network.sh`. Todo lo que no figura aquí
 
 | Origen | Destino | Puerto | Propósito |
 |---|---|---|---|
-| `ADMIN_CIDRS` | todos los servidores | 22 | Aprovisionamiento por SSH, y túnel SSH hacia las UIs de jenkins (8080), sonarqube (9000) y nexus (8081) |
+| `ADMIN_CIDRS` | `sg-ci`, `sg-nexus` (y los grupos de ambiente) | 22 | Aprovisionamiento por SSH, y túnel SSH hacia las UIs de Jenkins (8080), SonarQube (9000) y Nexus (8081) |
 | Internet (incluido `ADMIN_CIDRS`) | 8080 · 9000 · 8081 · 8082 | — | **Denegado**: las UIs HTTP no se exponen |
-| `sg-jenkins` | `sg-sonarqube` | 9000 | Análisis estático (lo usará E1.4) |
-| `sg-jenkins` | `sg-nexus` | 8081 · 8082 | Publicación de artefactos e imágenes (E1.3/E1.4) |
-| `sg-jenkins` | `sg-env-{dev,stage,prod}` | 22 | Despliegue (E1.5) |
-| `sg-env-{dev,stage,prod}` | `sg-nexus` | 8082 | Descarga de imágenes |
+| Jenkins | SonarQube | 9000 | Mismo servidor (`ci`): no necesita regla de red; SonarQube solo escucha en 127.0.0.1 |
+| `sg-ci` | `sg-nexus` | 8081 · 8082 | Publicación de artefactos e imágenes (E1.3/E1.4) |
+| `sg-ci` | `sg-env-{dev,stage,prod}` | 22 | Despliegue (E1.5): regla preparada, sin servidores en HU-01 |
+| `sg-env-{dev,stage,prod}` | `sg-nexus` | 8082 | Descarga de imágenes: regla preparada, sin servidores en HU-01 |
 | todos (salida) | 0.0.0.0/0 | 80 · 443 | Paquetes, imágenes y plugins |
 | `sg-env-X` | `sg-env-Y` | — | **Denegado** (no existe regla de entrada ni de salida) |
-| sonarqube · nexus | ambientes | — | **Denegado** |
+| `sg-nexus` | `sg-ci` y ambientes | — | **Denegado** |
 | Internet | registro Docker de Nexus (8082) | — | **Denegado** |
 
 ## Aislamiento de los ambientes
 
-| Dimensión | Mecanismo |
-|---|---|
-| Cómputo | Una instancia EC2 por ambiente |
-| Red | Subred propia y grupo de seguridad propio, sin reglas hacia otros ambientes; salida limitada a 80/443 y al registro |
-| Credenciales | Ruta SSM propia con valores **distintos** por ambiente. Cada host recibe solo el `.env` de su ambiente (`0600 root`) |
-| Acceso | Par de llaves SSH propio por ambiente (`circleguard-dev`, `circleguard-stage`, `circleguard-prod`) y otro para herramientas |
-| Datos | Volúmenes en el EBS cifrado de cada instancia |
-| Identificación | Etiquetas `Project`, `Story`, `ManagedBy`, `Role` y `Environment` |
+| Dimensión | Mecanismo | Estado en HU-01 |
+|---|---|---|
+| Red | Subred propia y grupo de seguridad propio, sin reglas hacia otros ambientes; salida limitada a 80/443 y al registro | **Configurado** |
+| Credenciales | Ruta SSM propia con valores **distintos** por ambiente (`/circleguard/{dev,stage,prod}/*`) | **Configurado** |
+| Acceso | Par de llaves SSH propio por ambiente (`circleguard-dev`, `circleguard-stage`, `circleguard-prod`) y otro para herramientas | **Configurado** |
+| Configuración | `infra/config/envs/<env>.env` por ambiente | **Configurado** |
+| Cómputo | Un servidor por ambiente | **No en HU-01** (cuota de 5 vCPU y presupuesto de 15 USD) |
+| Identificación | Etiquetas `Project`, `Story`, `ManagedBy`, `Role` y `Environment` | **Configurado** |
 
-Comprobación: `bash infra/verify-infra.sh --isolation` intenta cada conexión desde los propios
-hosts con `nc` y exige `closed` entre ambientes y `open` en los flujos permitidos.
+**Aislamiento configurado frente a verificado.** Sin servidores de ambiente no hay tráfico con el
+que probar el aislamiento. `bash infra/verify-infra.sh --health` comprueba la configuración (cada
+ambiente tiene su subred y su grupo de seguridad, ninguna regla referencia a otro ambiente y solo
+se referencian `sg-ci` y `sg-nexus`) e informa el resto como `PENDING`. Cuando existan servidores
+de ambiente, `--isolation` intentará cada conexión con `nc` desde los hosts y exigirá `closed`
+entre ambientes y `open` en los flujos permitidos. Hoy, `--isolation` prueba los flujos entre
+`ci` y `nexus`.
 
 ## Servidores
 
 | Host | Subred | Tipo | Disco | Contenido |
 |---|---|---|---|---|
-| circleguard-jenkins | tools | c7i-flex.large | 30 GiB gp3 cifrado | Jenkins (imagen derivada de la LTS con JCasC fijado) |
-| circleguard-sonarqube | tools | m7i-flex.large | 30 GiB gp3 cifrado | SonarQube Community Build y PostgreSQL 16 (sin puerto publicado) |
-| circleguard-nexus | tools | m7i-flex.large | 40 GiB gp3 cifrado | Nexus Repository CE y el repositorio Docker hosted `circleguard-docker` (etiquetas inmutables) |
-| circleguard-env-{dev,stage,prod} | dev · stage · prod | t3.small | 20 GiB gp3 cifrado | Docker Engine y Compose, listo para E1.3/E1.5 |
+| circleguard-ci | tools | m7i-flex.large (2 vCPU, 8 GiB) | 30 GiB gp3 cifrado | Jenkins (imagen derivada de la LTS con JCasC fijado), SonarQube Community Build y PostgreSQL 16 (sin puerto publicado) |
+| circleguard-nexus | tools | m7i-flex.large (2 vCPU, 8 GiB) | 25 GiB gp3 cifrado | Nexus Repository CE. El repositorio Docker hosted `circleguard-docker` se crea cuando el equipo acepte el EULA |
 
 Todas las instancias usan Ubuntu 24.04 LTS, IMDSv2 obligatorio, IPv4 pública automática (sin
-Elastic IP) y no tienen rol IAM. Los `t3.small` usan créditos de CPU `standard`; los tipos flex no
-usan créditos. La cuenta está en el plan gratuito de AWS, que solo lanza tipos aptos para la capa
-gratuita.
+Elastic IP), un swap de seguridad de 2 GiB y no tienen rol IAM. Se apagan solas a las 4 horas del
+arranque: la instancia queda detenida, con su disco. Los tipos flex no usan créditos de CPU. La
+cuenta está en el plan gratuito de AWS, que solo lanza tipos aptos para la capa gratuita (8 GiB
+como máximo); con 5 vCPU de cuota caben las dos instancias encendidas (4 vCPU).
+
+| Memoria prevista | `ci` | `nexus` |
+|---|---|---|
+| Servicios | Jenkins (recomendado: 4 GB), SonarQube (escala pequeña: 4 GB y 2 núcleos), PostgreSQL | Nexus (mínimo: host de 8 GB; *heap* ≥ 2703 MB; *heap* + directa ≤ 2/3 de la RAM) |
+| Uso típico estimado | ≈ 4.8 GiB de 8 | ≈ 4.1 GiB de 8 |
+| Pico estimado | ≈ 6.0 a 7.0 GiB | ≈ 6.4 GiB |
+| Medido | Pendiente: `verify-infra.sh --health` lo registra tras el despliegue | Pendiente |
 
 ## Identidades y autorización
 

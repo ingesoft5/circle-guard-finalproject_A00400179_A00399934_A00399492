@@ -1,0 +1,131 @@
+# HU-01 · Fase 2: preparación local de la arquitectura B (2026-11-02)
+# Solo cambios en el repositorio y validaciones locales. Ninguna llamada de escritura a AWS, IAM
+# sin cambios, EULA de Nexus sin aceptar, sin commits. Ningún valor secreto en este archivo.
+
+## A. Topología aprobada (Fase 1)
+  circleguard-ci     m7i-flex.large (2 vCPU, 8 GiB) · 30 GiB gp3 cifrado · Jenkins + SonarQube + PostgreSQL
+  circleguard-nexus  m7i-flex.large (2 vCPU, 8 GiB) · 25 GiB gp3 cifrado · Nexus Repository 3.96.5
+  dev, stage, prod   subred y grupo de seguridad propios, sin servidores (aislamiento configurado)
+  vCPU con ambas encendidas: 4 (cuota actual: 5). Región us-east-2, zona us-east-2a, Ubuntu 24.04 x86_64.
+  La política del operador ya permite m7i-flex.large y gp3 cifrado de hasta 40 GiB, y no restringe
+  los valores de la etiqueta Role ni los nombres de grupo: la topología B no requiere cambios de IAM.
+
+## B. Requisitos de Nexus: aclaración de los 4 vCPU
+  Fuente: Sonatype, «Sonatype Nexus Repository System Requirements»
+  (https://help.sonatype.com/en/sonatype-nexus-repository-system-requirements.html):
+    - CPU: «Performance is primarily bounded by IO (disk and network) rather than CPU.» La página no
+      fija un número mínimo de CPU.
+    - Tabla «Nexus Repository Recommendation by Profile Size»: «sizing recommendations for the
+      cloud-native reference architecture size profiles». Perfil más pequeño (XS): «100 rps
+      sustained with spikes of 150–200 rps», 1 nodo, 4 vCPU y 16 GiB por nodo.
+  Conclusión: los 4 vCPU son una RECOMENDACIÓN por nodo para un perfil de referencia de 100
+  peticiones por segundo sostenidas, no un mínimo obligatorio. Community Edition admite como
+  máximo 100 000 peticiones al día (≈ 1.2 por segundo de media; fuente: «CE onboarding»).
+  Mínimos explícitos (Sonatype, «Nexus Repository Memory Overview»): host de 8 GB como mínimo,
+  heap mínimo de 2703 MB, heap máximo + memoria directa máxima ≤ 2/3 de la RAM física.
+  Configuración (sin cambios, la del Compose): -Xms2703m -Xmx2703m -XX:MaxDirectMemorySize=2703m
+    2703 + 2703 = 5406 MiB ≤ 2/3 × 8192 MiB = 5461 MiB  → cumple el mínimo y la regla de los 2/3.
+  Nota: la tabla de ejemplo de esa página propone para 8 GB (H2) -Xmx4G y 2g de directa, que suma
+  6 GiB y supera su propia regla de los 2/3; se mantiene el valor por defecto de la imagen.
+  Riesgo con 2 vCPU: arranque más lento (minutos), tareas largas (limpieza, compactación) y
+  subidas de imágenes grandes más lentas; aceptable para la carga académica de HU-01.
+
+## C. Memoria por servidor (valores por defecto de cada fabricante, sin reducciones)
+  ci:    Jenkins (JVM por defecto, máx. 25 % de la RAM) + SonarQube (heap máx. web 1 GB, motor
+         1536 MB, Elasticsearch 512 MB) + PostgreSQL. Estimación: típico ≈ 4.8 GiB, pico ≈ 6-7 GiB.
+  nexus: heap 2703 MB + directa hasta 2703 MB + metaspace. Estimación: típico ≈ 4.1 GiB, pico ≈ 6.4 GiB.
+  Swap de seguridad de 2 GiB con vm.swappiness=10 en ambos: solo bajo presión de memoria.
+  Valores medidos: pendientes del despliegue (verify-infra.sh --health registra la memoria en uso).
+
+## D. Cambios (ver el diff)
+  infra/config/aws.env               CI_* y NEXUS_* (m7i-flex.large, 30/25 GiB), AUTO_STOP_HOURS=4,
+                                     SWAP_GB=2, precios del 2026-11-02, PRICE_DATA_OUT_GB=0.09,
+                                     SESSION_HOURS_ESTIMATE=4, EBS_RESERVE_DAYS=45,
+                                     DATA_OUT_GB_RESERVE=3, QUOTA_VCPU_TARGET=4
+  infra/bootstrap/lib/aws.sh         CG_ROLES=(ci nexus); cg_tool_host (jenkins y sonarqube -> ci)
+  infra/bootstrap-network.sh         grupos ci, nexus y env-*; sin regla 9000 (SonarQube local)
+  infra/bootstrap-servers.sh         roles ci/nexus; costos con IPv4, EBS, transferencia y parada
+                                     automática; registra paradas no hechas por los scripts
+  infra/bootstrap/lib/budget.sh      cg_ledger_sync_stop; reserva de transferencia en la estimación
+  infra/bootstrap/lib/remote.sh      cada herramienta en su servidor; pasa parada y swap al host
+  infra/bootstrap/host/setup-docker.sh  swap de seguridad y circleguard-autostop.timer
+  infra/bootstrap-sonarqube.sh       escucha solo en 127.0.0.1 también en AWS (comparte host)
+  infra/bootstrap/nexus/configure.sh EULA pendiente = PLAN y fin sin error (antes: fallo)
+  infra/bootstrap-all.sh             herramientas por servidor; ambientes informados como solo red
+  infra/verify-infra.sh              servidores (Docker, parada, swap, memoria), EULA, aislamiento
+                                     configurado frente a verificado, resultado PENDING
+  infra/tunnel.sh, bootstrap-jenkins.sh, bootstrap-nexus.sh, bootstrap-iam.sh  textos y host
+  infra/README.md, docs/arquitectura/infra-ambientes.md  topología B, costos, diagrama
+  Sin cambios: archivos Compose, plantillas IAM, teardown*.sh, bootstrap-secrets.sh, bootstrap-env.sh.
+
+## E. Red: reglas que generaría bootstrap-network.sh (ADMIN de ejemplo 203.0.113.10/32)
+  entrada: ci, nexus y env-{dev,stage,prod} 22 desde ADMIN · nexus 8081 y 8082 desde sg-ci ·
+           env-* 22 desde sg-ci · nexus 8082 desde sg-env-{dev,stage,prod}
+  salida:  todos 80 y 443 a 0.0.0.0/0 · ci 8081/8082 a sg-nexus · ci 22 a sg-env-* · env-* 8082 a sg-nexus
+  comprobaciones: reglas con el puerto 9000: 0 · reglas entre ambientes: 0 · entrada desde CIDR: solo 22
+
+## F. EULA de Nexus (pendiente; no se acepta)
+  Sonatype («CE onboarding»): sin aceptar el EULA, los usuarios no pueden descargar ni subir
+  componentes. Comportamiento real con Nexus 3.96.5 local (2026-10-31, evidencias local/):
+  la contraseña del administrador se sustituye antes del EULA; la configuración se detenía en él.
+  Ahora configure.sh informa PLAN «EULA ... PENDIENTE» y termina con código 0, sin más llamadas.
+  No se reordena la desactivación del acceso anónimo antes del EULA: no se puede demostrar sin
+  un Nexus real que esa API funcione antes de aceptarlo. Mitigación: la UI/API de Nexus solo es
+  alcanzable desde sg-ci y por túnel SSH; no se crean repositorios ni se habilita publicación.
+  verify-infra.sh: lee el estado del EULA (GET) e informa PENDING; comprueba que el conector
+  Docker no responde mientras tanto.
+
+## G. Parada automática
+  circleguard-autostop.timer (OnActiveSec=4h) ejecuta «shutdown -h +5»: aviso de 5 minutos y apagado
+  del sistema; la instancia (lanzada con --instance-initiated-shutdown-behavior stop) queda
+  DETENIDA con su disco. Ampliar: sudo systemctl restart circleguard-autostop.timer. Desactivar:
+  AUTO_STOP_HOURS=0. No borra discos ni datos. Limitación: la política del operador no incluye
+  ec2:DescribeInstanceAttribute, así que el comportamiento de apagado no se puede leer por API;
+  bootstrap-servers.sh lo fija siempre al lanzar.
+
+## H. Costos (vista previa de bootstrap-servers.sh con aws.env)
+  rol    tipo            EC2 h   IPv4 h  EBS mes  total h  día 24h  mes 730h
+  ci     m7i-flex.large  0.0958  0.0050  2.40     0.1040   2.50     75.95
+  nexus  m7i-flex.large  0.0958  0.0050  2.00     0.1035   2.48     75.55
+  TOTAL                                  4.40     0.2075   4.98     151.51
+  Detenidas: 0.14 USD/día (solo EBS). Transferencia: 0.09 USD/GB, reserva de 3 GB = 0.27 USD.
+  Parada automática a las 4 h: una sesión olvidada cuesta como máximo 0.81 USD.
+  Presupuesto de HU-01 (estimación, no garantía): base ≈ 6.24 USD (9 h, 30 días de EBS, 1 GB);
+  con margen ≈ 10.41 USD (18 h, 45 días, 3 GB); con margen y una sesión olvidada ≈ 11.22 USD.
+
+## I. IAM: versiones de circleguard-hu01-teardown (lectura del 2026-11-02, Fase 1; sin cambios)
+  v1 (2026-11-01 23:17, igual a la plantilla del repositorio): DestroyOnlyCircleGuardResources,
+     PurgeCircleGuardSecrets.
+  v2 (2026-11-02 03:26, predeterminada; creada por la raíz desde la consola): v1 + PreflightZoneCheck
+     (ec2:DescribeAvailabilityZones, Resource "*", aws:RequestedRegion us-east-2).
+  El rol también tiene adjunta circleguard-hu01-reader, que concede ec2:DescribeAvailabilityZones
+  en us-east-2: la v2 no añade ningún permiso efectivo. La plantilla se mantiene en v1 porque el
+  fallo que motivó la v2 era la repetición de MFA (evidencia 11, L), no un permiso. Volver a la v1
+  en AWS (set-default-policy-version) es un cambio de IAM pendiente de autorización; no se ejecutó.
+
+## J. Validaciones locales
+  bash -n: 26 de 26 scripts de infra/ correctos.
+  JSON de las 8 plantillas IAM: válido (sin cambios en el diff).
+  YAML de los 3 Compose: válido (PyYAML); sin cambios en el diff.
+  setup-docker.sh en modo plan como usuario sin privilegios (sonarqube 4 2, jenkins 4 2, nexus 0 0):
+    solo PLAN/UNCHANGED, código 0; no se creó /swapfile, ni la unidad, ni /opt/circleguard.
+  systemd-analyze verify de circleguard-autostop.service y .timer: sin errores.
+  configure.sh contra una API de Nexus simulada con el EULA sin aceptar (plan, apply, apply):
+    UNCHANGED en línea · UNCHANGED contraseña gestionada · PLAN EULA PENDIENTE; código 0;
+    peticiones GET status/writable, status/check y system/eula (×2); escrituras POST/PUT/DELETE: 0;
+    salida idéntica en las tres ejecuciones.
+  verify-infra.sh (funciones con búsquedas simuladas): nexus_eula = pendiente (1 GET; desconocido
+    con la API caída); check_envs: configuración limpia = 15 PASS y 3 PENDING; con una regla
+    dev -> stage = 2 FAIL.
+  Registro de costos: parada tomada de la hora de AWS; sin hora, arranque + 4 h; ignora
+    duplicados; recorta a [arranque, ahora]. Acumulado calculado 0.74 USD = esperado 0.74 USD.
+  Reglas de red y vista previa de costos: secciones E y H.
+  Diff: sin comandos destructivos, borrados de AWS, cambios de IAM ni aceptación del EULA; la única
+    referencia a una contraseña es su envío a curl por stdin (printf) para leer el EULA.
+
+## K. No disponible o pendiente
+  ShellCheck y Gitleaks: no instalados en WSL y Docker Desktop detenido (no se arrancó para no
+  afectar contenedores de otros proyectos). Pendiente antes del cierre.
+  docker compose config: la CLI de Docker no responde sin Docker Desktop; se validó el YAML con PyYAML.
+  Pruebas en AWS (despliegue, idempotencia real, memoria medida, parada automática real, flujos
+  ci -> nexus): Fases 3 y 4, con autorización expresa.
