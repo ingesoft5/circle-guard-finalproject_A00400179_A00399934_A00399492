@@ -28,6 +28,32 @@ Spring Boot y el cliente web se adapta en tiempo de build dentro de la imagen.
 > **Docker no está instalado en el equipo actual.** Hasta instalarlo no se pueden generar las
 > evidencias de build/publicación; los archivos y la configuración sí están listos.
 
+### Instalar Docker (WSL para desarrollo, Docker Engine para las 7 máquinas)
+
+**Windows + WSL (equipo de desarrollo).** La opción más simple es Docker Desktop con
+*Use the WSL 2 based engine* y la integración de la distribución Ubuntu activada. Después, en WSL:
+
+```bash
+docker --version
+docker compose version   # debe ser v2.20 o superior
+```
+
+**Linux / WSL nativo (hosts de las 7 máquinas).** Instale Docker Engine y el plugin Compose desde
+el repositorio oficial de Docker para su distribución, habilite el servicio y agregue el usuario al
+grupo `docker`:
+
+```bash
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+newgrp docker
+docker run --rm hello-world
+docker compose version
+```
+
+No se requieren rutas de WSL ni PowerShell: todos los scripts funcionan igual en Ubuntu, otra
+distribución Linux o Git Bash. Si una máquina es ARM, valide `osixia/openldap:1.5.0` (no publica un
+digest multi-arquitectura) antes de usarla.
+
 ## Flujo completo (dev)
 
 ```bash
