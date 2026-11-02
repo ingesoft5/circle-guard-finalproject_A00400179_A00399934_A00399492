@@ -23,17 +23,17 @@
       }
     },
     {
-      "Sid": "PurgeCircleGuardSecrets",
-      "Effect": "Allow",
-      "Action": "ssm:DeleteParameters",
-      "Resource": "arn:aws:ssm:us-east-2:*:parameter/circleguard/*"
-    },
-    {
       "Sid": "PreflightZoneCheck",
       "Effect": "Allow",
       "Action": "ec2:DescribeAvailabilityZones",
       "Resource": "*",
       "Condition": { "StringEquals": { "aws:RequestedRegion": "us-east-2" } }
+    },
+    {
+      "Sid": "PurgeCircleGuardSecrets",
+      "Effect": "Allow",
+      "Action": "ssm:DeleteParameters",
+      "Resource": "arn:aws:ssm:us-east-2:*:parameter/circleguard/*"
     }
   ]
 }
