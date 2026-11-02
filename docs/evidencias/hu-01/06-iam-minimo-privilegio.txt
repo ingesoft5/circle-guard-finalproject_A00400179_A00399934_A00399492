@@ -17,12 +17,17 @@
 ## Rol teardown: acciones que solo concede la política de lectura adjunta (sts:GetCallerIdentity no requiere permiso): ec2:DescribeAvailabilityZones, ec2:DescribeInstances, ec2:DescribeInternetGateways, ec2:DescribeKeyPairs, ec2:DescribeRouteTables, ec2:DescribeSecurityGroupRules, ec2:DescribeSecurityGroups, ec2:DescribeSubnets, ec2:DescribeVolumes, ec2:DescribeVpcs, ec2:StopInstances, ssm:GetParametersByPath
 
 ## Restricciones adicionales de la política del operador
+  (Actualizado el 2026-11-02, Fase 4: CreateOnlyInsideCircleGuardVpc se añadió en la v2 del operador y
+   RunOnlyPinnedUbuntuImage sustituyó en la v3 a RunOnlyCanonicalUbuntuImages, cuya condición
+   {"ec2:Owner": "099720109477"} AWS no cumple porque evalúa ec2:Owner = "amazon" para esa AMI. Ver la
+   sección 9 del documento 13.)
   DescribeOnlyWhatTheScriptsRead             {"StringEquals": {"aws:RequestedRegion": "us-east-2"}}
   CreateNetworkOnlyWithProjectTag            {"StringEquals": {"aws:RequestedRegion": "us-east-2", "aws:RequestTag/Project": "circleguard"}}
+  CreateOnlyInsideCircleGuardVpc             {"StringEquals": {"aws:ResourceTag/Project": "circleguard"}} (recurso vpc de CreateSubnet, CreateRouteTable y CreateSecurityGroup)
   TagOnlyWhileCreating                       {"StringEquals": {"aws:RequestedRegion": "us-east-2", "ec2:CreateAction": ["CreateVpc", "CreateSubnet", "CreateInternetGateway", "CreateRouteTable", "CreateSecurityGroup", "ImportKeyPair", "RunInstances"]}}
   RunOnlyApprovedInstanceTypesWithImdsV2     {"StringEquals": {"aws:RequestTag/Project": "circleguard", "ec2:InstanceType": ["t3.small", "c7i-flex.large", "m7i-flex.large"], "ec2:MetadataHttpTokens": "required"}}
   RunOnlyEncryptedSmallGp3Volumes            {"StringEquals": {"aws:RequestTag/Project": "circleguard", "ec2:VolumeType": "gp3"}, "Bool": {"ec2:Encrypted": "true"}, "NumericLessThanEquals": {"ec2:VolumeSize": "40"}}
-  RunOnlyCanonicalUbuntuImages               {"StringEquals": {"ec2:Owner": "099720109477"}}
+  RunOnlyPinnedUbuntuImage                   {"StringEquals": {"ec2:ImageID": "ami-0fc53b217ec1ad816"}} (AMI_ID de infra/config/aws.env)
   RunOnlyInsideCircleGuardNetwork            {"StringEquals": {"aws:ResourceTag/Project": "circleguard"}}
   OperateOnlyCircleGuardResources            {"StringEquals": {"aws:RequestedRegion": "us-east-2", "aws:ResourceTag/Project": "circleguard"}}
   SecureStringThroughSsmOnly                 {"StringEquals": {"kms:ViaService": "ssm.us-east-2.amazonaws.com"}}

@@ -123,9 +123,11 @@
 
 ### 2.4 Servidores (bootstrap-servers.sh)                                       FACTURABLE
   circleguard-ci     Role=ci, subred tools, sg-ci, llave circleguard-tools, m7i-flex.large (2 vCPU,
-                     8 GiB), Ubuntu 24.04 x86_64 (AMI de Canonical resuelta al lanzar desde
-                     /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id;
-                     hoy ami-0fc53b217ec1ad816 [COMPROBADO Fase 0]), IMDSv2 obligatorio (hop limit 1),
+                     8 GiB), Ubuntu 24.04 x86_64: AMI fijada ami-0fc53b217ec1ad816 (AMI_ID en
+                     infra/config/aws.env; publicada por Canonical, cuenta 099720109477; era la vigente
+                     de /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+                     [COMPROBADO Fase 0]; desde la Fase 4 la política del operador solo admite esa
+                     imagen, con ec2:ImageID: ver 9), IMDSv2 obligatorio (hop limit 1),
                      --instance-initiated-shutdown-behavior stop, sin rol IAM
                      Volumen raíz circleguard-ci-root: 30 GiB gp3 cifrado, DeleteOnTermination=true
   circleguard-nexus  igual, Role=nexus, sg-nexus; volumen circleguard-nexus-root: 25 GiB gp3 cifrado
@@ -178,6 +180,12 @@
     circleguard-hu01-teardown   predeterminada v2 ≠ plantilla (v1): v2 añade PreflightZoneCheck
                                 (ec2:DescribeAvailabilityZones), redundante con la política de lectura
     Confianzas, sesiones de 1 h y adjuntos: iguales a las plantillas. Usuarios: MFA y 0 claves.
+  Estado desplegado actualizado [COMPROBADO Fase 4, 2026-11-02 18:53 UTC, lectura con la raíz]:
+    circleguard-hu01-reader     v1 = plantilla
+    circleguard-hu01-operator   v3 = plantilla (v2 17:10 UTC: CreateOnlyInsideCircleGuardVpc;
+                                v3 18:52 UTC: RunOnlyPinnedUbuntuImage); la misma política en línea
+    circleguard-hu01-teardown   v2 = plantilla (se conserva la v2; la plantilla se alineó con ella,
+                                orden de sentencias incluido, en el commit b18f27c)
 
   Operación del despliegue                       Rol         Declaración de la política        Estado
   describe-* (VPC, subredes, SG, reglas, IGW,    reader u    DescribeOnlyWhatTheScriptsRead    ✓
@@ -185,23 +193,30 @@
     ofertas de tipos, imágenes, créditos)
   pricing get-products                           ambos       PricingReadOnly                   ✓
   ssm get-parameter de la AMI pública            ambos       PublicUbuntuAmiParameter          ✓
+    (solo si AMI_ID está vacío; con la AMI fijada de la Fase 4 no se usa)
   create-vpc/subnet/igw/route-table/security-    operator    CreateNetworkOnlyWithProjectTag   ✓
     group, import-key-pair (con etiqueta Project)            + TagOnlyWhileCreating
+    [Fase 4: subnet, route-table y security-group               + CreateOnlyInsideCircleGuardVpc  ✓
+     se denegaban sobre la VPC existente; ver 9]                  (VPC con Project=circleguard)
   modify-vpc/subnet-attribute, attach-igw,       operator    OperateOnlyCircleGuardResources   ✓
     create/replace-route, associate-route-table,             (recursos con Project=circleguard)
     authorize/revoke SG ingress y egress
   put-parameter (+etiquetas), get-parameter(s)   operator    CircleGuardSecretsCreateAndRead   ✓
     con descifrado                                           + SecureStringThroughSsmOnly
   run-instances (instancia, volumen ≤40 GiB gp3  operator    RunOnly* (tipos t3.small,          ✓ por
-    cifrado, imagen Canonical, subred/SG/llave               c7i-flex.large, m7i-flex.large;    plantilla;
-    del proyecto, interfaz de red, IMDSv2)                   IMDSv2; Project)                   en seco [PENDIENTE]
+    cifrado, AMI fijada (ec2:ImageID), subred/SG/            c7i-flex.large, m7i-flex.large;    plantilla;
+    llave del proyecto, interfaz de red, IMDSv2)             IMDSv2; Project)                   en seco [PENDIENTE]
+    [Fase 4: el primer dry-run se denegó sobre la imagen (ec2:Owner); corregido en la v3; en seco
+     ✓ para ci y nexus a las 18:57 UTC; ver 9]
   start-instances                                operator    OperateOnlyCircleGuardResources   ✓
   stop-instances (teardown.sh --stop)            reader      StopOnlyCircleGuardInstances      ✓
   describe-instance-attribute (verificar STOP)   ninguno     —                                 FALTA
   terminate/delete (no forma parte del despliegue) teardown  DestroyOnlyCircleGuardResources   ✓ (CloudShell)
-  Cambios de IAM                                 ninguno     —                                 no se necesitan
+  Cambios de IAM [análisis de la Fase 3]         ninguno     —                                 no se necesitan
+    [Fase 4: hicieron falta dos cambios del operador (v2 y v3); ver 9]
 
-  Permisos que faltan: ninguno para desplegar. Para VERIFICAR el comportamiento de apagado por API
+  Permisos que faltan [análisis de la Fase 3]: ninguno para desplegar (la Fase 4 encontró dos
+    carencias que este análisis estático no detectó; ver 9). Para VERIFICAR el apagado por API
     falta ec2:DescribeInstanceAttribute en reader/operator; alternativa sin cambiar IAM: leerlo con
     la sesión bootstrap (raíz) en solo lectura (paso 6c).
   Validación pendiente: run-instances en seco solo es posible cuando existan la red y las llaves
@@ -210,10 +225,12 @@
   Permisos excesivos o innecesarios para la arquitectura B (documentados, sin cambios):
     operator: tipos t3.small y c7i-flex.large (B solo usa m7i-flex.large);
               ec2:ModifyInstanceCreditSpecification (solo aplica a tipos T);
-    teardown: declaración PreflightZoneCheck de la v2 (redundante);
+    teardown: declaración PreflightZoneCheck de la v2 (redundante; se conserva y desde b18f27c
+              también está en la plantilla);
     operator: política en línea AWSRevokeOlderSessions (histórica; inocua).
-  Diferencias con las plantillas: solo la v2 de circleguard-hu01-teardown (y la política en línea
-    del rol operator, que bootstrap-iam.sh no gestiona).
+  Diferencias con las plantillas [Fase 3]: solo la v2 de circleguard-hu01-teardown (y la política en
+    línea del rol operator, que bootstrap-iam.sh no gestiona). [Fase 4, 18:53 UTC]: ninguna; queda solo
+    la política en línea del rol operator.
 
 ====================================================================================================
 ## 4. Presupuesto (3.4)  [ESTIMADO; precios de la Pricing API del 2026-11-02]
@@ -310,6 +327,8 @@
               bash infra/aws-session.sh logout bootstrap
         Esperado: raíz con MFA; plan FREE ACTIVE; 0 recursos circleguard; IAM UNCHANGED salvo la
         política teardown (PLAN actualizar: v2); cuota UNCHANGED (5 ≥ 4). Coste 0. Riesgo: ninguno.
+        [Fase 4: desde b18f27c la plantilla de teardown es igual a la v2, así que ahora se espera
+        IAM UNCHANGED en todo; un PLAN indicaría una diferencia nueva.]
         Si algo difiere de este documento: detenerse y revisar.
     1b [L] bash infra/aws-session.sh login operator   # MFA en la página de AWS
               bash infra/aws-session.sh status
@@ -507,7 +526,8 @@
   7.1  P1-P6 confirmados con un commit; árbol de trabajo limpio antes de desplegar.
   7.2  Paso 1a sin diferencias con este documento (IAM, cuota, 0 recursos, plan gratuito activo).
   7.3  Aceptar la diferencia IAM de teardown (v2 redundante) o revertirla antes (autorización IAM
-       aparte). No bloquea el despliegue.
+       aparte). No bloquea el despliegue. [Resuelto en la Fase 4: se conserva la v2 y la plantilla
+       se alineó con ella (b18f27c); bootstrap-iam.sh la muestra UNCHANGED.]
   7.4  Aceptar los escenarios de coste: base 6.24, conservador 10.41, y que F4/F5 superan 15 USD
        si falla la parada automática y nadie detiene las instancias.
   7.5  Aceptar el procedimiento operativo de 4.1: teardown.sh --stop --apply al final de cada sesión,
@@ -554,3 +574,31 @@
     - Verificar el apagado STOP sin la raíz: ec2:DescribeInstanceAttribute en la política de lectura
       (cambio de IAM) y una comprobación en verify-infra.sh.
     - Detener una sola instancia con teardown.sh (hoy detiene todas las del proyecto en ejecución).
+
+====================================================================================================
+## 9. Actualización de la Fase 4 (2026-11-02, horas en UTC) — diferencias con este plan
+  Las secciones anteriores conservan el análisis de la Fase 3; aquí se registra lo que cambió al
+  ejecutarlo. Detalle y salidas: registros de infra/logs (ignorados por Git) y evidencias de la Fase 5.
+  Paso 4, red: 16:37 el primer --apply creó la VPC y el internet gateway y se detuvo en CreateSubnet
+    (UnauthorizedOperation sobre el recurso vpc: CreateNetworkOnlyWithProjectTag exigía
+    aws:RequestTag también para la VPC existente, que no lleva etiquetas de petición). Corrección:
+    sentencia CreateOnlyInsideCircleGuardVpc (commit 536771a), operador v2 aplicada a las 17:10.
+    17:55-17:58 red completada: created=10 updated=45 unchanged=4; plan posterior unchanged=28; las
+    31 reglas coinciden con 2.2.
+  IAM de teardown: se conserva la v2 desplegada; la plantilla se alineó con ella, orden incluido
+    (commit b18f27c). Criterio 7.3 resuelto.
+  Paso 5, secretos: 18:10-18:12 created=43; plan posterior unchanged=43; 35 parámetros SecureString,
+    4 pares ed25519 con huella igual a la .pub local; 0 coincidencias de valores en el repositorio
+    ni en infra/logs.
+  Paso 6a: 18:15 el dry-run de run-instances devolvió UnauthorizedOperation y cg_dry_run lo registró
+    como nota (decidía por la capacidad read, no por la identidad). Corregido en
+    infra/bootstrap/lib/aws.sh (commit 7eb262b): solo el rol de lectura puede recibir esa denegación.
+    Diagnóstico (18:21 captura, 18:28 decodificación con la raíz): recurso image/ami-0fc53b217ec1ad816;
+    AWS evalúa ec2:Owner = "amazon" aunque la AMI es de la cuenta 099720109477 (Canonical), así que
+    RunOnlyCanonicalUbuntuImages nunca coincidía. Corrección: AMI fijada (AMI_ID en
+    infra/config/aws.env) y sentencia RunOnlyPinnedUbuntuImage con ec2:ImageID; operador v3 aplicada
+    a las 18:52 y verificada a las 18:53.
+  Paso 6a repetido con la v3: 18:57 «permiso verificado con --dry-run: ec2 run-instances» para ci y
+    nexus (AMI de AMI_ID, sin consultar SSM); planned=2, created=0; después, 0 instancias y 0
+    volúmenes en us-east-2. La estimación local sigue en 0.27 de 15 USD.
+  [PENDIENTE] paso 6b (facturable): requiere su propia autorización.
