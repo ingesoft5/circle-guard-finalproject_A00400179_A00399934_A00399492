@@ -40,19 +40,19 @@ for name in "${CG_SERVICES[@]}" "$CG_WEB_SERVICE"; do
     failures=$((failures + 1))
     continue
   fi
-  line=$(docker image inspect --format \
-    'user={{.Config.User}} version={{index .Config.Labels "org.opencontainers.image.version"}} revision={{index .Config.Labels "org.opencontainers.image.revision"}} id={{.Id}} digests={{json .RepoDigests}}' \
-    "$image")
+  user=$(docker image inspect --format '{{.Config.User}}' "$image")
+  label_version=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.version"}}' "$image")
+  label_revision=$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$image")
+  image_id=$(docker image inspect --format '{{.Id}}' "$image")
+  digests=$(docker image inspect --format '{{json .RepoDigests}}' "$image")
   cg_info "  OK     $image"
-  cg_info "         $line"
-  user=${line#user=}
-  user=${user%% *}
+  cg_info "         user=$user version=$label_version revision=$label_revision id=$image_id digests=$digests"
   if [[ -z "$user" || "$user" == "root" || "$user" == "0" || "$user" == "0:0" ]]; then
     cg_info "         ERROR: la imagen se ejecuta como root ('$user')."
     failures=$((failures + 1))
   fi
-  if [[ "$line" != *"version=$VERSION"* ]]; then
-    cg_info "         ERROR: la etiqueta OCI de versión no coincide con $VERSION."
+  if [[ "$label_version" != "$VERSION" ]]; then
+    cg_info "         ERROR: la etiqueta OCI de versión ('$label_version') no coincide con $VERSION."
     failures=$((failures + 1))
   fi
 done
