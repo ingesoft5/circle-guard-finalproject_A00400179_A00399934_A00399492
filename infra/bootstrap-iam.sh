@@ -72,6 +72,23 @@ iam_lookup() {
   die "iam $1 falló: ${out%%$'\n'*}"
 }
 
+# iam_retry <aws iam args>: IAM is eventually consistent, so a user or policy created seconds
+# earlier may not be usable yet as a trust principal or as an attachment. Retries only those
+# two cases, for up to one minute.
+iam_retry() {
+  local out i
+  for i in 1 2 3 4 5 6; do
+    if out=$(aws iam "$@" 2>&1 </dev/null); then
+      printf '%s' "$out"
+      return 0
+    fi
+    [[ "$out" == *"Invalid principal"* || "$out" == *NoSuchEntity* ]] || die "iam $1 falló: ${out%%$'\n'*}"
+    info "IAM aún no propaga el recurso recién creado; reintento $i de 6 en 10 s"
+    sleep 10
+  done
+  die "iam $1 falló tras 6 reintentos: ${out%%$'\n'*}"
+}
+
 # render <template>: copy of an IAM template with the account id, in the private work dir.
 render() {
   sed "s/<ACCOUNT_ID>/$ACCOUNT/g" "$IAM_DIR/$1" >"$WORK/$1"
@@ -97,10 +114,11 @@ inspect_identity() {
     *) KIND=otra ;;
   esac
   info "identidad: ${CG_AWS_ARN##*:} · tipo $KIND · cuenta ****${ACCOUNT: -4} · credenciales temporales (aws login)"
+  ROOT_MFA=n/a
   if [[ "$KIND" == raiz ]]; then
     warn "es la cuenta raíz: se usa solo para esta inspección y, si se aprueba, para crear IAM; después se cierra la sesión"
-    info "MFA de la cuenta raíz: $(try iam get-account-summary --query SummaryMap.AccountMFAEnabled --output text |
-      sed 's/^1$/activado/; s/^0$/NO activado/' || true)"
+    ROOT_MFA=$(try iam get-account-summary --query SummaryMap.AccountMFAEnabled --output text) || true
+    info "MFA de la cuenta raíz: $(sed 's/^1$/activado/; s/^0$/NO activado/' <<<"$ROOT_MFA")"
   fi
   [[ "$KIND" == aws-academy ]] &&
     warn "parece AWS Academy (Learner Lab): normalmente no permite crear IAM y limita las regiones; el plan no es aplicable"
@@ -356,7 +374,7 @@ ensure_role() { # ensure_role <name> <trust template> <policy>...
     if same_json "$trust" "$WORK/trust.json"; then
       unchanged "confianza del rol $name"
     elif is_apply; then
-      aws iam update-assume-role-policy --role-name "$name" --policy-document "file://$trust"
+      iam_retry update-assume-role-policy --role-name "$name" --policy-document "file://$trust"
       updated "confianza del rol $name"
     else
       planned "actualizar la confianza del rol $name"
@@ -370,7 +388,7 @@ ensure_role() { # ensure_role <name> <trust template> <policy>...
       planned "limitar las sesiones del rol $name a 1 h"
     fi
   elif is_apply; then
-    aws iam create-role --role-name "$name" --assume-role-policy-document "file://$trust" --max-session-duration 3600 \
+    iam_retry create-role --role-name "$name" --assume-role-policy-document "file://$trust" --max-session-duration 3600 \
       --tags "${TAGS[@]}" --description "CircleGuard HU-01 $name" >/dev/null
     created "rol $name (sesiones de 1 h como máximo)"
   else
@@ -379,13 +397,13 @@ ensure_role() { # ensure_role <name> <trust template> <policy>...
   fi
   attached=""
   if $exists || is_apply; then
-    attached=$(aws iam list-attached-role-policies --role-name "$name" --query 'AttachedPolicies[].PolicyName' --output text)
+    attached=$(aws iam list-attached-role-policies --role-name "$name" --query 'AttachedPolicies[].PolicyName' --output text | tr '\t' ' ')
   fi
   for p in "$@"; do
     if [[ " $attached " == *" circleguard-hu01-$p "* ]]; then
       unchanged "rol $name: política circleguard-hu01-$p adjunta"
     elif is_apply; then
-      aws iam attach-role-policy --role-name "$name" --policy-arn "arn:aws:iam::$ACCOUNT:policy/circleguard-hu01-$p"
+      iam_retry attach-role-policy --role-name "$name" --policy-arn "arn:aws:iam::$ACCOUNT:policy/circleguard-hu01-$p"
       updated "rol $name: política circleguard-hu01-$p adjuntada"
     else
       planned "adjuntar circleguard-hu01-$p al rol $name"
@@ -428,7 +446,14 @@ ensure_user() { # ensure_user <name> <inline policy template>
 ensure_profiles() {
   local base="arn:aws:iam::$ACCOUNT:role/circleguard-hu01"
   if ! is_apply; then
-    planned "añadir los perfiles locales circleguard-hu01-reader y circleguard-hu01 (teardown solo existe en CloudShell)"
+    local p
+    for p in circleguard-hu01-reader circleguard-hu01; do
+      if grep -qxF "[profile $p]" "$CG_AWS_CONFIG" 2>/dev/null; then
+        unchanged "perfil local $p"
+      else
+        planned "añadir el perfil local $p (teardown solo existe en CloudShell)"
+      fi
+    done
     return
   fi
   cg_aws_profile_ensure circleguard-hu01-reader "role_arn = $base-reader" "source_profile = circleguard-hu01-operator-login" \
@@ -473,13 +498,17 @@ check_escalation
 if is_apply; then
   [[ "$KIND" != aws-academy ]] || die "AWS Academy no permite crear esta infraestructura IAM."
   [[ "$IAM_OK" != false ]] || die "Esta identidad no tiene los permisos IAM necesarios."
+  [[ "$KIND" != raiz || "$ROOT_MFA" == 1 ]] ||
+    die "La cuenta raíz no tiene MFA activada: actívela antes de crear IAM (bash infra/aws-session.sh open root-mfa)."
 fi
+# Order matters: the role trust policies name the users as principals, and IAM rejects a trust
+# policy whose principal does not exist yet. Policies, then users, then roles.
 for p in reader operator teardown; do ensure_policy "$p"; done
+ensure_user operator hu01-operator-user-policy.json
+ensure_user teardown hu01-teardown-user-policy.json
 ensure_role reader hu01-reader-role-trust.json reader
 ensure_role operator hu01-operator-role-trust.json operator
 ensure_role teardown hu01-teardown-role-trust.json reader teardown
-ensure_user operator hu01-operator-user-policy.json
-ensure_user teardown hu01-teardown-user-policy.json
 ensure_profiles
 info "pasos en la consola de AWS tras crear IAM (contraseña y MFA los escribe usted, nunca un script): ver infra/README.md, 'Primer acceso de los usuarios'"
 cg_summary bootstrap-iam

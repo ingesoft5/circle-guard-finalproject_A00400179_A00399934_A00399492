@@ -1,0 +1,111 @@
+# Validación técnica de las identidades IAM de HU-01 (2026-11-02 00:37-00:38 UTC)
+# Sin recursos creados ni operaciones con coste: solo lecturas, EC2 --dry-run y llamadas AssumeRole.
+# Cuenta enmascarada. Ningún valor de credencial aparece en este archivo.
+
+## A. Inicio de sesión del usuario operador (aws login)
+  Intentos 1 y 2: la página de inicio de sesión reutilizó la sesión de consola raíz abierta en el
+  navegador. aws-session.sh detectó la identidad 'root', cerró la sesión sin usarla y se corrigió
+  para rechazarla siempre (comprobación de identidad tras cada inicio de sesión del operador).
+  Intento 3 (ventana InPrivate de Edge): AWS anuló la autorización pendiente a los 10 minutos
+  (00:04-00:14 UTC); el retorno a 127.0.0.1:40609 llegó cuando el proceso ya había terminado
+  (ERR_CONNECTION_REFUSED). Diagnóstico: ningún proceso ni puerto activo; el reenvío de
+  127.0.0.1 de Windows a WSL funciona (prueba con receptor temporal: HTTP 200). Corrección: el
+  script muestra la hora límite local y espera 11 minutos.
+  Intento 4: correcto.
+    aws sts get-caller-identity --profile circleguard-hu01-operator-login
+    arn:aws:iam::********3303:user/circleguard-hu01-operator
+
+## B. Permisos (scratchpad validate_identities.sh reader)
+  PASA  identidad de la sesión                                        -> :user/circleguard-hu01-operator
+  PASA  la sesión de usuario no tiene permisos sobre EC2              -> UnauthorizedOperation
+  PASA  asumir circleguard-hu01-reader                                 -> :assumed-role/circleguard-hu01-reader/
+  PASA  lectura permitida (describe-availability-zones)                -> available
+  PASA  lectura no puede crear (create-vpc --dry-run)                  -> UnauthorizedOperation
+  PASA  lectura sin acceso a KMS (kms list-keys)                       -> AccessDenied
+  PASA  usuario operador -> rol teardown                               -> AccessDenied
+  PASA  rol de lectura -> rol teardown                                 -> AccessDenied
+  FALLA operador sin código MFA -> rol de operación                  -> la llamada devolvió credenciales
+
+## C. Hallazgo: el rol de operación se asume sin un código MFA nuevo
+  La sesión de aws login de un usuario que inició sesión con MFA SÍ transmite el contexto MFA, y la
+  confianza del rol de operación (aws:MultiFactorAuthPresent y aws:MultiFactorAuthAge < 3600) se
+  cumple durante la hora siguiente al inicio de sesión. La conclusión anterior ("aws login no
+  transmite MFA") se basó en la raíz cuando aún no tenía MFA y era incorrecta para este caso.
+  Consecuencia: el inicio de sesión con MFA en la página de AWS abre una ventana de operación de
+  1 h (el código nunca pasa por un proceso local); `unlock` solo sirve para reabrirla después.
+  Teardown no se ve afectado: el operador no puede asumirlo (B) y solo el usuario de teardown, con
+  MFA de menos de 15 min y desde CloudShell, puede hacerlo.
+
+## D. Incidente: credenciales temporales impresas por el script de prueba
+  La función de diagnóstico mostraba los primeros caracteres de la respuesta cuando una prueba
+  fallaba; en la prueba C, la respuesta eran las credenciales temporales de la sesión del rol de
+  operación, que quedaron en la transcripción de la sesión del asistente (no en el repositorio, ni
+  en infra/logs, ni en ningún archivo de configuración: búsqueda de material de credenciales en
+  ~/.circleguard, /tmp, C:\Users\matth\.aws, infra/logs y las salidas temporales: 0 archivos).
+  Alcance: sesión del rol circleguard-hu01-operator (sin borrados, sin IAM; tipos, regiones y
+  etiquetas acotados), emitida a las 00:38 UTC, caducidad máxima 01:38 UTC.
+  Acciones: sesión del operador cerrada (aws-session.sh logout operator); el script de prueba ya
+  no imprime respuestas (solo códigos de error o ARN sin cuenta) y las AssumeRole devuelven solo
+  el ARN. Recomendado: revocar las sesiones activas del rol en la consola de IAM.
+
+## E. Revocación de las credenciales expuestas (2026-11-02, sesión raíz de solo lectura)
+  El equipo revocó las sesiones activas del rol en la consola de IAM ("Active sessions have been
+  successfully revoked"). Verificación:
+    políticas en línea del rol circleguard-hu01-operator: AWSRevokeOlderSessions
+    Deny ['*'] sobre ['*'] si aws:TokenIssueTime < 2026-11-02T00:46:02.510Z
+    credenciales expuestas emitidas a las 2026-11-02T00:38Z -> DENEGADAS
+  Nota: bootstrap-iam.sh no gestiona políticas en línea de los roles, así que esta política no
+  altera su idempotencia; solo deniega sesiones emitidas antes de esa hora.
+
+## F. Opción A elegida por el equipo y nueva validación (sesión nueva del operador, 00:47 UTC)
+  aws sts get-caller-identity --profile circleguard-hu01-operator-login
+    arn:aws:iam::********3303:user/circleguard-hu01-operator
+  PASA  identidad de la sesión                                        -> :user/circleguard-hu01-operator
+  PASA  la sesión de usuario no tiene permisos sobre EC2              -> UnauthorizedOperation
+  PASA  asumir circleguard-hu01-reader                                 -> :assumed-role/circleguard-hu01-reader/
+  PASA  lectura permitida (describe-availability-zones)                -> available
+  PASA  lectura no puede crear (create-vpc --dry-run)                  -> UnauthorizedOperation
+  PASA  lectura sin acceso a KMS (kms list-keys)                       -> AccessDenied
+  PASA  usuario operador -> rol teardown                               -> AccessDenied
+  PASA  rol de lectura -> rol teardown                                 -> AccessDenied
+  PASA  asumir circleguard-hu01-operator (MFA del inicio de sesión)    -> :assumed-role/circleguard-hu01-operator/
+  PASA  operación puede crear red etiquetada (dry-run)                -> DryRunOperation
+  PASA  operación NO puede crear red sin etiqueta Project (dry-run)   -> UnauthorizedOperation
+  PASA  rol de operación -> rol teardown                              -> AccessDenied
+  PASA  operación no tiene permisos IAM (list-users)                  -> AccessDenied
+  Resultado: 13 pasan, 0 fallan (el script ya no imprime respuestas; AssumeRole solo devuelve el ARN)
+
+## G. Planes sin cambios (infra/logs/bootstrap-all-20261102T004915Z.log y teardown-*)
+  bootstrap-all.sh --plan con el rol de operación: planned=68 (red 19, secretos y llaves 43,
+  servidores 6); permisos verificados con --dry-run: ec2 create-vpc, ec2 create-internet-gateway;
+  los tres tipos ofrecidos en us-east-2a; estimación local 0.00 de 15 USD. RunInstances no se
+  puede verificar en seco hasta que exista la red (se verifica al empezar S1).
+  teardown.sh --destroy y --stop (plan, rol de lectura): inventario vacío, nada eliminado.
+  Corrección derivada: con el inventario vacío, --destroy informaba "terminar instancias...";
+  ahora informa UNCHANGED "no hay instancias, red ni llaves de circleguard que destruir".
+
+## H. Credenciales permanentes (sesión raíz de solo lectura)
+  cuenta raíz: claves de acceso=0 · MFA=1 · usuarios IAM=2
+  circleguard-hu01-operator    claves=0 · MFA=1 · contraseña de consola=sí
+  circleguard-hu01-teardown    claves=0 · MFA=1 · contraseña de consola=sí
+  local: ~/.circleguard/aws/.aws/credentials ausente · claves en config=0 ·
+         AWS_ACCESS_KEY_ID no definida · C:\Users\matth\.aws\credentials ausente
+
+## I. Dependencia de la MFA del rol de operación
+  Evidencia: la confianza del rol en AWS es idéntica a la plantilla (bootstrap-iam.sh --plan:
+  "UNCHANGED confianza del rol circleguard-hu01-operator"), que exige aws:MultiFactorAuthPresent
+  y aws:MultiFactorAuthAge < 3600; el único principal es el usuario operador, cuyo inicio de
+  sesión exige MFA (dispositivo asignado). Por tanto, cada AssumeRole concedido implica una MFA
+  de menos de 1 h.
+  No concluyente:
+    - El simulador IAM (simulate-custom-policy con la confianza como --resource-policy) devolvió
+      allowed también sin MFA: no evalúa las políticas de confianza de un rol como AssumeRole
+      (en la misma cuenta le basta la política del usuario). No se usa como prueba.
+    - La búsqueda en CloudTrail de los AssumeRole (mfaAuthenticated) se hizo solo en us-east-1;
+      la CLI usa el punto regional de STS y esos eventos están en us-east-2. Pendiente de repetir
+      en la próxima sesión raíz.
+  Prueba empírica pendiente: pasada 1 h desde el inicio de sesión, AWS debe denegar el rol de
+  operación (se observará en S1 o en una prueba dedicada).
+
+## J. Teardown en CloudShell (modo plan): preparado, pendiente de ejecución por el equipo
+  Paquete: ~/.circleguard/cloudshell/circleguard-teardown.tgz (10 archivos, sin secretos).

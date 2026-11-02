@@ -1,0 +1,154 @@
+# Preparación de AWS para HU-01: inspección de la cuenta, plan IAM y auditoría (solo lectura)
+# Generado el 2026-11-01T22:27Z a partir de infra/logs/ (cuenta enmascarada). Ningún recurso creado ni modificado.
+
+## A. bootstrap-iam.sh --plan (inspección, Access Analyzer, simulador de escalada y plan) - infra/logs/bootstrap-iam-20261101T062116Z.log
+  06:21:16 INFO      registro de la ejecución: infra/logs/bootstrap-iam-20261101T062116Z.log (modo plan, destino aws)
+  06:21:17 INFO      identidad: root · tipo raiz · cuenta ****3303 · credenciales temporales (aws login)
+  06:21:17 WARN      es la cuenta raíz: se usa solo para esta inspección y, si se aprueba, para crear IAM; después se cierra la sesión
+  06:21:19 INFO      MFA de la cuenta raíz: NO activado
+  06:21:21 INFO      organización: independiente
+    plan FREE · estado ACTIVE · créditos del plan restantes 100.0 USD · vence 2027-04-30T03:45:09.625000+00:00
+  06:21:23 WARN      plan gratuito: AWS solo admite en él tipos aptos para la capa gratuita; cambiar de plan es una decisión suya (no se hace aquí)
+  06:21:25 INFO      región us-east-2: ENABLED_BY_DEFAULT
+  06:21:28 INFO      zona us-east-2a: available
+  06:21:32 INFO      AMI Ubuntu 24.04 vigente: ami-0fc53b217ec1ad816 · arquitectura x86_64 · ENA True · arranque uefi-preferred
+  06:21:37 INFO        c7i-flex.large en us-east-2a: ofrecido · apto capa gratuita True · 2 vCPU · 4096 MiB · x86_64 · arranque legacy-bios,uefi · ENA required · AMI compatible
+  06:21:41 INFO        m7i-flex.large en us-east-2a: ofrecido · apto capa gratuita True · 2 vCPU · 8192 MiB · x86_64 · arranque legacy-bios,uefi · ENA required · AMI compatible
+  06:21:44 INFO        t3.small en us-east-2a: ofrecido · apto capa gratuita True · 2 vCPU · 2048 MiB · x86_64 · arranque legacy-bios,uefi · ENA required · AMI compatible
+  06:22:01 INFO      cuota vCPU On-Demand estándar en us-east-2: 5.0 · necesarias con las 6 encendidas: 12
+  06:22:01 WARN      la cuota de vCPU es menor que la necesaria: pedir un aumento es una decisión suya (Service Quotas)
+  06:22:03 INFO      IAM Identity Center en us-east-1: 0 instancia(s)
+  06:22:05 INFO      IAM Identity Center en us-east-2: 0 instancia(s)
+  06:22:13 INFO      recursos circleguard existentes: instancias 0 · VPC 0 · volúmenes 0 · secretos SSM 0
+  06:22:13 INFO      permisos IAM: la cuenta raíz puede crearlos salvo que una SCP lo impida (organización: independiente)
+  06:22:15 INFO        Access Analyzer hu01-operator-policy.json: sin hallazgos
+  06:22:17 INFO        Access Analyzer hu01-operator-role-trust.json: sin hallazgos
+  06:22:19 INFO        Access Analyzer hu01-operator-user-policy.json: sin hallazgos
+  06:22:21 INFO        Access Analyzer hu01-reader-policy.json: sin hallazgos
+  06:22:23 INFO        Access Analyzer hu01-reader-role-trust.json: sin hallazgos
+  06:22:25 INFO        Access Analyzer hu01-teardown-policy.json: sin hallazgos
+  06:22:27 INFO        Access Analyzer hu01-teardown-role-trust.json: sin hallazgos
+  06:22:28 INFO        Access Analyzer hu01-teardown-user-policy.json: sin hallazgos
+  06:22:32 INFO        simulador IAM usuario-operador: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+  06:22:36 INFO        simulador IAM rol-lectura: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+  06:22:40 INFO        simulador IAM rol-operador: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+  06:22:42 INFO        simulador IAM usuario-teardown: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+  06:22:44 INFO        simulador IAM rol-teardown: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+  06:22:44 INFO        confianza del rol teardown: solo el usuario circleguard-hu01-teardown, con MFA de menos de 15 min
+  06:22:46 PLAN      crear la política administrada circleguard-hu01-reader
+  06:22:48 PLAN      crear la política administrada circleguard-hu01-operator
+  06:22:50 PLAN      crear la política administrada circleguard-hu01-teardown
+  06:22:52 PLAN      crear el rol circleguard-hu01-reader (confianza hu01-reader-role-trust.json, sesiones de 1 h como máximo)
+  06:22:52 PLAN      adjuntar circleguard-hu01-reader al rol circleguard-hu01-reader
+  06:22:53 PLAN      crear el rol circleguard-hu01-operator (confianza hu01-operator-role-trust.json, sesiones de 1 h como máximo)
+  06:22:53 PLAN      adjuntar circleguard-hu01-operator al rol circleguard-hu01-operator
+  06:22:56 PLAN      crear el rol circleguard-hu01-teardown (confianza hu01-teardown-role-trust.json, sesiones de 1 h como máximo)
+  06:22:56 PLAN      adjuntar circleguard-hu01-reader al rol circleguard-hu01-teardown
+  06:22:56 PLAN      adjuntar circleguard-hu01-teardown al rol circleguard-hu01-teardown
+  06:22:57 PLAN      crear el usuario circleguard-hu01-operator sin claves de acceso ni contraseña
+  06:22:57 PLAN      política en línea circleguard-hu01-operator-access desde hu01-operator-user-policy.json
+  06:22:59 PLAN      crear el usuario circleguard-hu01-teardown sin claves de acceso ni contraseña
+  06:22:59 PLAN      política en línea circleguard-hu01-teardown-access desde hu01-teardown-user-policy.json
+  06:22:59 PLAN      añadir los perfiles locales circleguard-hu01-reader y circleguard-hu01 (teardown solo existe en CloudShell)
+  06:22:59 INFO      pasos en la consola de AWS tras crear IAM (contraseña y MFA los escribe usted, nunca un script): ver infra/README.md, 'Primer acceso de los usuarios'
+  06:22:59 SUMMARY   bootstrap-iam created=0 updated=0 unchanged=0 planned=15
+
+## B. Comprobaciones adicionales de solo lectura (2026-11-01, sesión raíz temporal de aws login)
+
+### B.1 Plan gratuito (freetier get-account-plan-state / list-account-activities)
+  tipo: FREE · estado: ACTIVE
+  fin del plan (accountPlanExpirationDate): 2027-04-30T03:45:09.625000+00:00
+  créditos restantes: 100.0 USD
+  actividades que dan créditos (20 USD c/u, NOT_STARTED): lanzar una instancia EC2, crear un presupuesto
+  de costos en AWS Budgets, usar Bedrock playground, crear una app con Lambda, crear una base Aurora/RDS
+  Nunca se invoca freetier upgrade-account-plan (ningún script lo contiene).
+
+### B.2 Elegibilidad en la cuenta: RunInstances --dry-run (no crea recursos)
+  AMI ami-0fc53b217ec1ad816 (/dev/sda1) · subred por defecto de us-east-2a
+  c7i-flex.large  se lanzaría (DryRunOperation)
+  m7i-flex.large  se lanzaría (DryRunOperation)
+  t3.small        se lanzaría (DryRunOperation)
+  t3.medium       se lanzaría (DryRunOperation)   <- control: NO apto para la capa gratuita
+  Conclusión: el dry-run valida AMI, tipo, gp3 cifrado e IMDSv2, pero NO evalúa la elegibilidad del
+  plan gratuito (el control también pasa). La elegibilidad se basa en FreeTierEligible=True de AWS
+  (sección A) y se confirmará con el primer lanzamiento real.
+
+### B.3 Controles del simulador IAM (simulate-custom-policy, sin crear nada)
+  usuario-operador  sts:AssumeRole -> rol operator      allowed       (esperado allowed)
+  usuario-operador  sts:AssumeRole -> rol teardown      implicitDeny  (esperado deny)
+  usuario-teardown  sts:AssumeRole -> rol teardown      allowed       (esperado allowed)
+  usuario-teardown  sts:AssumeRole -> rol operator      implicitDeny  (esperado deny)
+  rol-lectura       pricing:GetProducts                 allowed       (esperado allowed)
+  rol-operador      iam:PutRolePolicy sobre sí mismo    implicitDeny  (esperado deny)
+
+### B.4 Organizations
+  describe-organization: AWSOrganizationsNotInUseException -> cuenta independiente; crear IAM no
+  requiere Organizations ni Identity Center.
+
+### B.5 Cuota de vCPU (bootstrap-quota.sh --plan, ver sección D)
+  5 vCPU (valor por defecto de AWS), ajustable, sin solicitudes previas. Las seis instancias
+  necesitan 12 vCPU encendidas a la vez; la solicitud está preparada y NO se ha enviado.
+
+## C. Incidente de la caché de la sesión raíz (2026-11-01 05:52-05:53 UTC)
+  Causa: aws-session.sh lanzaba `timeout ... aws login`; timeout ejecuta el binario y no la función
+  aws() que fija HOME en ~/.circleguard/aws, así que la CLI guardó la sesión en ~/.aws, que en esta
+  estación es un enlace a C:\Users\matth\.aws (NTFS, fuera de OneDrive; chmod sin efecto).
+  Corrección: CG_AWS_ENV se pasa explícitamente (`timeout 900 env "${CG_AWS_ENV[@]}" aws login`).
+  Acciones: el archivo de caché se movió sin leerlo a ~/.circleguard/aws (0600) y se borró de NTFS;
+  la sesión se cerró con `aws logout`.
+  Verificación:
+    material de credenciales (ASIA/AKIA, refreshToken, secretAccessKey, sessionToken, dpopKey):
+      infra/logs 0 · salidas temporales de la sesión 0 · C:\Users\matth\.aws 0 · ~/.circleguard 0 · /tmp 0
+    C:\Users\matth\.aws solo contiene cli/cache/session.db (tablas session y host_id: identificador de
+      sesión de la CLI, sin credenciales)
+    CloudTrail, cuenta raíz, 05:58-06:17 UTC: 0 eventos en us-east-1 y 0 en us-east-2 (sin uso tras el cierre)
+    segundo inicio de sesión: la caché quedó solo en ~/.circleguard/aws/.aws/login/cache (0600)
+    ambas sesiones raíz cerradas (aws-session.sh status: inactiva)
+  Riesgo residual: el archivo borrado puede persistir en sectores libres del disco hasta sobrescribirse;
+  sus tokens caducan solos. No se pudo confirmar si `aws logout` también los revoca en AWS.
+
+## E. Barreras locales de autorización (sin AWS ni Docker, 2026-11-01)
+  teardown-cloudshell.sh fuera de CloudShell        exit=1 · Este script solo se ejecuta en AWS CloudShell
+  aws-session.sh login teardown                     exit=1 · Sesión desconocida 'teardown'
+  bootstrap-iam.sh --apply sin --approve iam        exit=1 · requiere --apply --approve iam
+  bootstrap-quota.sh --apply sin --approve quota    exit=1 · requiere --apply --approve quota
+  bootstrap-iam.sh sin sesión bootstrap             exit=1 · No hay una sesión AWS válida para el perfil circleguard-hu01-bootstrap
+  bootstrap-servers.sh (plan) sin sesión            exit=1 · perfil circleguard-hu01-reader: inicie sesión como operador
+  bootstrap-servers.sh --apply sin unlock           exit=1 · perfil circleguard-hu01: el rol de operación exige un código MFA nuevo
+  teardown.sh --destroy --apply en la estación      exit=1 · la destrucción se ejecuta en AWS CloudShell con el usuario de teardown
+  claves AWS en variables de entorno                exit=1 · Hay claves AWS en variables de entorno
+
+## D. bootstrap-quota.sh --plan - infra/logs/bootstrap-quota-20261101T062049Z.log
+  06:20:49 INFO      registro de la ejecución: infra/logs/bootstrap-quota-20261101T062049Z.log (modo plan, destino aws)
+  06:20:56 INFO      cuota actual en us-east-2: 5.0 vCPU (ajustable: True) · valor por defecto de AWS: 5.0 · objetivo: 12
+  06:20:58 PLAN      solicitar el aumento de 5.0 a 12 vCPU (sin costo; requiere --apply --approve quota)
+  06:20:58 SUMMARY   bootstrap-quota created=0 updated=0 unchanged=0 planned=1
+
+## F. Auditoría CloudTrail de las dos sesiones raíz (bootstrap-iam.sh --audit)
+### Sesión 1 - infra/logs/bootstrap-iam-20261101T055701Z.log
+  05:57:01 INFO      registro de la ejecución: infra/logs/bootstrap-iam-20261101T055701Z.log (modo plan, destino aws)
+  05:57:04 INFO      CloudTrail desde 2026-11-01T05:44:56Z (los eventos tardan hasta 15 min en aparecer):
+  05:57:07 INFO        contexto MFA de esta sesión (mfaAuthenticated):       1 false 
+  05:57:09 INFO        operaciones de escritura en us-east-1: ninguna
+  05:57:11 INFO        operaciones de escritura en us-east-2:
+  05:57:11 INFO          2026-11-01T05:52:29Z signin.amazonaws.com ConsoleLogin False - -
+  05:57:11 INFO          2026-11-01T05:48:41Z signin.amazonaws.com ConsoleLogin False - -
+  05:57:11 INFO          2026-11-01T05:46:16Z signin.amazonaws.com ConsoleLogin False - -
+  05:57:11 INFO          2026-11-01T05:45:44Z signin.amazonaws.com ConsoleLogin False - -
+### Sesión 2 - infra/logs/bootstrap-iam-20261101T062339Z.log
+  06:23:39 INFO      registro de la ejecución: infra/logs/bootstrap-iam-20261101T062339Z.log (modo plan, destino aws)
+  06:23:41 INFO      CloudTrail desde 2026-11-01T06:17:01Z (los eventos tardan hasta 15 min en aparecer):
+  06:23:43 INFO        contexto MFA de esta sesión (mfaAuthenticated):       2 false 
+  06:23:45 INFO        operaciones de escritura en us-east-1: ninguna
+  06:23:47 INFO        operaciones de escritura en us-east-2:
+  06:23:47 INFO          2026-11-01T06:19:09Z ec2.amazonaws.com RunInstances False false Client.DryRunOperation
+  06:23:47 INFO          2026-11-01T06:19:06Z ec2.amazonaws.com RunInstances False false Client.DryRunOperation
+  06:23:47 INFO          2026-11-01T06:19:04Z ec2.amazonaws.com RunInstances False false Client.DryRunOperation
+  06:23:47 INFO          2026-11-01T06:19:01Z ec2.amazonaws.com RunInstances False false Client.DryRunOperation
+  06:23:47 INFO          2026-11-01T06:18:32Z ec2.amazonaws.com RunInstances False false Client.DryRunOperation
+  06:23:47 INFO          2026-11-01T06:18:03Z ec2.amazonaws.com RunInstances False false Client.DryRunOperation
+  (Las 6 RunInstances son las pruebas en seco de B.2: 4 previstas y 2 de intentos interrumpidos por un
+   error del script de comprobación; todas con errorCode Client.DryRunOperation, ningún recurso creado.
+   mfaAuthenticated=false: la sesión de aws login de la raíz, que entonces NO tenía MFA, no llevaba
+   contexto MFA. Corrección del 2026-11-01 (evidencia 11): con un usuario que inicia sesión con MFA,
+   la sesión sí lo transmite.)
