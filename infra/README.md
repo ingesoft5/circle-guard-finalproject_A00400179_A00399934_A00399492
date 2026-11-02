@@ -249,11 +249,21 @@ bash infra/bootstrap-all.sh --apply --approve all        # FACTURABLE: construye
 ```
 Con `--approve ci` solo se crea o inicia ese servidor, y los pasos de Nexus se omiten.
 
-**Parada automática.** Cada servidor se apaga solo `AUTO_STOP_HOURS` (4) horas después de
-arrancar: la instancia queda **detenida**, con su disco y sus datos, nunca terminada. Los usuarios
-conectados reciben un aviso 5 minutos antes (`sudo shutdown -c` lo cancela). Para alargar una
-sesión, en el host: `sudo systemctl restart circleguard-autostop.timer`. Al volver a iniciarla,
-Docker levanta los stacks solos. La estimación local registra esas paradas con la hora que da AWS.
+**Parada automática.** Cada servidor se apaga solo (`shutdown --poweroff`) `AUTO_STOP_HOURS` (4)
+horas después de arrancar: la instancia queda **detenida**, con su disco y sus datos, nunca
+terminada. Al volver a iniciarla, Docker levanta los stacks solos. En el host:
+
+| Situación | Comando |
+|---|---|
+| Ver cuánto falta | `systemctl list-timers circleguard-autostop.timer` |
+| Alargar la sesión antes del aviso | `sudo systemctl restart circleguard-autostop.timer` (otras `AUTO_STOP_HOURS` horas desde ahora) |
+| Seguir trabajando durante el aviso de 5 minutos | `sudo shutdown -c && sudo systemctl restart circleguard-autostop.timer` |
+
+`sudo shutdown -c` **por sí solo** cancela el apagado pero deja el servidor **sin ninguna parada
+programada** hasta el siguiente arranque: el temporizador ya venció. La siguiente ejecución de
+los *bootstrap* lo detecta y lo reprograma, y `verify-infra.sh --health` falla mientras no esté
+en espera. La estimación local registra estas paradas con la hora que da AWS, o con una hora
+estimada (y un aviso) si AWS no la indica.
 
 ### Presupuesto por recurso (topología B en el plan gratuito, On-Demand en us-east-2)
 
@@ -314,10 +324,11 @@ la infraestructura (en CloudShell, con su propia autorización).
 
 **Barreras de costo:**
 - **Parada automática** de cada servidor a las `AUTO_STOP_HOURS` (4) horas del arranque; la
-  instancia se detiene y conserva el disco. `verify-infra.sh` comprueba que el temporizador está
-  activo.
-- **Estimación local** antes de crear o iniciar: acumulado + sesión (4 h) + EBS nuevo (45 días) +
-  reserva de transferencia, frente a 15 USD.
+  instancia se detiene y conserva el disco. `verify-infra.sh` comprueba que hay una parada
+  programada (temporizador en espera, no solo «activo»).
+- **Estimación local** antes de crear o iniciar: acumulado + sesión (4 h; 24 h y un aviso si la
+  parada automática está desactivada) + EBS nuevo (45 días) + reserva de transferencia, frente a
+  15 USD.
 - **AWS Budgets** (requiere aprobación): alertas en 5, 10 y 15 USD. Solo avisan, con horas de
   retraso: no detienen nada. Según la API del plan gratuito, crear un presupuesto de costos es una
   actividad que suma 20 USD de créditos (igual que lanzar la primera instancia EC2).
@@ -366,8 +377,10 @@ como superado:
   grupo de seguridad propio, ninguna regla entre ambientes, solo referencias a `ci` y `nexus`),
   pero no con tráfico, porque no hay servidores de ambiente.
 
-`--health` también comprueba, en cada servidor, Docker, el temporizador de parada automática, el
-swap y la memoria en uso.
+`--health` también comprueba, en cada servidor, Docker, que la parada automática está
+**programada** (temporizador en espera), el swap y la memoria en uso, y registra la memoria de
+cada contenedor (`docker stats --no-stream`). Un contenedor detenido o ausente, o un Docker que
+no responde, se informa como tal, nunca como consumo cero.
 
 ## Detener o destruir
 
@@ -477,6 +490,8 @@ de `nexus`. La parada automática y `teardown.sh --stop` conservan los volúmene
 | `No hay una instancia '<rol>' en ejecución` | Créela o iníciela con `bootstrap-servers.sh --apply --approve <rol>` (`ci` o `nexus`) |
 | `EULA de Nexus Community Edition PENDIENTE` (`PLAN` o `PENDING`) | Decisión del equipo: revise el EULA y, si lo acepta, defina `NEXUS_ACCEPT_EULA=true` y vuelva a ejecutar `bootstrap-nexus.sh --apply` |
 | La instancia se detuvo sola | Es la parada automática (`AUTO_STOP_HOURS`): iníciela con `bootstrap-servers.sh --apply --approve <rol>`; los stacks arrancan con Docker |
+| Aviso «parada automatica en 5 minutos» | Para seguir: `sudo shutdown -c && sudo systemctl restart circleguard-autostop.timer`. Solo `shutdown -c` deja el servidor sin parada programada |
+| `parada automática programada ... (esperado 'waiting', obtenido 'elapsed')` | El temporizador venció (por ejemplo, tras `shutdown -c`): `sudo systemctl restart circleguard-autostop.timer`, o vuelva a ejecutar el *bootstrap* de la herramienta |
 | El puerto 5432 está ocupado en Windows | Un PostgreSQL nativo usa ese puerto: el middleware local no puede publicar 5432 mientras siga activo. Deténgalo (es su decisión) o use otra máquina. Los scripts nunca lo tocan |
 | El puerto 8082 está ocupado en Windows | En local, Nexus publica su registro en 5000 (`LOCAL_NEXUS_DOCKER_HOST_PORT`) |
 | `error getting credentials` al descargar imágenes desde WSL | Es el asistente de credenciales de Docker Desktop: descargue la imagen desde PowerShell o Git Bash (`docker pull <imagen>`) y repita |

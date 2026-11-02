@@ -18,10 +18,11 @@ cg_ledger_at() { # cg_ledger_at <UTC time> <event> <role> <instance id> <type> <
 
 # cg_ledger_sync_stop <role> <instance id> <state transition reason>: records a stop the scripts
 # did not make (the auto-stop timer, the console), so the estimate stops adding instance hours.
-# The time is the one in AWS's transition reason; without it, the last start plus
-# AUTO_STOP_HOURS (the latest the timer allows), capped at now.
+# The time is the one in AWS's transition reason (confirmed). Without it the time is ESTIMATED:
+# the last start plus AUTO_STOP_HOURS (it ignores extensions of the session), or now when the
+# auto-stop is disabled; a warning says so. The result always lies between the start and now.
 cg_ledger_sync_stop() {
-  local last since when now
+  local last since when now source
   [[ -s "$CG_LEDGER" ]] || return 0
   read -r last since < <(awk -F'\t' -v id="$2" '$4 == id { e = $2; t = $1 } END { print e, t }' "$CG_LEDGER")
   [[ "$last" == run || "$last" == start ]] || return 0
@@ -29,15 +30,29 @@ cg_ledger_sync_stop() {
   when=$(grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}' <<<"$3" | head -1 || true)
   if [[ -n "$when" ]]; then
     when=$(date -u -d "$when UTC" +%Y-%m-%dT%H:%M:%SZ)
+    source=aws
   elif ((${AUTO_STOP_HOURS:-0} > 0)); then
     when=$(date -u -d "$since + $AUTO_STOP_HOURS hours" +%Y-%m-%dT%H:%M:%SZ)
+    source=estimada
   else
     when=$now
+    source=ahora
   fi
-  [[ "$when" < "$now" ]] || when=$now
-  [[ "$when" > "$since" ]] || when=$since
+  if [[ ! "$when" < "$now" ]]; then
+    when=$now
+    [[ "$source" == aws ]] && source=ajustada
+  fi
+  if [[ ! "$when" > "$since" ]]; then
+    when=$since
+    [[ "$source" == aws ]] && source=ajustada
+  fi
   cg_ledger_at "$when" stop "$1" "$2" - -
-  info "estimación: $2 consta como detenida desde $when (parada no hecha por los scripts)"
+  case "$source" in
+    aws) info "estimación: $2 detenida a las $when (hora confirmada por AWS; parada no hecha por los scripts)" ;;
+    ajustada) warn "estimación: la hora de parada que da AWS para $2 queda fuera de [último arranque, ahora]; se registra $when" ;;
+    estimada) warn "estimación: hora de parada de $2 ESTIMADA, $when (último arranque + $AUTO_STOP_HOURS h de la parada automática, como máximo ahora), porque AWS no la indica; si la sesión se amplió, el costo real es mayor: consulte Billing" ;;
+    ahora) warn "estimación: hora de parada de $2 desconocida y parada automática desactivada: se registra la hora actual ($when), que puede sobrestimar el costo" ;;
+  esac
 }
 
 # cg_budget_accrued: estimated USD of the running hours (instance + public IPv4) and of the

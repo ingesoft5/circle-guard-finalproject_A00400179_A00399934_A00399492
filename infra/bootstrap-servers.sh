@@ -58,7 +58,12 @@ cost_preview() {
 # budget_preview: estimated cost of the instances this run would create or start, checked
 # against the HU-01 budget before anything billable happens (local estimate: lib/budget.sh).
 budget_preview() {
-  local role rows state new projected=0
+  local role rows state new projected=0 hours=$SESSION_HOURS_ESTIMATE
+  # Without the auto-stop timer nothing bounds a session: a forgotten instance runs a whole day.
+  if ((${AUTO_STOP_HOURS:-0} == 0)); then
+    hours=$(awk -v h="$hours" 'BEGIN { print (h >= 24 ? h : 24) }')
+    warn "parada automática desactivada (AUTO_STOP_HOURS=0): la estimación supone $hours h encendidas por sesión; detenga las instancias al terminar"
+  fi
   for role in "${CG_ROLES[@]}"; do
     is_approved "$role" || continue
     rows=$(cg_find_instances "$role")
@@ -66,10 +71,10 @@ budget_preview() {
     [[ "$state" == running || "$state" == pending ]] && continue
     if [[ -z "$rows" ]]; then new=1; else new=0; fi
     projected=$(awk -v p="$projected" -v h="$(price_hour "$(cg_role_type "$role")")" -v ip="$PRICE_IPV4_HOUR" \
-      -v s="$SESSION_HOURS_ESTIMATE" -v new="$new" -v gib="$(cg_role_volume "$role")" -v gbm="$PRICE_EBS_GP3_GB_MONTH" \
+      -v s="$hours" -v new="$new" -v gib="$(cg_role_volume "$role")" -v gbm="$PRICE_EBS_GP3_GB_MONTH" \
       -v days="$EBS_RESERVE_DAYS" 'BEGIN { printf "%.4f", p + (h + ip) * s + new * gib * gbm / 730 * 24 * days }')
   done
-  cg_budget_check "$projected" "esta ejecución (${SESSION_HOURS_ESTIMATE} h y EBS nuevo por ${EBS_RESERVE_DAYS} días)"
+  cg_budget_check "$projected" "esta ejecución ($hours h y EBS nuevo por ${EBS_RESERVE_DAYS} días)"
 }
 
 # sync_stopped: stopped instances the ledger still counts as running (auto-stop timer, console)
