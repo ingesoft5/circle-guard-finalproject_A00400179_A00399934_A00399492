@@ -52,6 +52,13 @@
       }
     },
     {
+      "Sid": "CreateOnlyInsideCircleGuardVpc",
+      "Effect": "Allow",
+      "Action": ["ec2:CreateSubnet", "ec2:CreateRouteTable", "ec2:CreateSecurityGroup"],
+      "Resource": "arn:aws:ec2:us-east-2:*:vpc/*",
+      "Condition": { "StringEquals": { "aws:ResourceTag/Project": "circleguard" } }
+    },
+    {
       "Sid": "TagOnlyWhileCreating",
       "Effect": "Allow",
       "Action": "ec2:CreateTags",
