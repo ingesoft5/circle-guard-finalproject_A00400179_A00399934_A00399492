@@ -2,7 +2,9 @@
 # HU-01 · Nexus Repository server: prepares the host (Docker Engine + Compose), publishes the
 # Nexus stack, writes its .env from the secret manager and configures Nexus through its REST
 # API: managed admin password, anonymous access off, Docker Bearer Token realm and the Docker
-# hosted repository "circleguard-docker". Idempotent. It does not create AWS resources.
+# hosted repository "circleguard-docker". The last three wait for the team's decision on the
+# Community Edition EULA (NEXUS_ACCEPT_EULA): until then Nexus runs, but is reported as pending.
+# Idempotent. It does not create AWS resources.
 
 # shellcheck source=bootstrap/lib/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/bootstrap/lib/common.sh"

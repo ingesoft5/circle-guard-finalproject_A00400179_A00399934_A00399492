@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# HU-01 · Jenkins server: prepares the host (Docker Engine + Compose), publishes the Compose
-# stack and the JCasC configuration, writes its .env from the secret manager and verifies that
-# Jenkins started configured (no setup wizard, managed admin, no anonymous access).
+# HU-01 · Jenkins on the ci server (shared with SonarQube): prepares the host (Docker Engine +
+# Compose), publishes the Compose stack and the JCasC configuration, writes its .env from the
+# secret manager and verifies that Jenkins started configured (no setup wizard, managed admin,
+# no anonymous access).
 # Jenkins only listens on 127.0.0.1 of its host: administrators use infra/tunnel.sh jenkins.
 # Idempotent. It does not create AWS resources: the instance must already exist.
 
@@ -15,7 +16,7 @@ source "$INFRA_DIR/bootstrap/lib/remote.sh"
 usage() {
   cat <<'EOF'
 Uso: infra/bootstrap-jenkins.sh [--plan | --apply] [--target aws|local]
-  --target aws    (por defecto) instancia EC2 "jenkins" en ejecución, por SSH.
+  --target aws    (por defecto) instancia EC2 "ci" en ejecución, por SSH.
   --target local  Docker Desktop de esta máquina, en 127.0.0.1 (validación gratuita).
 EOF
 }

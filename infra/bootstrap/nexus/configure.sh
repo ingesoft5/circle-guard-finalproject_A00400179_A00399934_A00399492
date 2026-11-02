@@ -3,6 +3,10 @@
 # infra/bootstrap-nexus.sh. Configures Nexus through its REST API, idempotently:
 #   managed admin password, EULA (team decision), anonymous access off, Docker Bearer Token
 #   realm and the Docker hosted repository circleguard-docker.
+# While the Community Edition EULA is not accepted and the team has not decided to accept it
+# (NEXUS_ACCEPT_EULA=false), the run stops after the admin password and reports the EULA as
+# pending (PLAN): Nexus does not let anyone fetch or upload components until it is accepted, so
+# no repository, realm or anonymous-access change is made.
 #   usage: configure.sh <stack dir> <plan|apply>
 set -Eeuo pipefail
 
@@ -74,7 +78,8 @@ if [[ "$eula_code" == 200 ]]; then
   if [[ $(py "import json; print(str(json.load(open('$TMP/eula.json')).get('accepted', False)).lower())") == true ]]; then
     result UNCHANGED "EULA de Nexus Community Edition aceptado"
   elif [[ "${NEXUS_ACCEPT_EULA:-false}" != true ]]; then
-    fail "Nexus Community Edition exige aceptar su EULA. Revíselo y, si el equipo lo acepta, defina NEXUS_ACCEPT_EULA=true en infra/config/aws.env"
+    result PLAN "EULA de Nexus Community Edition PENDIENTE de la decisión del equipo (NEXUS_ACCEPT_EULA=false): Nexus no permite descargar ni subir componentes; no se configuran el acceso anónimo, el realm DockerToken ni el repositorio $REPO"
+    exit 0
   elif applying; then
     py "import json; d=json.load(open('$TMP/eula.json')); d['accepted']=True; json.dump(d, open('$TMP/eula-accept.json','w'))"
     api POST /service/rest/v1/system/eula "$TMP/eula-accept.json" >/dev/null

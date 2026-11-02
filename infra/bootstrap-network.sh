@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # HU-01 · Network of the CircleGuard platform on AWS: one VPC, a public subnet per tier
 # (tools, dev, stage, prod), internet gateway (no NAT Gateway), route table and
-# least-privilege security groups. Environments never get rules towards each other.
+# least-privilege security groups: one per server (ci, nexus) and one per environment.
+# Environments never get rules towards each other. In HU-01 the environments have no servers:
+# their isolation is configured here (subnet + security group) but not exercised by a workload.
 #
 # Idempotent: resources are found by their tags, created only when missing and reconciled
 # when they drift. AWS does not bill VPCs, subnets, internet gateways, route tables or
@@ -21,7 +23,7 @@ Uso: infra/bootstrap-network.sh [--plan | --apply]
 EOF
 }
 
-SG_KEYS=(jenkins sonarqube nexus env-dev env-stage env-prod)
+SG_KEYS=(ci nexus env-dev env-stage env-prod)
 declare -A SUBNET_ID SG_ID
 VPC_ID=""
 IGW_ID=""
@@ -173,8 +175,7 @@ ensure_route_table() {
 
 sg_description() {
   case "$1" in
-    jenkins) echo "CircleGuard HU-01 - Jenkins" ;;
-    sonarqube) echo "CircleGuard HU-01 - SonarQube" ;;
+    ci) echo "CircleGuard HU-01 - CI server (Jenkins and SonarQube)" ;;
     nexus) echo "CircleGuard HU-01 - Nexus Repository" ;;
     env-*) echo "CircleGuard HU-01 - environment ${1#env-} (isolated)" ;;
   esac
@@ -209,16 +210,16 @@ ensure_sg() {
 # desired_rules: "<sg key> <in|out> <tcp port> <cidr:X|sg:KEY>" lines. Everything not listed
 # is denied: no rule ever connects two environments, and the tool UIs (plain HTTP) are never
 # opened to the Internet: administrators reach them through an SSH tunnel (infra/tunnel.sh).
+# Jenkins and SonarQube share the ci server, so SonarQube needs no network rule at all.
 desired_rules() {
   local c k e
   for c in "${ADMIN[@]}"; do
     for k in "${SG_KEYS[@]}"; do echo "$k in 22 cidr:$c"; done
   done
-  echo "sonarqube in $SONARQUBE_HTTP_PORT sg:jenkins"
-  echo "nexus in $NEXUS_HTTP_PORT sg:jenkins"
-  echo "nexus in $NEXUS_DOCKER_PORT sg:jenkins"
+  echo "nexus in $NEXUS_HTTP_PORT sg:ci"
+  echo "nexus in $NEXUS_DOCKER_PORT sg:ci"
   for e in "${CG_ENVS[@]}"; do
-    echo "env-$e in 22 sg:jenkins"
+    echo "env-$e in 22 sg:ci"
     echo "nexus in $NEXUS_DOCKER_PORT sg:env-$e"
   done
   # Egress: package repositories and registries (HTTP/HTTPS) plus the internal flows above.
@@ -227,11 +228,10 @@ desired_rules() {
     echo "$k out 80 cidr:0.0.0.0/0"
     echo "$k out 443 cidr:0.0.0.0/0"
   done
-  echo "jenkins out $SONARQUBE_HTTP_PORT sg:sonarqube"
-  echo "jenkins out $NEXUS_HTTP_PORT sg:nexus"
-  echo "jenkins out $NEXUS_DOCKER_PORT sg:nexus"
+  echo "ci out $NEXUS_HTTP_PORT sg:nexus"
+  echo "ci out $NEXUS_DOCKER_PORT sg:nexus"
   for e in "${CG_ENVS[@]}"; do
-    echo "jenkins out 22 sg:env-$e"
+    echo "ci out 22 sg:env-$e"
     echo "env-$e out $NEXUS_DOCKER_PORT sg:nexus"
   done
 }

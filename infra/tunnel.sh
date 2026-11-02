@@ -33,8 +33,8 @@ LOCAL_PORT=${CG_ARGS[1]:-$REMOTE_PORT}
 
 CG_MODE=apply # cg_resolve_host stops with guidance when the instance is not running
 cg_aws_preflight
-cg_resolve_host "$TOOL"
-info "$TOOL disponible en http://localhost:$LOCAL_PORT (túnel SSH hacia $HOST_ID). Ctrl+C para cerrar."
+cg_resolve_host "$(cg_tool_host "$TOOL")"
+info "$TOOL disponible en http://localhost:$LOCAL_PORT (túnel SSH hacia $HOST_ROLE, $HOST_ID). Ctrl+C para cerrar."
 exec ssh -i "$HOST_KEY" -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 \
   -o StrictHostKeyChecking=accept-new -o HostKeyAlias="$HOST_ID" -o UserKnownHostsFile="$SSH_KEY_DIR/known_hosts" \
   -L "127.0.0.1:$LOCAL_PORT:127.0.0.1:$REMOTE_PORT" "$SSH_USER@$HOST_PUBLIC_IP"

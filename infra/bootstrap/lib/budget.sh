@@ -9,9 +9,35 @@
 CG_LEDGER="$CG_LOCAL_HOME/budget/ledger.tsv"
 
 # cg_ledger <run|start|stop|terminate> <role> <instance id> <type> <GiB>
-cg_ledger() {
+cg_ledger() { cg_ledger_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$@"; }
+
+cg_ledger_at() { # cg_ledger_at <UTC time> <event> <role> <instance id> <type> <GiB>
   install -d -m 700 "$(dirname "$CG_LEDGER")"
-  (umask 077 && printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$@" >>"$CG_LEDGER")
+  (umask 077 && printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$@" >>"$CG_LEDGER")
+}
+
+# cg_ledger_sync_stop <role> <instance id> <state transition reason>: records a stop the scripts
+# did not make (the auto-stop timer, the console), so the estimate stops adding instance hours.
+# The time is the one in AWS's transition reason; without it, the last start plus
+# AUTO_STOP_HOURS (the latest the timer allows), capped at now.
+cg_ledger_sync_stop() {
+  local last since when now
+  [[ -s "$CG_LEDGER" ]] || return 0
+  read -r last since < <(awk -F'\t' -v id="$2" '$4 == id { e = $2; t = $1 } END { print e, t }' "$CG_LEDGER")
+  [[ "$last" == run || "$last" == start ]] || return 0
+  now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  when=$(grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}' <<<"$3" | head -1 || true)
+  if [[ -n "$when" ]]; then
+    when=$(date -u -d "$when UTC" +%Y-%m-%dT%H:%M:%SZ)
+  elif ((${AUTO_STOP_HOURS:-0} > 0)); then
+    when=$(date -u -d "$since + $AUTO_STOP_HOURS hours" +%Y-%m-%dT%H:%M:%SZ)
+  else
+    when=$now
+  fi
+  [[ "$when" < "$now" ]] || when=$now
+  [[ "$when" > "$since" ]] || when=$since
+  cg_ledger_at "$when" stop "$1" "$2" - -
+  info "estimación: $2 consta como detenida desde $when (parada no hecha por los scripts)"
 }
 
 # cg_budget_accrued: estimated USD of the running hours (instance + public IPv4) and of the
@@ -50,12 +76,13 @@ PY
 }
 
 # cg_budget_check <projected USD> <description>: refuses the run when the estimate (accrued +
-# projected) exceeds HU01_BUDGET_USD and warns above 80 %.
+# projected + data transfer reserve) exceeds HU01_BUDGET_USD and warns above 80 %.
 cg_budget_check() {
-  local accrued total
+  local accrued reserve total
   accrued=$(cg_budget_accrued)
-  total=$(awk -v a="$accrued" -v p="$1" 'BEGIN { printf "%.2f", a + p }')
-  info "estimación local (no es un límite de facturación): acumulado $accrued + $2 $(printf '%.2f' "$1") = $total de $HU01_BUDGET_USD USD"
+  reserve=$(awk -v g="${DATA_OUT_GB_RESERVE:-0}" -v p="${PRICE_DATA_OUT_GB:-0}" 'BEGIN { printf "%.2f", g * p }')
+  total=$(awk -v a="$accrued" -v p="$1" -v r="$reserve" 'BEGIN { printf "%.2f", a + p + r }')
+  info "estimación local (no es un límite de facturación): acumulado $accrued + $2 $(printf '%.2f' "$1") + transferencia $reserve = $total de $HU01_BUDGET_USD USD"
   if awk -v t="$total" -v l="$HU01_BUDGET_USD" 'BEGIN { exit !(t > l) }'; then
     die "La estimación supera el presupuesto de HU-01 ($HU01_BUDGET_USD USD): no se ejecuta. Revise el costo real en la consola de Billing y consulte al equipo."
   fi
