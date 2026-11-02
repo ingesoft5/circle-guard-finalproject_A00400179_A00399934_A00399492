@@ -37,12 +37,25 @@ step() { # step <script> [args]
   bash "$INFRA_DIR/$1" "${@:2}"
 }
 
-# running_or_skip <role>: in apply mode, steps of servers that are not running are skipped.
+# running_or_skip <role>: steps of servers that are not running are skipped (in plan mode too:
+# there is nothing to configure yet, and configuring needs the operator role).
 running_or_skip() {
-  if is_apply && [[ -z "$(cg_find_instances "$1" running)" ]]; then
+  [[ -n "$(cg_find_instances "$1" running)" ]] && return 0
+  if is_apply; then
     warn "se omite la configuración de $1: su instancia no está en ejecución (no fue aprobada o no existe)"
-    return 1
+  else
+    info "configuración de $1: se planificará cuando su instancia esté en ejecución"
   fi
+  return 1
+}
+
+# running_roles: comma separated roles whose instance is running (what verify-infra can check).
+running_roles() {
+  local role list=()
+  for role in "${CG_ROLES[@]}"; do
+    if [[ -n "$(cg_find_instances "$role" running)" ]]; then list+=("$role"); fi
+  done
+  (IFS=,; echo "${list[*]}")
 }
 
 cg_aws_preflight
@@ -55,7 +68,11 @@ done
 for env_name in "${CG_ENVS[@]}"; do
   if running_or_skip "env-$env_name"; then step bootstrap-env.sh "$env_name" "--$CG_MODE"; fi
 done
-if is_apply; then step verify-infra.sh --health; fi
+if is_apply; then
+  # Sessions bring up only the approved servers: verify those that are running.
+  ROLES_UP=$(running_roles)
+  if [[ -n "$ROLES_UP" ]]; then step verify-infra.sh --health "--roles=$ROLES_UP"; else warn "no hay servidores en ejecución: se omite la verificación"; fi
+fi
 
 read -r created updated unchanged planned < <(awk '{c += $2; u += $3; n += $4; p += $5} END {print c+0, u+0, n+0, p+0}' "$CG_COUNTERS_FILE")
 log SUMMARY "bootstrap-all created=$created updated=$updated unchanged=$unchanged planned=$planned duración=$(($(date +%s) - STARTED))s"

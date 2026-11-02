@@ -109,20 +109,20 @@ permisos propios: solo pueden usar `aws login`, ver su propio dispositivo MFA y 
 
 1. **Capacidades separadas en AWS.** La lectura no crea ni borra; el operador no borra; destruir
    solo es posible con el rol de teardown, que únicamente asume el otro usuario.
-2. **La persona abre la ventana con un código MFA.** La sesión de `aws login` no transmite el
-   contexto MFA (comprobado en CloudTrail el 2026-11-01: `mfaAuthenticated=false`). Por eso los
-   roles de operación y de teardown exigen un **código MFA enviado en la propia llamada
-   `AssumeRole`**. Cada código vale una sola vez y abre como máximo 1 h de operación. Sin un
-   código nuevo de la persona, AWS rechaza la operación, la intente quien la intente.
-   - **Destrucción, opción recomendada:** se ejecuta en **AWS CloudShell**, en el navegador, con
-     la sesión del usuario de teardown (contraseña y MFA en la página de AWS). Ninguna credencial
-     de teardown llega a esta máquina.
-   - **Alternativa:** el código se escribe en la petición de la AWS CLI, en una ventana de
-     terminal. Pasa por un proceso local, vale una sola vez y da como máximo 15 minutos para
-     asumir el rol.
-3. **Límites de lo que se puede crear** (política del operador): `us-east-2`,
-   `t3.small/medium/large`, gp3 cifrado de 40 GiB como máximo, AMIs de Canonical y etiqueta
-   `Project=circleguard` obligatoria.
+2. **La persona abre la ventana con su MFA.** El rol de operación exige una MFA de menos de 1 h
+   (`aws:MultiFactorAuthAge < 3600`).
+   - **Comprobado el 2026-11-01:** cuando el usuario operador inicia sesión con `aws login` y
+     escribe su MFA en la página de AWS, la sesión transmite el contexto MFA. Con la raíz sin
+     MFA, no lo transmitía (`mfaAuthenticated=false`).
+   - Por eso el rol de operación está disponible durante la hora siguiente a cada inicio de
+     sesión del operador, sin otro código. Pasada esa hora, AWS lo rechaza hasta un nuevo inicio
+     de sesión o un `unlock`, que envía un código MFA nuevo en `AssumeRole`.
+   - **Destrucción:** solo desde **AWS CloudShell**, en el navegador, con la sesión del usuario de
+     teardown (contraseña y MFA en la página de AWS). Ninguna credencial de teardown llega a esta
+     máquina.
+3. **Límites de lo que se puede crear** (política del operador): `us-east-2`, `t3.small`,
+   `c7i-flex.large` y `m7i-flex.large`, gp3 cifrado de 40 GiB como máximo, AMIs de Canonical y
+   etiqueta `Project=circleguard` obligatoria.
 4. **Barreras de los scripts**, como defensa adicional: `--plan` por defecto, `--apply --approve
    <rol>` para lo facturable, frase para destruir y estimación local de costos.
 5. **Auditoría:** CloudTrail registra cada llamada con su identidad y si tenía MFA.
@@ -143,6 +143,7 @@ Billing. Una alerta de AWS Budgets, que requiere aprobación para crearla, avisa
 ### Puesta en marcha
 
 ```bash
+bash infra/aws-session.sh open root-mfa          # antes de nada: MFA de la cuenta raíz (la activa usted en la consola)
 bash infra/aws-session.sh init                   # ~/.circleguard/aws (0700) y perfiles de inicio de sesión
 bash infra/aws-session.sh login bootstrap        # se abre el navegador: inicie sesión con su identidad actual
 bash infra/bootstrap-iam.sh                      # solo lectura: cuenta, permisos, cuotas, Access Analyzer y plan
@@ -153,8 +154,9 @@ bash infra/bootstrap-quota.sh --apply --approve quota  # CON APROBACIÓN: pide s
 bash infra/aws-session.sh logout bootstrap       # la identidad administrativa deja de estar disponible
 ```
 
-**Primer acceso de los usuarios** (una vez, en la consola de AWS, con la identidad actual): en
-IAM → Usuarios → `circleguard-hu01-operator` → Credenciales de seguridad:
+**Primer acceso de los usuarios** (una vez, en la consola de AWS, con la identidad actual).
+`bash infra/aws-session.sh open operator` (y después `open teardown`) abre IAM → Usuarios →
+`circleguard-hu01-operator` → Credenciales de seguridad:
 - **Habilitar el acceso a la consola** con una contraseña que la persona escribe en esa página.
 - **Asignar un dispositivo MFA**: escanear el código QR con una app de autenticación e
   introducir dos códigos consecutivos.

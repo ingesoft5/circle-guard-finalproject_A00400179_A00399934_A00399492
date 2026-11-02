@@ -24,6 +24,8 @@ Uso: infra/aws-session.sh <comando>
   logout bootstrap|operator|all
                              borra la sesión local y las credenciales de rol derivadas
   cloudshell-bundle          prepara el paquete para destruir desde AWS CloudShell
+  open root-mfa|operator|teardown|cloudshell|credits
+                             abre en el navegador la página de la consola donde usted interviene
 Sesiones:
   bootstrap  la identidad que ya usa en la cuenta: inspección de solo lectura y bootstrap-iam.sh
   operator   usuario IAM circleguard-hu01-operator: rol de lectura y, con unlock, rol de operación
@@ -54,11 +56,32 @@ do_login() {
   local profile
   profile=$(cg_login_profile "$1")
   grep -qxF "[profile $profile]" "$CG_AWS_CONFIG" 2>/dev/null || die "Ejecute primero: bash infra/aws-session.sh init"
+  # AWS discards a pending `aws login` authorization after about 10 minutes; after that the local
+  # callback stops listening and the browser shows ERR_CONNECTION_REFUSED on 127.0.0.1.
+  local deadline
+  deadline=$(powershell.exe -NoProfile -NonInteractive -Command "(Get-Date).AddMinutes(10).ToString('HH:mm')" 2>/dev/null | tr -d '\r') ||
+    deadline=$(date -d '+10 min' +%H:%M)
   info "se abre la página oficial de AWS en su navegador: escriba allí su usuario, contraseña y código MFA."
-  info "nunca los escriba en el chat. Esperando a que termine el inicio de sesión (máx. 15 min)..."
+  info "complete el inicio de sesión ANTES DE LAS $deadline (hora local): AWS anula el intento a los 10 minutos."
   date -u +%Y-%m-%dT%H:%M:%SZ >"$CG_AWS_HOME/login-$1.started"
-  BROWSER="$CG_LIB_DIR/open-aws-url.sh" timeout 900 env "${CG_AWS_ENV[@]}" aws login --profile "$profile" </dev/null >&2 ||
+  # BROWSER must be an executable file; a private copy works whatever mode Git checked out.
+  install -m 700 "$CG_LIB_DIR/open-aws-url.sh" "$CG_AWS_HOME/open-aws-url"
+  # The operator signs in from an InPrivate window so that no other console session is reused.
+  local private=""
+  if [[ "$1" == operator ]]; then
+    private=1
+    info "se abre una ventana InPrivate de Microsoft Edge: elija 'Usuario de IAM' (cuenta, circleguard-hu01-operator, contraseña y MFA)."
+  fi
+  CG_BROWSER_PRIVATE=$private BROWSER="$CG_AWS_HOME/open-aws-url" timeout 660 env "${CG_AWS_ENV[@]}" aws login --profile "$profile" </dev/null >&2 ||
     die "No se completó el inicio de sesión (cancelado o caducado). Puede repetirlo."
+  # `aws login` reuses the console session open in the browser: if that is another identity (for
+  # example root after configuring IAM), the session is discarded at once.
+  local arn
+  arn=$(aws sts get-caller-identity --profile "$profile" --query Arn --output text 2>/dev/null </dev/null) || arn=""
+  if [[ "$1" == operator && "$arn" != *":user/circleguard-hu01-operator" ]]; then
+    do_logout operator >/dev/null 2>&1
+    die "La sesión obtenida es '${arn##*:}', no el usuario circleguard-hu01-operator: se cerró sin usarla. Cierre la sesión de la consola de AWS en el navegador (menú de la cuenta > Cerrar sesión) y repita; inicie sesión como usuario IAM circleguard-hu01-operator."
+  fi
   show_identity "$profile"
 }
 
@@ -102,6 +125,7 @@ do_logout() {
   if [[ "$1" == all ]]; then kinds=(bootstrap operator); else kinds=("$1"); fi
   for kind in "${kinds[@]}"; do
     aws logout --profile "$(cg_login_profile "$kind")" >/dev/null 2>&1 </dev/null || true
+    cg_aws_profile_unset "$(cg_login_profile "$kind")" login_session
   done
   # Role credentials derived from the sessions: the CLI cache under the protected home only
   # holds HU-01 roles. Issued credentials still expire by themselves (1 h or less).
@@ -119,8 +143,23 @@ do_cloudshell_bundle() {
   info "súbalo en CloudShell (Acciones > Cargar archivo) desde: \\\\wsl.localhost\\${WSL_DISTRO_NAME:-Ubuntu}${out//\//\\}"
 }
 
+# do_open <page>: console pages where the person acts (passwords and MFA are typed there).
+do_open() {
+  local iam="https://console.aws.amazon.com/iam/home" url
+  case "$1" in
+    root-mfa) url="$iam#/security_credentials" ;;
+    operator | teardown) url="$iam#/users/details/circleguard-hu01-$1?section=security_credentials" ;;
+    cloudshell) url="https://$AWS_REGION.console.aws.amazon.com/cloudshell/home?region=$AWS_REGION" ;;
+    credits) url="https://us-east-1.console.aws.amazon.com/billing/home#/credits" ;;
+    *) die "página desconocida '$1' (root-mfa, operator, teardown, cloudshell o credits)" ;;
+  esac
+  bash "$CG_LIB_DIR/open-aws-url.sh" "$url"
+  info "abierta en el navegador: $url"
+}
+
 cg_load_config
 case "${1:-}" in
+  open) do_open "${2:?indique root-mfa, operator, teardown, cloudshell o credits}" ;;
   init) init_home ;;
   login) do_login "${2:?indique bootstrap u operator}" ;;
   unlock) do_unlock ;;

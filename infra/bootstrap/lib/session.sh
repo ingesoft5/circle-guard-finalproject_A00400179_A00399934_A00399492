@@ -11,16 +11,17 @@
 #   bootstrap  circleguard-hu01-bootstrap  the account's existing identity (aws login); only for
 #                                          the read-only inspection and bootstrap-iam.sh
 #   read       circleguard-hu01-reader     role reader: describe, prices, stop instances
-#   operate    circleguard-hu01            role operator: create and start, no deletes; assumed
-#                                          with a one-time MFA code, sessions of 1 h at most
+#   operate    circleguard-hu01            role operator: create and start, no deletes; only
+#                                          within 1 h of an MFA sign-in, sessions of 1 h at most
 #   destroy    circleguard-hu01-teardown   role teardown: delete tagged resources. Only the
 #                                          teardown user can assume it, with an MFA code, and
 #                                          only from AWS CloudShell (infra/teardown-cloudshell.sh):
 #                                          its credentials never exist on the workstation
 # The reader and operator roles take their credentials from the sign-in session
-# circleguard-hu01-operator-login (`infra/aws-session.sh login operator`). An `aws login` session
-# carries no MFA context (verified in CloudTrail on 2026-11-01), so the MFA condition of the
-# operator role is met only by the code sent in AssumeRole (`infra/aws-session.sh unlock`).
+# circleguard-hu01-operator-login (`infra/aws-session.sh login operator`). When the user signs in
+# with MFA, the `aws login` session carries the MFA context (verified on 2026-11-01), so the
+# operator role is usable for 1 h after each sign-in; `infra/aws-session.sh unlock` reopens it
+# later with a new MFA code sent in AssumeRole.
 
 CG_AWS_HOME="${CG_AWS_HOME:-$CG_LOCAL_HOME/aws}"
 CG_AWS_CONFIG="$CG_AWS_HOME/.aws/config"
@@ -66,7 +67,7 @@ cg_session_hint() {
   case "$CG_CAPABILITY" in
     bootstrap) echo "inicie sesión con la identidad actual de la cuenta: bash infra/aws-session.sh login bootstrap" ;;
     read) echo "inicie sesión como operador: bash infra/aws-session.sh login operator" ;;
-    operate) echo "el rol de operación exige un código MFA nuevo (sesiones de 1 h): bash infra/aws-session.sh unlock" ;;
+    operate) echo "el rol de operación exige una MFA de menos de 1 h: bash infra/aws-session.sh login operator (o unlock)" ;;
     destroy) echo "la destrucción se ejecuta en AWS CloudShell con el usuario de teardown: bash infra/aws-session.sh cloudshell-bundle" ;;
   esac
 }
@@ -110,6 +111,21 @@ cg_aws_profile_ensure() {
   printf '\n[profile %s]\n' "$name" >>"$CG_AWS_CONFIG"
   printf '%s\n' "$@" >>"$CG_AWS_CONFIG"
   created "perfil $name en ${CG_AWS_CONFIG/#$HOME/\~}"
+}
+
+# cg_aws_profile_unset <profile> <key>: removes a setting from a profile (used for the
+# login_session pointer that `aws logout` leaves behind).
+cg_aws_profile_unset() {
+  python3 - "$CG_AWS_CONFIG" "$@" <<'PY'
+import sys
+path, profile, key = sys.argv[1:]
+lines = open(path).read().splitlines()
+if f'[profile {profile}]' in lines:
+    start = lines.index(f'[profile {profile}]')
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith('[')), len(lines))
+    lines[start + 1:end] = [line for line in lines[start + 1:end] if line.split('=')[0].strip() != key]
+    open(path, 'w').write('\n'.join(lines) + '\n')
+PY
 }
 
 # cg_aws_profile_setting <profile> <key> <value>: adds a setting to an existing profile when the

@@ -66,8 +66,16 @@ stop_aws() {
 }
 
 destroy_aws() {
-  local ids id vpc sg rule_ids rtb assoc igw subnet key names
+  local ids id vpc sg rule_ids rtb assoc igw subnet key names remaining
   inventory
+  # Every other resource of HU-01 lives inside the VPC, so instances, VPC and key pairs cover them.
+  remaining=$(($(wc -w <<<"$(instance_ids pending,running,stopping,stopped)") +
+    $(aws_ ec2 describe-vpcs --filters "${FILTERS[@]}" --query 'length(Vpcs)' --output text) +
+    $(aws_ ec2 describe-key-pairs --filters "${FILTERS[@]}" --query 'length(KeyPairs)' --output text)))
+  if ((remaining == 0)) && [[ " ${CG_ARGS[*]} " != *" --purge-secrets "* ]]; then
+    unchanged "no hay instancias, red ni llaves de $PROJECT que destruir"
+    return
+  fi
   if ! is_apply; then
     planned "terminar instancias (y sus volúmenes), revocar reglas y eliminar grupos de seguridad, tabla de rutas, internet gateway, subredes, VPC y pares de llaves de $PROJECT"
     if [[ " ${CG_ARGS[*]} " == *" --purge-secrets "* ]]; then planned "borrar los secretos /$PROJECT/* de SSM"; fi

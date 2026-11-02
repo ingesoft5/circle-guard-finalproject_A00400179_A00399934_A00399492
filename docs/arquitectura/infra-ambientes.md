@@ -85,5 +85,51 @@ hosts con `nc` y exige `closed` entre ambientes y `open` en los flujos permitido
 | circleguard-nexus | tools | m7i-flex.large | 40 GiB gp3 cifrado | Nexus Repository CE y el repositorio Docker hosted `circleguard-docker` (etiquetas inmutables) |
 | circleguard-env-{dev,stage,prod} | dev · stage · prod | t3.small | 20 GiB gp3 cifrado | Docker Engine y Compose, listo para E1.3/E1.5 |
 
-Todas las instancias usan Ubuntu 24.04 LTS, IMDSv2 obligatorio, créditos de CPU `standard` e
-IPv4 pública automática (sin Elastic IP).
+Todas las instancias usan Ubuntu 24.04 LTS, IMDSv2 obligatorio, IPv4 pública automática (sin
+Elastic IP) y no tienen rol IAM. Los `t3.small` usan créditos de CPU `standard`; los tipos flex no
+usan créditos. La cuenta está en el plan gratuito de AWS, que solo lanza tipos aptos para la capa
+gratuita.
+
+## Identidades y autorización
+
+Ninguna identidad tiene claves de acceso permanentes. Cada capacidad tiene su propia identidad, y
+AWS, no los scripts, impide que una capacidad se use desde otra. Plantillas en
+[`infra/config/iam/`](../../infra/config/iam/) y creación con `infra/bootstrap-iam.sh`.
+
+```mermaid
+flowchart LR
+    persona(["Persona: contraseña y MFA<br/>solo en páginas de AWS"])
+    subgraph estacion["Estación de trabajo (WSL, ~/.circleguard/aws 0700)"]
+        login["aws login<br/>usuario circleguard-hu01-operator<br/>(sin claves)"]
+        reader["Rol circleguard-hu01-reader<br/>describir, precios, detener"]
+        operator["Rol circleguard-hu01-operator<br/>crear e iniciar, sin borrar<br/>sesión ≤ 1 h"]
+        scripts["infra/*.sh"]
+    end
+    subgraph navegador["Navegador: consola de AWS"]
+        cloudshell["AWS CloudShell<br/>usuario circleguard-hu01-teardown"]
+        teardown["Rol circleguard-hu01-teardown<br/>borrar solo Project=circleguard"]
+    end
+    aws[("Recursos de HU-01<br/>us-east-2")]
+
+    persona -->|"inicio de sesión"| login
+    persona -->|"código MFA en la AWS CLI (unlock)"| operator
+    persona -->|"inicio de sesión + MFA"| cloudshell
+    login --> reader
+    login --> operator
+    reader --> scripts
+    operator --> scripts
+    scripts --> aws
+    cloudshell -->|"código MFA, < 15 min"| teardown
+    teardown --> aws
+    login -- "denegado por IAM" --x teardown
+```
+
+| Identidad | Puede | Cómo se obtiene | Límite impuesto por AWS |
+|---|---|---|---|
+| Rol `circleguard-hu01-reader` | Describir, precios, Access Analyzer, detener instancias | Sesión `aws login` del operador | Solo el usuario operador |
+| Rol `circleguard-hu01-operator` | Crear e iniciar recursos acotados; ningún borrado ni permiso IAM | Código MFA nuevo en `AssumeRole` | MFA en cada asunción; sesión ≤ 1 h |
+| Rol `circleguard-hu01-teardown` | Borrar recursos con `Project=circleguard` | Usuario de teardown en CloudShell | Solo ese usuario, MFA de menos de 15 min; nunca en la estación |
+
+El simulador de políticas IAM confirma que ninguna de estas identidades puede crear credenciales,
+modificar permisos, pasar roles, cambiar la cuenta o asumir el rol de teardown
+([evidencia 09](../evidencias/hu-01/09-aws-preparacion-cuenta-e-iam.txt)).

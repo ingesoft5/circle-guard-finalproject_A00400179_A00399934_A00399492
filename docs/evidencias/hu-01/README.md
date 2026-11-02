@@ -4,27 +4,36 @@ Ningún archivo de esta carpeta contiene secretos. Los valores de Gitleaks está
 comparación directa confirmó que ningún secreto generado aparece en los archivos versionables ni
 en los logs.
 
-**Estado general: HU-01 NO está terminada.** El código y la validación local están completos;
-falta la ejecución en AWS (C1, C2 y la reconstrucción desde cero), que requiere autorización de
-costos, y la decisión del equipo sobre el EULA de Nexus.
+**Estado general: HU-01 NO está terminada.** El código, la validación local y la preparación de
+AWS están completos. Falta la ejecución en AWS (C1, C2 y la reconstrucción desde cero), que
+requiere autorizaciones individuales, y la decisión del equipo sobre el EULA de Nexus.
+
+**Preparación de AWS (2026-11-01, solo lectura, [09](09-aws-preparacion-cuenta-e-iam.txt)):**
+- Cuenta independiente en el **plan gratuito**: 100 USD de créditos; el plan termina el 2027-04-30.
+- Tipos ajustados a ese plan: Jenkins `c7i-flex.large`, SonarQube y Nexus `m7i-flex.large`,
+  ambientes `t3.small`. Los tres se ofrecen en us-east-2a, son aptos y son compatibles con la AMI.
+- Plantillas IAM: Access Analyzer sin hallazgos en las 8, y el simulador IAM sin escalada posible.
+- Cuota de vCPU de 5: las seis instancias necesitan 12, así que la solicitud está preparada.
+- La cuenta raíz ya tiene MFA (activada por el equipo el 2026-11-01).
+- **IAM creado el 2026-11-01 con autorización:** 3 políticas, 2 usuarios sin claves y 3 roles; convergencia comprobada en una segunda ejecución ([10](10-iam-creacion-e-idempotencia.txt)). Ningún recurso EC2, red o almacenamiento.
 
 ## Matriz final: seis criterios
 
 | Criterio | Estado | Qué está hecho | Qué falta |
 |---|---|---|---|
-| C1 · Servidores en la nube para Jenkins, SonarQube y Nexus | **Falta (AWS)** | `bootstrap-servers.sh` (EC2 cifradas, IMDSv2, créditos `standard`) y los tres stacks automatizados. Jenkins y SonarQube validados en local de punta a punta | Crear las instancias (facturable) y ejecutar los *bootstrap*. Nexus, pendiente del EULA |
+| C1 · Servidores en la nube para Jenkins, SonarQube y Nexus | **Falta (AWS)** | `bootstrap-servers.sh` (EC2 cifradas, IMDSv2) y los tres stacks automatizados. Jenkins y SonarQube validados en local de punta a punta. Tipos aptos para el plan gratuito verificados en la cuenta ([09](09-aws-preparacion-cuenta-e-iam.txt)) | Ampliar la cuota de vCPU, crear las instancias (facturable) y ejecutar los *bootstrap*. Nexus, pendiente del EULA |
 | C2 · dev, stage y prod aislados | **Falta (AWS)** | Subred, grupo de seguridad, llave SSH y ruta SSM propias por ambiente; ninguna regla entre ambientes; `verify-infra.sh --isolation` listo | Ejecutarlo en AWS y capturar la prueba de aislamiento |
 | C3 · `infra/bootstrap-*.sh` idempotentes | **Parcial** | Demostrado en local (2.ª ejecución con `created=0 updated=0`: secretos, Jenkins y SonarQube, más la corrección de derivas). Revisión estática de todos los scripts y 6 defectos corregidos ([08](08-revision-idempotencia.md)) | Dos ejecuciones de `bootstrap-all.sh` en AWS con *snapshot* y `diff` vacío |
 | C4 · Credenciales de `docker-compose.dev.yml` fuera del repositorio | **Terminado** | `${VAR:?}` sin valores por defecto, `.env.example` vacío y credenciales en `~/.circleguard/dev.env`; incluido en el commit `3a43855` | — |
-| C5 · Bash y Docker Compose sin configuración manual no documentada | **Parcial** | Jenkins (JCasC) y SonarQube (API) sin pasos manuales; acceso administrativo por túnel documentado; prerrequisitos documentados en `infra/README.md` | Nexus (decisión del EULA) y la reconstrucción en AWS siguiendo solo la documentación |
-| C6 · Credenciales fuera del repositorio, con un mecanismo seguro | **Terminado en el repositorio**; SSM pendiente de ejecución | 0 secretos activos ([03](03-gitleaks-arbol-de-trabajo.txt)); los 7 `application.yml` funcionan con variables y fallan sin ellas ([07](07-verificacion-arranque-servicios.txt)); SSM y `.env` 0600 implementados | Crear los parámetros SSM en AWS (sin costo; requiere autorización) |
+| C5 · Bash y Docker Compose sin configuración manual no documentada | **Parcial** | Jenkins (JCasC) y SonarQube (API) sin pasos manuales; acceso administrativo por túnel; IAM, sesiones temporales, cuota y destrucción en CloudShell automatizados y documentados en `infra/README.md`. Los únicos pasos manuales son los que deben serlo (contraseñas y MFA en la consola de AWS), y están documentados | Nexus (decisión del EULA) y la reconstrucción en AWS siguiendo solo la documentación |
+| C6 · Credenciales fuera del repositorio, con un mecanismo seguro | **Terminado en el repositorio**; SSM pendiente de ejecución | 0 secretos activos ([03](03-gitleaks-arbol-de-trabajo.txt)); los 7 `application.yml` funcionan con variables y fallan sin ellas ([07](07-verificacion-arranque-servicios.txt)); SSM y `.env` 0600 implementados; acceso a AWS sin claves permanentes (sesiones temporales y roles separados, [06](06-iam-minimo-privilegio.txt), [09](09-aws-preparacion-cuenta-e-iam.txt)) | Crear los parámetros SSM en AWS (sin costo; requiere autorización) |
 
 ## Matriz final: cuatro evidencias
 
 | Evidencia | Estado | Archivos |
 |---|---|---|
 | 1. Salida del bootstrap | **Parcial**: ejecuciones locales completas (`local/`); **falta la salida en AWS** | [`local/`](local/), [`08-revision-idempotencia.md`](08-revision-idempotencia.md) |
-| 2. Diagrama de ambientes | **Terminado**. Actualizado con el acceso por túnel; este cambio aún no tiene commit | [`../../arquitectura/infra-ambientes.md`](../../arquitectura/infra-ambientes.md) |
+| 2. Diagrama de ambientes | **Terminado**: red, aislamiento, servidores (tipos del plan gratuito) e identidades y autorización. La sección de identidades aún no tiene commit | [`../../arquitectura/infra-ambientes.md`](../../arquitectura/infra-ambientes.md) |
 | 3. Commit que elimina las credenciales | **Terminado**: `3a43855` (rama `HU01_Infraestructura_nube_bash`, publicada en `origin`). Sin reescribir el historial | `git show --stat 3a43855` |
 | 4. Captura del escaneo de secretos | **Terminado**: árbol de trabajo en PASS e historial completo. Falta solo la captura de pantalla, que hará el equipo | [`03`](03-gitleaks-arbol-de-trabajo.txt), [`04`](04-gitleaks-historial.txt) |
 
@@ -48,24 +57,27 @@ costos, y la decisión del equipo sobre el EULA de Nexus.
 | `scratch/run_seed.py` | 1 | 7 |
 | Copias del IDE de los *fixtures* (`bin/test/*.yml`) | 8 | auth 2,12 · identity 11,18,18,19,20 · promotion 14 |
 
-**Observación sobre los fixtures:** el *fixture* de la bóveda en
-`identity-service/src/test/resources/application.yml` (líneas 18-20) tiene **los mismos valores** que
-la antigua configuración principal. Hoy es solo un dato de prueba, ningún ambiente lo usa y las
-claves nuevas son distintas. Sustituirlo por valores ficticios nuevos queda como propuesta,
-pendiente de decisión del equipo, porque afecta a los tests de identity.
+**Observación sobre los fixtures (resuelta, D-4):** el *fixture* de la bóveda en
+`identity-service/src/test/resources/application.yml` (líneas 18-20) tenía los mismos valores que
+la antigua configuración principal. Se sustituyó por valores ficticios en el commit `67af77d`.
+Los tests de identity mantienen sus 4 fallos previos, sin regresiones. Los hallazgos PRUEBA de
+esas líneas corresponden ya a los valores ficticios.
 
 ## Archivos
 
 | Archivo | Contenido |
 |---|---|
-| `01-validacion-estatica.txt` | `bash -n` (19/19), ShellCheck v0.11.0 sin hallazgos, validez de JSON y YAML |
+| `01-validacion-estatica.txt` | `bash -n` (19/19), ShellCheck v0.11.0 sin hallazgos, validez de JSON y YAML (corte del 2026-10-31; los 26 scripts actuales también pasaron ShellCheck el 2026-11-01, y se regenerará al cierre) |
 | `02-validacion-compose.txt` | Los 4 Compose fallan sin variables y son válidos con valores; imágenes fijadas, puertos, volúmenes y *healthchecks* |
 | `03-gitleaks-arbol-de-trabajo.txt` | 0 ACTIVO · 9 PRUEBA · 2 RESIDUAL |
 | `04-gitleaks-historial.txt` | 64 hallazgos: 51 HISTÓRICO, 9 PRUEBA y 4 RESIDUAL |
 | `05-tests-linea-base-vs-hu01.txt` | 48 tests antes y después de X-1: idénticos, sin regresiones. **Los 10 fallos previos se conservan como línea base** (E1.6) |
-| `06-iam-minimo-privilegio.txt` | Contraste estático: 0 acciones sin permiso, 0 permisos sin uso, ninguna acción destructiva en la política del operador |
+| `06-iam-minimo-privilegio.txt` | Contraste estático de los roles de lectura, operación y teardown: 0 acciones sin permiso, 0 permisos sin uso, ninguna acción destructiva en la política del operador, usuarios sin permisos sobre recursos |
 | `07-verificacion-arranque-servicios.txt` | Los 8 servicios arrancados con y sin variables: no hay valores por defecto inseguros |
 | `08-revision-idempotencia.md` | Revisión de todos los scripts, estado de cada demostración y defectos corregidos |
+| `10-iam-creacion-e-idempotencia.txt` | Creación autorizada de los 8 recursos IAM, segunda y tercera ejecución (dos defectos del informe corregidos, convergencia `created=0 updated=0`), verificación directa y auditoría CloudTrail (14 escrituras, solo IAM) |
+| `11-validacion-identidades.txt` | Validación de las identidades: inicio de sesión del operador (y sus fallos corregidos), 13/13 pruebas de lectura, operación y denegación de teardown, revocación de credenciales expuestas, ausencia de claves permanentes, dependencia de la MFA y teardown en CloudShell (pendiente) |
+| `09-aws-preparacion-cuenta-e-iam.txt` | Inspección de solo lectura de la cuenta, elegibilidad de tipos, Access Analyzer, simulador IAM de escalada, plan IAM, cuota, auditoría CloudTrail, incidente de la caché raíz y barreras locales de autorización |
 | `local/*.log` | Ejecuciones locales (`--target local`) en Docker Desktop. La ruta del usuario aparece como `~` |
 
 ## Artefactos locales fuera del repositorio (no se borran sin autorización)
