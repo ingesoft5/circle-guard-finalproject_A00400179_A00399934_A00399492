@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # HU-01 · Read-only verification of the platform. Never changes anything.
-#   --health       servers (Docker, auto-stop timer, swap, memory in use), tools answer (on the
-#                  host and from the operator through the security group), state of the Nexus
+#   --health       servers (Docker, auto-stop timer scheduled, swap, memory in use), tools answer
+#                  (on the host and from the operator through the security group) and the memory
+#                  each tool container uses (docker stats), state of the Nexus
 #                  EULA, and the environments: their host if one exists, otherwise the isolation
 #                  configured in their subnet and security group
 #   --isolation    allowed flows work and blocked ones are refused, tested with nc from the hosts
@@ -90,7 +91,8 @@ check_hosts() {
     fi
     expect "$role: Docker activo" active "$(remote "systemctl is-active docker")"
     if ((AUTO_STOP_HOURS > 0)); then
-      expect "$role: parada automática programada (circleguard-autostop.timer)" active "$(remote "systemctl is-active circleguard-autostop.timer")"
+      # "waiting" means a stop is scheduled; an elapsed timer is still "active" but schedules nothing.
+      expect "$role: parada automática programada (circleguard-autostop.timer en espera)" waiting "$(remote "systemctl show circleguard-autostop.timer -p SubState --value")"
       info "$role: temporizador de parada: $(remote "systemctl list-timers circleguard-autostop.timer --no-legend" | head -1 | tr -s ' ')"
     else
       pending "$role: parada automática desactivada (AUTO_STOP_HOURS=0): detenga la instancia al terminar"
@@ -98,6 +100,33 @@ check_hosts() {
     if ((SWAP_GB > 0)); then expect "$role: swap de seguridad activo" /swapfile "$(remote "swapon --show=NAME --noheadings")"; fi
     info "$role: memoria en uso $(remote "free -m | awk '/^Mem:/ { print \$3 \" de \" \$2 \" MiB\" } /^Swap:/ { print \"· swap \" \$3 \" de \" \$2 \" MiB\" }'" | tr '\n' ' ')"
   done
+}
+
+# container_memory <container...>: memory in use per container on the selected host, one line
+# each. docker stats only measures running containers: stopped or missing ones, or a Docker that
+# does not answer, are reported as such and never as zero.
+container_memory() {
+  local c
+  if [[ "$(remote "docker info >/dev/null 2>&1 && echo ok")" != ok ]]; then
+    echo "Docker no disponible: no se mide la memoria de $*"
+    return 0
+  fi
+  for c in "$@"; do
+    remote "s=\$(docker inspect -f '{{.State.Status}}' $c 2>/dev/null) || { echo '$c: ausente'; exit 0; }
+      if [ \"\$s\" = running ]; then
+        m=\$(docker stats --no-stream --format '{{.MemUsage}} ({{.MemPerc}})' $c 2>/dev/null)
+        echo \"$c: \${m:-sin datos de docker stats}\"
+      else
+        echo \"$c: \$s, sin consumo medible\"
+      fi"
+  done
+}
+
+# memory_line <tool> <container...>: logs the memory of the tool's containers.
+memory_line() {
+  local tool=$1
+  shift
+  info "$tool: memoria por contenedor: $(container_memory "$@" | paste -sd ';' | sed 's/;/ · /g')"
 }
 
 # nexus_eula: "aceptado", "pendiente" or "desconocido", read with the managed admin password from
@@ -121,6 +150,7 @@ check_tools() {
     ip=$HOST_PUBLIC_IP
     expect "jenkins: /login en el host" 200 "$(remote "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:$JENKINS_HTTP_PORT/login")"
     expect "jenkins: contenedor saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-jenkins")"
+    memory_line jenkins cg-jenkins
     if [[ "$CG_TARGET" == aws ]]; then admin_access jenkins "$ip" "$JENKINS_HTTP_PORT" /login 18080; fi
   else
     fail "jenkins: la instancia $(cg_tool_host jenkins) no está en ejecución"
@@ -132,6 +162,7 @@ check_tools() {
     expect "sonarqube: estado del sistema" UP "$(remote "curl -s http://127.0.0.1:$SONARQUBE_HTTP_PORT/api/system/status | python3 -c 'import json,sys; print(json.load(sys.stdin)[\"status\"])'")"
     expect "sonarqube: contenedor saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-sonarqube")"
     expect "sonarqube: base de datos saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-sonarqube-db")"
+    memory_line sonarqube cg-sonarqube cg-sonarqube-db
     expect "sonarqube: acceso anónimo denegado" 401 "$(remote "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:$SONARQUBE_HTTP_PORT/api/projects/search")"
     if [[ "$CG_TARGET" == aws ]]; then admin_access sonarqube "$ip" "$SONARQUBE_HTTP_PORT" /api/system/status 19000; fi
   else
@@ -145,6 +176,7 @@ check_tools() {
     [[ "$CG_TARGET" == local ]] && docker_port=$LOCAL_NEXUS_DOCKER_HOST_PORT
     expect "nexus: API de estado" 200 "$(remote "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:$NEXUS_HTTP_PORT/service/rest/v1/status")"
     expect "nexus: contenedor saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-nexus")"
+    memory_line nexus cg-nexus
     case "$(nexus_eula)" in
       aceptado)
         pass "nexus: EULA de Community Edition aceptado"

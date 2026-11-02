@@ -146,13 +146,16 @@ fi
 # 7. Auto-stop: the host powers itself off AUTO_STOP_HOURS after the timer starts (at boot), so
 #    an instance nobody stopped does not keep billing for days. The instance is launched with
 #    --instance-initiated-shutdown-behavior stop: a power-off STOPS it (disk and data kept), it
-#    never terminates it. Logged-in users get 5 minutes of warning (`sudo shutdown -c` cancels);
-#    `sudo systemctl restart circleguard-autostop.timer` extends the session.
+#    never terminates it. Logged-in users get 5 minutes of warning. To keep working,
+#    `sudo shutdown -c && sudo systemctl restart circleguard-autostop.timer` cancels the power-off
+#    AND schedules another AUTO_STOP_HOURS: `shutdown -c` alone leaves the host with no stop
+#    scheduled until the next boot or the next bootstrap run (which re-arms the timer).
+#    Before the warning, `sudo systemctl restart circleguard-autostop.timer` extends the session.
 UNIT=/etc/systemd/system/circleguard-autostop
 autostop_service() {
   printf '%s\n' '[Unit]' 'Description=CircleGuard HU-01: power off this host (the instance stops; disk and data are kept)' \
     '' '[Service]' 'Type=oneshot' \
-    'ExecStart=/sbin/shutdown -h +5 "CircleGuard: parada automatica en 5 minutos (cancelar: sudo shutdown -c)"'
+    'ExecStart=/sbin/shutdown --poweroff +5 "CircleGuard: parada automatica en 5 minutos (seguir: sudo shutdown -c && sudo systemctl restart circleguard-autostop.timer)"'
 }
 autostop_timer() { # autostop_timer <hours>
   printf '%s\n' '[Unit]' "Description=CircleGuard HU-01: power off $1 h after boot" \
@@ -182,12 +185,16 @@ else
     else
       result PLAN "programar la parada automática a las ${AUTO_STOP_HOURS} h del arranque (circleguard-autostop.timer)"
     fi
-  elif systemctl is-enabled --quiet circleguard-autostop.timer && systemctl is-active --quiet circleguard-autostop.timer; then
-    result UNCHANGED "parada automática a las ${AUTO_STOP_HOURS} h del arranque (circleguard-autostop.timer activo)"
+  elif systemctl is-enabled --quiet circleguard-autostop.timer &&
+    [[ "$(systemctl show circleguard-autostop.timer -p SubState --value 2>/dev/null)" == waiting ]]; then
+    result UNCHANGED "parada automática programada (circleguard-autostop.timer en espera, ${AUTO_STOP_HOURS} h desde su activación)"
   elif applying; then
-    systemctl enable --now circleguard-autostop.timer >/dev/null 2>&1
-    result UPDATED "circleguard-autostop.timer habilitado y activo"
+    # An elapsed timer (SubState=elapsed, for example after `shutdown -c`) is still reported as
+    # "active" by systemd, yet no stop is scheduled until it is started again.
+    systemctl enable circleguard-autostop.timer >/dev/null 2>&1
+    systemctl restart circleguard-autostop.timer
+    result UPDATED "parada automática reprogramada: ${AUTO_STOP_HOURS} h desde ahora (el temporizador había vencido o estaba inactivo)"
   else
-    result PLAN "habilitar circleguard-autostop.timer"
+    result PLAN "reprogramar la parada automática (circleguard-autostop.timer vencido o inactivo)"
   fi
 fi

@@ -35,7 +35,12 @@
          1536 MB, Elasticsearch 512 MB) + PostgreSQL. Estimación: típico ≈ 4.8 GiB, pico ≈ 6-7 GiB.
   nexus: heap 2703 MB + directa hasta 2703 MB + metaspace. Estimación: típico ≈ 4.1 GiB, pico ≈ 6.4 GiB.
   Swap de seguridad de 2 GiB con vm.swappiness=10 en ambos: solo bajo presión de memoria.
-  Valores medidos: pendientes del despliegue (verify-infra.sh --health registra la memoria en uso).
+  Valores medidos: pendientes del despliegue. verify-infra.sh --health registra la memoria en uso
+  de cada servidor (free) y de cada contenedor (docker stats --no-stream); un contenedor detenido
+  o ausente, o un Docker que no responde, se informa como tal y nunca como consumo cero.
+  Los Compose no fijan mem_limit: los límites son los de cada JVM. Un límite de cgroup cambiaría
+  la ergonomía de la JVM (Jenkins usaría el 25 % del límite) y uno inferior al heap provocaría
+  OOM-kill del contenedor.
 
 ## D. Cambios (ver el diff)
   infra/config/aws.env               CI_* y NEXUS_* (m7i-flex.large, 30/25 GiB), AUTO_STOP_HOURS=4,
@@ -76,12 +81,20 @@
   Docker no responde mientras tanto.
 
 ## G. Parada automática
-  circleguard-autostop.timer (OnActiveSec=4h) ejecuta «shutdown -h +5»: aviso de 5 minutos y apagado
-  del sistema; la instancia (lanzada con --instance-initiated-shutdown-behavior stop) queda
-  DETENIDA con su disco. Ampliar: sudo systemctl restart circleguard-autostop.timer. Desactivar:
-  AUTO_STOP_HOURS=0. No borra discos ni datos. Limitación: la política del operador no incluye
-  ec2:DescribeInstanceAttribute, así que el comportamiento de apagado no se puede leer por API;
-  bootstrap-servers.sh lo fija siempre al lanzar.
+  circleguard-autostop.timer (OnActiveSec=4h) ejecuta «shutdown --poweroff +5»: aviso de 5 minutos
+  y apagado del sistema; la instancia (lanzada con --instance-initiated-shutdown-behavior stop)
+  queda DETENIDA con su disco. No borra discos ni datos y no necesita permisos IAM (las instancias
+  no tienen rol). Detener a mano (teardown.sh --stop) usa el rol de lectura: ec2:StopInstances
+  sobre instancias de us-east-2 con Project=circleguard y ec2:DescribeInstances.
+  En el host: ampliar antes del aviso, sudo systemctl restart circleguard-autostop.timer; durante
+  el aviso, sudo shutdown -c && sudo systemctl restart circleguard-autostop.timer. «shutdown -c»
+  por sí solo deja el servidor sin parada programada: un temporizador vencido sigue «active» para
+  systemd (SubState=elapsed; comprobado en WSL con una unidad real). Por eso setup-docker.sh y
+  verify-infra.sh exigen SubState=waiting: la siguiente ejecución del bootstrap lo reprograma y
+  verify-infra.sh --health falla mientras tanto. Desactivar: AUTO_STOP_HOURS=0.
+  Limitación: la política del operador no incluye ec2:DescribeInstanceAttribute, así que el
+  comportamiento de apagado no se puede leer por API; bootstrap-servers.sh lo fija siempre al
+  lanzar y el operador no puede cambiarlo (no tiene ec2:ModifyInstanceAttribute).
 
 ## H. Costos (vista previa de bootstrap-servers.sh con aws.env)
   rol    tipo            EC2 h   IPv4 h  EBS mes  total h  día 24h  mes 730h
@@ -89,9 +102,16 @@
   nexus  m7i-flex.large  0.0958  0.0050  2.00     0.1035   2.48     75.55
   TOTAL                                  4.40     0.2075   4.98     151.51
   Detenidas: 0.14 USD/día (solo EBS). Transferencia: 0.09 USD/GB, reserva de 3 GB = 0.27 USD.
-  Parada automática a las 4 h: una sesión olvidada cuesta como máximo 0.81 USD.
+  Parada automática a las 4 h: una sesión olvidada cuesta como máximo 0.81 USD (cada ampliación
+  de la sesión añade hasta 0.81 USD más).
   Presupuesto de HU-01 (estimación, no garantía): base ≈ 6.24 USD (9 h, 30 días de EBS, 1 GB);
   con margen ≈ 10.41 USD (18 h, 45 días, 3 GB); con margen y una sesión olvidada ≈ 11.22 USD.
+  Comprobación local antes de crear o iniciar (budget_preview), dos servidores nuevos:
+    AUTO_STOP_HOURS=4: 7.32 (4 h + EBS por 45 días) + 0.27 de transferencia = 7.59 de 15 USD
+    AUTO_STOP_HOURS=0: aviso y 24 h por sesión: 11.35 + 0.27 = 11.62 de 15 USD
+  Registro de costos: las paradas que no hacen los scripts se registran con la hora de AWS
+  (confirmada) o, si AWS no la da, con una hora ESTIMADA y un aviso (arranque + AUTO_STOP_HOURS,
+  que no cuenta las ampliaciones; o la hora actual si la parada automática está desactivada).
 
 ## I. IAM: versiones de circleguard-hu01-teardown (lectura del 2026-11-02, Fase 1; sin cambios)
   v1 (2026-11-01 23:17, igual a la plantilla del repositorio): DestroyOnlyCircleGuardResources,
@@ -109,7 +129,22 @@
   YAML de los 3 Compose: válido (PyYAML); sin cambios en el diff.
   setup-docker.sh en modo plan como usuario sin privilegios (sonarqube 4 2, jenkins 4 2, nexus 0 0):
     solo PLAN/UNCHANGED, código 0; no se creó /swapfile, ni la unidad, ni /opt/circleguard.
-  systemd-analyze verify de circleguard-autostop.service y .timer: sin errores.
+  systemd-analyze verify de circleguard-autostop.service y .timer: sin errores (también con
+    «shutdown --poweroff +5», opción documentada por «shutdown --help»: -P --poweroff).
+  Temporizador vencido (correcciones P1-P2 de la revisión): bloque real de setup-docker.sh contra
+    el systemd de usuario de WSL, con 6 s en lugar de 6 h y ExecStart=/bin/true (sin apagar nada):
+      1.ª ejecución apply: UPDATED · SubState=waiting · verify-infra PASS
+      2.ª ejecución apply: UNCHANGED · waiting · PASS (idempotente)
+      vencido, plan: PLAN «reprogramar» · SubState=elapsed · verify-infra FAIL
+      vencido, apply: UPDATED «reprogramada» · waiting · PASS
+      de nuevo apply: UNCHANGED · waiting · PASS
+    Sin restos: 0 archivos de unidad, 0 enlaces y 0 unidades cargadas tras la prueba.
+  budget_preview con AUTO_STOP_HOURS=4 y 0: 7.59 y 11.62 de 15 USD (con aviso), igual a lo esperado.
+  Registro de costos: hora confirmada por AWS (INFO), estimada por la parada automática (WARN),
+    estimada recortada a ahora (WARN), parada automática desactivada (WARN, hora actual), hora de
+    AWS fuera de rango (WARN, ajustada) y repetición sin efecto.
+  Memoria por contenedor con un docker simulado: activos con su consumo, «exited, sin consumo
+    medible», activo sin datos de docker stats, «ausente» y «Docker no disponible».
   configure.sh contra una API de Nexus simulada con el EULA sin aceptar (plan, apply, apply):
     UNCHANGED en línea · UNCHANGED contraseña gestionada · PLAN EULA PENDIENTE; código 0;
     peticiones GET status/writable, status/check y system/eula (×2); escrituras POST/PUT/DELETE: 0;

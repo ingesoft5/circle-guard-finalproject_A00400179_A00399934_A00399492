@@ -1,0 +1,556 @@
+# HU-01 · Fase 3: plan de despliegue en AWS de la arquitectura B (2026-11-02)
+# Documento de planificación. NO se ejecutó ninguna operación de escritura en AWS ni en IAM, ningún
+# --apply ni ningún commit. Ningún valor secreto en este archivo.
+# Aprobar este documento NO autoriza ninguna operación de AWS: cada una requiere su propia
+# autorización expresa (ver la sección 7).
+#
+# Leyenda:
+#   [COMPROBADO]  dato leído hoy: en AWS con sesiones de solo lectura (Fase 0, 05:12-05:16 UTC;
+#                 Fase 1, 05:30-05:36 UTC) o en el repositorio en esta fase.
+#   [ESTIMADO]    cálculo con precios de la AWS Pricing API (2026-11-02) y supuestos explícitos.
+#   [PENDIENTE]   se comprobará en la Fase 4 (requiere sesión o recursos que aún no existen).
+# En esta fase no se abrió ninguna sesión de AWS: el paso 1 de la secuencia vuelve a verificar,
+# en solo lectura, todo lo que aquí figura como comprobado en AWS.
+
+====================================================================================================
+## 1. Estado del repositorio (3.1)  [COMPROBADO en esta fase]
+  Rama: HU01_Infraestructura_nube_bash · HEAD 1ca1f9a «feat(infra): preparar la topología B de
+  HU-01 ...» · sincronizada con origin · índice vacío · sin archivos sin seguimiento.
+  Cambios locales sin commit = correcciones P1-P6 revisadas (huella del diff idéntica a la entregada):
+    docs/evidencias/hu-01/12-preparacion-arquitectura-b.txt, infra/README.md,
+    infra/bootstrap-servers.sh, infra/bootstrap/host/setup-docker.sh, infra/bootstrap/lib/budget.sh,
+    infra/config/aws.env, infra/verify-infra.sh  (7 archivos, +153 −42)
+  Sin commits ni modificaciones inesperadas. bash -n: 26 de 26 scripts correctos.
+  Importante: los scripts se ejecutan desde el árbol de trabajo, así que un despliegue hoy usaría
+  P1-P6 sin commit. Criterio 7.1: confirmar P1-P6 con un commit antes de la Fase 4.
+
+  Scripts y configuración que usaría el despliegue:
+    infra/aws-session.sh            sesiones temporales (login bootstrap/operator, status, logout)
+    infra/bootstrap-iam.sh          SOLO plan: re-verificación de cuenta, IAM y cuota (identidad raíz)
+    infra/bootstrap-quota.sh        SOLO plan: cuota de vCPU (objetivo 4)
+    infra/bootstrap-all.sh          orquestador: red -> secretos -> servidores -> herramientas -> verificación
+    infra/bootstrap-network.sh      VPC, subredes, IGW, rutas, grupos de seguridad
+    infra/bootstrap-secrets.sh      parámetros SSM SecureString y pares de llaves
+    infra/bootstrap-servers.sh      instancias EC2 (FACTURABLE con --apply --approve)
+    infra/bootstrap-{jenkins,sonarqube,nexus}.sh  host (setup-docker.sh) y stacks por SSH
+    infra/bootstrap/host/setup-docker.sh  Docker, logs, vm.max_map_count, swap, parada automática
+    infra/bootstrap/{jenkins,sonarqube,nexus}/  Compose y configure.sh (sin cambios)
+    infra/verify-infra.sh           verificación de solo lectura y snapshot
+    infra/teardown.sh               --stop (rol de lectura); --destroy solo en CloudShell
+    infra/tunnel.sh                 acceso administrativo por túnel SSH
+    infra/config/aws.env, infra/config/envs/*.env, infra/config/secrets.catalog
+    Bibliotecas: infra/bootstrap/lib/{common,aws,session,budget,remote}.sh
+  No se usan: bootstrap-env.sh (sin servidores de ambiente), teardown-cloudshell.sh (destrucción).
+
+====================================================================================================
+## 2. Inventario exacto de recursos (3.2)
+  Región us-east-2, zona us-east-2a. Etiquetas comunes: Name, Project=circleguard, Story=HU-01,
+  ManagedBy=infra-bootstrap, Role y Environment. Estado actual [COMPROBADO Fase 0]: 0 recursos
+  circleguard; 0 instancias, volúmenes, IP elásticas y NAT en las 17 regiones; solo la VPC por defecto.
+  Todo lo siguiente DEBE CREARSE.
+
+### 2.1 Red (bootstrap-network.sh)                                            coste: 0 USD [COMPROBADO]
+  Recurso                       Nombre                     Configuración                      Depende de
+  VPC                           circleguard-vpc            10.20.0.0/16, nombres DNS activos  —
+  Internet gateway              circleguard-igw            adjunto a la VPC                   VPC
+  Subred                        circleguard-subnet-tools   10.20.0.0/24, IPv4 pública auto    VPC
+  Subred                        circleguard-subnet-dev     10.20.10.0/24, IPv4 pública auto   VPC
+  Subred                        circleguard-subnet-stage   10.20.20.0/24, IPv4 pública auto   VPC
+  Subred                        circleguard-subnet-prod    10.20.30.0/24, IPv4 pública auto   VPC
+  Tabla de rutas                circleguard-rt-public      0.0.0.0/0 -> IGW; 4 asociaciones   VPC, IGW, subredes
+  Grupo de seguridad (5)        circleguard-sg-ci, -sg-nexus, -sg-env-dev, -sg-env-stage, -sg-env-prod
+  Sin NAT Gateway, sin Elastic IP, sin balanceadores, sin IPv6.
+
+### 2.2 Reglas de los grupos de seguridad (31 con un único CIDR de administración) [COMPROBADO local]
+  Entrada (13):  ci, nexus, env-dev, env-stage, env-prod: 22 desde ADMIN_CIDRS (IP pública /32 del
+                 operador, detectada al ejecutar) · nexus 8081 y 8082 desde sg-ci · env-* 22 desde
+                 sg-ci · nexus 8082 desde sg-env-dev, -stage y -prod
+  Salida (18):   los 5 grupos 80 y 443 a 0.0.0.0/0 · ci 8081/8082 a sg-nexus · ci 22 a sg-env-* ·
+                 env-* 8082 a sg-nexus
+  Se revoca la regla de salida «todo el tráfico» que AWS añade a cada grupo nuevo (5 revocaciones).
+  Comprobado: 0 reglas con el 9000, 0 reglas entre ambientes, entrada desde CIDR solo en el 22.
+  Puertos en los hosts: Jenkins 127.0.0.1:8080 y SonarQube 127.0.0.1:9000 (ci); Nexus 8081/8082 en
+  el host nexus, alcanzables solo desde sg-ci (8082 también desde los grupos de ambiente).
+
+### 2.3 Secretos y llaves (bootstrap-secrets.sh)                       coste: ≈ 0 USD [ESTIMADO]
+  SSM Parameter Store, SecureString (clave administrada aws/ssm), nivel estándar: 35 parámetros
+    /circleguard/tools/jenkins/JENKINS_ADMIN_PASSWORD
+    /circleguard/tools/sonarqube/{SONAR_ADMIN_PASSWORD,SONAR_DB_PASSWORD}
+    /circleguard/tools/nexus/NEXUS_ADMIN_PASSWORD
+    /circleguard/{dev,stage,prod}/{POSTGRES_USER,POSTGRES_PASSWORD,NEO4J_PASSWORD,LDAP_ADMIN_PASSWORD,
+        CG_JWT_SECRET,CG_QR_SECRET,CG_VAULT_SECRET,CG_VAULT_SALT,CG_VAULT_HASH_SALT}  (27)
+    /circleguard/ssh/circleguard-{tools,dev,stage,prod}  (copia de custodia de las llaves privadas)
+  Pares de llaves EC2 (solo la llave pública): circleguard-tools, -dev, -stage, -prod (ED25519)
+  Local (fuera del repositorio y de OneDrive): ~/.ssh/circleguard/circleguard-{tier}{,.pub}
+  Coste: parámetros estándar sin cargo de almacenamiento; KMS aws/ssm sin cuota mensual; unas
+  pocas decenas de peticiones por ejecución, dentro de la capa gratuita de KMS (20 000/mes).
+  Alcance [COMPROBADO en el código]:
+    Necesarios para la arquitectura B (5 parámetros y 1 par): los 4 secretos tools/* (cg_tool_bootstrap
+      los escribe en el .env de cada stack) y la llave circleguard-tools (copia en SSM y par EC2),
+      con la que se lanzan y se administran por SSH ci y nexus.
+    Solo para ambientes futuros (30 parámetros y 3 pares): los 27 secretos /circleguard/{dev,stage,prod}/*
+      y las llaves circleguard-{dev,stage,prod}. Los consumen bootstrap-env.sh (servidores de
+      ambiente, fuera de HU-01) y verify-infra.sh --credentials, que comprueba que son distintos por
+      ambiente (credenciales independientes, criterio 2) y que ninguno aparece en el repositorio.
+    Crear solo los de herramientas NO es posible sin cambiar código: bootstrap-secrets.sh recorre todo
+      el catálogo y los niveles tools, dev, stage y prod sin opción de alcance; bootstrap-all.sh
+      siempre lo ejecuta; y verify-infra.sh --credentials fallaría sin los secretos de ambiente.
+      Cambios necesarios si se quisiera: una opción de alcance en bootstrap-secrets.sh (catálogo y
+      niveles) y resultado PENDING en check_credentials cuando falten los de ambiente.
+    Recomendación: crearlos todos, como está diseñado. No cuestan nada, sostienen la parte de
+      credenciales del aislamiento configurado (criterio 2) y del mecanismo seguro (criterio 6) y no
+      exigen cambiar código. Es, en parte, una anticipación de historias futuras: los valores
+      CG_VAULT_* que se generen ahora serán los que se usen después (nunca se rotan automáticamente).
+  Condición de seguridad para crearlos (se mantiene en cualquier alcance) [COMPROBADO en el código]:
+    los 35 parámetros y los 4 pares se crean ÚNICAMENTE con bootstrap-secrets.sh --apply (paso 5) y
+    sus mecanismos ya implementados; nunca a mano en la consola ni con órdenes aws sueltas.
+    - Valores generados en la estación (cg_generate, módulo secrets de Python) que pasan por tubería
+      a cg_secret_create; la petición se arma en un archivo de un directorio temporal privado
+      (mktemp -d), se envía con --cli-input-json y se borra al salir. Nunca viajan como argumento
+      de la línea de órdenes ni se imprimen.
+    - SecureString, nivel Standard, cifrado con la clave administrada aws/ssm.
+    - Solo se crean si faltan (cg_secret_exists): nunca se sobrescriben ni se rotan.
+    - Llaves privadas ED25519 en ~/.ssh/circleguard (directorio 0700, archivos 0600), fuera del
+      repositorio y de OneDrive, con copia de custodia en SSM (por entrada estándar); a EC2 solo se
+      importa la llave pública.
+    - Consola y registros (infra/logs, excluido por .gitignore): solo nombres y rutas, con «valor no
+      mostrado». En los servidores, los tools/* solo llegan al .env de cada stack (0600 root).
+    Ningún secreto ni llave privada debe aparecer en el repositorio, en infra/logs ni en la consola.
+    Control: verify-infra.sh --credentials busca los 31 valores del catálogo en los archivos que se
+    versionarían; NO revisa infra/logs (ignorado) ni las llaves (fuera del repositorio). Antes de
+    copiar un registro como evidencia se revisa con Gitleaks (PENDIENTE, 7.12) o a mano. Si apareciera
+    algún valor: detenerse, no versionar el archivo y decidir la rotación (fuera de este plan).
+
+### 2.4 Servidores (bootstrap-servers.sh)                                       FACTURABLE
+  circleguard-ci     Role=ci, subred tools, sg-ci, llave circleguard-tools, m7i-flex.large (2 vCPU,
+                     8 GiB), Ubuntu 24.04 x86_64 (AMI de Canonical resuelta al lanzar desde
+                     /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id;
+                     hoy ami-0fc53b217ec1ad816 [COMPROBADO Fase 0]), IMDSv2 obligatorio (hop limit 1),
+                     --instance-initiated-shutdown-behavior stop, sin rol IAM
+                     Volumen raíz circleguard-ci-root: 30 GiB gp3 cifrado, DeleteOnTermination=true
+  circleguard-nexus  igual, Role=nexus, sg-nexus; volumen circleguard-nexus-root: 25 GiB gp3 cifrado
+  Dependencias: subred tools, grupos de seguridad, par circleguard-tools, AMI.
+  vCPU con ambos encendidos: 4 de una cuota de 5 [COMPROBADO Fase 0]. Tipo ofrecido en us-east-2a y
+  apto para el plan gratuito [COMPROBADO Fase 0].
+
+### 2.5 Recursos indirectos (los crea AWS automáticamente)
+  VPC: tabla de rutas principal, ACL de red por defecto y grupo de seguridad por defecto (sin
+       etiquetas, sin coste; desaparecen con la VPC).
+  Instancias: 2 interfaces de red principales (sin coste); 2 IPv4 públicas automáticas, que se
+       cobran mientras la instancia está encendida y se liberan al detenerla (la IP cambia en cada
+       arranque).
+  Cifrado: clave administrada aws/ebs (sin cuota mensual; AWS la crea si no existe).
+  Monitorización básica de CloudWatch (sin coste). Sin snapshots, AMI propias ni registros de logs.
+  IAM: NO se crean roles, perfiles de instancia ni usuarios (las instancias no tienen rol: el
+       operador aprovisiona por SSH).
+
+### 2.6 En los hosts (no son recursos de AWS)
+  Docker Engine + Compose, rotación de logs, swap /swapfile de 2 GiB (vm.swappiness=10),
+  circleguard-autostop.timer (4 h), /opt/circleguard/<stack>/.env (0600 root), stacks y volúmenes
+  Docker (en el EBS): ci = Jenkins, SonarQube, PostgreSQL; nexus = Nexus (EULA PENDIENTE).
+
+====================================================================================================
+## 3. Permisos IAM (3.3)
+  Autenticación y perfiles locales [COMPROBADO en el código y en ~/.circleguard/aws/.aws/config]:
+    circleguard-hu01-operator-login  sesión «aws login» del usuario operador (contraseña y MFA en la
+                                     página de AWS): bash infra/aws-session.sh login operator
+    circleguard-hu01-reader          rol de lectura; source_profile = circleguard-hu01-operator-login
+    circleguard-hu01                 rol de operación; source_profile = circleguard-hu01-operator-login
+    circleguard-hu01-bootstrap       sesión «aws login» de la raíz (solo inspección y bootstrap-iam.sh)
+    Los perfiles de rol no comparten credenciales: cada uno hace su propio AssumeRole a partir de la
+    misma sesión de origen. La confianza del rol de lectura no exige MFA; la del rol de operación
+    exige una MFA de menos de 1 h. Con un único «login operator»:
+      - reader funciona mientras siga válida la sesión aws login (sin el límite de 1 h);
+      - operator solo funciona durante la hora siguiente al inicio de sesión;
+      - no hace falta una sesión «reader» independiente (aws-session.sh no tiene «login reader»).
+    Comprobado en la práctica el 2026-11-02 (evidencia 11 F y G): asunción del rol de lectura desde
+    esa sesión y teardown.sh --stop/--destroy en modo plan con el rol de lectura.
+    Perfil por script: teardown.sh --stop y todos los planes -> capacidad read ->
+      circleguard-hu01-reader; --apply de red, secretos, servidores y herramientas, y verify-infra.sh
+      -> capacidad operate -> circleguard-hu01; destroy -> circleguard-hu01-teardown, que NO existe en
+      esta estación (solo en CloudShell). CG_AWS_PROFILE sustituye el perfil; no existe
+      operator.local.env en esta estación, así que nada lo fija de forma permanente.
+  Estado desplegado [COMPROBADO Fase 0 05:13-05:14 UTC con bootstrap-iam.sh; Fase 1 05:35 UTC]:
+    circleguard-hu01-reader     política v1 = plantilla (UNCHANGED)
+    circleguard-hu01-operator   política v1 = plantilla (UNCHANGED); el rol tiene además la política
+                                en línea AWSRevokeOlderSessions (niega tokens emitidos antes del
+                                2026-11-02 00:46 UTC; sin efecto en sesiones nuevas)
+    circleguard-hu01-teardown   predeterminada v2 ≠ plantilla (v1): v2 añade PreflightZoneCheck
+                                (ec2:DescribeAvailabilityZones), redundante con la política de lectura
+    Confianzas, sesiones de 1 h y adjuntos: iguales a las plantillas. Usuarios: MFA y 0 claves.
+
+  Operación del despliegue                       Rol         Declaración de la política        Estado
+  describe-* (VPC, subredes, SG, reglas, IGW,    reader u    DescribeOnlyWhatTheScriptsRead    ✓
+    rutas, llaves, instancias, volúmenes, zonas,  operator    (solo us-east-2)
+    ofertas de tipos, imágenes, créditos)
+  pricing get-products                           ambos       PricingReadOnly                   ✓
+  ssm get-parameter de la AMI pública            ambos       PublicUbuntuAmiParameter          ✓
+  create-vpc/subnet/igw/route-table/security-    operator    CreateNetworkOnlyWithProjectTag   ✓
+    group, import-key-pair (con etiqueta Project)            + TagOnlyWhileCreating
+  modify-vpc/subnet-attribute, attach-igw,       operator    OperateOnlyCircleGuardResources   ✓
+    create/replace-route, associate-route-table,             (recursos con Project=circleguard)
+    authorize/revoke SG ingress y egress
+  put-parameter (+etiquetas), get-parameter(s)   operator    CircleGuardSecretsCreateAndRead   ✓
+    con descifrado                                           + SecureStringThroughSsmOnly
+  run-instances (instancia, volumen ≤40 GiB gp3  operator    RunOnly* (tipos t3.small,          ✓ por
+    cifrado, imagen Canonical, subred/SG/llave               c7i-flex.large, m7i-flex.large;    plantilla;
+    del proyecto, interfaz de red, IMDSv2)                   IMDSv2; Project)                   en seco [PENDIENTE]
+  start-instances                                operator    OperateOnlyCircleGuardResources   ✓
+  stop-instances (teardown.sh --stop)            reader      StopOnlyCircleGuardInstances      ✓
+  describe-instance-attribute (verificar STOP)   ninguno     —                                 FALTA
+  terminate/delete (no forma parte del despliegue) teardown  DestroyOnlyCircleGuardResources   ✓ (CloudShell)
+  Cambios de IAM                                 ninguno     —                                 no se necesitan
+
+  Permisos que faltan: ninguno para desplegar. Para VERIFICAR el comportamiento de apagado por API
+    falta ec2:DescribeInstanceAttribute en reader/operator; alternativa sin cambiar IAM: leerlo con
+    la sesión bootstrap (raíz) en solo lectura (paso 6c).
+  Validación pendiente: run-instances en seco solo es posible cuando existan la red y las llaves
+    (paso 6a). La validación en seco no cubre KMS: con la clave administrada aws/ebs no se esperan
+    permisos adicionales, pero se confirma en el primer lanzamiento [PENDIENTE].
+  Permisos excesivos o innecesarios para la arquitectura B (documentados, sin cambios):
+    operator: tipos t3.small y c7i-flex.large (B solo usa m7i-flex.large);
+              ec2:ModifyInstanceCreditSpecification (solo aplica a tipos T);
+    teardown: declaración PreflightZoneCheck de la v2 (redundante);
+    operator: política en línea AWSRevokeOlderSessions (histórica; inocua).
+  Diferencias con las plantillas: solo la v2 de circleguard-hu01-teardown (y la política en línea
+    del rol operator, que bootstrap-iam.sh no gestiona).
+
+====================================================================================================
+## 4. Presupuesto (3.4)  [ESTIMADO; precios de la Pricing API del 2026-11-02]
+  Tarifas: m7i-flex.large 0.09576 USD/h · IPv4 pública 0.005 USD/h por instancia encendida ·
+  gp3 0.08 USD/GB-mes (0.0026301 USD/GB-día) · salida a Internet 0.09 USD/GB (primer tramo) ·
+  entrada y tráfico privado en la misma zona: sin cargo (tarifas públicas de AWS; no verificado por API).
+  Ni AWS Budgets ni la parada automática son límites de facturación: los primeros solo avisan con
+  retraso y la segunda depende de que el sistema operativo del host funcione.
+  El límite de 15 USD es un límite OPERATIVO decidido por el equipo para HU-01, no un límite técnico
+  impuesto por AWS: AWS no detiene el consumo al llegar a esa cifra. Se respeta con el procedimiento
+  de 4.1 y su línea de parada de 12 USD.
+
+  Concepto                                        ci          nexus       ambos
+  Crear red, secretos y llaves                    —           —           0.00
+  EC2 por hora                                    0.0958      0.0958      0.1915
+  IPv4 por hora (solo encendida)                  0.0050      0.0050      0.0100
+  EBS por hora (siempre que exista el volumen)    0.0033      0.0027      0.0060
+  Total por hora encendidas                       0.1040      0.1035      0.2075
+  Por día 24 h encendidas                         2.50        2.48        4.98
+  Detenidas, por día (solo EBS)                   0.079       0.066       0.145
+  Detenidas, por mes de 730 h                     2.40        2.00        4.40
+  Almacenamiento 30 días                          2.37        1.97        4.34
+  Almacenamiento 45 días                          3.55        2.96        6.51
+  IPv4: 9 h de uso = 0.09 USD; 18 h = 0.18 USD (incluido en las cifras de horas).
+  Transferencia: 1 GB = 0.09 USD; reserva de 3 GB = 0.27 USD.
+
+  Escenario (USD)                                                       Total     Frente a 15
+  Despliegue S1 (3 h ambas + EBS de ese día)                            0.75      ✓
+  HU-01 base: 9 h ambas + 30 días de EBS + 1 GB                         6.24      ✓
+  HU-01 conservador: 18 h + 45 días + 3 GB                              10.41     ✓ (margen 4.59)
+  F1 conservador + 1 instancia olvidada, parada automática a las 4 h    10.81     ✓
+  F2 conservador + 2 instancias olvidadas, parada a las 4 h             11.21     ✓
+  F3 conservador + parada automática FALLA, 1 instancia 24 h            12.83     ✓
+  F4 conservador + parada automática FALLA, 2 instancias 24 h           15.24     ✗ SUPERA
+  F5 conservador + parada automática FALLA, 1 instancia 48 h            15.24     ✗ SUPERA
+  Tarifa de EC2 + IPv4 sin EBS: 0.20152 USD/h con ambas encendidas; 0.10076 USD/h con una.
+  Nota: 2.42 USD equivalen a 12 h con ambas (12 × 0.20152) o a 24 h con una (24 × 0.10076); F3 usa
+  el segundo supuesto y la comprobación diferida de 4.1, el primero.
+  Umbral desde el conservador: 22.8 h con ambas encendidas sin control, o 45.6 h con una.
+  Conservar los volúmenes más de 45 días: +0.145 USD/día (máximo ≈ 31 días extra con el conservador).
+  La comprobación local de bootstrap-servers.sh antes de crear: 7.32 + 0.27 = 7.59 de 15 USD
+  (4 h de sesión y 45 días de EBS nuevo) [COMPROBADO localmente en la Fase 2].
+  Control principal: teardown.sh --stop --apply al final de cada sesión y comprobación de que no
+  queda nada encendido. La parada automática es solo una red de seguridad.
+
+### 4.1 Procedimiento operativo de protección del presupuesto
+  Ninguna barrera automática limita la factura: el control es este procedimiento.
+  Encendido: red y secretos primero (sin coste). Crear o iniciar solo los servidores que la sesión
+    necesite: --approve ci,nexus para S1 y la demostración; --approve ci si solo se trabaja con
+    Jenkins y SonarQube (la mitad de coste por hora). Anotar la hora de inicio.
+  Duración: sesiones de 3 h como máximo (la parada automática actúa a las 4 h de su activación).
+  Apagado, al terminar y siempre, aunque la sesión haya fallado:
+      bash infra/teardown.sh --stop                 # plan: identidad del rol de lectura e inventario
+      bash infra/teardown.sh --stop --apply         # escribir DETENER
+      bash infra/teardown.sh --stop                 # debe decir: no hay instancias de circleguard en ejecución
+    teardown.sh detiene en una sola orden todas las instancias del proyecto en ejecución y usa el rol
+    de lectura, así que funciona aunque haya vencido la ventana de 1 h del rol de operación.
+  Comprobación diferida: dentro de las 12 h siguientes a cada sesión (por ejemplo, a la mañana
+    siguiente), repetir teardown.sh --stop (plan) y revisar el costo real en la consola de Billing.
+    Con esa regla, un fallo no detectado de la parada automática queda acotado a 12 h adicionales
+    con las DOS instancias encendidas: 12 h × 0.20152 USD/h (tarifa conjunta de EC2 e IPv4) =
+    2.42 USD -> 10.41 + 2.42 = 12.83 USD < 15.
+  Error de SSH: la parada por API no depende de SSH. Como máximo 30 min de diagnóstico con las
+    instancias encendidas (IP del operador cambiada -> bootstrap-network.sh --apply; red que bloquea
+    el 22 -> cambiar de red; host arrancando -> cg_wait_ssh reintenta durante 5 min). Si no se
+    resuelve: detener y diagnosticar con las instancias paradas.
+  Vence la sesión MFA: la ventana del rol de operación (1 h) solo afecta a crear, iniciar y
+    configurar; la parada usa el rol de lectura y sigue funcionando. Si también venció la sesión
+    aws login: bash infra/aws-session.sh login operator y detener. Último recurso, si no se puede
+    autenticar en la CLI: consola de EC2 con la raíz -> Estado de la instancia -> Detener (nunca
+    Terminar).
+  Falla el temporizador: verify-infra.sh --health falla (no está en espera). Reprogramarlo
+    (sudo systemctl restart circleguard-autostop.timer en el host, o volver a ejecutar el bootstrap
+    de la herramienta) y, en todo caso, detener al final de la sesión.
+  Margen que se conserva: los 4.59 USD entre el escenario conservador (10.41) y el límite operativo
+    del equipo (15) no se planifican. Línea de parada (se mantiene): no iniciar ninguna sesión si el
+    costo real (Billing) más la sesión prevista (0.81 USD con ambas durante 4 h) supera 12 USD (80 %
+    del límite); en ese caso se revisa con el equipo. bootstrap-servers.sh avisa por encima del 80 %
+    de su estimación local y se niega por encima de 15 USD, pero esa estimación no es la factura.
+  AWS Budgets (si se autoriza crearlo) solo avisa, con horas de retraso: no detiene nada.
+
+====================================================================================================
+## 5. Secuencia de despliegue (3.5)  — se ejecutaría en la Fase 4, solo con autorización expresa
+  Tipo: [L] solo lectura · [M] modifica recursos sin coste · [F] facturable · [H] modifica el host
+  Rol: B = bootstrap (raíz, solo lectura) · R = lectura · O = operación (ventana de 1 h tras el
+  inicio de sesión con MFA del operador). Todos los comandos desde la raíz del repositorio en WSL.
+
+  Paso 0 [local] Confirmar P1-P6 con un commit (lo hace el equipo); git status --short vacío.
+
+  Paso 1  Preflight y autenticación
+    1a [L, B] bash infra/aws-session.sh login bootstrap
+              bash infra/bootstrap-iam.sh            # plan: cuenta, IAM, cuota, Access Analyzer
+              bash infra/bootstrap-quota.sh          # plan: cuota 5 frente a objetivo 4
+              bash infra/aws-session.sh logout bootstrap
+        Esperado: raíz con MFA; plan FREE ACTIVE; 0 recursos circleguard; IAM UNCHANGED salvo la
+        política teardown (PLAN actualizar: v2); cuota UNCHANGED (5 ≥ 4). Coste 0. Riesgo: ninguno.
+        Si algo difiere de este documento: detenerse y revisar.
+    1b [L] bash infra/aws-session.sh login operator   # MFA en la página de AWS
+              bash infra/aws-session.sh status
+        Esperado: circleguard-hu01-operator-login activa. Esa sesión es el origen de los perfiles
+        circleguard-hu01-reader (sin límite de 1 h) y circleguard-hu01 (rol de operación: solo la
+        hora siguiente). No hay sesión «reader» aparte. Recuperar: repetir el inicio de sesión.
+        Verificación OBLIGATORIA del rol de lectura (aquí y de nuevo justo antes del paso 6b), con
+        CG_AWS_PROFILE sin definir (si lo estuviera, sustituiría al rol de lectura):
+              bash infra/teardown.sh --stop               # plan: no detiene nada
+        Esperado: «identidad AWS assumed-role/circleguard-hu01-reader/... · capacidad read» con la
+        cuenta enmascarada, y «no hay instancias de circleguard en ejecución». Demuestra que la
+        autenticación funciona y que el rol de lectura asume sus credenciales, que es el rol con el
+        que se detienen las instancias (4.1). Si muestra otro rol o falla: NO encender instancias;
+        repetir login operator y la verificación. No se usa aws sts get-caller-identity directamente:
+        imprime el número de cuenta completo (el preflight de los scripts lo enmascara).
+        La duración real de la sesión aws login sigue PENDIENTE (8): anotar la hora del inicio de
+        sesión para medirla.
+
+  Paso 2  Validación de configuración  [L, R/O]
+              bash infra/bootstrap-servers.sh --prices
+              CG_AWS_PROFILE=circleguard-hu01 bash infra/bootstrap-all.sh --plan
+        CG_AWS_PROFILE usa el rol de operación en modo plan para que --dry-run valide create-vpc y
+        create-internet-gateway; no cambia nada. Esperado: precios = aws.env; vista previa 0.2075
+        USD/h; DryRunOperation en la red; servidores y herramientas en PLAN. Coste 0.
+
+  Paso 3  Planificación de red  [L]  (incluida en el paso 2; por separado:)
+              CG_AWS_PROFILE=circleguard-hu01 bash infra/bootstrap-network.sh --plan
+        Esperado: PLAN de 1 VPC, 1 IGW, 4 subredes, 1 tabla de rutas y 5 grupos de seguridad.
+
+  Paso 4  Creación de red  [M, O]
+              bash infra/bootstrap-network.sh --apply
+        Esperado: CREATED 12 (VPC, IGW, 4 subredes, tabla, 5 SG); UPDATED ≈ 47 (DNS, adjuntar IGW,
+        IPv4 automática ×4, ruta, asociaciones ×4, 31 reglas, 5 revocaciones de la salida por
+        defecto). Coste 0. Riesgo: IP pública del operador detectada (checkip.amazonaws.com).
+        Recuperar: volver a ejecutar (idempotente); una segunda ejecución debe dar UNCHANGED.
+
+  Paso 5  Creación de secretos  [M, O]
+              bash infra/bootstrap-secrets.sh --apply
+        Condición: solo con este script y sus mecanismos de seguridad (2.3, «Condición de
+        seguridad»).
+        Esperado: CREATED 35 parámetros SSM + 4 llaves locales + 4 pares EC2 (43). Coste ≈ 0.
+        La consola y infra/logs muestran solo nombres, rutas y «valor no mostrado»: ningún valor ni
+        llave privada. Si apareciera alguno: DETENERSE y no copiar el registro como evidencia (2.3).
+        Riesgo: perder ~/.ssh/circleguard (hay copia de custodia en SSM). Recuperar: reejecutar.
+
+  Paso 6  Creación de servidores
+    6a [L, O] CG_AWS_PROFILE=circleguard-hu01 bash infra/bootstrap-servers.sh --plan
+        Esperado: «permiso verificado con --dry-run: ec2 run-instances» para ci y nexus; ofertas en
+        us-east-2a; estimación sin servidores aprobados (acumulado + 0.27 de reserva). Si falla:
+        DETENERSE (no hay coste).
+    6b [F, O] bash infra/bootstrap-servers.sh --apply --approve ci,nexus
+        Requisito previo: repetir en ese momento la verificación del rol de lectura de 1b (7.15).
+        Antes de crear, la estimación local debe dar 7.32 + 0.27 = 7.59 de 15 USD (se niega si
+        supera 15). Esperado: CREATED 2 instancias (FACTURABLE desde ese momento: 0.2015 USD/h +
+        EBS); el registro local anota 2 «run». Riesgo: rechazo del plan gratuito, cuota, KMS.
+        Recuperar: reejecutar (busca por etiquetas; el client-token evita duplicados en el mismo día).
+    6c [L, B] Verificar el comportamiento de apagado de AMBAS instancias, antes del paso 7 (que
+        instala la parada automática). La raíz tiene todos los permisos: aquí solo se ejecutan
+        describe-* y la sesión se cierra al terminar.
+              bash infra/aws-session.sh login bootstrap
+              cgaws() { env HOME="$HOME/.circleguard/aws" AWS_CONFIG_FILE="$HOME/.circleguard/aws/.aws/config" \
+                AWS_LOGIN_CACHE_DIRECTORY="$HOME/.circleguard/aws/.aws/login/cache" \
+                aws --profile circleguard-hu01-bootstrap --region us-east-2 "$@"; }
+              for id in $(cgaws ec2 describe-instances --filters Name=tag:Project,Values=circleguard \
+                  Name=instance-state-name,Values=pending,running,stopping,stopped \
+                  --query 'Reservations[].Instances[].InstanceId' --output text); do
+                echo "$id $(cgaws ec2 describe-instance-attribute --instance-id "$id" \
+                  --attribute instanceInitiatedShutdownBehavior \
+                  --query InstanceInitiatedShutdownBehavior.Value --output text)"
+              done                                   # esperado: dos líneas «<id> stop»
+              bash infra/aws-session.sh logout bootstrap
+        Si alguna devolviera «terminate» o faltara una instancia: teardown.sh --stop --apply y no
+        continuar hasta revisarlo.
+
+  Paso 7  Docker, swap y parada automática  [H, O; horas facturables]
+        Lo hace setup-docker.sh al inicio de los pasos 8 y 9 en cada host: Docker y Compose desde el
+        repositorio oficial, rotación de logs, /opt/circleguard, swap de 2 GiB, vm.swappiness=10,
+        circleguard-autostop.timer (4 h desde ese momento) y, en ci, vm.max_map_count=524288.
+        Riesgo: salida SSH (22) bloqueada en la red del operador. Recuperar: reejecutar el paso.
+
+  Paso 8  Jenkins y SonarQube en ci  [H, O]
+              bash infra/bootstrap-jenkins.sh --apply
+              bash infra/bootstrap-sonarqube.sh --apply
+        Esperado: stacks desplegados; Jenkins sin asistente y sin acceso anónimo; contraseña de
+        SonarQube gestionada; ambos solo en 127.0.0.1. Riesgo: memoria (≈ 4.8 GiB típico de 8),
+        arranques de varios minutos con 2 vCPU. Recuperar: reejecutar (idempotente).
+
+  Paso 9  Nexus en nexus  [H, O]
+              bash infra/bootstrap-nexus.sh --apply
+        Esperado: Nexus en línea; contraseña gestionada; PLAN «EULA PENDIENTE» y fin sin error; sin
+        repositorio circleguard-docker. Riesgo: si falla, ci sigue encendido (0.104 USD/h).
+        Recuperar: reejecutar, o detener con teardown.sh --stop --apply mientras se diagnostica.
+
+  Paso 10 Validaciones de salud  [L, O]
+              bash infra/verify-infra.sh --health --roles=ci,nexus
+        Esperado: PASS de Docker, parada programada (waiting), swap, contenedores sanos, UIs no
+        expuestas y accesibles por túnel; PENDING del EULA; memoria por servidor y por contenedor.
+
+  Paso 11 Validación de aislamiento  [L, O]
+              bash infra/verify-infra.sh            # --health (incluye ambientes) --isolation --credentials
+        Esperado: aislamiento CONFIGURADO de dev/stage/prod (PASS) y PENDING por falta de servidores;
+        ci -> nexus:8081 abierto; nexus -> ci:8080/9000 cerrados; credenciales 0600 y ningún secreto
+        en el repositorio.
+
+  Paso 12 Verificación de la parada automática
+    12a [L] incluida en el paso 10 (SubState=waiting) y en el paso 6c (stop).
+    12b [M de estado, OPCIONAL, autorización aparte; al final de la sesión, después del paso 13]
+        Prueba real en nexus: ssh -i ~/.ssh/circleguard/circleguard-tools \
+          -o UserKnownHostsFile=~/.ssh/circleguard/known_hosts -o HostKeyAlias=<id-nexus> \
+          ubuntu@<ip-nexus> 'sudo systemctl start circleguard-autostop.service'
+        Tras ~6 min, bash infra/teardown.sh --stop (plan) debe mostrar nexus «stopped» y su volumen.
+        Confirma STOP y el formato de la hora de parada de AWS (registro de costos).
+
+  Paso 13 Verificación de idempotencia  [L + O; horas facturables]
+              bash infra/verify-infra.sh --snapshot > ~/cg-snap1.txt
+              bash infra/bootstrap-all.sh --apply --approve ci,nexus
+              bash infra/verify-infra.sh --snapshot > ~/cg-snap2.txt
+              diff ~/cg-snap1.txt ~/cg-snap2.txt && echo "estado idéntico"
+        Esperado: created=0 updated=0 (planned ≥ 1 por el EULA); diff vacío (contenedores con el mismo
+        ID). Los snapshots no contienen valores secretos, pero sí ids: no se versionan tal cual.
+
+  Paso 14 Cierre de la sesión  [M de estado, R: rol de lectura, no necesita la ventana de 1 h]
+              bash infra/teardown.sh --stop             # plan: debe mostrar «identidad AWS
+                                                        #   assumed-role/circleguard-hu01-reader/... · capacidad read»
+              bash infra/teardown.sh --stop --apply     # pide escribir DETENER
+              bash infra/teardown.sh --stop             # plan: «no hay instancias de circleguard en ejecución»
+              bash infra/aws-session.sh logout all
+        Comprobación explícita de la identidad (opcional, solo lectura):
+              env HOME="$HOME/.circleguard/aws" AWS_CONFIG_FILE="$HOME/.circleguard/aws/.aws/config" \
+                AWS_LOGIN_CACHE_DIRECTORY="$HOME/.circleguard/aws/.aws/login/cache" \
+                aws sts get-caller-identity --profile circleguard-hu01-reader --query Arn --output text
+        teardown.sh --stop solo actúa sobre instancias con Project=circleguard y ManagedBy=infra-bootstrap,
+        y el rol de lectura solo puede detener instancias de us-east-2 con Project=circleguard.
+        Coste a partir de aquí: 0.145 USD/día de EBS. Después, la comprobación diferida de 4.1.
+  Duración prevista de S1: ≈ 3 h (varias ventanas de 1 h del rol de operación). Si una ejecución
+  falla por la sesión, se vuelve a iniciar sesión y se repite el mismo comando.
+
+====================================================================================================
+## 6. Recuperación y protección (3.6)
+  Falla la creación del primer servidor: sin instancia no hay coste; la red y los secretos quedan
+    (gratuitos). Si la instancia llegó a crearse y el script se interrumpió, se repite el mismo
+    comando: ensure_server la encuentra por etiquetas y continúa. Ante errores de IAM, cuota o plan
+    gratuito: detenerse y consultar (no se reintenta con otros tipos ni zonas).
+  Falla Nexus con ci ya creado: ci sigue facturando (0.104 USD/h). Opciones: reejecutar
+    bootstrap-nexus.sh o bootstrap-servers.sh --apply --approve nexus; o detener todo con
+    teardown.sh --stop --apply y retomar después (datos conservados).
+  Detener sin borrar discos: teardown.sh --stop --apply (rol de lectura, ec2:StopInstances solo con
+    Project=circleguard), la parada automática o «Detener» en la consola. NUNCA «Terminar».
+  Conservar los datos: los volúmenes EBS (y los volúmenes Docker que contienen) persisten con la
+    instancia detenida; DeleteOnTermination solo actúa al terminar. Los secretos siguen en SSM y las
+    llaves en ~/.ssh/circleguard con copia en SSM. Sin snapshots (tendrían coste) salvo autorización.
+  No tocar recursos ajenos: todos los scripts filtran por etiquetas (teardown exige Project y
+    ManagedBy); el operador no tiene permisos de borrado; el rol teardown solo borra recursos con
+    Project=circleguard en us-east-2 y solo se usa en CloudShell con frase de confirmación.
+  Si falla la parada automática: verify-infra.sh --health falla si el temporizador no está en
+    espera; teardown.sh --stop --apply al final de cada sesión es el control principal y la
+    comprobación diferida de 4.1 acota el fallo a 12 h. Coste del fallo: 0.20152 USD/h con ambas
+    instancias (2.42 USD cada 12 h; 4.84 cada 24 h) y 0.10076 USD/h con una (2.42 USD cada 24 h):
+    ver escenarios F3-F5.
+  STOP y no TERMINATE [COMPROBADO en el código]:
+    - Única ruta de lanzamiento: ensure_server (bootstrap-servers.sh) construye RUN_ARGS con
+      --instance-initiated-shutdown-behavior stop para cada rol de CG_ROLES (ci y nexus); el mismo
+      RUN_ARGS se usa en la validación en seco y en el lanzamiento real.
+    - Ningún script modifica ese atributo (no hay modify-instance-attribute) y el operador no puede
+      (no tiene ec2:ModifyInstanceAttribute). Una instancia existente no se reemplaza ni se
+      reconfigura.
+    - Única ruta de terminación en los scripts: teardown.sh --destroy --apply, que exige la frase
+      «DESTRUIR circleguard» y la capacidad destroy, cuyo perfil (circleguard-hu01-teardown) no existe
+      en esta estación: solo en CloudShell, con el usuario de teardown y MFA. reader y operator no
+      tienen ec2:TerminateInstances.
+    - Sin user-data, sin Spot y sin grupos de autoescalado. Fuera de los scripts, solo una persona con
+      la raíz en la consola podría terminar una instancia.
+    - Verificación: lectura del atributo de ambas instancias con la sesión raíz (paso 6c) y prueba
+      real opcional (paso 12b).
+    - No se activa la protección contra terminación (--disable-api-termination): obligaría a cambiar
+      teardown.sh y la política de teardown (ec2:ModifyInstanceAttribute) para poder destruir al
+      final. No se propone ahora.
+  Se agota la sesión MFA: el rol de operación dura 1 h desde el inicio de sesión. Los scripts que lo
+    usan se detienen con un error de identidad o de token vencido; se ejecuta
+    bash infra/aws-session.sh login operator y se repite el mismo comando (todos son idempotentes).
+    Un paso largo interrumpido (instalación de Docker, descarga de imágenes) converge al repetirlo.
+    Detener NO depende de esa ventana: usa el rol de lectura (ver 3 y 4.1).
+  Pérdida de la conexión SSH durante un paso: repetir el paso; si la IP del operador cambió,
+    reejecutar bootstrap-network.sh --apply (actualiza la regla del 22). Límite de 30 min de
+    diagnóstico con las instancias encendidas (4.1).
+
+====================================================================================================
+## 7. Criterios para autorizar la Fase 4 (3.7)
+  Aprobar este documento NO autoriza ninguna operación de AWS: ni --apply, ni creación de recursos,
+  ni cambios de IAM, ni inicio o parada de instancias, ni aceptación del EULA, ni destrucción. Cada
+  operación de AWS de la sección 5 requiere su propia autorización expresa en el momento de
+  ejecutarla, que cubre solo esa operación y no las siguientes; 7.10 enumera las que modifican
+  recursos, generan coste o usan la raíz. Las paradas y reprogramaciones de 4.1 y 6 también: el
+  procedimiento las describe, no las autoriza.
+  7.1  P1-P6 confirmados con un commit; árbol de trabajo limpio antes de desplegar.
+  7.2  Paso 1a sin diferencias con este documento (IAM, cuota, 0 recursos, plan gratuito activo).
+  7.3  Aceptar la diferencia IAM de teardown (v2 redundante) o revertirla antes (autorización IAM
+       aparte). No bloquea el despliegue.
+  7.4  Aceptar los escenarios de coste: base 6.24, conservador 10.41, y que F4/F5 superan 15 USD
+       si falla la parada automática y nadie detiene las instancias.
+  7.5  Aceptar el procedimiento operativo de 4.1: teardown.sh --stop --apply al final de cada sesión,
+       comprobación diferida en 12 h, 30 min máximos de diagnóstico SSH con instancias encendidas y
+       línea de parada en 12 USD de costo real.
+  7.6  Aceptar que Nexus queda desplegado con el EULA PENDIENTE (sin uso de componentes).
+  7.7  Aceptar que dev/stage/prod quedan aislados por configuración, sin verificación con tráfico.
+  7.8  ADMIN_CIDRS: IP pública actual del operador (/32) o la definida en operator.local.env; salida
+       SSH (22) permitida en la red desde la que se despliega.
+  7.9  El paso 6a (run-instances en seco) debe pasar antes del paso 6b.
+  7.10 Autorizar de forma expresa las operaciones: pasos 4, 5, 6b, 8, 9, 13 y 14; opcionales 6c
+       (lectura con la raíz) y 12b (prueba real de parada).
+  7.11 Retención de los volúmenes hasta 45 días y destrucción posterior en CloudShell (autorización
+       aparte; antes, regenerar el paquete de CloudShell).
+  7.12 Decidir si ShellCheck y Gitleaks (no disponibles en esta máquina) son requisito previo.
+  7.13 Alcance de los secretos: crear los 35 parámetros y 4 pares como está diseñado (recomendado,
+       sin cambios de código) o limitarlos a herramientas (exige cambiar bootstrap-secrets.sh y
+       verify-infra.sh antes del despliegue; ver 2.3). En ambos casos, CONDICIÓN: se crean solo con
+       bootstrap-secrets.sh y sus mecanismos de seguridad (2.3); ningún secreto ni llave privada en
+       el repositorio, en infra/logs ni en la consola.
+  7.14 El paso 6c debe mostrar «stop» en ambas instancias antes del paso 7.
+  7.15 Antes de encender instancias (paso 6b), la verificación de 1b debe pasar en ese momento:
+       autenticación válida y rol circleguard-hu01-reader asumido (plan de teardown.sh --stop). La
+       duración real de la sesión aws login sigue PENDIENTE (8) y se medirá en la Fase 4.
+
+====================================================================================================
+## 8. Pendientes y limitaciones
+  [PENDIENTE] run-instances en seco y primer lanzamiento real (KMS aws/ebs incluido).
+  [PENDIENTE] memoria real de Jenkins, SonarQube, PostgreSQL y Nexus (verify-infra.sh --health).
+  [PENDIENTE] formato de la hora de parada que da AWS en un apagado iniciado por la instancia.
+  [PENDIENTE] comportamiento real de la parada automática en EC2 (probado en WSL con /bin/true).
+  [PENDIENTE] ShellCheck y Gitleaks; captura de pantalla del escaneo de secretos.
+  [ESTIMADO]  tiempos de despliegue y uso de memoria.
+  [PENDIENTE] duración real de la sesión aws login del operador (de ella depende el rol de lectura
+              después de la ventana de 1 h; si vence, se repite login operator). Se mide en la
+              Fase 4 con la hora anotada en 1b; mientras tanto rige la verificación de 7.15.
+  No se crean presupuestos de AWS Budgets ni otros servicios; no se acepta el EULA; no hay cambios
+  de IAM en este plan.
+  Cambios de código que requerirían algunas alternativas (NO hechos; solo si se deciden):
+    - Secretos solo de herramientas: opción de alcance en bootstrap-secrets.sh y PENDING en
+      verify-infra.sh check_credentials cuando falten los de ambiente.
+    - Protección contra terminación: --disable-api-termination al lanzar, más teardown.sh y la
+      política de teardown con ec2:ModifyInstanceAttribute para desactivarla antes de destruir.
+    - Verificar el apagado STOP sin la raíz: ec2:DescribeInstanceAttribute en la política de lectura
+      (cambio de IAM) y una comprobación en verify-infra.sh.
+    - Detener una sola instancia con teardown.sh (hoy detiene todas las del proyecto en ejecución).
