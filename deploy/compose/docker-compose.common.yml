@@ -91,8 +91,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-      KAFKA_HEAP_OPTS: ${ZOOKEEPER_HEAP_OPTS:--Xms128m -Xmx256m}
-      ZOOKEEPER_HEAP_OPTS: ${ZOOKEEPER_HEAP_OPTS:--Xms128m -Xmx256m}
+      KAFKA_HEAP_OPTS: ${ZOOKEEPER_HEAP_OPTS:--Xms128m -Xmx192m}
+      ZOOKEEPER_HEAP_OPTS: ${ZOOKEEPER_HEAP_OPTS:--Xms128m -Xmx192m}
     volumes:
       - zookeeper-data:/var/lib/zookeeper/data
       - zookeeper-log:/var/lib/zookeeper/log
