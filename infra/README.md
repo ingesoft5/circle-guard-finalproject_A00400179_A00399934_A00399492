@@ -100,7 +100,7 @@ sistema de archivos de WSL), no en `~/.aws`.
 | `bootstrap`: la identidad que ya usa la cuenta | `aws-session.sh login bootstrap` | Inspección de solo lectura y `bootstrap-iam.sh` | Credenciales temporales; la sesión se cierra al terminar |
 | Rol `circleguard-hu01-reader` | Sesión del usuario operador | Describir, consultar precios, Access Analyzer y **detener** instancias | Solo el usuario operador |
 | Rol `circleguard-hu01-operator` | Sesión del usuario operador + **código MFA en la llamada `AssumeRole`** | Crear e iniciar recursos acotados; **ningún borrado** | MFA obligatorio; sesiones de 1 h como máximo |
-| Rol `circleguard-hu01-teardown` | **Usuario de teardown** + código MFA de menos de 15 min | Borrar solo recursos con `Project=circleguard` | MFA obligatorio; sesiones de 1 h como máximo |
+| Rol `circleguard-hu01-teardown` | **Usuario de teardown** + código MFA de menos de 15 min | Describir (política de lectura adjunta) y borrar solo recursos con `Project=circleguard` | MFA obligatorio; sesiones de 1 h como máximo |
 
 Los usuarios IAM `circleguard-hu01-operator` y `circleguard-hu01-teardown` no tienen claves ni
 permisos propios: solo pueden usar `aws login`, ver su propio dispositivo MFA y asumir sus roles.
@@ -340,6 +340,7 @@ credenciales nunca existen en esta máquina.
    configuración no secreta (sin secretos ni `operator.local.env`).
 2. En la consola de AWS, inicie sesión como `circleguard-hu01-teardown` (contraseña y MFA en la
    página de AWS), abra CloudShell en `us-east-2` y cargue el paquete (Acciones → Cargar archivo).
+   Súbalo tal cual: descomprimirlo y volver a comprimirlo en Windows cambia su estructura.
 3. En CloudShell:
    ```bash
    tar -xzf circleguard-teardown.tgz
@@ -348,7 +349,12 @@ credenciales nunca existen en esta máquina.
    bash infra/teardown-cloudshell.sh --purge-secrets --apply  # además borra /circleguard/* de SSM
    ```
 - Solo actúa sobre recursos con las etiquetas `Project=circleguard` y `ManagedBy=infra-bootstrap`.
-- La sesión del rol dura 15 minutos y sus credenciales en caché se borran al salir del script.
+- Se pide **un** código MFA por ejecución. La sesión del rol dura 30 minutos: la AWS CLI descarta
+  las credenciales en caché a las que les quedan menos de 15, así que con sesiones de 15 minutos
+  pedía un código en cada llamada. Si el perfil ya existía con otro valor (900 s en versiones
+  anteriores), el script lo corrige; al salir borra las credenciales en caché.
+- El perfil del rol vive en `~/.circleguard/aws/.aws/config`, no en `~/.aws/config`: `aws configure
+  list` fuera del script muestra las credenciales propias de CloudShell (el usuario de teardown).
 - La llave privada local y su copia en SSM se conservan, salvo que se use `--purge-secrets`.
 
 ## Validación local gratuita (`--target local`)

@@ -19,10 +19,19 @@ cg_aws_preflight() {
   [[ -n "$CG_CAPABILITY" ]] || if is_apply; then cg_aws_use operate; else cg_aws_use read; fi
   cg_aws_identity
   account=$(cut -d: -f5 <<<"$CG_AWS_ARN")
-  state=$(aws_ ec2 describe-availability-zones --zone-names "$AWS_AZ" --query 'AvailabilityZones[0].State' --output text 2>/dev/null) ||
-    die "No se pudo validar la zona $AWS_AZ en $AWS_REGION (región deshabilitada o sin permiso ec2:DescribeAvailabilityZones)."
-  [[ "$state" == available ]] || die "La zona $AWS_AZ no está disponible (estado: $state)."
   info "identidad AWS ${CG_AWS_ARN##*:} · capacidad $CG_CAPABILITY · cuenta ****${account: -4} · región $AWS_REGION · zona $AWS_AZ"
+  state=$(aws_ ec2 describe-availability-zones --zone-names "$AWS_AZ" --query 'AvailabilityZones[0].State' --output text 2>&1) ||
+    die "No se pudo validar la zona $AWS_AZ con ${CG_AWS_ARN##*:}: $(cg_aws_error "$state")"
+  [[ "$state" == available ]] || die "La zona $AWS_AZ no está disponible (estado: $state)."
+}
+
+# cg_aws_error <output>: "<code> en <operation>: <reason>" of a failed AWS CLI call (an MFA
+# failure of the role shows up as AccessDenied en AssumeRole), without ARNs nor account ids.
+cg_aws_error() {
+  { grep -m1 'An error occurred' <<<"$1" || printf '%s\n' "${1%%$'\n'*}"; } |
+    sed -E 's/^.*An error occurred \(([A-Za-z.]+)\) when calling the ([A-Za-z]+) operation: /\1 en \2: /
+      s/You are not authorized to perform this operation\. User: .* is not authorized to perform: [^ ]+ //
+      s/[0-9]{12}/************/g'
 }
 
 # cg_admin_cidrs: CIDRs allowed to reach SSH and the tool UIs (one per line).
