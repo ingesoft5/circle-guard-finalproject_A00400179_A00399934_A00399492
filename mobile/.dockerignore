@@ -1,0 +1,9 @@
+# Build context for the Expo web client image (mobile/ directory).
+node_modules
+dist
+web-build
+.expo
+test-output.txt
+*.log
+.env
+.env.*

@@ -67,6 +67,9 @@ infra/security/reports/
 infra/logs/
 !docs/evidencias/hu-01/local/*.log
 
+# Image build logs (HU-02). Sanitized summaries kept as evidence are versioned.
+deploy/logs/
+
 # Temporary files
 *.tmp
 *.swp

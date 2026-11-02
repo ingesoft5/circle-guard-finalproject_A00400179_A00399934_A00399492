@@ -1,0 +1,35 @@
+# Dev overrides (HU-02): publish the middleware and the web client on loopback
+# for local debugging. Application ports stay internal and are reached through
+# the web client's nginx proxy (/auth, /identity, ...).
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+  neo4j:
+    ports:
+      - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
+      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687"
+  kafka:
+    ports:
+      - "127.0.0.1:${KAFKA_PORT:-9092}:29092"
+  redis:
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+  openldap:
+    ports:
+      - "127.0.0.1:${LDAP_PORT:-389}:389"
+      - "127.0.0.1:${LDAPS_PORT:-636}:636"
+  # Ajustes de memoria para Docker Desktop (~7.4 GiB). Son topes, no reservas.
+  file:
+    mem_limit: 384m
+  gateway:
+    mem_limit: 384m
+  form:
+    mem_limit: 640m
+  notification:
+    mem_limit: 640m
+  promotion:
+    mem_limit: 768m
+  web:
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:8080"
