@@ -1,0 +1,91 @@
+# ShellCheck · HU-01 CircleGuard · reporte verificable
+fecha_utc:        2026-11-03T04:25:34Z
+imagen:           koalaman/shellcheck:v0.11.0
+digest:           koalaman/shellcheck@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
+id_imagen:        sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
+version_shellcheck:
+  ShellCheck - shell script analysis tool
+  version: 0.11.0
+  license: GNU General Public License, version 3
+  website: https://www.shellcheck.net
+git_head:         889ce0966a72afd9f7faa763bfc78e288c8bc812 (docs(hu-01): documentar despliegue en AWS y evidencias de validación final)
+rama:             HU01_Infraestructura_nube_bash
+scripts_modificados_respecto_a_889ce09: infra/bootstrap-all.sh infra/bootstrap-env.sh infra/bootstrap-jenkins.sh infra/bootstrap-nexus.sh infra/bootstrap-quota.sh infra/bootstrap-servers.sh infra/bootstrap/host/setup-docker.sh infra/bootstrap/lib/aws.sh infra/bootstrap/lib/common.sh infra/bootstrap/lib/remote.sh infra/scan-secrets.sh infra/verify-infra.sh
+scripts_nuevos_sin_confirmar: infra/bootstrap-registry.sh infra/bootstrap/registry/configure.sh infra/bootstrap/registry/prepare.sh infra/rotate-registry-password.sh infra/test-idempotency.sh infra/test-isolation.sh
+comando:          docker run --rm -v <repositorio>:/mnt:ro -w /mnt koalaman/shellcheck:v0.11.0 -x -S style <32 scripts>
+opciones:         -x (sigue los source) · -S style (todas las severidades: error, warning, info, style)
+shellcheckrc:     infra/.shellcheckrc (sha256 104d3dd680dfb10a5275ec7666eac974abcc4de47bd01c32173ccffcdc180991)
+  | # ShellCheck settings of the HU-01 scripts.
+  | # Follow the sourced libraries relative to each script's directory.
+  | source-path=SCRIPTDIR
+  | external-sources=true
+  | # AWS CLI --query expressions (JMESPath) use backtick literals inside single quotes on purpose.
+  | disable=SC2016
+scripts_analizados: 32  (git ls-files, versionados y nuevos sin confirmar)
+  5e9171eece1efb7cc9378aa87bddc71d4751f0f94a75e40bf9741f7266fce898  infra/aws-session.sh
+  1fb5f1d3cba8872176639080fdaf3051a689d758f77e639bffb49d024bfdb54d  infra/bootstrap-all.sh
+  c0eb16c14151f55d35691ce4b1e8da5ef3805002c1fd01d6ea78937e0177549d  infra/bootstrap-env.sh
+  4a3dc2f79e448ba6027d427005e0af2f423d074f952263a5787040c52119a895  infra/bootstrap-iam.sh
+  bdf3cbe90e7d00da1f20693c500e9269c2e649fe200e475c8fe0d5748c679592  infra/bootstrap-jenkins.sh
+  6a08ab6dbca598ee75e26a84247c8660535124215f5c87ca1fc20dd95ea8d0a9  infra/bootstrap-network.sh
+  e8555ab757a7bb47d7aeb576dca1eb2d78159aeb095d05f67209bc684ae9d360  infra/bootstrap-nexus.sh
+  e34ce3ab4ebb54e24285d529c070dc1497b5fdb935eef1b84df162e0c3a00df3  infra/bootstrap-quota.sh
+  b02dfa57c5e36a6d740d40b02fcd79693de6a19d5059665c5bfd58320578f4ad  infra/bootstrap-registry.sh
+  5193ed9312545391e2475f01cc7d9ada88c6b6a4fe759e3bb0231471c78d604b  infra/bootstrap-secrets.sh
+  43c1e79932278caef0cb043b7538b992977ad9bfc07c7eb6d033396ab4591693  infra/bootstrap-servers.sh
+  d7d600cdd8de75ac02db874dd3085b43ac7a3181904fb78b7db81ef724622bb6  infra/bootstrap-sonarqube.sh
+  0c587ab8840329ae88d4605a210db001c1d80dcf33c2dae7479d584ee4c1263e  infra/bootstrap/host/setup-docker.sh
+  7a07d95eb380f80c0fbb327f43dce07fba56916d5b04c290829ce05e9bbea17c  infra/bootstrap/jenkins/configure.sh
+  4a428312c55151c1224f3a8f31fe57c699ac0b6d263d94f7640fe8e5e5585d77  infra/bootstrap/lib/aws.sh
+  e275f6cbc1f7432865fc0e942ebc84738f65f87f48e980843fc5010a58e947d4  infra/bootstrap/lib/budget.sh
+  e4baf9cd8089cb230b9c7cf1b748127f04963a46efc652c45dc317195a316c08  infra/bootstrap/lib/common.sh
+  27597ec55b8f15c19f052d35b9968576b0b702d6c6812598a61716b62aaf1d82  infra/bootstrap/lib/open-aws-url.sh
+  a634a27c11a42d6bb90f96eac8a70f5c275d17ed2f83cc58827941c1bf6221ae  infra/bootstrap/lib/remote.sh
+  5ae07fd1ff5b957179f5c96eea2ad79852f423cdd17be460d1a9d4979a9e1505  infra/bootstrap/lib/session.sh
+  fee97daa1894184f304b8dfafff513bf454a7bd73c3da7fb424fb8fa6914d178  infra/bootstrap/nexus/configure.sh
+  08b8932eb01dd8613258f3bf457d15039e7f5afef3abbe0bda365379dcadc05f  infra/bootstrap/registry/configure.sh
+  6c06e22cd07007dee6ec7462250bda6d092628e76dd57c2423978894ee2cfc13  infra/bootstrap/registry/prepare.sh
+  f24c2d0136bc190514a1be0588fac8f17c9aaa7884ccdc628152fec0bb256a89  infra/bootstrap/sonarqube/configure.sh
+  6b7ab0c31a0213e842f9cfef9198d31e964297ecf05032a6a410c675b2b109ab  infra/rotate-registry-password.sh
+  e0355e10288b1430842446e369843211deb91f5a75e893a8aa7736d0fcbf6618  infra/scan-secrets.sh
+  d7c6e708321ac1684340f0bfb03a2f8932ae7cd85b4000f72f82cfc2c6018fe3  infra/teardown-cloudshell.sh
+  c6431e1afea5efa552afa67efcd028a7ce768c4beb5ba3ea3aeef956438ccbc5  infra/teardown.sh
+  efb3ba8e9d947cf79d709247d8775993b5fbc595aa40d3173ef3cdab9f17cb01  infra/test-idempotency.sh
+  6e09957fdcd4a76afb09c86aebed204c5aabc8ee5af3b49f3292ad6a212534e2  infra/test-isolation.sh
+  619164df6b1843fbb0c111f4e4b02df7e6ef111159b1724ad4572889a3cfde15  infra/tunnel.sh
+  828e2d95075ef4e23d32edee2c0c8e7c1e274ef45b65b8cb7e51488934bd06d2  infra/verify-infra.sh
+
+## 1. Salida normal (formato tty)
+  (vacía: ShellCheck no imprime nada cuando no encuentra hallazgos)
+codigo_salida_tty: 0
+
+## 2. Salida JSON (-f json1)
+{"comments":[]}
+codigo_salida_json: 0
+
+## 3. Control positivo (script temporal fuera del repositorio, eliminado al terminar)
+archivo: <scratchpad>/shellcheck-control/control-positivo.sh (sha256 ad3a2d0b8b35b77f62555494632d8b9e3df1257bf0a130e6b556902d06b10c09)
+contenido:
+  | #!/usr/bin/env bash
+  | # Control positivo: expansión sin comillas (SC2086) introducida a propósito.
+  | destino=$1
+  | ls $destino
+salida:
+
+  In control-positivo.sh line 4:
+  ls $destino
+     ^------^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+  Did you mean:
+  ls "$destino"
+
+  For more information:
+    https://www.shellcheck.net/wiki/SC2086 -- Double quote to prevent globbing ...
+codigo_salida_control: 1 · codigos_detectados: SC2086
+archivo_temporal_eliminado: sí
+
+## 4. Resumen
+archivos_analizados: 32
+hallazgos (JSON): 0
+codigos_de_salida: tty=0 json=0 (0 = sin hallazgos)
+resultado: PASS · 0 hallazgos en 32 scripts; el control positivo detecta SC2086 (la herramienta y la configuración funcionan)

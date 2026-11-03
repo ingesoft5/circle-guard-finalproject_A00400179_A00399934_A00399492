@@ -3,12 +3,22 @@
 Scripts Bash idempotentes y stacks Docker Compose que aprovisionan, configuran, verifican y
 destruyen la plataforma de HU-01:
 
-- **Herramientas (topología B):** dos instancias EC2 `m7i-flex.large`. El servidor `ci` ejecuta
-  Jenkins (JCasC) y SonarQube (con PostgreSQL); el servidor `nexus`, Nexus Repository (registro
-  Docker `circleguard-docker`, pendiente del EULA).
-- **Ambientes aislados por red:** `dev`, `stage` y `prod` tienen subred, grupo de seguridad y
-  credenciales propios. HU-01 **no crea servidores de ambiente**: el aislamiento está configurado,
-  pero no se ejercita con cargas reales (`verify-infra.sh` lo informa como `PENDING`).
+- **Herramientas (topología B):** dos instancias EC2 `m7i-flex.large`.
+  - El servidor `ci` ejecuta Jenkins (JCasC) y SonarQube (con PostgreSQL).
+  - El servidor `nexus` ejecuta el **registro Docker principal**, CNCF Distribution
+    (`REGISTRY_BACKEND=distribution`, decisión del equipo): TLS, usuario `ci` y volumen
+    persistente, sin EULA. Nexus Repository sigue instalado, con el EULA sin aceptar, y nada
+    depende de él. Decisión y trade-offs en
+    [registro-artefactos.md](../docs/arquitectura/registro-artefactos.md).
+  - Jenkins publica y descarga imágenes en el registro con `crane`, sin el socket de Docker
+    ([Integración de Jenkins con el registro](#integración-de-jenkins-con-el-registro)).
+  - Probado en local el 2026-11-03; **pendiente de desplegar en AWS** (requiere autorización).
+- **Ambientes `dev`, `stage` y `prod`:** cada uno tiene subred, grupo de seguridad, credenciales,
+  llave SSH y **servidor propio** (`t3.small`). La cuota actual de vCPU solo permite dos servidores
+  encendidos a la vez, así que se crean y se prueban **por pares**.
+  - Hasta su creación, que requiere autorización, el aislamiento está configurado y comprobado por
+    reglas.
+  - Detalle en [Ambientes dev, stage y prod](#ambientes-dev-stage-y-prod-servidores-por-pares).
 
 Arquitectura y reglas de red: [docs/arquitectura/infra-ambientes.md](../docs/arquitectura/infra-ambientes.md).
 Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md). Despliegue en AWS
@@ -25,13 +35,18 @@ detenidas después): [evidencia 14](../docs/evidencias/hu-01/14-despliegue-aws-f
 
 | Ruta | Función |
 |---|---|
-| `bootstrap-all.sh` | **Comando único**: red → secretos → servidores `ci` y `nexus` → Jenkins y SonarQube (en `ci`) → Nexus → verificación |
+| `bootstrap-all.sh` | **Comando único**: red → secretos → servidores → Jenkins y SonarQube (en `ci`) → Nexus y registro (en `nexus`) → hosts de ambiente (si los hay) → verificación |
 | `bootstrap-network.sh` | VPC, 4 subredes públicas, internet gateway (sin NAT Gateway), tabla de rutas y grupos de seguridad de mínimo privilegio |
 | `bootstrap-secrets.sh` | Secretos del catálogo en SSM Parameter Store (SecureString) y llaves SSH por nivel |
 | `bootstrap-servers.sh` | Instancias EC2 (FACTURABLE: requiere `--approve`); `--prices` consulta precios vigentes |
 | `bootstrap-jenkins.sh`, `bootstrap-sonarqube.sh`, `bootstrap-nexus.sh` | Preparan el host, despliegan el stack y configuran la herramienta por código o API |
-| `bootstrap-env.sh <env>` | Prepara un host de `dev`, `stage` o `prod` (Docker, Compose y `.env` propio). En HU-01 no se usa: no hay servidores de ambiente |
-| `verify-infra.sh` | Verificación de solo lectura: servidores, salud, EULA de Nexus, aislamiento, credenciales y *snapshot* (`PASS`, `FAIL` o `PENDING`) |
+| `bootstrap-registry.sh` | Registro Docker CNCF Distribution en el servidor `nexus` (TLS y usuario `ci` generados en el host); con `REGISTRY_BACKEND=nexus` lo retira conservando su volumen |
+| `bootstrap-env.sh <env>` | Prepara un host de `dev`, `stage` o `prod` (Docker, Compose, parada automática y `.env` propio). Solo actúa si el ambiente figura en `ENV_SERVERS` y su instancia está en ejecución |
+| `verify-infra.sh` | Verificación: servidores, salud, EULA de Nexus, registro, aislamiento, credenciales, prueba de publicación (`--registry`) y *snapshot* (`PASS`, `FAIL` o `PENDING`) |
+| `test-idempotency.sh` | Prueba de idempotencia integral en AWS: dos `bootstrap-all.sh`, *snapshots*, comparaciones, persistencia, registro desde el host y desde Jenkins, recuperación tras reiniciar los contenedores y parada obligatoria (FACTURABLE: requiere `--apply --approve`) |
+| `test-isolation.sh` | Prueba de aislamiento de dev, stage y prod con tráfico, por pares de servidores dentro de la cuota, con parada entre fases y al final (FACTURABLE: requiere `--apply`) |
+| `rotate-registry-password.sh` | Rotación de la contraseña del usuario `ci` del registro: SSM, registro y Jenkins, con comprobación y recuperación |
+| `check-prerequisites.sh` | Comprobación de solo lectura de la estación de trabajo (herramientas, plataforma, repositorio, finales de línea y configuración), sin AWS. Primer paso del ensayo de reconstrucción |
 | `tunnel.sh <herramienta>` | Acceso administrativo a Jenkins, SonarQube o Nexus por **túnel SSH** (las UIs nunca se exponen a Internet) |
 | `teardown.sh` | Detiene (`--stop`) o elimina (`--destroy`) **solo** los recursos de HU-01 |
 | `scan-secrets.sh` | Escaneo de secretos con Gitleaks (árbol de trabajo e historial) |
@@ -44,7 +59,7 @@ detenidas después): [evidencia 14](../docs/evidencias/hu-01/14-despliegue-aws-f
 | `config/iam/hu01-*-role-trust.json`, `hu01-*-user-policy.json` | Quién asume cada rol y con qué MFA; permisos mínimos de los dos usuarios (sin claves) |
 | `bootstrap/lib/*.sh` | Librerías: utilidades comunes, AWS, sesiones, estimación de costos y transporte SSH/local |
 | `bootstrap/host/setup-docker.sh` | Se ejecuta en el host: Docker Engine, Compose, rotación de logs, `vm.max_map_count`, swap de seguridad y parada automática |
-| `bootstrap/{jenkins,sonarqube,nexus}/` | Stacks Compose con imágenes fijadas y scripts de configuración por API |
+| `bootstrap/{jenkins,sonarqube,nexus,registry}/` | Stacks Compose con imágenes fijadas y scripts de configuración por API (`registry/prepare.sh` genera el certificado y el usuario antes de arrancar el contenedor) |
 
 ## Convenciones
 
@@ -88,7 +103,12 @@ detenidas después): [evidencia 14](../docs/evidencias/hu-01/14-despliegue-aws-f
    Destruir solo es posible con el rol de teardown, que asume **otro usuario**
    ([`hu01-teardown-policy.json`](config/iam/hu01-teardown-policy.json)).
 4. **Docker Desktop** con integración WSL, solo para la validación local y para Gitleaks.
-5. Los scripts se ejecutan desde la raíz del repositorio con `bash infra/<script>.sh`.
+5. Los scripts se ejecutan desde la raíz del repositorio con `bash infra/<script>.sh`. Para
+   operar AWS desde WSL, clone el repositorio en el sistema de archivos de WSL (`~/…`): sobre una
+   carpeta de Windows o de OneDrive (`/mnt/c/…`), `git status` puede tardar decenas de minutos
+   (medido el 2026-11-03: 26 min).
+6. Compruebe la estación de trabajo con `bash infra/check-prerequisites.sh` (solo lectura, sin AWS):
+   debe terminar con `fail=0`.
 
 ## Acceso a AWS: sesiones temporales y autorización técnica
 
@@ -207,7 +227,16 @@ del rol de operación dura 1 h como máximo.
     (100 peticiones por segundo sostenidas), no un mínimo. Con 2 vCPU, los arranques y las tareas
     largas son más lentos; Community Edition admite como máximo 100 000 peticiones al día.
 - `config/envs/{dev,stage,prod}.env`: subredes `10.20.{10,20,30}.0/24`. El tipo y el disco solo se
-  usarían si una historia posterior aprueba servidores de ambiente.
+  usan para los ambientes que figuren en `ENV_SERVERS`.
+- `REGISTRY_BACKEND` (en `aws.env`): `distribution` (por defecto) despliega CNCF Distribution en el
+  8082 del servidor `nexus` y deja el conector de Nexus, sin uso, en `127.0.0.1:18082`
+  (`NEXUS_DOCKER_STANDBY_PORT`). `nexus` devuelve el 8082 al repositorio `circleguard-docker`, y
+  solo sirve con el EULA aceptado. Cambiar de opción no migra imágenes.
+- `ENV_SERVERS` (en `aws.env`): ambientes con servidor, `dev,stage,prod` (decisión del
+  2026-11-03); vacío equivale a solo aislamiento por red.
+- `QUOTA_VCPU_LIMIT` (en `aws.env`): cuota real de la cuenta, 5 vCPU el 2026-11-01.
+  `bootstrap-servers.sh` se niega a crear o iniciar servidores que la superen. Solo debe cambiarse
+  cuando AWS apruebe un aumento (`QUOTA_VCPU_TARGET=10` es lo que se solicitaría).
 - `config/operator.local.env` (ignorado): `ADMIN_CIDRS` (y, si hace falta, `CG_AWS_PROFILE`). Si `ADMIN_CIDRS` está
   vacío, se usa la IP pública actual del operador (`/32`).
 - `NEXUS_ACCEPT_EULA` (en `aws.env`): Nexus Community Edition 3.96.5 **exige aceptar su EULA**
@@ -220,7 +249,7 @@ del rol de operación dura 1 h como máximo.
 
 | Ámbito | Ruta en SSM (SecureString) | Contenido |
 |---|---|---|
-| Herramientas | `/circleguard/tools/{jenkins,sonarqube,nexus}/*` | Contraseñas de administrador y de la BD de SonarQube |
+| Herramientas | `/circleguard/tools/{jenkins,sonarqube,nexus,registry}/*` | Contraseñas de administrador, de la BD de SonarQube y del usuario `ci` del registro (32 valores del catálogo en total, más las 4 llaves) |
 | Ambientes | `/circleguard/{dev,stage,prod}/*` | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `NEO4J_PASSWORD`, `LDAP_ADMIN_PASSWORD`, `CG_JWT_SECRET`, `CG_QR_SECRET`, `CG_VAULT_*`: **valores distintos por ambiente** |
 | Acceso | `/circleguard/ssh/circleguard-{tools,dev,stage,prod}` | Copia de custodia de las llaves SSH ED25519 (la llave privada vive en `~/.ssh/circleguard/`) |
 
@@ -242,17 +271,21 @@ Cada paso admite `--plan` (por defecto), que muestra lo que haría y valida perm
 | 2. Secretos y llaves | `bash infra/bootstrap-secrets.sh --apply` | No (SSM estándar y pares de llaves) |
 | 3. Estimación | `bash infra/bootstrap-servers.sh` y `--prices` | No (solo lectura) |
 | 4. Servidores | `bash infra/bootstrap-servers.sh --apply --approve ci,nexus` (o uno solo) | **Sí**: EC2, EBS e IPv4 pública |
-| 5. Herramientas | `bash infra/bootstrap-{jenkins,sonarqube,nexus}.sh --apply` | Horas de instancia |
-| 6. Ambientes | Ninguno en HU-01: aislamiento por red (paso 1) | No |
+| 5. Herramientas | `bash infra/bootstrap-{jenkins,sonarqube,nexus,registry}.sh --apply` (en ese orden) | Horas de instancia |
+| 6. Ambientes | Por pares: `bootstrap-servers.sh --apply --approve env-dev,env-stage` y `bootstrap-env.sh dev --apply` (y `stage`), o todo con `test-isolation.sh --apply` | **Sí** (`t3.small`) |
 | 7. Verificación | `bash infra/verify-infra.sh` | Horas de instancia |
 | 8. Acceso administrativo | `bash infra/tunnel.sh jenkins` (o `sonarqube`, `nexus`) y abrir `http://localhost:8080` | Horas de instancia |
 
 **Comando único** (reconstrucción desde cero, después de aprobar el costo):
 ```bash
-bash infra/bootstrap-all.sh --plan                       # recorrido completo sin cambios + costo estimado
-bash infra/bootstrap-all.sh --apply --approve all        # FACTURABLE: construye o converge ci y nexus
+bash infra/bootstrap-all.sh --plan                          # recorrido completo sin cambios + costo estimado
+bash infra/bootstrap-all.sh --apply --approve ci,nexus      # FACTURABLE: Jenkins, SonarQube y registro
 ```
-Con `--approve ci` solo se crea o inicia ese servidor, y los pasos de Nexus se omiten.
+- **Qué construye o converge:** red, secretos, servidores, Jenkins, SonarQube, Nexus y el registro.
+- **Ambientes:** sus servidores se encienden por pares, porque la cuota (`QUOTA_VCPU_LIMIT`) no
+  admite los cinco a la vez. Por eso `--approve all` se rechaza antes de llamar a AWS mientras la
+  cuota sea de 5 vCPU.
+- **Un solo servidor:** con `--approve ci`, los pasos del servidor `nexus` se omiten.
 
 **Parada automática.** Cada servidor se apaga solo (`shutdown --poweroff`) `AUTO_STOP_HOURS` (4)
 horas después de arrancar: la instancia queda **detenida**, con su disco EBS conservado, nunca
@@ -359,20 +392,203 @@ la infraestructura (en CloudShell, con su propia autorización).
 
 ## Idempotencia: cómo demostrarla
 
+Prueba automatizada (FACTURABLE: inicia los servidores unos 40 minutos y **siempre** los detiene
+al final, también si algo falla):
 ```bash
-bash infra/bootstrap-all.sh --apply --approve all 2>&1 | tee /tmp/run1.log
-bash infra/verify-infra.sh --snapshot > /tmp/snap1.txt
-bash infra/bootstrap-all.sh --apply --approve all 2>&1 | tee /tmp/run2.log   # debe terminar con created=0 updated=0
-bash infra/verify-infra.sh --snapshot > /tmp/snap2.txt
-diff /tmp/snap1.txt /tmp/snap2.txt && echo "estado idéntico"
+bash infra/aws-session.sh login operator                    # la ventana del rol de operación dura 1 h
+bash infra/test-idempotency.sh                              # --plan: describe los pasos, sin AWS
+bash infra/test-idempotency.sh --apply --approve ci,nexus   # pide escribir 'PROBAR IDEMPOTENCIA'
 ```
-El *snapshot* lista VPC, subredes, rutas, reglas de seguridad, llaves, nombres y versiones de los
-parámetros SSM (sin valores), instancias, hashes de los archivos desplegados y los contenedores
-con su ID y su fecha de creación. Mientras el EULA de Nexus siga pendiente, cada ejecución termina
-también con `planned=1`: es la acción que espera esa decisión, no un cambio. Si las instancias están
-detenidas, la primera ejecución las **inicia** (facturable). El procedimiento completo, con la
-instantánea inicial, la parada final, el resultado esperado y el coste, está en la
+Hace S0 → `bootstrap-all.sh` → S1 → `bootstrap-all.sh` → S2 → `verify-infra.sh --registry` y deja
+en `~/.circleguard/idempotency/<marca UTC>/` los *snapshots*, las salidas, los `diff`,
+`report.txt` y `masked/` (copias sin número de cuenta, IP públicas ni hashes de archivos
+secretos, listas para las evidencias). Criterios:
+
+| Comprobación | Esperado |
+|---|---|
+| `diff S1 S2` | Vacío |
+| `SUMMARY` de la 2.ª ejecución | `created=0 updated=0` y ninguna línea `CREATED` ni `UPDATED` |
+| Persistencia en la 1.ª ejecución | Contraseñas gestionadas todavía válidas; el contenedor de Jenkins es anterior a la prueba |
+| `S0 → S1` | Sin cambios en la red ni en las llaves (salvo la regla del 22 si cambió la IP del operador) |
+
+El *snapshot* lista:
+- VPC, subredes, rutas, reglas de seguridad y llaves;
+- nombres y versiones de los parámetros SSM, sin valores;
+- instancias;
+- hashes de los archivos desplegados y de la configuración del host (`daemon.json`, temporizador,
+  `sysctl` y swap);
+- contenedores, con su ID y su fecha de creación.
+
+Mientras el EULA de Nexus siga pendiente, cada ejecución termina con `planned=1`: es la acción que
+espera esa decisión, no un cambio. La primera ejecución tras los cambios del 2026-11-03 también:
+- crea el secreto del registro;
+- despliega el registro;
+- recrea Nexus una vez para mover su conector al puerto de reserva;
+- reinicia Docker una vez en cada host por el nuevo `daemon.json`.
+
+La segunda debe quedar sin cambios. Procedimiento manual equivalente:
 [evidencia 15](../docs/evidencias/hu-01/15-procedimiento-idempotencia-aws.md).
+
+## Ambientes dev, stage y prod (servidores por pares)
+
+**Decisión (2026-11-03):** un servidor `t3.small` (2 vCPU, 2 GiB, 10 GiB gp3 cifrado) por ambiente.
+Cada uno tiene su subred, su grupo de seguridad, su llave SSH y un `.env` solo con las
+credenciales de su ambiente. `bootstrap-env.sh` prepara cada host: Docker, Compose, parada
+automática y swap. Ni la red ni IAM cambian.
+
+**Estado:** preparado y probado en local; **los servidores aún no existen** (crearlos requiere
+autorización).
+
+**Alternativas evaluadas:**
+
+| Alternativa | Aislamiento | vCPU | Coste | Decisión |
+|---|---|---|---|---|
+| 3 × `t3.small`, probados por pares | Real: host, subred, grupo de seguridad y credenciales propios, verificado con tráfico | 2 a la vez por par; cabe en la cuota de 5 | ≈ 0.08 USD/día de EBS + céntimos por sesión | **Elegida** |
+| 3 × `m7i-flex.large` (8 GiB, capaces de ejecutar los servicios núcleo) | Real | 10 a la vez; la cuota de 5 no lo permite | 0.30 USD/h encendidos + EBS | Descartada en HU-01: cuota inexistente y riesgo de presupuesto |
+| Un host compartido con tres proyectos Compose | Débil: mismo núcleo, subred y grupo de seguridad | 2 | Bajo | Descartada: no cumple el aislamiento por red |
+| Solo red, sin servidores | Configurado, sin tráfico | 0 | 0 | Descartada: no demuestra ambientes desplegados |
+
+**Conflicto que se documenta:** el enunciado (p. 4, «Alcance de despliegue en la Parte 1») pide
+desplegar los servicios núcleo y su middleware en los tres ambientes. Un `t3.small` (2 GiB) no
+basta para eso, y tres `m7i-flex.large` encendidos necesitan una cuota de 10 vCPU que la cuenta no
+tiene. HU-01 entrega los tres ambientes **aislados y aprovisionados**. El despliegue de las
+aplicaciones (E1.5) exigirá ampliar la cuota y el tamaño. Ese requisito **no puede demostrarse
+dentro de HU-01**.
+
+**Prueba de aislamiento con tráfico** (FACTURABLE, ≈ 0.15 USD más el EBS de los ambientes):
+```bash
+bash infra/test-isolation.sh                          # --plan: fases y costo, sin AWS
+bash infra/aws-session.sh login operator              # ventana MFA de 1 h
+bash infra/test-isolation.sh --apply --phases=1,2,3   # pide 'PROBAR AISLAMIENTO'; detiene todo al terminar
+bash infra/aws-session.sh login operator              # nueva ventana
+bash infra/test-isolation.sh --apply --phases=4,5
+```
+Cada fase dura 10-15 minutos. Las cinco no caben en una ventana MFA de 1 h, y el script aborta,
+deteniendo las instancias, a los 50 minutos.
+
+| Fase | Servidores | Comprobaciones con `nc` desde los hosts |
+|---|---|---|
+| 1 | `env-dev` + `env-stage` | dev ↔ stage **bloqueado** en ambos sentidos; Docker, parada automática, swap y `.env` 0600 del ambiente |
+| 2 | `env-dev` + `env-prod` | dev ↔ prod **bloqueado** |
+| 3 | `env-stage` + `env-prod` | stage ↔ prod **bloqueado** |
+| 4 | `ci` + `env-dev` | `ci → env:22` **permitido** (despliegue); `env → ci:8080` y `env → ci:9000` **bloqueados** |
+| 5 | `nexus` + `env-dev` | `env → nexus:8082` **permitido** (registro); `nexus → env:22` **bloqueado** |
+
+La fase 5 necesita el registro desplegado: ejecute antes `test-idempotency.sh`. Los resultados
+quedan en `~/.circleguard/isolation/<marca UTC>/` con copias enmascaradas en `masked/`.
+
+**Con una cuota de 10 vCPU** (si AWS aprueba el aumento): suba `QUOTA_VCPU_LIMIT` y podrá encender
+todos los servidores a la vez con `bootstrap-all.sh --apply --approve all`.
+
+## Integración de Jenkins con el registro
+
+- **Imagen de Jenkins:** incluye `crane` (go-containerregistry v0.22.1, Apache 2.0), verificado
+  con el sha256 publicado. Con él, Jenkins publica y descarga imágenes **sin el socket de Docker
+  del host**, que le daría control de root sobre el servidor.
+- **Configuración del contenedor:** `bootstrap-jenkins.sh` le pasa por su `.env` (0600 root):
+  - `REGISTRY_ADDRESS`: IP privada de `nexus` y el 8082;
+  - `REGISTRY_CI_USER`: `ci`;
+  - `REGISTRY_CI_PASSWORD`: tomado de SSM.
+- **Prueba:** `verify-infra.sh --registry` entra en `cg-jenkins` y, con esas variables:
+  1. inicia sesión con una configuración temporal;
+  2. copia `busybox:1.37.0` al registro (`circleguard/smoke-jenkins:1.37.0`);
+  3. la descarga;
+  4. comprueba que el digest coincide con el de origen.
+- **TLS:** `crane --insecure` cifra el tráfico sin verificar el certificado autofirmado. Es el
+  mismo criterio que `insecure-registries`.
+- **E1.4:** el *pipeline* usará estas variables (o una credencial de Jenkins creada a partir de
+  ellas) para publicar en `REGISTRY_ADDRESS/circleguard/<servicio>:<versión>`.
+
+## Rotación de la contraseña del registro
+
+```bash
+bash infra/rotate-registry-password.sh                 # --plan: pasos, sin cambios
+bash infra/rotate-registry-password.sh --apply         # pide 'ROTAR REGISTRO'
+```
+1. Guarda en memoria el valor actual, sin mostrarlo.
+2. Escribe un valor nuevo en SSM (nueva versión del parámetro).
+3. `bootstrap-registry.sh --apply`: reescribe el usuario `ci` y reinicia el registro.
+4. `bootstrap-jenkins.sh --apply`: recrea el contenedor de Jenkins con la contraseña nueva;
+   `jenkins_home` se conserva.
+5. Comprueba que la nueva autentica (HTTP 200) y la anterior no (401), y ejecuta
+   `verify-infra.sh --registry`.
+
+**Requisitos:** el servidor `nexus` en ejecución; si `ci` está detenido, Jenkins recibe la
+contraseña en su siguiente *bootstrap*.
+
+**Efectos:** el registro y Jenkins se reinician; un *build* en curso se interrumpiría.
+
+**Recuperación:** si falla la actualización del registro, el script restaura automáticamente el
+valor anterior y vuelve a converger el registro. Si falla Jenkins, se repite
+`bash infra/bootstrap-jenkins.sh --apply`. SSM guarda las versiones anteriores del parámetro.
+
+## Proyección de costos de HU-01 (2026-11-03, estimación)
+
+| Concepto | Coste estimado (USD) |
+|---|---|
+| Acumulado hasta el 2026-11-03 (sesión del 2026-11-02 y EBS desde entonces) | ≈ 0.18 |
+| Prueba de idempotencia (`ci` + `nexus`, 1 h como máximo) | ≤ 0.21 |
+| Prueba de aislamiento (5 fases de 15-20 min) | ≈ 0.15 |
+| Ensayo de reconstrucción, nivel 1 | ≤ 0.21 |
+| Dos sesiones de demostración de 3 h (`ci` + `nexus`) | ≈ 1.25 |
+| EBS hasta el 2026-11-22: 55 GiB (`ci`, `nexus`) + 30 GiB (ambientes) | ≈ 2.75 + 1.50 |
+| Reserva de transferencia de salida (3 GB) | 0.27 |
+| **Total previsto hasta el 2026-11-22** | **≈ 6.5** (margen ≈ 8.5 frente a 15; ≈ 5.5 frente a la línea operativa de 12) |
+
+**Coste de permanencia:**
+- Con todo detenido: ≈ 0.22 USD/día (85 GiB de EBS).
+- Encendidos: `ci` + `nexus` cuestan 0.2075 USD/h y cada ambiente 0.0258 USD/h.
+
+Tras la evaluación hay que destruir la infraestructura (instrucción 4 del enunciado). Son
+estimaciones con precios de referencia: la factura real se consulta en Billing y llega con retraso.
+
+## Ensayo de reconstrucción desde cero
+
+**Estado:** preparado, **no ejecutado**. Una persona del equipo que no participó en el despliegue
+lo sigue usando solo este README. Instrucciones paso a paso para esa persona, con la evidencia
+que debe entregar y los criterios de PASS:
+[docs/evidencias/hu-01/ensayo-reconstruccion/](../docs/evidencias/hu-01/ensayo-reconstruccion/README.md).
+Hay dos niveles:
+
+**Nivel 1 · Otra estación de trabajo, sin destruir nada** (≈ 0.12-0.21 USD). Demuestra que la
+documentación basta y que las llaves SSH se recuperan de su copia en SSM.
+1. Clonar el repositorio en el sistema de archivos de WSL, con `~/.circleguard` y
+   `~/.ssh/circleguard` inexistentes.
+2. `bash infra/check-prerequisites.sh`: debe terminar con `fail=0`.
+3. [Puesta en marcha](#puesta-en-marcha): `aws-session.sh init` y `login operator`. El único
+   usuario operador tiene la MFA del responsable de la cuenta, así que el responsable escribe sus
+   credenciales en la página de AWS.
+4. `bash infra/bootstrap-secrets.sh --apply`: restaura las llaves desde SSM (`UPDATED`) sin crear
+   secretos, salvo el del registro si aún no existe.
+5. `bash infra/bootstrap-all.sh --plan`: revisar el costo.
+6. `bash infra/test-idempotency.sh --apply --approve ci,nexus`. Es también la prueba de
+   idempotencia de C3, así que no hace falta repetirla.
+
+**Nivel 2 · Destrucción y reconstrucción reales** (exige autorización: **se pierden** los datos de
+Jenkins, SonarQube, Nexus y el registro).
+1. En CloudShell: `bash infra/teardown-cloudshell.sh --apply`, **sin** `--purge-secrets` para
+   conservar los secretos. Ver [Detener o destruir](#detener-o-destruir).
+2. En la estación de trabajo, `bash infra/bootstrap-all.sh --apply --approve ci,nexus`. Crea la
+   red, reimporta las llaves, crea las instancias y despliega las herramientas. Después,
+   `bash infra/test-isolation.sh --apply` crea y prueba los ambientes por pares.
+3. `bash infra/verify-infra.sh` y `bash infra/verify-infra.sh --registry --roles=ci,nexus`.
+4. Una segunda ejecución de `bootstrap-all.sh` (o `test-idempotency.sh`) debe terminar sin cambios.
+5. Parada.
+
+El registro local de costos de la estación de trabajo no ve la destrucción hecha en CloudShell:
+su estimación queda por encima del costo real, que se consulta en Billing.
+
+**Pasos que requieren intervención humana, y por qué** (todo lo demás lo hacen los scripts):
+
+| Paso | Frecuencia | Por qué no se automatiza |
+|---|---|---|
+| MFA de la cuenta raíz y creación de IAM (`bootstrap-iam.sh --apply --approve iam`) | Una vez por cuenta | Requiere la identidad administrativa, que los roles de HU-01 no tienen por diseño |
+| Contraseña de consola y MFA de los usuarios del operador y de teardown | Una vez por persona | Credenciales personales: nunca pasan por un script |
+| `aws-session.sh login operator` y, si hace falta, `unlock` (código MFA) | Cada sesión | Credenciales temporales con MFA; ningún script recibe contraseñas ni códigos |
+| `--approve <rol>` y las frases `DETENER`, `DESTRUIR circleguard`, `PROBAR IDEMPOTENCIA`, `PROBAR AISLAMIENTO` y `ROTAR REGISTRO` | Cada operación facturable, destructiva o disruptiva | Control humano del costo, de la pérdida de datos y de los reinicios |
+| Lectura de la cuota de vCPU (`aws-session.sh login bootstrap` y `bootstrap-quota.sh`) | Antes de cambiar `QUOTA_VCPU_LIMIT` | Solo la identidad administrativa puede leer Service Quotas |
+| `NEXUS_ACCEPT_EULA`, `REGISTRY_BACKEND`, `ENV_SERVERS`, presupuesto y cuota | Cuando el equipo decida | Decisiones contractuales y económicas |
+| Destrucción en CloudShell con el usuario de teardown | Al cerrar la evaluación | Separación de identidades: el operador no puede destruir |
 
 ## Verificación
 
@@ -380,10 +596,12 @@ instantánea inicial, la parada final, el resultado esperado y el coste, está e
 bash infra/verify-infra.sh                  # --health --isolation --credentials
 bash infra/verify-infra.sh --health --roles=ci,nexus   # solo los servidores encendidos
 bash infra/verify-infra.sh --isolation      # flujos entre servidores probados con nc desde los hosts
+bash infra/verify-infra.sh --registry --roles=ci,nexus   # publica y descarga una imagen desde ci
 ```
-Solo lectura. Termina con código 1 si alguna comprobación falla. Además de `PASS` y `FAIL`
-informa `PENDING` para lo que espera una decisión o servidores que HU-01 no crea, sin contarlo
-como superado:
+No cambia la infraestructura; `--registry` solo escribe en el registro una imagen de prueba fija
+(`circleguard/smoke-busybox:1.37.0`), con una configuración de Docker temporal que se borra al
+terminar. Termina con código 1 si alguna comprobación falla. Además de `PASS` y `FAIL` informa
+`PENDING` para lo que espera una decisión o servidores que no existen, sin contarlo como superado:
 - el EULA de Nexus pendiente (y que su conector Docker no está publicado);
 - el aislamiento de `dev`, `stage` y `prod`: se comprueba en la configuración (subred propia,
   grupo de seguridad propio, ninguna regla entre ambientes, solo referencias a `ci` y `nexus`),
@@ -435,7 +653,9 @@ y de OneDrive). Docker Desktop tiene unos 7.4 GiB: **valide una herramienta a la
 bash infra/bootstrap-secrets.sh --target local --apply
 bash infra/bootstrap-jenkins.sh --target local --apply      # http://localhost:8080
 bash infra/bootstrap-sonarqube.sh --target local --apply    # http://localhost:9000
-bash infra/bootstrap-nexus.sh --target local --apply        # http://localhost:8081 (registro en localhost:5000)
+bash infra/bootstrap-nexus.sh --target local --apply        # http://localhost:8081
+bash infra/bootstrap-registry.sh --target local --apply     # registro en https://localhost:5000 (usuario ci)
+bash infra/verify-infra.sh --target local --registry         # publica y descarga una imagen de prueba
 bash infra/verify-infra.sh --target local
 bash infra/teardown.sh --target local --stop --apply        # nunca borra volúmenes
 ```
@@ -479,16 +699,18 @@ set -a; . "$HOME/.circleguard/dev.env"; . "$HOME/.circleguard/dev-app.env"; set 
 | `ci`: Jenkins | 8080/tcp | Escucha **solo en 127.0.0.1** del host: se accede con `tunnel.sh jenkins` |
 | `ci`: SonarQube | 9000/tcp | Escucha **solo en 127.0.0.1** del host (comparte servidor con Jenkins): `tunnel.sh sonarqube`. Ninguna regla de red |
 | `nexus` | 8081/tcp (UI/API) | `ci` por la red privada. Administración con `tunnel.sh nexus` |
-| `nexus` | 8082/tcp (registro Docker) | `ci` y los grupos de dev, stage y prod por la red privada. Sin publicar mientras el EULA esté pendiente |
+| `nexus` | 8082/tcp (registro Docker) | `ci` y los grupos de dev, stage y prod por la red privada. Con `REGISTRY_BACKEND=distribution`, CNCF Distribution con TLS (certificado autofirmado) y el usuario `ci`; los clientes Docker de la VPC confían en él mediante `insecure-registries` limitado a la subred `tools` |
 | salida de todos | 80, 443/tcp | Paquetes, imágenes y plugins |
 
 **Ninguna interfaz HTTP está abierta a Internet**, ni siquiera para la IP del operador. El tráfico
 administrativo viaja cifrado dentro del túnel SSH, así que no hace falta TLS para la administración
 en la Parte 1. TLS para los servicios expuestos corresponde a E2.6.
 
-Volúmenes Docker: `circleguard-jenkins_jenkins_home`, `circleguard-sonarqube_{sonarqube_data,sonarqube_extensions,sonarqube_logs,sonar_db_data}`
-y `circleguard-nexus_nexus-data`. En EC2 viven en el EBS cifrado de `ci` (Jenkins y SonarQube) y
-de `nexus`. La parada automática y `teardown.sh --stop` conservan los volúmenes.
+Volúmenes Docker: `circleguard-jenkins_jenkins_home`,
+`circleguard-sonarqube_{sonarqube_data,sonarqube_extensions,sonarqube_logs,sonar_db_data}`,
+`circleguard-nexus_nexus-data` y `circleguard-registry_registry-data`. En EC2 viven en el EBS
+cifrado de `ci` (Jenkins y SonarQube) y de `nexus` (Nexus y registro). La parada automática y
+`teardown.sh --stop` conservan los volúmenes.
 
 ## Solución de problemas
 
@@ -505,7 +727,9 @@ de `nexus`. La parada automática y `teardown.sh --stop` conservan los volúmene
 | Aviso «parada automatica en 5 minutos» | Para seguir: `sudo shutdown -c && sudo systemctl restart circleguard-autostop.timer`. Solo `shutdown -c` deja el servidor sin parada programada |
 | `parada automática programada ... (esperado 'waiting', obtenido 'elapsed')` | El temporizador venció (por ejemplo, tras `shutdown -c`): `sudo systemctl restart circleguard-autostop.timer`, o vuelva a ejecutar el *bootstrap* de la herramienta |
 | El puerto 5432 está ocupado en Windows | Un PostgreSQL nativo usa ese puerto: el middleware local no puede publicar 5432 mientras siga activo. Deténgalo (es su decisión) o use otra máquina. Los scripts nunca lo tocan |
-| El puerto 8082 está ocupado en Windows | En local, Nexus publica su registro en 5000 (`LOCAL_NEXUS_DOCKER_HOST_PORT`) |
+| El puerto 8082 está ocupado en Windows | En local, el registro se publica en 5000 (`LOCAL_NEXUS_DOCKER_HOST_PORT`) |
+| `el puerto 8082 lo publica cg-nexus` (registro) | Nexus aún tiene el conector en el 8082: ejecute antes `bootstrap-nexus.sh --apply` (con `REGISTRY_BACKEND=distribution` lo mueve a `127.0.0.1:18082`). `bootstrap-all.sh` ya lo hace en ese orden |
+| `http: server gave HTTP response to HTTPS client` o `x509` al publicar en el registro | El cliente Docker no tiene la subred `tools` en `insecure-registries`: vuelva a ejecutar el *bootstrap* de ese host (escribe `/etc/docker/daemon.json`) |
 | `error getting credentials` al descargar imágenes desde WSL | Es el asistente de credenciales de Docker Desktop: descargue la imagen desde PowerShell o Git Bash (`docker pull <imagen>`) y repita |
 | Aviso `the attribute version is obsolete` | Es un aviso inocuo de Compose v2 sobre `docker-compose.dev.yml` |
 | Los scripts fallan con `$'\r'` | Saltos de línea CRLF: `.gitattributes` fuerza LF. Vuelva a obtener los archivos (`git checkout -- infra`) |
@@ -520,6 +744,16 @@ de `nexus`. La parada automática y `teardown.sh --stop` conservan los volúmene
   de GitHub (E1.4) exigirá TLS o un relé, y queda fuera de HU-01.
 - Los `.env` de los hosts (`0600 root`) y las variables de los contenedores son visibles para
   root en el host (`docker inspect`). Es un riesgo aceptado para la Parte 1.
+- **Registro (CNCF Distribution):**
+  - TLS **sin autenticación del servidor**: el certificado es autofirmado y los clientes de la
+    VPC no lo verifican.
+  - Todo usuario autenticado puede publicar; solo existe `ci`.
+  - La contraseña de `ci` llega a Jenkins como variable de entorno del contenedor (desde su `.env`
+    0600 root). Root en el host la ve con `docker inspect`, y los futuros *jobs* del controlador
+    podrían leerla. E1.4 debería pasarla a una credencial de Jenkins, que la enmascara en los logs.
+  - Las etiquetas no son inmutables: el *pipeline* no debe reutilizarlas.
+  - El htpasswd se genera en el host desde stdin, con bcrypt.
+  - Detalle y mejoras en [registro-artefactos.md](../docs/arquitectura/registro-artefactos.md).
 - **Riesgo residual:** las migraciones Flyway `V2`/`V3` de auth-service crean usuarios de prueba
   con una contraseña conocida y la revelan en un comentario. No se modifican (decisión X-2); queda
   para E2.6.

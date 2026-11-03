@@ -1,0 +1,32 @@
+# CNCF Distribution 3.0 configuration of the CircleGuard registry (HU-01). Nothing secret: the
+# htpasswd users and the TLS files are generated on the host by prepare.sh.
+version: 0.1
+log:
+  level: info
+  fields:
+    service: circleguard-registry
+storage:
+  filesystem:
+    rootdirectory: /var/lib/registry
+  delete:
+    enabled: false
+  cache:
+    blobdescriptor: inmemory
+http:
+  addr: :5000
+  tls:
+    certificate: /tls/registry.crt
+    key: /tls/registry.key
+  debug:
+    addr: 127.0.0.1:5001
+  headers:
+    X-Content-Type-Options: [nosniff]
+auth:
+  htpasswd:
+    realm: circleguard-registry
+    path: /auth/htpasswd
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3

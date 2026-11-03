@@ -75,7 +75,8 @@ for mode in "${MODES[@]}"; do
       ACTIVE=$(grep -c '^  ACTIVO' "$REPORTS/$STAMP-worktree-summary.txt" || true)
       ;;
     --history)
-      info "historial: $(git -C "$REPO_DIR" rev-list --all --count) commits (solo lectura; no se reescribe)"
+      # cd + git (not git -C): a native git.exe in Git Bash does not resolve /c/... paths.
+      info "historial: $(cd "$REPO_DIR" && git rev-list --all --count) commits (solo lectura; no se reescribe)"
       gitleaks "$REPO_DIR" git "$STAMP-history.json"
       summarize "$REPORTS/$STAMP-history.json" history | tee "$REPORTS/$STAMP-history-summary.txt" >&2
       ;;

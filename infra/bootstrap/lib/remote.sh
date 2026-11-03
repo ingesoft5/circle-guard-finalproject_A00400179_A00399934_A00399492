@@ -6,6 +6,8 @@
 # Requires common.sh and aws.sh.
 
 cg_target_preflight() {
+  [[ -z "${CG_TARGET_READY:-}" ]] || return 0
+  CG_TARGET_READY=1
   if [[ "$CG_TARGET" == local ]]; then
     require_cmd docker python3 curl sha256sum
     docker info >/dev/null 2>&1 || die "Docker no está disponible en este entorno."
@@ -168,9 +170,10 @@ cg_sync_secret() {
 # cg_tool_bootstrap <tool>: shared flow of bootstrap-jenkins/sonarqube/nexus.sh, on the server
 # that runs the tool (cg_tool_host: Jenkins and SonarQube share "ci").
 # The caller defines TOOL_FILES (relative to infra/bootstrap/<tool>/), TOOL_ENV (non-secret
-# KEY=VALUE lines) and TOOL_SECRETS (names in the tools/<tool> scope).
+# KEY=VALUE lines), TOOL_SECRETS (names in the tools/<tool> scope) and, optionally,
+# TOOL_SHARED_SECRETS ("<scope> <NAME>" entries of other scopes, e.g. the registry user for Jenkins).
 cg_tool_bootstrap() {
-  local tool=$1 src="$INFRA_DIR/bootstrap/$1" project="circleguard-$1" host dir f env_content before after
+  local tool=$1 src="$INFRA_DIR/bootstrap/$1" project="circleguard-$1" host dir f entry env_content before after
   host=$(cg_tool_host "$tool")
   cg_target_preflight
   if ! cg_resolve_host "$host"; then
@@ -180,7 +183,7 @@ cg_tool_bootstrap() {
   if [[ "$CG_TARGET" == local ]]; then HOST_ROLE=$tool; elif [[ "$host" != "$tool" ]]; then HOST_ROLE="$host/$tool"; fi
   if [[ "$CG_TARGET" == aws ]]; then
     cg_wait_ssh
-    cg_run_on_host "$INFRA_DIR/bootstrap/host/setup-docker.sh" "$tool" "$CG_MODE" "$AUTO_STOP_HOURS" "$SWAP_GB"
+    cg_run_on_host "$INFRA_DIR/bootstrap/host/setup-docker.sh" "$tool" "$CG_MODE" "$AUTO_STOP_HOURS" "$SWAP_GB" "$SUBNET_TOOLS_CIDR"
   fi
 
   dir=$(cg_stack_dir "$tool")
@@ -189,9 +192,15 @@ cg_tool_bootstrap() {
   env_content=$({
     printf '%s\n' "${TOOL_ENV[@]}"
     cg_render_env "tools/$tool" "${TOOL_SECRETS[@]}"
+    for entry in ${TOOL_SHARED_SECRETS[@]+"${TOOL_SHARED_SECRETS[@]}"}; do
+      # shellcheck disable=SC2086 # "<scope> <NAME>" splits into the two arguments
+      cg_render_env $entry
+    done
   } | sort)
   cg_sync_secret "$dir/.env" <<<"$env_content"
   env_content=""
+  # Host files the containers need before they start (registry: TLS certificate and users).
+  if [[ -f "$src/prepare.sh" ]]; then cg_run_on_host "$src/prepare.sh" "$dir" "$CG_MODE"; fi
 
   before=$(cg_root "docker ps -a --filter label=com.docker.compose.project=$project --format '{{.Names}}={{.ID}}={{.State}}' | sort")
   if is_apply; then

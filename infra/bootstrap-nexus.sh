@@ -4,6 +4,8 @@
 # API: managed admin password, anonymous access off, Docker Bearer Token realm and the Docker
 # hosted repository "circleguard-docker". The last three wait for the team's decision on the
 # Community Edition EULA (NEXUS_ACCEPT_EULA): until then Nexus runs, but is reported as pending.
+# With REGISTRY_BACKEND=distribution the registry port belongs to CNCF Distribution
+# (infra/bootstrap-registry.sh) and the unused Nexus connector only listens on a loopback port.
 # Idempotent. It does not create AWS resources.
 
 # shellcheck source=bootstrap/lib/common.sh
@@ -30,6 +32,8 @@ if [[ "$CG_TARGET" == local ]]; then
 else
   BIND=0.0.0.0 RESTART=unless-stopped DOCKER_HOST_PORT=$NEXUS_DOCKER_PORT
 fi
+DOCKER_BIND=$BIND
+if [[ "$REGISTRY_BACKEND" == distribution ]]; then DOCKER_BIND=127.0.0.1 DOCKER_HOST_PORT=$NEXUS_DOCKER_STANDBY_PORT; fi
 # TOOL_* are read by cg_tool_bootstrap (bootstrap/lib/remote.sh).
 # shellcheck disable=SC2034
 TOOL_FILES=(docker-compose.yml repositories/circleguard-docker.json)
@@ -41,6 +45,7 @@ TOOL_ENV=(
   "RESTART_POLICY=$RESTART"
   "NEXUS_HTTP_PORT=$NEXUS_HTTP_PORT"
   "NEXUS_DOCKER_PORT=$NEXUS_DOCKER_PORT"
+  "NEXUS_DOCKER_BIND=$DOCKER_BIND"
   "NEXUS_DOCKER_HOST_PORT=$DOCKER_HOST_PORT"
   "NEXUS_ACCEPT_EULA=$NEXUS_ACCEPT_EULA"
 )

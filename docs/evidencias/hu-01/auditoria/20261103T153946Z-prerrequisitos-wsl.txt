@@ -1,0 +1,25 @@
+# infra/check-prerequisites.sh en la estación de trabajo del responsable (WSL Ubuntu 24.04) · 2026-11-03 15:39-16:06 UTC
+# Sin llamadas a AWS. Hallazgo: git status sobre la carpeta de OneDrive (/mnt/c) tardó 26 min. Tras esta ejecución, el script
+# y test-idempotency.sh limitan esa comprobación a 90 s y a los archivos versionados, y la hacen antes de usar la ventana MFA.
+
+15:39:46 PASS      Bash 5.2.21 (se requiere 4 o superior)
+15:39:46 PASS      plataforma: WSL (Ubuntu 24.04.3 LTS)
+15:39:46 PASS      herramienta: ssh
+15:39:46 PASS      herramienta: ssh-keygen
+15:39:46 PASS      herramienta: curl
+15:39:46 PASS      herramienta: python3
+15:39:47 PASS      herramienta: tar
+15:39:47 PASS      herramienta: git
+15:39:47 PASS      herramienta: sha256sum
+15:39:47 PASS      herramienta: openssl
+15:39:48 PASS      AWS CLI aws-cli/2.39.3
+15:40:00 PASS      Docker 29.2.0 (Gitleaks y --target local)
+15:40:01 PASS      repositorio: rama HU01_Infraestructura_nube_bash, commit 889ce09
+16:06:11 WARN      árbol de trabajo con cambios sin confirmar: el ensayo debe hacerse sobre un commit
+16:06:11 PASS      scripts con finales de línea LF
+16:06:12 PASS      sin infra/config/operator.local.env: ADMIN_CIDRS será la IP pública actual (/32)
+16:06:12 PASS      configuración: región us-east-2/us-east-2a, REGISTRY_BACKEND=distribution, ENV_SERVERS=dev,stage,prod, QUOTA_VCPU_LIMIT=5
+16:06:12 PASS      secretos y sesiones locales fuera de OneDrive (~/.circleguard)
+16:06:12 INFO      sesiones AWS: ~/.circleguard/aws existe (ejecute infra/aws-session.sh status)
+16:06:12 INFO      llaves SSH locales: 4 de 4 en ~/.ssh/circleguard (bootstrap-secrets.sh --apply restaura las que falten desde SSM)
+16:06:12 SUMMARY   check-prerequisites pass=17 warn=1 fail=0
