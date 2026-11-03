@@ -1,0 +1,62 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/bootstrap-sonarqube-20261102T192956Z.log · sha256 5f4673100f41fccdf43c32898366f5a3b06372a8beb8010fa985588cf17d3c41 · 3279 bytes · intacto (ignorado por Git)
+# Propósito: Paso 8: SonarQube y PostgreSQL (contraseña de fábrica sustituida, anónimo 401)
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+19:29:56 INFO      registro de la ejecución: infra/logs/bootstrap-sonarqube-20261102T192956Z.log (modo apply, destino aws)
+19:29:58 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793647628 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+19:30:05 INFO      SSH disponible en ci/sonarqube (i-010843f2125041114)
+19:30:07 UNCHANGED ci/sonarqube: Docker 29.9.2 y Compose 5.7.0 instalados
+19:30:07 UNCHANGED ci/sonarqube: /etc/docker/daemon.json con rotación de logs
+19:30:07 UNCHANGED ci/sonarqube: servicio docker habilitado y activo
+19:30:07 UNCHANGED ci/sonarqube: vm.max_map_count=1048576 (SonarQube requiere >= 524288)
+19:30:07 UNCHANGED ci/sonarqube: /opt/circleguard
+19:30:07 UNCHANGED ci/sonarqube: swap /swapfile activo (2 GiB)
+19:30:07 UNCHANGED ci/sonarqube: vm.swappiness=10
+19:30:07 UNCHANGED ci/sonarqube: parada automática programada (circleguard-autostop.timer en espera, 4 h desde su activación)
+19:30:10 CREATED   ci/sonarqube: /opt/circleguard/sonarqube/docker-compose.yml
+19:30:20 CREATED   ci/sonarqube: /opt/circleguard/sonarqube/.env (0600, contenido no mostrado)
+19:30:22 INFO      sonarqube: docker compose up -d --build
+ Image postgres:16.15 Pulling
+ Image sonarqube:26.10.0.133078-community Pulling
+ Image postgres:16.15 Pulled
+ Image sonarqube:26.10.0.133078-community Pulled
+ Volume circleguard-sonarqube_sonarqube_data Creating
+ Volume circleguard-sonarqube_sonarqube_extensions Creating
+ Volume circleguard-sonarqube_sonarqube_data Creating
+ Volume circleguard-sonarqube_sonarqube_extensions Creating
+ Volume circleguard-sonarqube_sonarqube_logs Creating
+ Volume circleguard-sonarqube_sonarqube_logs Creating
+ Network circleguard-sonarqube_default Creating
+ Network circleguard-sonarqube_default Creating
+ Volume circleguard-sonarqube_sonar_db_data Creating
+ Volume circleguard-sonarqube_sonar_db_data Creating
+ Volume circleguard-sonarqube_sonarqube_logs Created
+ Volume circleguard-sonarqube_sonarqube_logs Created
+ Volume circleguard-sonarqube_sonar_db_data Created
+ Volume circleguard-sonarqube_sonar_db_data Created
+ Volume circleguard-sonarqube_sonarqube_data Created
+ Volume circleguard-sonarqube_sonarqube_data Created
+ Volume circleguard-sonarqube_sonarqube_extensions Created
+ Volume circleguard-sonarqube_sonarqube_extensions Created
+ Network circleguard-sonarqube_default Created
+ Network circleguard-sonarqube_default Created
+ Container cg-sonarqube-db Creating
+ Container cg-sonarqube-db Created
+ Container cg-sonarqube Creating
+ Container cg-sonarqube Created
+ Container cg-sonarqube-db Starting
+ Container cg-sonarqube-db Started
+ Container cg-sonarqube-db Waiting
+ Container cg-sonarqube-db Healthy
+ Container cg-sonarqube Starting
+ Container cg-sonarqube Started
+19:31:03 CREATED   sonarqube: stack circleguard-sonarqube desplegado con Docker Compose
+19:32:16 UNCHANGED ci/sonarqube: SonarQube en estado UP con base de datos PostgreSQL persistente
+19:32:16 UPDATED   ci/sonarqube: contraseña de fábrica del administrador reemplazada por la gestionada
+19:32:16 UNCHANGED ci/sonarqube: acceso anónimo denegado (HTTP 401, sonar.forceAuthentication)
+19:32:16 SUMMARY   bootstrap-sonarqube created=3 updated=1 unchanged=10 planned=0

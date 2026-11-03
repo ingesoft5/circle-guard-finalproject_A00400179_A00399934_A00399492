@@ -138,6 +138,8 @@
   mensaje genérico de permisos. El rol tiene ese permiso por circleguard-hu01-reader (evidencias 06
   y 10): la declaración PreflightZoneCheck que se llegó a añadir a la plantilla se retiró, y
   hu01-teardown-policy.json vuelve a ser idéntica a la versión creada el 2026-11-01.
+  [Nota posterior, 2026-11-02, fase 4: el equipo decidió conservar la v2 desplegada, y la plantilla
+  volvió a incluir PreflightZoneCheck en la posición de la v2 (commit b18f27c); ver la evidencia 14.]
 
 ## L. Segunda ejecución en CloudShell (2026-11-02, equipo): peticiones de MFA repetidas
   El rol se asumió, se mostró la identidad y se consultó el inventario, pero la AWS CLI pidió el

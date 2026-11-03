@@ -1,0 +1,40 @@
+# Diagnóstico del paso 6a (2026-11-02): captura y decodificación del rechazo de RunInstances
+# Fuente: un único 'ec2 run-instances --dry-run' (18:21 UTC, rol de operación) con los argumentos
+#   de bootstrap-servers.sh, y 'sts decode-authorization-message' (18:28 UTC, raíz). Enmascarado.
+# Originales sin enmascarar (no se modifican; ignorados por Git): infra/logs/diag-6a-20261102/
+#   ci-dryrun.cmd     sha256 5da07d4e0c25389aad2b2852fe6dbbeee8feb7ce51359a6d5ba30561dbe1a81b
+#   ci-dryrun.stderr  sha256 04f7aa0e35046a8efbbe6dfe41f1c5606f044366c2ae1314ca71e9c8d53b7080
+#   decoded.json      sha256 0b04af707633f8a81f8a03836906c57e0063d75025daffcdff09acbe1aeeda73
+# Este archivo reúne los tres con el número de cuenta, el identificador único del rol y el mensaje
+#   codificado sustituidos, así que su hash no coincide con el de los originales.
+
+## Comando (argumentos generados por el propio script)
+aws --region us-east-2 ec2 run-instances --image-id ami-0fc53b217ec1ad816 --instance-type m7i-flex.large --key-name circleguard-tools --subnet-id subnet-06c029053f5dd52ab --security-group-ids sg-01221f89543bed1c7 --block-device-mappings DeviceName=/dev/sda1\,Ebs=\{VolumeSize=30\,VolumeType=gp3\,Encrypted=true\,DeleteOnTermination=true\} --metadata-options HttpTokens=required\,HttpEndpoint=enabled\,HttpPutResponseHopLimit=1 --instance-initiated-shutdown-behavior stop --tag-specifications ResourceType=instance\,Tags=\[\{Key=Name\,Value=circleguard-ci\}\,\{Key=Project\,Value=circleguard\}\,\{Key=Story\,Value=HU-01\}\,\{Key=ManagedBy\,Value=infra-bootstrap\}\,\{Key=Role\,Value=ci\}\,\{Key=Environment\,Value=tools\}\] ResourceType=volume\,Tags=\[\{Key=Name\,Value=circleguard-ci-root\}\,\{Key=Project\,Value=circleguard\}\,\{Key=Story\,Value=HU-01\}\,\{Key=ManagedBy\,Value=infra-bootstrap\}\,\{Key=Role\,Value=ci\}\,\{Key=Environment\,Value=tools\}\] --dry-run
+
+## Respuesta de AWS
+aws: [ERROR]: An error occurred (UnauthorizedOperation) when calling the RunInstances operation: You are not authorized to perform this operation. User: arn:aws:sts::************:assumed-role/circleguard-hu01-operator/botocore-session-1793641868 is not authorized to perform: ec2:RunInstances on resource: arn:aws:ec2:us-east-2::image/ami-0fc53b217ec1ad816 because no identity-based policy allows the ec2:RunInstances action. Encoded authorization failure message: <omitido>
+
+## Mensaje decodificado
+allowed=False explicitDeny=False matchedStatements=0
+principal=arn:aws:sts::************:assumed-role/circleguard-hu01-operator/botocore-session-1793641868
+action=RunInstances resource=arn:aws:ec2:us-east-2::image/ami-0fc53b217ec1ad816
+condiciones evaluadas:
+  aws:ARN = ['arn:aws:ec2:us-east-2::image/ami-0fc53b217ec1ad816']
+  aws:Account = ['[CUENTA AWS REDACTADA]']
+  aws:Region = ['us-east-2']
+  aws:Resource = ['image/ami-0fc53b217ec1ad816']
+  aws:Service = ['ec2']
+  aws:Type = ['image']
+  ec2:ImageID = ['ami-0fc53b217ec1ad816']
+  ec2:ImageType = ['machine']
+  ec2:IsLaunchTemplateResource = ['false']
+  ec2:Owner = ['amazon']
+  ec2:Public = ['true']
+  ec2:Region = ['us-east-2']
+  ec2:RootDeviceType = ['ebs']
+
+## Conclusión (confirmada)
+ec2:Owner se evalúa como 'amazon' (la AMI es de la cuenta [CUENTA AWS REDACTADA], Canonical), así que la
+condición {"ec2:Owner": "[CUENTA AWS REDACTADA]"} de RunOnlyCanonicalUbuntuImages nunca coincidía.
+Corrección: AMI fijada (AMI_ID) y RunOnlyPinnedUbuntuImage con ec2:ImageID (operador v3).
+

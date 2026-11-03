@@ -11,7 +11,9 @@ destruyen la plataforma de HU-01:
   pero no se ejercita con cargas reales (`verify-infra.sh` lo informa como `PENDING`).
 
 Arquitectura y reglas de red: [docs/arquitectura/infra-ambientes.md](../docs/arquitectura/infra-ambientes.md).
-Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md).
+Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md). Despliegue en AWS
+del 2026-11-02 (Jenkins, SonarQube y PostgreSQL validados; Nexus con el EULA pendiente; instancias
+detenidas después): [evidencia 14](../docs/evidencias/hu-01/14-despliegue-aws-fase4.md).
 
 > **Costos.** Crear o iniciar instancias consume créditos de AWS. Ningún script crea recursos
 > facturables sin `--apply --approve <rol>`. El modo por defecto, `--plan`, no cambia nada.
@@ -253,8 +255,10 @@ bash infra/bootstrap-all.sh --apply --approve all        # FACTURABLE: construye
 Con `--approve ci` solo se crea o inicia ese servidor, y los pasos de Nexus se omiten.
 
 **Parada automática.** Cada servidor se apaga solo (`shutdown --poweroff`) `AUTO_STOP_HOURS` (4)
-horas después de arrancar: la instancia queda **detenida**, con su disco y sus datos, nunca
-terminada. Al volver a iniciarla, Docker levanta los stacks solos. En el host:
+horas después de arrancar: la instancia queda **detenida**, con su disco EBS conservado, nunca
+terminada. Al volver a iniciarla, Docker debería levantar los stacks solos (`restart: unless-stopped`
+y volúmenes con nombre sobre el EBS). Esa recuperación tras un arranque **aún no se ha comprobado en
+AWS** ([evidencia 14](../docs/evidencias/hu-01/14-despliegue-aws-fase4.md), §9). En el host:
 
 | Situación | Comando |
 |---|---|
@@ -341,8 +345,10 @@ la infraestructura (en CloudShell, con su propia autorización).
     --filters Name=tag:Project,Values=circleguard Name=instance-state-name,Values=running \
     --query 'Reservations[].Instances[].InstanceId'
   ```
-- Si el costo real (consola de Billing) se acerca a los **15 USD** antes de terminar HU-01, se
-  detiene todo y se revisa con el equipo.
+- **Línea operativa de parada: 12 USD** (80 % del presupuesto absoluto de **15 USD**). No se inicia
+  ninguna sesión si el costo real (consola de Billing) más la sesión prevista (0.81 USD con ambas
+  durante 4 h) supera 12 USD: se detiene todo y se revisa con el equipo. La estimación local no es la
+  factura, y los créditos no eliminan el riesgo de costo.
 - Al finalizar la evaluación, destruya la infraestructura desde CloudShell (ver «Detener o
   destruir»), como pide el enunciado.
 - **Fuera de HU-01:** los servidores de ambiente (E1.5) necesitarán más vCPU que la cuota actual y
@@ -363,7 +369,10 @@ diff /tmp/snap1.txt /tmp/snap2.txt && echo "estado idéntico"
 El *snapshot* lista VPC, subredes, rutas, reglas de seguridad, llaves, nombres y versiones de los
 parámetros SSM (sin valores), instancias, hashes de los archivos desplegados y los contenedores
 con su ID y su fecha de creación. Mientras el EULA de Nexus siga pendiente, cada ejecución termina
-también con `planned=1`: es la acción que espera esa decisión, no un cambio.
+también con `planned=1`: es la acción que espera esa decisión, no un cambio. Si las instancias están
+detenidas, la primera ejecución las **inicia** (facturable). El procedimiento completo, con la
+instantánea inicial, la parada final, el resultado esperado y el coste, está en la
+[evidencia 15](../docs/evidencias/hu-01/15-procedimiento-idempotencia-aws.md).
 
 ## Verificación
 

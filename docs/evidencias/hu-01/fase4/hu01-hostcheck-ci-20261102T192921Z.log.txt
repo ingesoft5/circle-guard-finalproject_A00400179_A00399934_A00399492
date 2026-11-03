@@ -1,0 +1,29 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/hu01-hostcheck-ci-20261102T192921Z.log · sha256 1a72dbaff378a640eca896ba4c86129bc989a75da862237e0f513887859ab8cf · 933 bytes · intacto (ignorado por Git)
+# Propósito: Host ci tras Jenkins: temporizador waiting, contenedor healthy, puertos
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+# host ci (i-010843f2125041114) · 2026-11-02T19:29:24Z · identidad AWS reader/botocore-session-1793647762
+docker: 29.9.2 · compose: 5.7.0
+daemon.json: {"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"3"}}
+swap: /swapfile   2G  · vm.swappiness=10 · vm.max_map_count=1048576
+timer: enabled=enabled active waiting
+  próximo disparo: Mon 2026-11-02 23:28:14 UTC 3h 58min -         - circleguard-autostop.timer circleguard-autostop.service
+OnActiveSec: OnActiveSec=4h
+stack jenkins: .env 600 root
+contenedores:
+cg-jenkins  Up 31 seconds (healthy)  127.0.0.1:8080->8080/tcp, 50000/tcp
+puertos en escucha (TCP):
+  0.0.0.0:22
+  127.0.0.1:8080
+  127.0.0.53%lo:53
+  127.0.0.54:53
+  [::]:22
+memoria (MiB):
+                 total        used        free      shared  buff/cache   available
+  Mem:            7776        1072        4412           3        2598        6704
+  Swap:           2047           0        2047
