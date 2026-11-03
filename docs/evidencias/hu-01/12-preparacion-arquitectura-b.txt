@@ -122,6 +122,9 @@
   en us-east-2: la v2 no añade ningún permiso efectivo. La plantilla se mantiene en v1 porque el
   fallo que motivó la v2 era la repetición de MFA (evidencia 11, L), no un permiso. Volver a la v1
   en AWS (set-default-policy-version) es un cambio de IAM pendiente de autorización; no se ejecutó.
+  [Nota posterior, 2026-11-02, fase 4: se decidió conservar la v2; la plantilla se alineó con ella,
+  orden de sentencias incluido (commit b18f27c), y bootstrap-iam.sh la muestra UNCHANGED. El
+  operador pasó después a v2 y v3 (evidencias 13, sección 9, y 14).]
 
 ## J. Validaciones locales
   bash -n: 26 de 26 scripts de infra/ correctos.

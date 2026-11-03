@@ -1,0 +1,22 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/bootstrap-network-20261102T163637Z.log · sha256 e962fa13470bdaebe882729dda6799715efe60e96626522e4be419fee18b6886 · 2171 bytes · intacto (ignorado por Git)
+# Propósito: Paso 4, primer intento: se detiene en CreateSubnet (UnauthorizedOperation sobre la VPC)
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+16:36:37 INFO      registro de la ejecución: infra/logs/bootstrap-network-20261102T163637Z.log (modo apply, destino aws)
+16:36:40 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793636734 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+16:36:43 INFO      red 10.20.0.0/16 en us-east-2/us-east-2a; acceso administrativo desde: 190.66.84.x/32
+16:36:49 CREATED   vpc circleguard-vpc (vpc-017214d72e444769e) 10.20.0.0/16
+16:36:54 UPDATED   vpc circleguard-vpc con nombres DNS
+16:36:59 CREATED   internet gateway circleguard-igw (igw-0f567b11545a6b4a4)
+16:37:04 UPDATED   internet gateway circleguard-igw adjuntado a vpc-017214d72e444769e
+
+aws: [ERROR]: An error occurred (UnauthorizedOperation) when calling the CreateSubnet operation: You are not authorized to perform this operation. User: arn:aws:sts::************:assumed-role/circleguard-hu01-operator/botocore-session-1793636734 is not authorized to perform: ec2:CreateSubnet on resource: arn:aws:ec2:us-east-2:************:vpc/vpc-017214d72e444769e because no identity-based policy allows the ec2:CreateSubnet action. Encoded authorization failure message: <omitido>
+16:37:09 ERROR     falló session.sh:40
+16:37:09 ERROR     falló common.sh:141
+16:37:09 ERROR     falló bootstrap-network.sh:105
+16:37:09 ERROR     falló bootstrap-network.sh:105

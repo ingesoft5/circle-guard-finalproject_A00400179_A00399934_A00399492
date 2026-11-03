@@ -1,0 +1,72 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/bootstrap-network-20261102T175528Z.log · sha256 51bd5a4de9cf6be6e0790dbc5f1e96b7e466566b20c37312519ed102a9b3ebd5 · 5320 bytes · intacto (ignorado por Git)
+# Propósito: Paso 4: red completada (created=10 updated=45 unchanged=4)
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+17:55:28 INFO      registro de la ejecución: infra/logs/bootstrap-network-20261102T175528Z.log (modo apply, destino aws)
+17:55:30 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793641868 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+17:55:32 INFO      red 10.20.0.0/16 en us-east-2/us-east-2a; acceso administrativo desde: 190.66.84.x/32
+17:55:35 UNCHANGED vpc circleguard-vpc (vpc-017214d72e444769e) 10.20.0.0/16
+17:55:36 UNCHANGED vpc circleguard-vpc con nombres DNS
+17:55:38 UNCHANGED internet gateway circleguard-igw (igw-0f567b11545a6b4a4)
+17:55:40 UNCHANGED internet gateway circleguard-igw adjunto a vpc-017214d72e444769e
+17:55:43 CREATED   subred circleguard-subnet-tools (subnet-06c029053f5dd52ab) 10.20.0.0/24
+17:55:47 UPDATED   subred circleguard-subnet-tools asigna IPv4 pública al lanzar
+17:55:51 CREATED   subred circleguard-subnet-dev (subnet-0d1140e404f6bf964) 10.20.10.0/24
+17:55:55 UPDATED   subred circleguard-subnet-dev asigna IPv4 pública al lanzar
+17:55:58 CREATED   subred circleguard-subnet-stage (subnet-0d80f95dcb12becfa) 10.20.20.0/24
+17:56:02 UPDATED   subred circleguard-subnet-stage asigna IPv4 pública al lanzar
+17:56:05 CREATED   subred circleguard-subnet-prod (subnet-007a3996a3fdc5dce) 10.20.30.0/24
+17:56:09 UPDATED   subred circleguard-subnet-prod asigna IPv4 pública al lanzar
+17:56:12 CREATED   tabla de rutas circleguard-rt-public (rtb-051f85343e8ca07f0)
+17:56:16 UPDATED   ruta 0.0.0.0/0 -> igw-0f567b11545a6b4a4
+17:56:19 UPDATED   subred tools asociada a circleguard-rt-public
+17:56:23 UPDATED   subred dev asociada a circleguard-rt-public
+17:56:26 UPDATED   subred stage asociada a circleguard-rt-public
+17:56:30 UPDATED   subred prod asociada a circleguard-rt-public
+17:56:34 CREATED   grupo de seguridad circleguard-sg-ci (sg-01221f89543bed1c7)
+17:56:36 CREATED   grupo de seguridad circleguard-sg-nexus (sg-003bb2d4ac0714cb5)
+17:56:40 CREATED   grupo de seguridad circleguard-sg-env-dev (sg-02fffa3397e1d9ef4)
+17:56:44 CREATED   grupo de seguridad circleguard-sg-env-stage (sg-0cc234f54c37f7422)
+17:56:48 CREATED   grupo de seguridad circleguard-sg-env-prod (sg-0b47c8afe1b536692)
+17:56:52 UPDATED   circleguard-sg-ci: permitido out tcp/443 cidr:0.0.0.x/0
+17:56:54 UPDATED   circleguard-sg-ci: permitido in tcp/22 cidr:190.66.84.x/32
+17:56:56 UPDATED   circleguard-sg-ci: permitido out tcp/22 sg:sg-0b47c8afe1b536692
+17:56:58 UPDATED   circleguard-sg-ci: permitido out tcp/22 sg:sg-02fffa3397e1d9ef4
+17:57:00 UPDATED   circleguard-sg-ci: permitido out tcp/8081 sg:sg-003bb2d4ac0714cb5
+17:57:02 UPDATED   circleguard-sg-ci: permitido out tcp/22 sg:sg-0cc234f54c37f7422
+17:57:04 UPDATED   circleguard-sg-ci: permitido out tcp/8082 sg:sg-003bb2d4ac0714cb5
+17:57:06 UPDATED   circleguard-sg-ci: permitido out tcp/80 cidr:0.0.0.x/0
+17:57:08 UPDATED   circleguard-sg-ci: revocada la regla 'out -1 -1--1 cidr:0.0.0.x/0'
+17:57:10 UPDATED   circleguard-sg-nexus: permitido in tcp/8082 sg:sg-01221f89543bed1c7
+17:57:12 UPDATED   circleguard-sg-nexus: permitido out tcp/443 cidr:0.0.0.x/0
+17:57:14 UPDATED   circleguard-sg-nexus: permitido in tcp/22 cidr:190.66.84.x/32
+17:57:16 UPDATED   circleguard-sg-nexus: permitido in tcp/8082 sg:sg-0cc234f54c37f7422
+17:57:18 UPDATED   circleguard-sg-nexus: permitido in tcp/8081 sg:sg-01221f89543bed1c7
+17:57:20 UPDATED   circleguard-sg-nexus: permitido in tcp/8082 sg:sg-0b47c8afe1b536692
+17:57:22 UPDATED   circleguard-sg-nexus: permitido out tcp/80 cidr:0.0.0.x/0
+17:57:24 UPDATED   circleguard-sg-nexus: permitido in tcp/8082 sg:sg-02fffa3397e1d9ef4
+17:57:26 UPDATED   circleguard-sg-nexus: revocada la regla 'out -1 -1--1 cidr:0.0.0.x/0'
+17:57:29 UPDATED   circleguard-sg-env-dev: permitido out tcp/443 cidr:0.0.0.x/0
+17:57:31 UPDATED   circleguard-sg-env-dev: permitido in tcp/22 cidr:190.66.84.x/32
+17:57:33 UPDATED   circleguard-sg-env-dev: permitido in tcp/22 sg:sg-01221f89543bed1c7
+17:57:36 UPDATED   circleguard-sg-env-dev: permitido out tcp/8082 sg:sg-003bb2d4ac0714cb5
+17:57:38 UPDATED   circleguard-sg-env-dev: permitido out tcp/80 cidr:0.0.0.x/0
+17:57:39 UPDATED   circleguard-sg-env-dev: revocada la regla 'out -1 -1--1 cidr:0.0.0.x/0'
+17:57:42 UPDATED   circleguard-sg-env-stage: permitido out tcp/443 cidr:0.0.0.x/0
+17:57:45 UPDATED   circleguard-sg-env-stage: permitido in tcp/22 cidr:190.66.84.x/32
+17:57:47 UPDATED   circleguard-sg-env-stage: permitido in tcp/22 sg:sg-01221f89543bed1c7
+17:57:49 UPDATED   circleguard-sg-env-stage: permitido out tcp/8082 sg:sg-003bb2d4ac0714cb5
+17:57:51 UPDATED   circleguard-sg-env-stage: permitido out tcp/80 cidr:0.0.0.x/0
+17:57:53 UPDATED   circleguard-sg-env-stage: revocada la regla 'out -1 -1--1 cidr:0.0.0.x/0'
+17:57:56 UPDATED   circleguard-sg-env-prod: permitido out tcp/443 cidr:0.0.0.x/0
+17:57:58 UPDATED   circleguard-sg-env-prod: permitido in tcp/22 cidr:190.66.84.x/32
+17:58:00 UPDATED   circleguard-sg-env-prod: permitido in tcp/22 sg:sg-01221f89543bed1c7
+17:58:02 UPDATED   circleguard-sg-env-prod: permitido out tcp/8082 sg:sg-003bb2d4ac0714cb5
+17:58:04 UPDATED   circleguard-sg-env-prod: permitido out tcp/80 cidr:0.0.0.x/0
+17:58:06 UPDATED   circleguard-sg-env-prod: revocada la regla 'out -1 -1--1 cidr:0.0.0.x/0'
+17:58:06 SUMMARY   bootstrap-network created=10 updated=45 unchanged=4 planned=0

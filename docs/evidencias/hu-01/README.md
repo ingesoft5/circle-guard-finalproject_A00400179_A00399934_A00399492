@@ -2,11 +2,16 @@
 
 Ningún archivo de esta carpeta contiene secretos. Los valores de Gitleaks están redactados, y una
 comparación directa confirmó que ningún secreto generado aparece en los archivos versionables ni
-en los logs.
+en los logs. Las copias de los registros de AWS de [`fase4/`](fase4/) están además enmascaradas
+(número de cuenta, identificadores de IAM y último octeto de IP públicas).
 
-**Estado general: HU-01 NO está terminada.** El código, la validación local y la preparación de
-AWS están completos. Falta la ejecución en AWS (C1, C2 y la reconstrucción desde cero), que
-requiere autorizaciones individuales, y la decisión del equipo sobre el EULA de Nexus.
+**Estado general: HU-01 NO está terminada.** El 2026-11-02 se desplegó y validó en AWS
+([evidencia 14](14-despliegue-aws-fase4.md)): red, IAM, 35 secretos en SSM, `ci` con Jenkins,
+SonarQube y PostgreSQL (PASS) y `nexus` con Nexus desplegado y el EULA **pendiente**; después se
+detuvieron las dos instancias, conservando sus volúmenes. Falta la prueba de idempotencia completa
+en AWS (C3, [procedimiento 15](15-procedimiento-idempotencia-aws.md), requiere arrancar las
+instancias), la decisión del equipo sobre el EULA ([16](16-nexus-eula.md)) y la reconstrucción desde
+cero siguiendo solo la documentación.
 
 **Preparación de AWS (2026-11-01, solo lectura, [09](09-aws-preparacion-cuenta-e-iam.txt)):**
 - Cuenta independiente en el **plan gratuito**: 100 USD de créditos; el plan termina el 2027-04-30.
@@ -21,23 +26,27 @@ requiere autorizaciones individuales, y la decisión del equipo sobre el EULA de
 
 ## Matriz final: seis criterios
 
+Clasificación usada en todas las evidencias de HU-01: **PASS** (cumplido y comprobado), **PARTIAL**
+(hecho en parte; se indica lo que falta), **FAIL** (comprobado y no cumple) y **NOT VERIFIED** (sin
+comprobar). Estado de la historia: **PARCIALMENTE COMPLETADA**.
+
 | Criterio | Estado | Qué está hecho | Qué falta |
 |---|---|---|---|
-| C1 · Servidores en la nube para Jenkins, SonarQube y Nexus | **Falta (AWS)** | `bootstrap-servers.sh` (EC2 cifradas, IMDSv2) y los tres stacks automatizados. Jenkins y SonarQube validados en local de punta a punta. Tipos aptos para el plan gratuito verificados en la cuenta ([09](09-aws-preparacion-cuenta-e-iam.txt)) | Crear `ci` y `nexus` (facturable) y ejecutar los *bootstrap*. Nexus quedará desplegado con el EULA pendiente |
-| C2 · dev, stage y prod aislados | **Falta (AWS)** | Subred, grupo de seguridad, llave SSH y ruta SSM propias por ambiente; ninguna regla entre ambientes; `verify-infra.sh --health` comprueba esa configuración | Crear la red en AWS y capturar la verificación. Sin servidores de ambiente (topología B), el aislamiento queda **configurado, no verificado con tráfico** |
-| C3 · `infra/bootstrap-*.sh` idempotentes | **Parcial** | Demostrado en local (2.ª ejecución con `created=0 updated=0`: secretos, Jenkins y SonarQube, más la corrección de derivas). Revisión estática de todos los scripts y 6 defectos corregidos ([08](08-revision-idempotencia.md)) | Dos ejecuciones de `bootstrap-all.sh` en AWS con *snapshot* y `diff` vacío |
-| C4 · Credenciales de `docker-compose.dev.yml` fuera del repositorio | **Terminado** | `${VAR:?}` sin valores por defecto, `.env.example` vacío y credenciales en `~/.circleguard/dev.env`; incluido en el commit `3a43855` | — |
-| C5 · Bash y Docker Compose sin configuración manual no documentada | **Parcial** | Jenkins (JCasC) y SonarQube (API) sin pasos manuales; acceso administrativo por túnel; IAM, sesiones temporales, cuota y destrucción en CloudShell automatizados y documentados en `infra/README.md`. Los únicos pasos manuales son los que deben serlo (contraseñas y MFA en la consola de AWS), y están documentados | Nexus (decisión del EULA) y la reconstrucción en AWS siguiendo solo la documentación |
-| C6 · Credenciales fuera del repositorio, con un mecanismo seguro | **Terminado en el repositorio**; SSM pendiente de ejecución | 0 secretos activos ([03](03-gitleaks-arbol-de-trabajo.txt)); los 7 `application.yml` funcionan con variables y fallan sin ellas ([07](07-verificacion-arranque-servicios.txt)); SSM y `.env` 0600 implementados; acceso a AWS sin claves permanentes (sesiones temporales y roles separados, [06](06-iam-minimo-privilegio.txt), [09](09-aws-preparacion-cuenta-e-iam.txt)) | Crear los parámetros SSM en AWS (sin costo; requiere autorización) |
+| C1 · Servidores en la nube para Jenkins, SonarQube y Nexus | **PARTIAL** | En AWS el 2026-11-02 ([14](14-despliegue-aws-fase4.md)): `ci` y `nexus` (m7i-flex.large, AMI fijada, IMDSv2, gp3 cifrado) creados por script; Jenkins, SonarQube y PostgreSQL **PASS** (`verify-infra.sh` 22/0/1 y 53/0/5); Nexus desplegado, en línea y con la contraseña gestionada | Nexus sin función de repositorio hasta la decisión del EULA ([16](16-nexus-eula.md)) |
+| C2 · dev, stage y prod aislados | **PARTIAL** | En AWS: subred y grupo de seguridad propios por ambiente, ninguna regla entre ambientes y solo referencias a `ci` y `nexus` (15 comprobaciones PASS); con tráfico real, `ci → nexus:8081` permitido y `nexus → ci:8080/9000` bloqueados ([14](14-despliegue-aws-fase4.md) §8) | Sin servidores de ambiente (topología B), el aislamiento está **configurado y verificado por reglas, no con tráfico entre ambientes**. El equipo debe decidir si eso basta para HU-01 (recomendado) o si se prueba en la historia que despliegue esos servidores; C2 no se cierra sin esa aceptación |
+| C3 · `infra/bootstrap-*.sh` idempotentes | **PARTIAL** | Demostrado en local (2.ª ejecución con `created=0 updated=0`: secretos, Jenkins y SonarQube, más la corrección de derivas). Revisión estática de todos los scripts y 6 defectos corregidos ([08](08-revision-idempotencia.md)). En AWS: red `unchanged=28` y secretos `unchanged=43` en la 2.ª ejecución, e IAM convergente ([14](14-despliegue-aws-fase4.md)) | Dos ejecuciones de `bootstrap-all.sh` en AWS con *snapshot* y `diff` vacío: procedimiento listo en la [evidencia 15](15-procedimiento-idempotencia-aws.md), pendiente de autorización (arranca las instancias) |
+| C4 · Credenciales de `docker-compose.dev.yml` fuera del repositorio | **PASS** | `${VAR:?}` sin valores por defecto, `.env.example` vacío y credenciales en `~/.circleguard/dev.env`; incluido en el commit `3a43855` | — |
+| C5 · Bash y Docker Compose sin configuración manual no documentada | **PARTIAL** | Jenkins (JCasC) y SonarQube (API) sin pasos manuales; acceso administrativo por túnel; IAM, sesiones temporales, cuota y destrucción en CloudShell automatizados y documentados en `infra/README.md`. Los únicos pasos manuales son los que deben serlo (contraseñas y MFA en la consola de AWS), y están documentados | Nexus (decisión del EULA) y la reconstrucción en AWS siguiendo solo la documentación. La instalación del 2026-11-02 se hizo solo con los scripts ([14](14-despliegue-aws-fase4.md)) |
+| C6 · Credenciales fuera del repositorio, con un mecanismo seguro | **PASS** | 0 secretos activos ([03](03-gitleaks-arbol-de-trabajo.txt); repetido el 2026-11-02 en [`fase4/`](fase4/)); los 7 `application.yml` funcionan con variables y fallan sin ellas ([07](07-verificacion-arranque-servicios.txt)); acceso a AWS sin claves permanentes ([06](06-iam-minimo-privilegio.txt), [09](09-aws-preparacion-cuenta-e-iam.txt)). En AWS: 35 parámetros SecureString, `.env` 0600 root en los hosts, secretos distintos por ambiente y 0 apariciones de los valores en el repositorio y en los registros ([14](14-despliegue-aws-fase4.md)) | — |
 
 ## Matriz final: cuatro evidencias
 
 | Evidencia | Estado | Archivos |
 |---|---|---|
-| 1. Salida del bootstrap | **Parcial**: ejecuciones locales completas (`local/`); **falta la salida en AWS** | [`local/`](local/), [`08-revision-idempotencia.md`](08-revision-idempotencia.md) |
-| 2. Diagrama de ambientes | **Terminado** para la topología B: red, aislamiento (configurado frente a verificado), servidores `ci` y `nexus`, memoria prevista e identidades y autorización | [`../../arquitectura/infra-ambientes.md`](../../arquitectura/infra-ambientes.md) |
-| 3. Commit que elimina las credenciales | **Terminado**: `3a43855` (rama `HU01_Infraestructura_nube_bash`, publicada en `origin`). Sin reescribir el historial | `git show --stat 3a43855` |
-| 4. Captura del escaneo de secretos | **Terminado**: árbol de trabajo en PASS e historial completo. Falta solo la captura de pantalla, que hará el equipo | [`03`](03-gitleaks-arbol-de-trabajo.txt), [`04`](04-gitleaks-historial.txt) |
+| 1. Salida del bootstrap | **PARTIAL**: ejecuciones locales (`local/`) y en AWS del 2026-11-02 (`fase4/`, enmascaradas). Falta la salida de la prueba de idempotencia completa (C3) | [`local/`](local/), [`fase4/`](fase4/), [`14`](14-despliegue-aws-fase4.md), [`08-revision-idempotencia.md`](08-revision-idempotencia.md) |
+| 2. Diagrama de ambientes | **PASS** para la topología B: red, aislamiento (configurado frente a verificado), servidores `ci` y `nexus`, memoria prevista e identidades y autorización | [`../../arquitectura/infra-ambientes.md`](../../arquitectura/infra-ambientes.md) |
+| 3. Commit que elimina las credenciales | **PASS**: `3a43855` (rama `HU01_Infraestructura_nube_bash`, publicada en `origin`). Sin reescribir el historial | `git show --stat 3a43855` |
+| 4. Captura del escaneo de secretos | **PARTIAL**: árbol de trabajo en PASS e historial completo, repetido el 2026-11-02 sobre `3632068` (ACTIVO=0). Falta solo la captura de pantalla, que hará el equipo | [`03`](03-gitleaks-arbol-de-trabajo.txt), [`04`](04-gitleaks-historial.txt), [`fase4/20261102T194438Z-worktree-summary.txt`](fase4/20261102T194438Z-worktree-summary.txt) |
 
 ## Clasificación de los hallazgos de Gitleaks
 
@@ -47,6 +56,11 @@ requiere autorizaciones individuales, y la decisión del equipo sobre el EULA de
 | **HISTÓRICO** | — | **51** | Credencial publicada en el commit inicial. Se considera **comprometida**, no se reutiliza en ningún ambiente y no se reescribe el historial |
 | **PRUEBA** | 9 | 9 | Valor ficticio en `src/test` (*fixtures* de H2, JWT y bóveda de los tests) |
 | **RESIDUAL** | 2 | 4 | Contraseña de prueba en los comentarios de las migraciones V2/V3, que son inmutables por la decisión X-2 (E2.6) |
+
+**Escaneo del 2026-11-02** (Gitleaks v8.30.1 sobre `3632068`, [`fase4/`](fase4/)): árbol de trabajo igual
+(0 ACTIVO, 9 PRUEBA, 2 RESIDUAL); historial de 13 commits con 68 hallazgos: los 51 HISTÓRICO y 4
+RESIDUAL anteriores y 13 PRUEBA (los 4 nuevos son los valores ficticios del *fixture* del commit
+`67af77d`).
 
 **Desglose de los 51 históricos:**
 
@@ -69,7 +83,7 @@ esas líneas corresponden ya a los valores ficticios.
 
 | Archivo | Contenido |
 |---|---|
-| `01-validacion-estatica.txt` | `bash -n` (19/19), ShellCheck v0.11.0 sin hallazgos, validez de JSON y YAML (corte del 2026-10-31; los 26 scripts actuales también pasaron ShellCheck el 2026-11-01, y se regenerará al cierre) |
+| `01-validacion-estatica.txt` | `bash -n` (19/19), ShellCheck v0.11.0 sin hallazgos, validez de JSON y YAML (corte del 2026-10-31, 19 scripts). Para los 26 scripts actuales, la evidencia verificable es el reporte del 2026-11-02 [`fase4/20261102T214225Z-shellcheck-hu01.txt`](fase4/20261102T214225Z-shellcheck-hu01.txt): 0 hallazgos y control positivo SC2086. Las pasadas anteriores sobre 26 scripts (2026-11-01 y la de las 19:09 del 2026-11-02, cuyo reporte quedó vacío) no tienen reporte verificable |
 | `02-validacion-compose.txt` | Los 4 Compose fallan sin variables y son válidos con valores; imágenes fijadas, puertos, volúmenes y *healthchecks* |
 | `03-gitleaks-arbol-de-trabajo.txt` | 0 ACTIVO · 9 PRUEBA · 2 RESIDUAL |
 | `04-gitleaks-historial.txt` | 64 hallazgos: 51 HISTÓRICO, 9 PRUEBA y 4 RESIDUAL |
@@ -81,6 +95,13 @@ esas líneas corresponden ya a los valores ficticios.
 | `11-validacion-identidades.txt` | Validación de las identidades: inicio de sesión del operador (y sus fallos corregidos), 13/13 pruebas de lectura, operación y denegación de teardown, revocación de credenciales expuestas, ausencia de claves permanentes, dependencia de la MFA y teardown en CloudShell (revisión, simulación, dos intentos fallidos, corrección de las peticiones repetidas de MFA y plan verificado en CloudShell con un solo código MFA) |
 | `12-preparacion-arquitectura-b.txt` | Fase 2: topología B (servidores `ci` y `nexus`), aclaración de los requisitos de Nexus, EULA pendiente, parada automática, costos, IAM v1/v2 y validaciones locales |
 | `09-aws-preparacion-cuenta-e-iam.txt` | Inspección de solo lectura de la cuenta, elegibilidad de tipos, Access Analyzer, simulador IAM de escalada, plan IAM, cuota, auditoría CloudTrail, incidente de la caché raíz y barreras locales de autorización |
+| `13-plan-despliegue-fase3.txt` | Plan de la fase 3 (inventario, IAM, presupuesto, secuencia, recuperación y criterios) y, en su sección 9, las diferencias registradas al ejecutarlo en la fase 4 |
+| `14-despliegue-aws-fase4.md` | Despliegue en AWS del 2026-11-02: estado final, trazabilidad criterio → prueba → resultado → evidencia, cronología, temporizadores, incidentes y correcciones, seguridad, coste, suficiencia del aislamiento y pendientes |
+| `15-procedimiento-idempotencia-aws.md` | Procedimiento de la prueba de idempotencia en AWS (C3), con comandos, resultado esperado, coste y riesgos. **No ejecutado** |
+| `16-nexus-eula.md` | EULA de Nexus Community Edition: texto y condiciones oficiales, interpretación técnica y consecuencias, para la decisión del equipo |
+| `17-auditoria-final-hu01.md` | Auditoría final del 2026-11-02: matriz C1–C6 (PASS o PARTIAL, con lo que falta), inventario, scripts, seguridad, persistencia, Nexus, ambientes, idempotencia, evidencias, cambios locales, plan de cierre y autorizaciones. Estado: **PARCIALMENTE COMPLETADA** |
+| `fase4/*` | Copias enmascaradas de los registros y reportes de la fase 4; cada una indica el sha256 de su original en `infra/logs` o `infra/security/reports` |
+| `auditoria/*` | Validaciones locales de la auditoría final (`bash -n`, ShellCheck, YAML y JSON, `docker compose config`, `.gitignore`) y el resumen del Gitleaks final |
 | `local/*.log` | Ejecuciones locales (`--target local`) en Docker Desktop. La ruta del usuario aparece como `~` |
 
 ## Artefactos locales fuera del repositorio (no se borran sin autorización)

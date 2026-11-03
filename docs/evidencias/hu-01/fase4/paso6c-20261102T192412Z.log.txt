@@ -1,0 +1,18 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/paso6c-20261102T192412Z.log · sha256 e55fbe57d4de9b9630c9d138d15918b2d7a1d366457d4504cbda681491bd449d · 608 bytes · intacto (ignorado por Git)
+# Propósito: Paso 6c repetido antes de instalar
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+# Paso 6c · comportamiento de apagado iniciado por la instancia · 2026-11-02T19:24:12Z
+identidad bootstrap: root (cuenta enmascarada)
+instancias (rol de lectura):
+  i-08c990919adc43fa1	circleguard-nexus	running
+  i-010843f2125041114	circleguard-ci	running
+  i-08c990919adc43fa1 circleguard-nexus (running): instanceInitiatedShutdownBehavior = stop
+  i-010843f2125041114 circleguard-ci (running): instanceInitiatedShutdownBehavior = stop
+resultado: 2 de 2 instancias con 'stop' (esperado 2 de 2) -> PASS
+llamadas con la raíz: sts get-caller-identity ×1, ec2 describe-instance-attribute ×2 (solo lectura)
