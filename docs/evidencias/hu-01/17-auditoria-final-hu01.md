@@ -51,6 +51,11 @@ dentro de cada PARTIAL.
   - **ShellCheck v0.11.0** (`sha256:61862eba1fcf…25a8d`), `-x -S style`: **0 hallazgos**, `{"comments":[]}`.
   - El reporte verificable de las 21:42 (`fase4/20261102T214225Z-shellcheck-hu01.txt`) coincide en lista
     y en el sha256 de cada uno de los 26 scripts con el código actual. Su control positivo detectó SC2086.
+  - **Nota posterior (2026-11-03):**
+    - Desde entonces cambiaron 10 scripts y se añadieron 4, así que ese reporte solo certifica
+      `3632068`.
+    - El reporte vigente es `auditoria/20261103T030812Z-shellcheck-hu01.txt`: 30 scripts y 0
+      hallazgos ([evidencia 18](18-mejoras-cierre-tecnico.md)).
 - **Manejo de errores:** `set -Eeuo pipefail`, una *trap* `ERR` y `die` con código 1 en la librería común.
   El modo por defecto es plan; lo facturable exige `--apply --approve`, y la parada pide la palabra
   `DETENER` (o `CG_CONFIRM`).
@@ -170,6 +175,11 @@ sección 7).
 | `auditoria/` | Validaciones locales y resumen final de Gitleaks | Esta auditoría |
 
 ## K. Cambios locales (sin confirmar)
+
+> **Nota posterior (2026-11-03):**
+> - Los cambios de esta sección se confirmaron en el commit `889ce09`.
+> - La tarea 1 de la sección L está hecha.
+> - Las mejoras posteriores, sin desplegar en AWS, están en la [evidencia 18](18-mejoras-cierre-tecnico.md).
 
 - **Modificados respecto a `3632068`:**
   - `docs/evidencias/hu-01/11-validacion-identidades.txt` (nota fechada)

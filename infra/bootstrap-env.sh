@@ -33,7 +33,8 @@ if ! cg_resolve_host "$ROLE"; then
   exit 0
 fi
 cg_wait_ssh
-cg_run_on_host "$INFRA_DIR/bootstrap/host/setup-docker.sh" "$ROLE" "$CG_MODE"
+# Same host settings as the tool servers, including the auto-stop timer (a billing guard).
+cg_run_on_host "$INFRA_DIR/bootstrap/host/setup-docker.sh" "$ROLE" "$CG_MODE" "$AUTO_STOP_HOURS" "$SWAP_GB" "$SUBNET_TOOLS_CIDR"
 
 mapfile -t NAMES < <(cg_catalog | awk -v env="$ENV_NAME" '$1 == env { print $2 }')
 ENV_CONTENT=$({

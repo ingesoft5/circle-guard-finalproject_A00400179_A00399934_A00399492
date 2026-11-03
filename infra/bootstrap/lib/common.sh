@@ -83,6 +83,8 @@ cg_load_config() {
     . "$INFRA_DIR/config/operator.local.env"
   fi
   set +a
+  # Server roles and registry backend depend on the configuration (lib/aws.sh).
+  if declare -F cg_init_roles >/dev/null; then cg_init_roles; fi
 }
 
 cg_validate_env() {
@@ -139,6 +141,25 @@ cg_summary() {
 }
 
 aws_() { aws --region "$AWS_REGION" "$@"; }
+
+# cg_mask_evidence <account id> <file>: prints the file ready for docs/evidencias: the account id
+# masked, the last octet of public IPv4 addresses hidden (private ones kept) and the hashes of
+# secret files (.env, htpasswd, private keys) omitted.
+cg_mask_evidence() {
+  python3 - "$1" "$2" <<'PY'
+import re, sys
+account, path = sys.argv[1], sys.argv[2]
+private = re.compile(r'^(10\.|127\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|0\.0\.0\.0)')
+def ip(m):
+    return m.group(0) if private.match(m.group(0)) else m.group(1) + '.x'
+for line in open(path, encoding='utf-8', errors='replace'):
+    if account:
+        line = line.replace(account, '************')
+    line = re.sub(r'(?<![\d.])(\d{1,3}\.\d{1,3}\.\d{1,3})\.\d{1,3}(?![\d.])', ip, line)
+    line = re.sub(r'\b[0-9a-f]{64}(\s+/opt/circleguard/\S*(\.env|htpasswd|\.key))', r'<hash omitido>\1', line)
+    sys.stdout.write(line)
+PY
+}
 
 # ---------------------------------------------------------------------------------------
 # Secrets. Backends: SSM Parameter Store (target aws) or files under ~/.circleguard/secrets

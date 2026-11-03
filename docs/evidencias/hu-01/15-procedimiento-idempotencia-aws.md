@@ -137,3 +137,28 @@ con una parada obligatoria. Para que sea suficiente, en la ejecución hay que a�
 Las instantáneas `S0`, `S1` y `S2`, las salidas `run1` y `run2`, los `diff` y los registros de
 `infra/logs`. Se publicarían copias enmascaradas en `docs/evidencias/hu-01/`, con las líneas del hash
 del `.env` omitidas y sin el número de cuenta.
+
+## 9. Nota posterior (2026-11-03): versión automatizada y efectos esperados nuevos
+
+El procedimiento de las secciones 3 y 7 está automatizado en `infra/test-idempotency.sh`
+([evidencia 18](18-mejoras-cierre-tecnico.md)). El script hace lo siguiente:
+- Toma las tres instantáneas y ejecuta las dos pasadas.
+- Hace las comprobaciones de la sección 7: punto de partida, persistencia, ID y estados,
+  contadores y límite de tiempo.
+- Prueba el registro con `verify-infra.sh --registry`.
+- Detiene siempre las instancias.
+- Genera las copias enmascaradas.
+
+Con los cambios del 2026-11-03 la **primera** ejecución tendrá además estos efectos esperados (no
+afectan al criterio, que se mide en la segunda):
+
+| Paso | Efecto en la 1.ª ejecución |
+|---|---|
+| `bootstrap-secrets.sh` | `created=1`: el secreto `REGISTRY_CI_PASSWORD` (el resto, `UNCHANGED`) |
+| `setup-docker.sh` en cada host | `UPDATED` del `daemon.json`, por la subred del registro en `insecure-registries`; reinicia Docker una vez |
+| `bootstrap-nexus.sh` | `UPDATED` del Compose y del `.env`, y Nexus recreado una vez (el conector pasa a `127.0.0.1:18082`) |
+| `bootstrap-registry.sh` | `CREATED`: archivos, `.env`, certificado, usuario `ci` y stack |
+| `S0 → S1` | Un parámetro SSM nuevo y las líneas `file`, `hostfile` y `container` de los hosts encendidos |
+
+La **segunda** ejecución debe terminar con `created=0 updated=0`, como antes. Nexus seguirá
+informando el EULA como `PLAN`.

@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
-# HU-01 · Read-only verification of the platform. Never changes anything.
+# HU-01 · Verification of the platform. Never changes the infrastructure.
 #   --health       servers (Docker, auto-stop timer scheduled, swap, memory in use), tools answer
 #                  (on the host and from the operator through the security group) and the memory
-#                  each tool container uses (docker stats), state of the Nexus
-#                  EULA, and the environments: their host if one exists, otherwise the isolation
-#                  configured in their subnet and security group
+#                  each tool container uses (docker stats), state of the Nexus EULA, the registry
+#                  (TLS, authentication required, managed user accepted, not exposed), and the
+#                  environments: their host if one exists, otherwise the isolation configured in
+#                  their subnet and security group
 #   --isolation    allowed flows work and blocked ones are refused, tested with nc from the hosts
 #   --credentials  independent secrets per environment, .env files with mode 0600, and no
 #                  managed secret value present in the repository
+#   --registry     functional test of the registry from ci (or this machine with --target local):
+#                  log in as "ci" with a temporary Docker config, push a small pinned image and pull
+#                  it back. Its only write is that image (always the same content) in the registry.
 #   --snapshot     deterministic state listing, to compare two bootstrap runs (idempotency)
 # Without options: --health --isolation --credentials (aws) or --health (local).
 # Results are PASS, FAIL or PENDING (something that waits for a decision or for servers that
@@ -22,9 +26,10 @@ source "$INFRA_DIR/bootstrap/lib/remote.sh"
 
 usage() {
   cat <<'EOF'
-Uso: infra/verify-infra.sh [--health] [--isolation] [--credentials] [--snapshot] [--roles=<lista>] [--target aws|local]
-  Solo lectura. Termina con código 1 si alguna comprobación falla.
+Uso: infra/verify-infra.sh [--health] [--isolation] [--credentials] [--registry] [--snapshot] [--roles=<lista>] [--target aws|local]
+  No cambia la infraestructura. Termina con código 1 si alguna comprobación falla.
   --roles=ci,nexus  limita las comprobaciones a los servidores encendidos en la sesión en curso.
+  --registry        publica y descarga una imagen de prueba fija en el registro (opcional).
 EOF
 }
 
@@ -42,7 +47,7 @@ expect() { # expect <description> <expected> <actual>
   if [[ "$3" == "$2" ]]; then pass "$1"; else fail "$1 (esperado '$2', obtenido '${3:-sin respuesta}')"; fi
 }
 remote() { cg_root "$1" 2>/dev/null || true; }
-local_code() { curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$1" || true; }
+local_code() { curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$@" || true; }
 
 # via_tunnel <local port> <remote port> <path>: HTTP code obtained through a temporary SSH
 # tunnel to the selected host (the administrative access path of infra/tunnel.sh).
@@ -172,8 +177,11 @@ check_tools() {
     :
   elif cg_resolve_host "$(cg_tool_host nexus)" >/dev/null; then
     ip=$HOST_PUBLIC_IP
+    # Host port of the Nexus Docker connector: the registry port, or a loopback standby port while
+    # CNCF Distribution serves the registry.
     local docker_port=$NEXUS_DOCKER_PORT
     [[ "$CG_TARGET" == local ]] && docker_port=$LOCAL_NEXUS_DOCKER_HOST_PORT
+    [[ "$REGISTRY_BACKEND" == distribution ]] && docker_port=$NEXUS_DOCKER_STANDBY_PORT
     expect "nexus: API de estado" 200 "$(remote "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:$NEXUS_HTTP_PORT/service/rest/v1/status")"
     expect "nexus: contenedor saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-nexus")"
     memory_line nexus cg-nexus
@@ -190,11 +198,112 @@ check_tools() {
     esac
     if [[ "$CG_TARGET" == aws ]]; then
       admin_access nexus "$ip" "$NEXUS_HTTP_PORT" /service/rest/v1/status 18081
-      expect "nexus: registro Docker NO expuesto a Internet" 000 "$(local_code "http://$ip:$NEXUS_DOCKER_PORT/v2/")"
+      if [[ "$REGISTRY_BACKEND" == nexus ]]; then
+        expect "nexus: registro Docker NO expuesto a Internet" 000 "$(local_code "http://$ip:$NEXUS_DOCKER_PORT/v2/")"
+      fi
     fi
   else
     fail "nexus: la instancia $(cg_tool_host nexus) no está en ejecución"
   fi
+}
+
+# registry_port: host port of the registry on its server.
+registry_port() { if [[ "$CG_TARGET" == local ]]; then echo "$LOCAL_NEXUS_DOCKER_HOST_PORT"; else echo "$NEXUS_DOCKER_PORT"; fi; }
+
+# check_registry: CNCF Distribution (REGISTRY_BACKEND=distribution) answers over TLS, requires
+# authentication, accepts the managed ci user and is not reachable from the Internet.
+check_registry() {
+  local ip port envf
+  [[ "$REGISTRY_BACKEND" == distribution ]] || return 0
+  present registry || return 0
+  if ! cg_resolve_host "$(cg_tool_host registry)" >/dev/null; then
+    fail "registry: la instancia $(cg_tool_host registry) no está en ejecución"
+    return 0
+  fi
+  ip=$HOST_PUBLIC_IP
+  port=$(registry_port)
+  envf="$(cg_stack_dir registry)/.env"
+  expect "registry: contenedor saludable" healthy "$(remote "docker inspect -f '{{.State.Health.Status}}' cg-registry")"
+  expect "registry: exige autenticación por TLS" 401 "$(remote "curl -sk -o /dev/null -w '%{http_code}' --max-time 10 https://127.0.0.1:$port/v2/")"
+  expect "registry: el usuario ci se autentica con la contraseña gestionada" 200 "$(remote "set -a; . $(printf '%q' "$envf"); set +a; printf 'user = \"%s:%s\"\n' \"\$REGISTRY_CI_USER\" \"\$REGISTRY_CI_PASSWORD\" | curl -sk -o /dev/null -w '%{http_code}' --max-time 10 -K - https://127.0.0.1:$port/v2/")"
+  memory_line registry cg-registry
+  if [[ "$CG_TARGET" == aws ]]; then
+    # -k: a reachable registry would answer 401 despite its self-signed certificate.
+    expect "registry: NO expuesto a Internet (puerto $NEXUS_DOCKER_PORT)" 000 "$(local_code -k "https://$ip:$NEXUS_DOCKER_PORT/v2/")"
+  fi
+}
+
+# check_registry_push: logs in as ci with a temporary Docker config (removed afterwards), pushes
+# a small pinned image and pulls it back from the registry. On AWS the client is the ci server and
+# the registry is reached through the private network, like Jenkins will do.
+check_registry_push() {
+  local address repo client result
+  if [[ "$REGISTRY_BACKEND" != distribution ]]; then
+    pending "registry: REGISTRY_BACKEND=nexus: la prueba de publicación depende del EULA de Nexus"
+    return 0
+  fi
+  if [[ "$CG_TARGET" == aws ]]; then
+    if ! wanted ci || ! wanted nexus; then
+      info "registry: la prueba necesita ci y nexus en --roles; se omite"
+      return 0
+    fi
+    address="$(private_ip nexus)"
+    nz "$address" || { fail "registry: la instancia nexus no está en ejecución"; return 0; }
+    address="$address:$NEXUS_DOCKER_PORT"
+    cg_resolve_host ci >/dev/null || { fail "registry: la instancia ci no está en ejecución"; return 0; }
+    client=ci
+  else
+    present registry || return 0
+    cg_resolve_host registry >/dev/null
+    address="127.0.0.1:$(registry_port)"
+    client="esta máquina"
+  fi
+  repo="$address/circleguard/smoke-busybox"
+  # The password reaches `docker login --password-stdin` through stdin. Both local tags are
+  # removed before the pull, so the layers really come back from the registry.
+  result=$(cg_secret_get tools/registry REGISTRY_CI_PASSWORD | cg_root "set -e
+    export DOCKER_CONFIG=\$(mktemp -d)
+    trap 'docker logout $address >/dev/null 2>&1 || true; rm -rf \"\$DOCKER_CONFIG\"' EXIT
+    docker login --username ci --password-stdin $address >/dev/null 2>&1
+    docker pull -q busybox:1.37.0 >/dev/null
+    docker tag busybox:1.37.0 $repo:1.37.0
+    docker push -q $repo:1.37.0 >/dev/null
+    docker rmi $repo:1.37.0 busybox:1.37.0 >/dev/null
+    docker pull -q $repo:1.37.0 >/dev/null
+    docker image inspect -f '{{range .RepoDigests}}{{println .}}{{end}}' $repo:1.37.0 | grep -c '^$repo@sha256:'" 2>/dev/null || true)
+  expect "registry: el usuario ci publica y descarga una imagen ($client -> $address)" 1 "$result"
+  check_jenkins_registry
+}
+
+# check_jenkins_registry: integration test from inside the Jenkins container, with its own
+# environment (REGISTRY_ADDRESS, REGISTRY_CI_USER, REGISTRY_CI_PASSWORD from the secret manager)
+# and network: crane logs in with a temporary config, copies a pinned image into the registry and
+# pulls it back; the digest in the registry must equal the source digest. The password is only
+# expanded by the shell inside the container, never passed as an argument.
+check_jenkins_registry() {
+  local result
+  if ! wanted ci || ! cg_resolve_host ci >/dev/null 2>&1; then
+    info "registry: el servidor ci no está en --roles o no está en ejecución; se omite la prueba desde Jenkins"
+    return 0
+  fi
+  if [[ "$(remote "docker inspect -f '{{.State.Running}}' cg-jenkins")" != true ]]; then
+    if [[ "$CG_TARGET" == aws ]]; then fail "registry: el contenedor cg-jenkins no está en ejecución"; else info "registry: Jenkins local no está en ejecución; se omite la prueba desde Jenkins"; fi
+    return 0
+  fi
+  result=$(cg_root "docker exec -i cg-jenkins sh -s" 2>/dev/null <<'EOF' || true
+set -e
+[ -n "$REGISTRY_ADDRESS" ] || { echo sin-direccion; exit 0; }
+export DOCKER_CONFIG="$(mktemp -d)"
+trap 'rm -rf "$DOCKER_CONFIG" /tmp/cg-smoke-jenkins.tar' EXIT
+ref="$REGISTRY_ADDRESS/circleguard/smoke-jenkins:1.37.0"
+printf '%s' "$REGISTRY_CI_PASSWORD" | crane auth login "$REGISTRY_ADDRESS" -u "$REGISTRY_CI_USER" --password-stdin >/dev/null 2>&1
+crane copy --insecure busybox:1.37.0 "$ref" >/dev/null 2>&1
+crane pull --insecure "$ref" /tmp/cg-smoke-jenkins.tar >/dev/null 2>&1
+[ -s /tmp/cg-smoke-jenkins.tar ]
+[ "$(crane digest --insecure "$ref")" = "$(crane digest busybox:1.37.0)" ] && echo ok
+EOF
+)
+  expect "registry: Jenkins (contenedor cg-jenkins) se autentica, publica y descarga con crane" ok "$result"
 }
 
 # check_envs: the environment's host if one exists; otherwise (HU-01) the isolation configured in
@@ -232,7 +341,7 @@ check_envs() {
     allowed=" $(cg_sg_id ci) $(cg_sg_id nexus) "
     bad=$(for p in $peers; do [[ "$allowed" == *" $p "* ]] || echo "$p"; done | sort -u | tr '\n' ' ')
     expect "env-$e: sus reglas solo referencian a ci y nexus" "" "${bad% }"
-    pending "env-$e: aislamiento CONFIGURADO (subred y grupo de seguridad), no verificado con tráfico: HU-01 no crea servidores de ambiente"
+    pending "env-$e: aislamiento CONFIGURADO (subred y grupo de seguridad); sin su servidor en ejecución no se verifica con tráfico (infra/test-isolation.sh)"
   done
 }
 
@@ -264,10 +373,13 @@ check_isolation() {
     flow "aislamiento: nexus -> env-$e:22 bloqueado" closed nexus "env-$e" 22
   done
   if ((envs == 0)); then
-    pending "aislamiento entre ambientes: no hay servidores de ambiente (HU-01), así que no se prueba con tráfico; la configuración se comprueba con --health"
+    pending "aislamiento entre ambientes: ningún servidor de ambiente en ejecución, así que no se prueba con tráfico (infra/test-isolation.sh); la configuración se comprueba con --health"
   fi
   # SonarQube and Jenkins share the ci server and only listen on its 127.0.0.1.
   flow "permitido: ci -> nexus:$NEXUS_HTTP_PORT" open ci nexus "$NEXUS_HTTP_PORT"
+  if [[ "$REGISTRY_BACKEND" == distribution ]]; then
+    flow "permitido: ci -> nexus:$NEXUS_DOCKER_PORT (registro)" open ci nexus "$NEXUS_DOCKER_PORT"
+  fi
   flow "aislamiento: nexus -> ci:$JENKINS_HTTP_PORT bloqueado" closed nexus ci "$JENKINS_HTTP_PORT"
   flow "aislamiento: nexus -> ci:$SONARQUBE_HTTP_PORT bloqueado" closed nexus ci "$SONARQUBE_HTTP_PORT"
 }
@@ -279,7 +391,9 @@ check_credentials() {
     distinct=$(for e in "${CG_ENVS[@]}"; do cg_secret_get "$e" "$name" | sha256sum; done | sort -u | grep -c .)
     expect "credenciales: $name distinto en dev, stage y prod" 3 "$distinct"
   done
-  for tool in jenkins sonarqube nexus; do
+  local tools=(jenkins sonarqube nexus)
+  [[ "$REGISTRY_BACKEND" == distribution ]] && tools+=(registry)
+  for tool in "${tools[@]}"; do
     if wanted "$(cg_tool_host "$tool")" && cg_resolve_host "$(cg_tool_host "$tool")" >/dev/null; then
       expect "credenciales: .env de $tool con permisos 0600 root" "600 root" "$(remote "stat -c '%a %U' /opt/circleguard/$tool/.env")"
     fi
@@ -324,6 +438,8 @@ snapshot() {
     for role in "${CG_ROLES[@]}"; do
       cg_resolve_host "$role" >/dev/null 2>&1 || continue
       remote "find /opt/circleguard -type f -exec sha256sum {} + | sort -k2" | sed "s/^/file $role /"
+      # Host settings written by setup-docker.sh (Docker daemon, auto-stop timer, sysctl, swap).
+      remote "sha256sum /etc/docker/daemon.json /etc/systemd/system/circleguard-autostop.service /etc/systemd/system/circleguard-autostop.timer /etc/sysctl.d/99-circleguard-*.conf 2>/dev/null | sort -k2; grep '^/swapfile ' /etc/fstab" | sed "s/^/hostfile $role /"
       remote "docker ps -a --format '{{.Names}} {{.ID}} {{.Image}} {{.CreatedAt}}' | sort" | sed "s/^/container $role /"
     done
   } | sort
@@ -360,10 +476,12 @@ for mode in "${MODES[@]}"; do
     --health)
       check_hosts
       check_tools
+      check_registry
       if [[ "$CG_TARGET" == aws ]]; then check_envs; fi
       ;;
     --isolation) [[ "$CG_TARGET" == aws ]] || die "--isolation solo aplica a AWS"; check_isolation ;;
     --credentials) [[ "$CG_TARGET" == aws ]] || die "--credentials solo aplica a AWS"; check_credentials ;;
+    --registry) check_registry_push ;;
     *) die "opción desconocida: $mode" ;;
   esac
 done

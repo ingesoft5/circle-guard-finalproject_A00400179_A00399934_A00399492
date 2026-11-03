@@ -7,7 +7,7 @@ services:
   jenkins:
     build:
       context: .
-    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144
+    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1
     container_name: cg-jenkins
     restart: ${RESTART_POLICY:-unless-stopped}
     environment:
@@ -16,6 +16,10 @@ services:
       JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER:?Defina JENKINS_ADMIN_USER}
       JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:?Defina JENKINS_ADMIN_PASSWORD}
       CG_JENKINS_URL: ${CG_JENKINS_URL:?Defina CG_JENKINS_URL}
+      # Registry (CNCF Distribution on the nexus server): address and the "ci" user, for crane.
+      REGISTRY_ADDRESS: ${REGISTRY_ADDRESS:-}
+      REGISTRY_CI_USER: ${REGISTRY_CI_USER:?Defina REGISTRY_CI_USER}
+      REGISTRY_CI_PASSWORD: ${REGISTRY_CI_PASSWORD:?Defina REGISTRY_CI_PASSWORD}
     ports:
       - "${BIND_ADDRESS:?Defina BIND_ADDRESS}:${JENKINS_HTTP_PORT:-8080}:8080"
     volumes:

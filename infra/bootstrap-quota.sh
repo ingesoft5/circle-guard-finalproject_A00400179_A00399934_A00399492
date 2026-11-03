@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # HU-01 · EC2 vCPU quota "Running On-Demand Standard (A, C, D, H, I, M, R, T, Z) instances"
-# (L-1216C47A) in the HU-01 region. The six servers need 12 vCPU running at the same time.
+# (L-1216C47A) in the HU-01 region. Topology B (ci and nexus) needs 4 vCPU running at the same
+# time; each environment server of ENV_SERVERS adds 2 (QUOTA_VCPU_TARGET in infra/config/aws.env).
 #   --plan (default)           current value, AWS default and previous requests (read-only)
 #   --apply --approve quota    submits ONE increase request to QUOTA_VCPU_TARGET; AWS reviews it
 # A quota request is free, creates no resources and does not change the billing plan. Uses the

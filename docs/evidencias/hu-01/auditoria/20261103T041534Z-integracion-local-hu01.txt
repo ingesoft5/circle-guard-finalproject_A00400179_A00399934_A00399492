@@ -1,0 +1,61 @@
+# Prueba de integración local de HU-01 en un contenedor Linux auxiliar · inicio 20261103T040026Z, fin 20261103T040221Z
+# Base: commit 889ce09 más cambios locales sin confirmar. Contenedor docker:29.2.0-cli (bash, curl, python3, openssl) con el socket de Docker Desktop
+# y su red; CG_LOCAL_HOME en un volumen Docker (ext4), nunca ~/.circleguard. Scripts reales con --target local --apply: sin AWS.
+# Prueba LOCAL: no sustituye a la ejecución en AWS (SSH, VPC y grupos de seguridad no intervienen). Contraseñas aleatorias, nunca impresas.
+
+== Entorno: Docker 29.2.0, Compose 5.0.2, GNU bash, version 5.3.3(1)-release (x86_, OpenSSL 3.5.9
+== Verificación de Jenkins extraída de verify-infra.sh: 10 líneas
+== 1. bootstrap-secrets.sh --target local --apply (dos veces)
+PASS  secretos 1.ª: termina sin error
+      created=5 updated=0 unchanged=0 planned=0
+PASS  secretos 2.ª: created=0 updated=0
+PASS  el secreto del registro existe con modo 600
+== 2. bootstrap-registry.sh --target local --apply (dos veces)
+PASS  registro 1.ª: termina sin error
+      created=6 updated=0 unchanged=2 planned=0
+      CREATED   registry: /var/lib/docker/volumes/cgtest-home2/_data/home/local/registry/docker-compose.yml
+      CREATED   registry: /var/lib/docker/volumes/cgtest-home2/_data/home/local/registry/config.yml
+      CREATED   registry: /var/lib/docker/volumes/cgtest-home2/_data/home/local/registry/.env (0600, contenido no mostrado)
+      CREATED   registry: certificado TLS autofirmado del registro (10 años)
+      CREATED   registry: usuario ci del registro (bcrypt, contraseña del gestor de secretos)
+      CREATED   registry: stack circleguard-registry desplegado con Docker Compose
+PASS  registro 2.ª: termina sin error
+      created=0 updated=0 unchanged=8 planned=0
+PASS  registro 2.ª: ninguna línea CREATED ni UPDATED
+PASS  archivos del stack: .env 600, htpasswd 600, llave 600, certificado 644
+== 3. verify-infra.sh --target local --health y --registry
+PASS  verify --health termina sin fallos
+      PASS      registry: contenedor saludable
+      PASS      registry: exige autenticación por TLS
+      PASS      registry: el usuario ci se autentica con la contraseña gestionada
+PASS  verify --registry (publicar y descargar desde el host)
+      PASS      registry: el usuario ci publica y descarga una imagen (esta máquina -> 127.0.0.1:5000)
+== 4. Imagen de Jenkins con crane e integración Jenkins -> Distribution
+PASS  docker build de la imagen de Jenkins (crane verificado por sha256)
+      crane 0.22.1
+PASS  Jenkins: autentica, publica y descarga (red del registro)
+PASS  Jenkins: igual por host.docker.internal:5000 (dirección de --target local)
+PASS  la imagen de Jenkins quedó en el catálogo
+== 5. Rotación de la contraseña (rotate-registry-password.sh --target local --apply)
+PASS  rotación termina sin error
+      UPDATED   secreto /circleguard/tools/registry/REGISTRY_CI_PASSWORD rotado (valor no mostrado)
+      UPDATED   registry: /var/lib/docker/volumes/cgtest-home2/_data/home/local/registry/.env (0600, contenido no mostrado)
+      UPDATED   registry: usuario ci del registro (bcrypt, contraseña del gestor de secretos)
+      WARN      Jenkins no está en ejecución: recibirá la contraseña nueva en su próxima ejecución de bootstrap-jenkins.sh
+      UNCHANGED registry: registro en línea por TLS y exigiendo autenticación (HTTP 401 sin credenciales)
+      UNCHANGED registry: el usuario ci se autentica con la contraseña gestionada (HTTP 200)
+      UNCHANGED la contraseña nueva autentica en el registro (HTTP 200)
+      UNCHANGED la contraseña anterior ya no autentica (HTTP 401)
+PASS  el secreto cambió
+PASS  Jenkins con la contraseña nueva: publica y descarga
+PASS  Jenkins con la contraseña anterior: rechazado
+PASS  registro 3.ª tras la rotación: ninguna línea CREATED ni UPDATED
+== 6. Persistencia de las imágenes
+PASS  tras reiniciar el contenedor: mismo catálogo
+PASS  contenedor eliminado (down SIN -v)
+PASS  bootstrap-registry recrea el stack
+PASS  tras recrear el contenedor: mismo catálogo (volumen conservado)
+      catálogo: {"repositories":["circleguard/smoke-busybox","circleguard/smoke-jenkins"]}
+== 7. Limpieza (docker compose down sin -v; los volúmenes se conservan)
+
+RESULTADO: 22 PASS, 0 FAIL

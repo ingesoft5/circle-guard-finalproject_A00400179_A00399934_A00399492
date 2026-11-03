@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# HU-01 · EC2 servers (topology B): "ci" (Jenkins + SonarQube) and "nexus". The environments
-# get no servers in HU-01. BILLABLE. The default --plan mode prints the cost preview and
-# validates permissions with --dry-run. Creating or starting an instance requires
+# HU-01 · EC2 servers (topology B): "ci" (Jenkins + SonarQube) and "nexus" (Nexus and the
+# registry), plus one server per environment listed in ENV_SERVERS (empty by default: the
+# environments are isolated by network only). BILLABLE. The default --plan mode prints the cost
+# and vCPU preview and validates permissions with --dry-run. Creating or starting an instance
+# requires
 #   --apply --approve <role>[,<role>...]   (or --approve all)
 # Instances use Ubuntu 24.04, encrypted gp3 volumes, IMDSv2 and, on burstable T types, "standard"
 # CPU credits (no surplus charges; flex types have no credits). An OS shutdown stops the
@@ -19,7 +21,8 @@ Uso: infra/bootstrap-servers.sh [--plan | --apply --approve <roles>] | --prices
   --plan     (por defecto) muestra costos estimados y valida permisos con --dry-run.
   --apply --approve ci,nexus   crea o inicia SOLO los roles aprobados (FACTURABLE).
   --prices   consulta los precios vigentes en la AWS Pricing API (solo lectura) y termina.
-Roles: ci (Jenkins y SonarQube) y nexus (o "all").
+Roles: ci (Jenkins y SonarQube), nexus (Nexus y registro) y env-<ambiente> si figura en
+ENV_SERVERS (o "all").
 EOF
 }
 
@@ -53,6 +56,33 @@ cost_preview() {
       if (stop > 0) printf "  Parada automática de los hosts a las %d h del arranque: una sesión olvidada cuesta como máximo %.2f USD.\n\n", stop, (sum - ebs_month / 730) * stop
       else printf "  Parada automática DESACTIVADA (AUTO_STOP_HOURS=0): detenga las instancias al terminar.\n\n"
     }' >&2
+}
+
+# vcpu_preview: vCPU needed with every configured server running, against QUOTA_VCPU_TARGET. AWS
+# refuses a launch beyond the account quota (VcpuLimitExceeded) without creating anything.
+vcpu_preview() {
+  local role needed=0
+  for role in "${CG_ROLES[@]}"; do needed=$((needed + $(cg_type_vcpu "$(cg_role_type "$role")"))); done
+  info "vCPU con todos los servidores encendidos: $needed (QUOTA_VCPU_TARGET=$QUOTA_VCPU_TARGET; cuota real: infra/bootstrap-quota.sh)"
+  ((needed <= QUOTA_VCPU_TARGET)) ||
+    warn "los servidores configurados necesitan $needed vCPU encendidos a la vez: suba QUOTA_VCPU_TARGET y la cuota (infra/bootstrap-quota.sh), o no los encienda todos a la vez"
+}
+
+# vcpu_guard: with --apply, the servers already running plus the ones this run would create or
+# start must fit in the account quota (QUOTA_VCPU_LIMIT); otherwise AWS would launch some of them
+# and refuse the rest, leaving a half-done session.
+vcpu_guard() {
+  local role state total=0
+  is_apply || return 0
+  for role in "${CG_ROLES[@]}"; do
+    state=$(cg_find_instances "$role" | awk '{print $2}' | head -1)
+    if [[ "$state" == running || "$state" == pending ]] || is_approved "$role"; then
+      total=$((total + $(cg_type_vcpu "$(cg_role_type "$role")")))
+    fi
+  done
+  ((total <= QUOTA_VCPU_LIMIT)) ||
+    die "Quedarían $total vCPU encendidas a la vez y la cuota es de $QUOTA_VCPU_LIMIT (QUOTA_VCPU_LIMIT): apruebe menos servidores (de dos en dos) o detenga los que no necesite"
+  info "vCPU encendidas tras esta ejecución: $total de $QUOTA_VCPU_LIMIT"
 }
 
 # budget_preview: estimated cost of the instances this run would create or start, checked
@@ -242,11 +272,14 @@ fi
 cg_start_log bootstrap-servers
 cg_aws_preflight
 for role in ${CG_APPROVED//,/ }; do
-  [[ "$role" == all ]] || cg_role_type "$role" >/dev/null
+  [[ "$role" == all || " ${CG_ROLES[*]} " == *" $role "* ]] ||
+    die "Rol '$role' no configurado: use ${CG_ROLES[*]} o all (los ambientes se añaden con ENV_SERVERS en infra/config/aws.env)"
 done
 cost_preview
+vcpu_preview
 sync_stopped
 budget_preview
+vcpu_guard
 check_offerings
 resolve_ami
 for role in "${CG_ROLES[@]}"; do ensure_server "$role"; done

@@ -4,14 +4,19 @@
 # the host settings of the role: log rotation, vm.max_map_count for SonarQube, a swap file and
 # the auto-stop timer. Idempotent: it prints CG_RESULT lines and changes only what differs from
 # the desired state.
-#   usage: setup-docker.sh <role> <plan|apply> [auto-stop hours] [swap GiB]
+#   usage: setup-docker.sh <role> <plan|apply> [auto-stop hours] [swap GiB] [registry CIDR]
+# The registry CIDR (the tools subnet) is listed in insecure-registries so that Docker accepts the
+# self-signed certificate of the private registry on the nexus server. Every host gets the same
+# daemon.json: the two tools of the ci server must never disagree on it.
 set -Eeuo pipefail
 
 ROLE=${1:?rol requerido}
 MODE=${2:-plan}
 AUTO_STOP_HOURS=${3:-0}
 SWAP_GB=${4:-0}
+REGISTRY_CIDR=${5:-}
 [[ "$AUTO_STOP_HOURS" =~ ^[0-9]+$ && "$SWAP_GB" =~ ^[0-9]+$ ]] || { echo "ERROR: horas de parada y GiB de swap deben ser enteros"; exit 1; }
+[[ -z "$REGISTRY_CIDR" || "$REGISTRY_CIDR" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}/[0-9]{1,2}$ ]] || { echo "ERROR: CIDR del registro inválido"; exit 1; }
 result() { echo "CG_RESULT $*"; }
 applying() { [[ "$MODE" == apply ]]; }
 export DEBIAN_FRONTEND=noninteractive
@@ -62,17 +67,27 @@ else
   result PLAN "instalar Docker Engine y el plugin Compose (repositorio oficial de Docker)"
 fi
 
-# 2. Rotation of container logs, so a noisy container cannot fill the disk.
-if printf '%s\n' '{' '  "log-driver": "json-file",' '  "log-opts": { "max-size": "10m", "max-file": "3" }' '}' |
-  write_if_changed /etc/docker/daemon.json 0644; then
+# 2. Rotation of container logs, so a noisy container cannot fill the disk, and the private
+#    registry of the tools subnet. Restarting Docker restarts the containers (restart policy).
+daemon_json() { # daemon_json [registry CIDR]
+  printf '%s\n' '{' '  "log-driver": "json-file",'
+  if [[ -n "${1:-}" ]]; then
+    printf '%s\n' '  "log-opts": { "max-size": "10m", "max-file": "3" },' "  \"insecure-registries\": [\"$1\"]"
+  else
+    printf '%s\n' '  "log-opts": { "max-size": "10m", "max-file": "3" }'
+  fi
+  printf '%s\n' '}'
+}
+DAEMON_TEXT="rotación de logs (10 MB x 3)${REGISTRY_CIDR:+ y registro privado de $REGISTRY_CIDR}"
+if daemon_json "$REGISTRY_CIDR" | write_if_changed /etc/docker/daemon.json 0644; then
   if applying; then
     systemctl restart docker
-    result UPDATED "/etc/docker/daemon.json con rotación de logs (10 MB x 3)"
+    result UPDATED "/etc/docker/daemon.json con $DAEMON_TEXT"
   else
-    result PLAN "configurar la rotación de logs de Docker en /etc/docker/daemon.json"
+    result PLAN "configurar /etc/docker/daemon.json: $DAEMON_TEXT"
   fi
 else
-  result UNCHANGED "/etc/docker/daemon.json con rotación de logs"
+  result UNCHANGED "/etc/docker/daemon.json con $DAEMON_TEXT"
 fi
 
 # 3. Docker starts on boot, so the stacks come back after a stop/start of the instance.

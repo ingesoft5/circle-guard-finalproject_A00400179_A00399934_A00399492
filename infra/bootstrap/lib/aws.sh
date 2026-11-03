@@ -7,11 +7,32 @@ source "$CG_LIB_DIR/session.sh"
 # shellcheck source=budget.sh
 source "$CG_LIB_DIR/budget.sh"
 
-# Servers of HU-01 (topology B): "ci" runs Jenkins and SonarQube, "nexus" runs Nexus. The
-# environments have no servers in HU-01 (network isolation only); env-* roles remain valid for
-# bootstrap-env.sh if a later story approves environment hosts.
+# Servers of HU-01 (topology B): "ci" runs Jenkins and SonarQube, "nexus" runs Nexus and the
+# registry. Environment servers (env-dev, env-stage, env-prod) are added by cg_init_roles only for
+# the environments listed in ENV_SERVERS (empty by default: network isolation only).
 # shellcheck disable=SC2034 # used by the scripts that source this library
 CG_ROLES=(ci nexus)
+
+# cg_init_roles: called by cg_load_config once infra/config/aws.env is loaded. Validates the
+# settings that select servers and the registry, and completes CG_ROLES.
+cg_init_roles() {
+  local e
+  CG_ROLES=(ci nexus)
+  for e in ${ENV_SERVERS//,/ }; do
+    cg_validate_env "$e"
+    [[ " ${CG_ROLES[*]} " == *" env-$e "* ]] || CG_ROLES+=("env-$e")
+  done
+  case "${REGISTRY_BACKEND:-}" in
+    distribution | nexus) ;;
+    *) die "REGISTRY_BACKEND inválido '${REGISTRY_BACKEND:-}' en infra/config/aws.env (use distribution o nexus)" ;;
+  esac
+}
+
+# cg_registry_tools: tools deployed on the nexus server, in the order that frees and then takes
+# the registry port (the backend not in use is retired first).
+cg_registry_tools() {
+  if [[ "$REGISTRY_BACKEND" == distribution ]]; then echo nexus registry; else echo registry nexus; fi
+}
 
 # cg_aws_preflight: validates tools, the identity of the capability the run needs (by default
 # read for --plan and operate for --apply; see lib/session.sh), region and zone. The scripts
@@ -95,7 +116,7 @@ cg_dry_run() {
 
 cg_role_tier() {
   case "$1" in
-    ci | nexus | jenkins | sonarqube) echo tools ;;
+    ci | nexus | jenkins | sonarqube | registry) echo tools ;;
     env-dev | env-stage | env-prod) echo "${1#env-}" ;;
     *) die "Rol desconocido: $1" ;;
   esac
@@ -105,7 +126,7 @@ cg_role_tier() {
 cg_tool_host() {
   case "$1" in
     jenkins | sonarqube) echo ci ;;
-    nexus) echo nexus ;;
+    nexus | registry) echo nexus ;;
     *) die "Herramienta desconocida: $1" ;;
   esac
 }
@@ -125,6 +146,14 @@ cg_role_volume() {
     nexus) echo "$NEXUS_VOLUME_GB" ;;
     env-*) cg_env_value "${1#env-}" ENV_VOLUME_GB ;;
     *) die "Rol sin servidor: $1" ;;
+  esac
+}
+
+# cg_type_vcpu <instance type>: vCPU of the types the operator role may launch.
+cg_type_vcpu() {
+  case "$1" in
+    t3.small | c7i-flex.large | m7i-flex.large) echo 2 ;;
+    *) die "Tipo de instancia sin vCPU conocidas: $1" ;;
   esac
 }
 

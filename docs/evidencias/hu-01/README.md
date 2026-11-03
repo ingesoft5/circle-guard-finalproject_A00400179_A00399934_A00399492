@@ -5,13 +5,18 @@ comparación directa confirmó que ningún secreto generado aparece en los archi
 en los logs. Las copias de los registros de AWS de [`fase4/`](fase4/) están además enmascaradas
 (número de cuenta, identificadores de IAM y último octeto de IP públicas).
 
-**Estado general: HU-01 NO está terminada.** El 2026-11-02 se desplegó y validó en AWS
-([evidencia 14](14-despliegue-aws-fase4.md)): red, IAM, 35 secretos en SSM, `ci` con Jenkins,
-SonarQube y PostgreSQL (PASS) y `nexus` con Nexus desplegado y el EULA **pendiente**; después se
-detuvieron las dos instancias, conservando sus volúmenes. Falta la prueba de idempotencia completa
-en AWS (C3, [procedimiento 15](15-procedimiento-idempotencia-aws.md), requiere arrancar las
-instancias), la decisión del equipo sobre el EULA ([16](16-nexus-eula.md)) y la reconstrucción desde
-cero siguiendo solo la documentación.
+**Estado general (2026-11-03): HU-01 NO está terminada.** Informe completo, con la matriz del
+Sprint 1 y los enlaces a cada evidencia: [INFORME_FINAL_HU01_SPRINT1.md](INFORME_FINAL_HU01_SPRINT1.md).
+
+- **En AWS el 2026-11-02** ([evidencia 14](14-despliegue-aws-fase4.md)): red, IAM, 35 secretos en
+  SSM, `ci` con Jenkins, SonarQube y PostgreSQL (PASS) y `nexus` con Nexus. Después se detuvieron las
+  dos instancias, conservando sus volúmenes.
+- **El 2026-11-03, implementado y probado en local** ([evidencia 18](18-mejoras-cierre-tecnico.md) e
+  informe final):
+  - registro principal CNCF Distribution, con su integración con Jenkins y la rotación;
+  - servidores de ambiente probados por pares;
+  - pruebas automatizadas de idempotencia, recuperación y aislamiento.
+- **Pendiente:** su ejecución en AWS, que requiere autorización.
 
 **Preparación de AWS (2026-11-01, solo lectura, [09](09-aws-preparacion-cuenta-e-iam.txt)):**
 - Cuenta independiente en el **plan gratuito**: 100 USD de créditos; el plan termina el 2027-04-30.
@@ -26,27 +31,32 @@ cero siguiendo solo la documentación.
 
 ## Matriz final: seis criterios
 
-Clasificación usada en todas las evidencias de HU-01: **PASS** (cumplido y comprobado), **PARTIAL**
-(hecho en parte; se indica lo que falta), **FAIL** (comprobado y no cumple) y **NOT VERIFIED** (sin
-comprobar). Estado de la historia: **PARCIALMENTE COMPLETADA**.
+Clasificación desde el 2026-11-03 (informe final):
+- **PASS:** implementación completa y evidencia verificable.
+- **PARTIAL:** implementación o evidencia incompletas.
+- **FAIL:** requisito incumplido.
+- **BLOCKED:** requiere una autorización, una decisión o una dependencia externa.
+
+Las evidencias 14 a 18, fechadas, usaron PASS, PARTIAL, FAIL y NOT VERIFIED. Estado de la historia:
+**PARCIALMENTE COMPLETADA**.
 
 | Criterio | Estado | Qué está hecho | Qué falta |
 |---|---|---|---|
-| C1 · Servidores en la nube para Jenkins, SonarQube y Nexus | **PARTIAL** | En AWS el 2026-11-02 ([14](14-despliegue-aws-fase4.md)): `ci` y `nexus` (m7i-flex.large, AMI fijada, IMDSv2, gp3 cifrado) creados por script; Jenkins, SonarQube y PostgreSQL **PASS** (`verify-infra.sh` 22/0/1 y 53/0/5); Nexus desplegado, en línea y con la contraseña gestionada | Nexus sin función de repositorio hasta la decisión del EULA ([16](16-nexus-eula.md)) |
-| C2 · dev, stage y prod aislados | **PARTIAL** | En AWS: subred y grupo de seguridad propios por ambiente, ninguna regla entre ambientes y solo referencias a `ci` y `nexus` (15 comprobaciones PASS); con tráfico real, `ci → nexus:8081` permitido y `nexus → ci:8080/9000` bloqueados ([14](14-despliegue-aws-fase4.md) §8) | Sin servidores de ambiente (topología B), el aislamiento está **configurado y verificado por reglas, no con tráfico entre ambientes**. El equipo debe decidir si eso basta para HU-01 (recomendado) o si se prueba en la historia que despliegue esos servidores; C2 no se cierra sin esa aceptación |
-| C3 · `infra/bootstrap-*.sh` idempotentes | **PARTIAL** | Demostrado en local (2.ª ejecución con `created=0 updated=0`: secretos, Jenkins y SonarQube, más la corrección de derivas). Revisión estática de todos los scripts y 6 defectos corregidos ([08](08-revision-idempotencia.md)). En AWS: red `unchanged=28` y secretos `unchanged=43` en la 2.ª ejecución, e IAM convergente ([14](14-despliegue-aws-fase4.md)) | Dos ejecuciones de `bootstrap-all.sh` en AWS con *snapshot* y `diff` vacío: procedimiento listo en la [evidencia 15](15-procedimiento-idempotencia-aws.md), pendiente de autorización (arranca las instancias) |
+| C1 · Servidores en la nube para Jenkins, SonarQube y el registro de artefactos | **BLOCKED** (autorización AWS) | En AWS el 2026-11-02 ([14](14-despliegue-aws-fase4.md)): `ci` y `nexus` (m7i-flex.large, AMI fijada, IMDSv2, gp3 cifrado) creados por script; Jenkins, SonarQube y PostgreSQL **PASS** (`verify-infra.sh` 22/0/1 y 53/0/5); Nexus desplegado, en línea y con la contraseña gestionada | Registro principal CNCF Distribution (decisión del equipo) e integración con Jenkins (`crane`): implementados y probados en local (integración 22/22, [auditoria](auditoria/20261103T041534Z-integracion-local-hu01.txt)). Falta desplegarlos y probarlos en AWS con `test-idempotency.sh` (autorización) |
+| C2 · dev, stage y prod aislados | **BLOCKED** (autorización AWS) | En AWS: subred y grupo de seguridad propios por ambiente, ninguna regla entre ambientes y solo referencias a `ci` y `nexus` (15 comprobaciones PASS); con tráfico real, `ci → nexus:8081` permitido y `nexus → ci:8080/9000` bloqueados ([14](14-despliegue-aws-fase4.md) §8) | Sin servidores de ambiente (topología B), el aislamiento está **configurado y verificado por reglas, no con tráfico entre ambientes**. Decisión del 2026-11-03: un `t3.small` por ambiente, creados y probados por pares con `test-isolation.sh` dentro de la cuota de 5 vCPU (≈ 0.15 USD más el EBS). Falta ejecutarlo en AWS (autorización). El despliegue de las aplicaciones en los ambientes (E1.5) no cabe en HU-01 (ver el informe final) |
+| C3 · `infra/bootstrap-*.sh` idempotentes | **BLOCKED** (autorización AWS) | Demostrado en local (2.ª ejecución con `created=0 updated=0`: secretos, Jenkins y SonarQube, más la corrección de derivas). Revisión estática de todos los scripts y 6 defectos corregidos ([08](08-revision-idempotencia.md)). En AWS: red `unchanged=28` y secretos `unchanged=43` en la 2.ª ejecución, e IAM convergente ([14](14-despliegue-aws-fase4.md)) | Dos ejecuciones de `bootstrap-all.sh` en AWS con *snapshot* y `diff` vacío: procedimiento listo en la [evidencia 15](15-procedimiento-idempotencia-aws.md) y automatizado en `infra/test-idempotency.sh` ([18](18-mejoras-cierre-tecnico.md)), pendiente de autorización (arranca las instancias) |
 | C4 · Credenciales de `docker-compose.dev.yml` fuera del repositorio | **PASS** | `${VAR:?}` sin valores por defecto, `.env.example` vacío y credenciales en `~/.circleguard/dev.env`; incluido en el commit `3a43855` | — |
-| C5 · Bash y Docker Compose sin configuración manual no documentada | **PARTIAL** | Jenkins (JCasC) y SonarQube (API) sin pasos manuales; acceso administrativo por túnel; IAM, sesiones temporales, cuota y destrucción en CloudShell automatizados y documentados en `infra/README.md`. Los únicos pasos manuales son los que deben serlo (contraseñas y MFA en la consola de AWS), y están documentados | Nexus (decisión del EULA) y la reconstrucción en AWS siguiendo solo la documentación. La instalación del 2026-11-02 se hizo solo con los scripts ([14](14-despliegue-aws-fase4.md)) |
+| C5 · Bash y Docker Compose sin configuración manual no documentada | **BLOCKED** (autorización AWS y otra persona) | Jenkins (JCasC) y SonarQube (API) sin pasos manuales; acceso administrativo por túnel; IAM, sesiones temporales, cuota y destrucción en CloudShell automatizados y documentados en `infra/README.md`. Los únicos pasos manuales son los que deben serlo (contraseñas y MFA en la consola de AWS), y están documentados | La reconstrucción en AWS siguiendo solo la documentación (nivel 1 del ensayo). La instalación del 2026-11-02 se hizo solo con los scripts ([14](14-despliegue-aws-fase4.md)). **Preparado el 2026-11-03:** ensayo de reconstrucción en dos niveles y tabla de pasos humanos con su motivo en `infra/README.md`, sin ejecutar ([18](18-mejoras-cierre-tecnico.md)) |
 | C6 · Credenciales fuera del repositorio, con un mecanismo seguro | **PASS** | 0 secretos activos ([03](03-gitleaks-arbol-de-trabajo.txt); repetido el 2026-11-02 en [`fase4/`](fase4/)); los 7 `application.yml` funcionan con variables y fallan sin ellas ([07](07-verificacion-arranque-servicios.txt)); acceso a AWS sin claves permanentes ([06](06-iam-minimo-privilegio.txt), [09](09-aws-preparacion-cuenta-e-iam.txt)). En AWS: 35 parámetros SecureString, `.env` 0600 root en los hosts, secretos distintos por ambiente y 0 apariciones de los valores en el repositorio y en los registros ([14](14-despliegue-aws-fase4.md)) | — |
 
 ## Matriz final: cuatro evidencias
 
 | Evidencia | Estado | Archivos |
 |---|---|---|
-| 1. Salida del bootstrap | **PARTIAL**: ejecuciones locales (`local/`) y en AWS del 2026-11-02 (`fase4/`, enmascaradas). Falta la salida de la prueba de idempotencia completa (C3) | [`local/`](local/), [`fase4/`](fase4/), [`14`](14-despliegue-aws-fase4.md), [`08-revision-idempotencia.md`](08-revision-idempotencia.md) |
+| 1. Salida del bootstrap | **BLOCKED** (autorización AWS): salidas reales paso a paso en AWS del 2026-11-02 (`fase4/`, enmascaradas) y locales (`local/`, `auditoria/`). Falta la salida del comando único en AWS (`test-idempotency.sh`) | [`local/`](local/), [`fase4/`](fase4/), [`14`](14-despliegue-aws-fase4.md), [`08-revision-idempotencia.md`](08-revision-idempotencia.md) |
 | 2. Diagrama de ambientes | **PASS** para la topología B: red, aislamiento (configurado frente a verificado), servidores `ci` y `nexus`, memoria prevista e identidades y autorización | [`../../arquitectura/infra-ambientes.md`](../../arquitectura/infra-ambientes.md) |
 | 3. Commit que elimina las credenciales | **PASS**: `3a43855` (rama `HU01_Infraestructura_nube_bash`, publicada en `origin`). Sin reescribir el historial | `git show --stat 3a43855` |
-| 4. Captura del escaneo de secretos | **PARTIAL**: árbol de trabajo en PASS e historial completo, repetido el 2026-11-02 sobre `3632068` (ACTIVO=0). Falta solo la captura de pantalla, que hará el equipo | [`03`](03-gitleaks-arbol-de-trabajo.txt), [`04`](04-gitleaks-historial.txt), [`fase4/20261102T194438Z-worktree-summary.txt`](fase4/20261102T194438Z-worktree-summary.txt) |
+| 4. Captura del escaneo de secretos | **BLOCKED** (captura manual): reporte de texto actual en `auditoria/` (ACTIVO=0). Falta la captura de pantalla, con instrucciones en [`capturas/README.md`](capturas/README.md) | [`03`](03-gitleaks-arbol-de-trabajo.txt), [`04`](04-gitleaks-historial.txt), [`fase4/20261102T194438Z-worktree-summary.txt`](fase4/20261102T194438Z-worktree-summary.txt) |
 
 ## Clasificación de los hallazgos de Gitleaks
 
@@ -100,8 +110,15 @@ esas líneas corresponden ya a los valores ficticios.
 | `15-procedimiento-idempotencia-aws.md` | Procedimiento de la prueba de idempotencia en AWS (C3), con comandos, resultado esperado, coste y riesgos. **No ejecutado** |
 | `16-nexus-eula.md` | EULA de Nexus Community Edition: texto y condiciones oficiales, interpretación técnica y consecuencias, para la decisión del equipo |
 | `17-auditoria-final-hu01.md` | Auditoría final del 2026-11-02: matriz C1–C6 (PASS o PARTIAL, con lo que falta), inventario, scripts, seguridad, persistencia, Nexus, ambientes, idempotencia, evidencias, cambios locales, plan de cierre y autorizaciones. Estado: **PARCIALMENTE COMPLETADA** |
+| `18-mejoras-cierre-tecnico.md` | Mejoras del 2026-11-03 **preparadas y validadas en local, sin desplegar en AWS**: registro CNCF Distribution junto a Nexus, servidores de ambiente opcionales, prueba de idempotencia automatizada y ensayo de reconstrucción. Las clasificaciones no cambian |
 | `fase4/*` | Copias enmascaradas de los registros y reportes de la fase 4; cada una indica el sha256 de su original en `infra/logs` o `infra/security/reports` |
-| `auditoria/*` | Validaciones locales de la auditoría final (`bash -n`, ShellCheck, YAML y JSON, `docker compose config`, `.gitignore`) y el resumen del Gitleaks final |
+| `auditoria/*` | Validaciones locales fechadas (`bash -n`, ShellCheck, Compose, `.gitignore`), resúmenes de Gitleaks y, del 2026-11-03, la integración local en contenedor Linux (22/22), la prueba del registro (21/21), las comprobaciones unitarias (32/32) y el ShellCheck de 32 scripts. Los archivos de las 03:02-03:12 UTC quedan superados por los de las 04:11-04:15 UTC |
+| `INFORME_FINAL_HU01_SPRINT1.md` | Informe final: matriz del Sprint 1 y de C1-C6, evidencias con enlaces, pruebas, costos, riesgos, pendientes humanos y commits sugeridos |
+| `capturas/README.md` | Instrucciones exactas de las capturas de pantalla pendientes (ninguna capturada todavía) |
+| `ensayo-reconstruccion/README.md` | Ensayo de reconstrucción de nivel 1 para otro integrante (C5): pasos, identidad y MFA, evidencia que entregar, criterios de PASS y mensaje listo para enviar |
+| `aws/README.md` | Carpeta preparada para las salidas enmascaradas de las pruebas en AWS (idempotencia, aislamiento y ensayo): vacía hasta su ejecución autorizada |
+| `auditoria/*-commit-3a43855-credenciales.txt` | Evidencia 3: el commit que eliminó las credenciales, con las líneas añadidas y solo el recuento de las eliminadas |
+| `auditoria/*-prerrequisitos-wsl.txt` | `check-prerequisites.sh` en la estación de trabajo: la primera ejecución midió los 26 min de `git status` sobre OneDrive; la segunda, 13 s tras la corrección |
 | `local/*.log` | Ejecuciones locales (`--target local`) en Docker Desktop. La ruta del usuario aparece como `~` |
 
 ## Artefactos locales fuera del repositorio (no se borran sin autorización)
