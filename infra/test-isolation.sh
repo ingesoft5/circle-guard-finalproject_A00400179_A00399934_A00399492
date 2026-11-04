@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # HU-01 · Isolation test of dev, stage and prod with real traffic (criterion C2). BILLABLE.
-# The vCPU quota (QUOTA_VCPU_LIMIT) runs two 2-vCPU servers at once, so the test goes in phases of
-# two servers. Each phase creates or starts its servers (bootstrap-servers.sh), prepares the
-# environment hosts (bootstrap-env.sh: Docker, auto-stop timer, credentials of that environment
-# only), runs verify-infra.sh on exactly those servers and stops them before the next phase:
+# The configured vCPU limit (QUOTA_VCPU_LIMIT, not the account quota) runs two 2-vCPU servers at
+# once, so the test goes in phases of two servers. Each phase creates or starts its servers
+# (bootstrap-servers.sh), prepares the environment hosts (bootstrap-env.sh: Docker, auto-stop
+# timer, credentials of that environment only), runs verify-infra.sh on exactly those servers and
+# stops them before the next phase:
 #   1. env-dev + env-stage   dev <-> stage blocked (nc from each host)
 #   2. env-dev + env-prod    dev <-> prod blocked
 #   3. env-stage + env-prod  stage <-> prod blocked
@@ -60,13 +61,14 @@ done
 if ! is_apply; then
   {
     echo "Prueba de aislamiento con tráfico (--plan: no se llama a AWS). Con --apply, por fases de dos servidores"
-    echo "(cuota QUOTA_VCPU_LIMIT=$QUOTA_VCPU_LIMIT vCPU):"
+    echo "(límite configurado QUOTA_VCPU_LIMIT=$QUOTA_VCPU_LIMIT vCPU, no la cuota):"
     echo "  0. bootstrap-network.sh --apply: regla 22 de la IP actual del operador (normalmente sin cambios)"
     n=1
     for p in "${PHASES[@]}"; do
       [[ ",$SELECTED," == *",$n,"* ]] && echo "  $n. $p: bootstrap-servers + bootstrap-env + verify-infra.sh --roles=$p; parada"
       n=$((n + 1))
     done
+    echo "  Además: idempotencia de bootstrap-env.sh (cada host, sin cambios desde su segunda ejecución)."
     echo "  Duración: 10-15 min por fase; las cinco no caben en la ventana MFA de 1 h: use --phases=1,2,3 y --phases=4,5."
     echo "  Al final, siempre: teardown.sh --stop --apply. Resultados en $CG_LOCAL_HOME/isolation/<marca UTC>/"
     echo "  Costo estimado: ≈ 0.15 USD de horas de instancia (fases de 15-20 min) más el EBS de los ambientes"
@@ -157,5 +159,17 @@ for phase in "${PHASES[@]}"; do
   grep -E ' (PASS|FAIL) +(aislamiento|permitido|env-)' "$log_file" | sed -E 's/^[0-9:]+ +/      /' >>"$REPORT" || true
   stop_all || { report "FAIL  no se pudieron detener las instancias tras la fase $n"; exit 1; }
 done
-report "RESULTADO: $([[ $FAILURES -eq 0 ]] && echo 'AISLAMIENTO VERIFICADO CON TRÁFICO (todas las fases en PASS)' || echo "$FAILURES fases en FAIL")"
+# Idempotency of bootstrap-env.sh (C3): each environment host is prepared in its first phase;
+# every later run on the same host in this test must end with created=0 updated=0.
+for e in "${CG_ENVS[@]}"; do
+  mapfile -t runs < <(for f in "$OUT"/fase*.txt; do grep -h "SUMMARY   bootstrap-env-$e " "$f" || true; done)
+  ((${#runs[@]} >= 2)) || continue
+  if printf '%s\n' "${runs[@]:1}" | grep -vq 'created=0 updated=0'; then
+    report "FAIL  idempotencia: bootstrap-env.sh $e cambió algo en una ejecución posterior a la primera (${#runs[@]} ejecuciones)"
+    FAILURES=$((FAILURES + 1))
+  else
+    report "PASS  idempotencia: bootstrap-env.sh $e sin cambios en las ejecuciones 2 a ${#runs[@]} (created=0 updated=0)"
+  fi
+done
+report "RESULTADO: $([[ $FAILURES -eq 0 ]] && echo 'AISLAMIENTO VERIFICADO CON TRÁFICO (todas las comprobaciones en PASS)' || echo "$FAILURES comprobaciones en FAIL")"
 ((FAILURES == 0)) || exit 1

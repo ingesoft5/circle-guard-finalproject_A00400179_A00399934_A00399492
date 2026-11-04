@@ -1,23 +1,22 @@
 # Registro de artefactos de CircleGuard (HU-01): decisión y trade-offs
 
-Fecha: 2026-11-03. Estado: **decisión del equipo adoptada (`REGISTRY_BACKEND=distribution`),
-implementada y probada en local; pendiente de desplegar en AWS** (requiere autorización).
+Fecha: 2026-11-03. Estado: **decisión definitiva del equipo (`REGISTRY_BACKEND=distribution`; el EULA de
+Nexus no se acepta), implementada y verificada en AWS el 2026-11-03.**
 
 ## Problema
 
 E1.2 pide «el registro de artefactos (Nexus o equivalente)» y HU-01 nombra Nexus. Nexus Repository
 Community Edition 3.96.5 está desplegado en `circleguard-nexus`, pero no sirve componentes mientras
-no se acepte su EULA, que es una decisión del equipo todavía pendiente
-([evidencia 16](../evidencias/hu-01/16-nexus-eula.md)). Sin registro, E1.3 no puede publicar
-imágenes y C1 no puede cerrarse.
+no se acepte su EULA ([evidencia 16](../evidencias/hu-01/16-nexus-eula.md)). El equipo decidió no aceptarlo.
+Sin otro registro, E1.3 no podría publicar imágenes y C1 no podría cerrarse.
 
 ## Alternativas evaluadas
 
 | Opción | Licencia | Docker | Recursos | Autenticación y autorización | Etiquetas inmutables | Integración con la topología B | Coste adicional |
 |---|---|---|---|---|---|---|---|
-| Nexus CE 3.96.5 (actual) | EULA de Sonatype (pendiente) | Sí (conector 8082) | 4-6.4 GiB | Usuarios y roles | Sí (`allow_once`) | Ya desplegado | 0 |
+| Nexus CE 3.96.5 (instalado, sin registro) | EULA de Sonatype (no se acepta) | Sí (conector 8082) | 4-6.4 GiB | Usuarios y roles | Sí (`allow_once`) | Ya desplegado | 0 |
 | **CNCF Distribution 3.0.0** | Apache 2.0, sin EULA | Implementación de referencia del protocolo | ≈ 20-50 MiB | Usuarios htpasswd (bcrypt); **sin permisos por usuario** | No | Mismo host `nexus`, puerto 8082 ya permitido por los grupos de seguridad; sin cambios de IAM ni de red | 0 |
-| Harbor | Apache 2.0 | Sí | ≈ 8 contenedores, 4 GiB o más recomendados | RBAC por proyecto | Sí | No cabe junto a Nexus en 8 GiB: exigiría otra instancia (cuota de 5 vCPU agotada) | Otra instancia |
+| Harbor | Apache 2.0 | Sí | ≈ 8 contenedores, 4 GiB o más recomendados | RBAC por proyecto | Sí | No cabe junto a Nexus en 8 GiB: exigiría otra instancia (límite de 5 vCPU agotado) | Otra instancia |
 | Zot | Apache 2.0 | OCI nativo; los manifiestos Docker necesitan una opción de compatibilidad | Bajo | htpasswd con políticas por usuario | Parcial | Mismo host | 0 |
 | GitHub Container Registry | Servicio externo | Sí | — | Tokens personales | No | No es un servidor aprovisionado por scripts (E1.2) | Cuotas del plan |
 | Amazon ECR | Servicio gestionado | Sí | — | IAM | Sí | Nuevos permisos IAM; no es un servidor Bash/Compose | Por GB |
@@ -39,7 +38,7 @@ aceptar, y nada depende de él para publicar ni descargar imágenes.
 
 | Aspecto | Consecuencia | Mitigación |
 |---|---|---|
-| Literalidad de HU-01 | HU-01 nombra Nexus; E1.2 admite «o equivalente» | Nexus sigue desplegado; la decisión del EULA permanece abierta y el cambio es una línea de configuración |
+| Literalidad de HU-01 | HU-01 nombra Nexus; E1.2 admite «o equivalente» | Nexus sigue desplegado, sin función de registro. E1.2 se cumple con un registro «equivalente» |
 | Autorización | Todo usuario autenticado puede publicar y descargar | Solo existe el usuario `ci` (Jenkins). Las credenciales de solo descarga de los ambientes se definirán con E1.5 |
 | Inmutabilidad | Distribution permite sobrescribir etiquetas | E1.3 exige versión semántica y nunca `latest`; el pipeline no debe reutilizar etiquetas |
 | Transporte | TLS con un certificado autofirmado generado en el host. Los clientes Docker de la VPC confían en el registro por estar en `insecure-registries` (limitado a la subred `tools`): **cifrado sin autenticación del servidor** | El 8082 solo admite tráfico desde `ci` y los ambientes (grupos de seguridad) y no está expuesto a Internet. Mejora futura: una CA propia distribuida a los clientes |
@@ -68,6 +67,10 @@ aceptar, y nada depende de él para publicar ni descargar imágenes.
   - la publicación y descarga desde el host y desde la imagen de Jenkins;
   - la rotación, con la contraseña anterior rechazada;
   - la persistencia tras reiniciar y recrear el contenedor.
-- **En AWS:** pendiente. Una ejecución autorizada de `infra/test-idempotency.sh --apply --approve
-  ci,nexus` despliega el registro y ejecuta `verify-infra.sh --registry`. Hasta entonces C1 queda
-  **BLOCKED** por esa autorización.
+- **En AWS (2026-11-03, `infra/test-idempotency.sh --apply --approve ci,nexus`, commit `3afca6f`):**
+  `docs/evidencias/hu-01/aws/idempotencia/` ([índice](../evidencias/hu-01/aws/idempotencia/README.md)).
+  - Registro desplegado: contenedor saludable, autenticación por TLS y no expuesto a Internet.
+  - El usuario `ci` publica y descarga desde el host `ci`, y Jenkins con `crane`.
+  - Flujo `ci → nexus:8082` permitido, y recuperación tras reiniciar los contenedores.
+
+  C1 queda en **PASS**.

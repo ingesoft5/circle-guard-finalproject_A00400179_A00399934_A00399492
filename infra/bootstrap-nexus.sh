@@ -2,8 +2,8 @@
 # HU-01 · Nexus Repository server: prepares the host (Docker Engine + Compose), publishes the
 # Nexus stack, writes its .env from the secret manager and configures Nexus through its REST
 # API: managed admin password, anonymous access off, Docker Bearer Token realm and the Docker
-# hosted repository "circleguard-docker". The last three wait for the team's decision on the
-# Community Edition EULA (NEXUS_ACCEPT_EULA): until then Nexus runs, but is reported as pending.
+# hosted repository "circleguard-docker". The last three need the Community Edition EULA, which
+# the team decided not to accept (NEXUS_ACCEPT_EULA=false): Nexus runs without a repository.
 # With REGISTRY_BACKEND=distribution the registry port belongs to CNCF Distribution
 # (infra/bootstrap-registry.sh) and the unused Nexus connector only listens on a loopback port.
 # Idempotent. It does not create AWS resources.

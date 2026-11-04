@@ -1,0 +1,48 @@
+00:09:55 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793749263 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+
+Estimación On-Demand (precios de referencia 2026-11-02; verificar con --prices)
+  rol        tipo         EC2 h    IPv4 h   EBS mes    total h   día 24h   mes 730h
+  ci         m7i-flex.large  0.0958    0.0050      2.40     0.1040      2.50      75.95
+  nexus      m7i-flex.large  0.0958    0.0050      2.00     0.1035      2.48      75.55
+  env-dev    t3.small    0.0208    0.0050      0.80     0.0269      0.65      19.63
+  env-stage  t3.small    0.0208    0.0050      0.80     0.0269      0.65      19.63
+  env-prod   t3.small    0.0208    0.0050      0.80     0.0269      0.65      19.63
+  TOTAL                                        6.80     0.2882      6.92     210.41
+  Detenidas solo se cobra el EBS: 0.22 USD/día (la IPv4 automática se libera). Sin NAT Gateway ni Elastic IP.
+  Transferencia de salida a Internet: 0.09 USD/GB (reserva de 3 GB = 0.27 USD); la entrada no se cobra.
+  Parada automática de los hosts a las 4 h del arranque: una sesión olvidada cuesta como máximo 1.12 USD.
+
+00:09:58 INFO      vCPU con todos los servidores encendidos: 10 (QUOTA_VCPU_TARGET=10; cuota real: infra/bootstrap-quota.sh)
+00:10:28 INFO      estimación local (no es un límite de facturación): acumulado 0.40 + esta ejecución (4 h y EBS nuevo por 45 días) 0.51 + transferencia 0.27 = 1.18 de 15 USD
+00:10:41 INFO      vCPU encendidas tras esta ejecución: 4 de 5 (límite configurado, no la cuota)
+00:10:44 INFO      tipo m7i-flex.large ofrecido en us-east-2a
+00:10:47 INFO      tipo t3.small ofrecido en us-east-2a
+00:10:50 INFO      AMI Ubuntu 24.04: ami-0fc53b217ec1ad816 (dispositivo raíz /dev/sda1)
+00:11:12 UPDATED   instancia circleguard-ci (i-010843f2125041114) iniciada (FACTURABLE desde ahora)
+00:11:12 UNCHANGED circleguard-ci: m7i-flex.large no usa créditos de CPU (sin cargos por ráfagas)
+00:11:14 UNCHANGED circleguard-ci: IMDSv2 obligatorio
+00:11:17 UNCHANGED instancia circleguard-nexus (i-08c990919adc43fa1) detenida (para iniciarla: --apply --approve nexus)
+00:11:39 UPDATED   instancia circleguard-env-dev (i-06c9577f8afb5a763) iniciada (FACTURABLE desde ahora)
+00:11:41 UNCHANGED circleguard-env-dev: créditos de CPU en modo standard (sin cargos por ráfagas)
+00:11:44 UNCHANGED circleguard-env-dev: IMDSv2 obligatorio
+00:11:45 UNCHANGED instancia circleguard-env-stage (i-0eacec7096879d402) detenida (para iniciarla: --apply --approve env-stage)
+00:11:48 UNCHANGED instancia circleguard-env-prod (i-0b11b6112952c0dbf) detenida (para iniciarla: --apply --approve env-prod)
+00:11:48 SUMMARY   bootstrap-servers created=0 updated=2 unchanged=7 planned=0
+00:11:54 INFO      SSH disponible en ci (i-010843f2125041114)
+00:12:09 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793749263 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+00:12:15 INFO      SSH disponible en env-dev (i-06c9577f8afb5a763)
+00:12:17 UNCHANGED env-dev: Docker 29.9.3 y Compose 5.7.0 instalados
+00:12:17 UNCHANGED env-dev: /etc/docker/daemon.json con rotación de logs (10 MB x 3) y registro privado de 10.20.0.0/24
+00:12:17 UNCHANGED env-dev: servicio docker habilitado y activo
+00:12:17 UNCHANGED env-dev: /opt/circleguard
+00:12:17 UNCHANGED env-dev: swap /swapfile activo (2 GiB)
+00:12:17 UNCHANGED env-dev: vm.swappiness=10
+00:12:17 UNCHANGED env-dev: parada automática programada (circleguard-autostop.timer en espera, 4 h desde su activación)
+00:12:58 UNCHANGED env-dev: /opt/circleguard/dev/.env (0600, contenido no mostrado)
+00:12:59 UNCHANGED env-dev: el host solo contiene las credenciales de dev (9 variables)
+00:12:59 SUMMARY   bootstrap-env-dev created=0 updated=0 unchanged=9 planned=0
+00:13:02 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793749263 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+00:13:16 PASS      aislamiento: env-dev -> ci:8080 bloqueado
+00:13:27 PASS      aislamiento: env-dev -> ci:9000 bloqueado
+00:13:36 PASS      permitido: ci -> env-dev:22
+00:13:40 SUMMARY   verify-infra pass=3 fail=0 pendiente=0

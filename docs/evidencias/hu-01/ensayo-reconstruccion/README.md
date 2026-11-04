@@ -4,16 +4,24 @@
 hace converger la plataforma siguiendo solo la documentación, sin destruir nada. Es la evidencia
 de C5 y del «se reconstruye con un comando» de la rúbrica P1.2.
 
-La misma ejecución sirve también como prueba de idempotencia en AWS (C3): se hace una sola vez.
+La idempotencia en AWS (C3) ya la demostró el responsable el 2026-11-03
+([aws/idempotencia/](../aws/idempotencia/README.md)). La ejecución de B aporta lo que le falta a
+C5: que **otra persona** reproduce el resultado solo con la documentación. De paso, confirma la
+idempotencia de forma independiente.
 
 **Estado: no realizado.** Nadie lo ha ejecutado todavía.
+
+**No depende de los secretos del responsable:**
+- B no recibe contraseñas ni valores.
+- Los secretos se leen de SSM y las llaves SSH se restauran desde su copia de custodia (paso 4).
+- Lo único que aporta el responsable es la autenticación del usuario operador (ver «Identidad»).
 
 | Aspecto | Valor |
 |---|---|
 | Quién | Un integrante distinto de quien desplegó (en adelante, «B») |
 | Dónde | Su propia máquina con WSL Ubuntu 24.04, o una distribución o un usuario de WSL nuevo, sin `~/.circleguard` ni `~/.ssh/circleguard` |
 | Coste | ≤ 0.21 USD (1 h como máximo con `ci` y `nexus` encendidas) |
-| Duración | Unos 30 min de preparación y unos 55 min de prueba |
+| Duración | Unos 30 min de preparación y unos 45 min de prueba. La del 2026-11-03 duró 1889 s (≈ 32 min), con los servidores encendidos ≈ 26 min según el registro de costos |
 | Destruye datos | No. El nivel 2, destructivo, no forma parte de este ensayo |
 | Requiere | La autorización del responsable de AWS y la MFA del usuario operador (ver «Identidad») |
 
@@ -66,16 +74,18 @@ Desde la raíz del clon, en WSL:
    ```bash
    bash infra/test-idempotency.sh --apply --approve ci,nexus
    ```
-   Resultado esperado: la última línea de `report.txt` es
-   `RESULTADO: IDEMPOTENTE (todas las comprobaciones en PASS)`, y la de parada dice
+   Resultado esperado: `report.txt` contiene
+   `RESULTADO: IDEMPOTENTE (todas las comprobaciones en PASS)` y, a continuación,
    `instancias detenidas al terminar`.
 7. **Desviaciones:** anotar todo lo que no estuviera en la documentación o no saliera como dice:
    comandos que fallaron, pasos que hubo que adivinar, tiempos.
 
 ## Evidencia que B entrega
 
-Va en `docs/evidencias/hu-01/aws/ensayo-nivel1/` y la versiona el equipo. Antes de entregarla hay
-que revisar que no contiene secretos, `.env`, IP públicas completas ni el número de cuenta.
+Va en `docs/evidencias/hu-01/aws/ensayo-nivel1/` y la versiona el equipo. Antes de entregarla,
+`bash infra/check-evidence.sh docs/evidencias/hu-01/aws/ensayo-nivel1` debe terminar con
+`hallazgos=0`. Comprueba, sin AWS y sin mostrar nada, que no hay número de cuenta, IP públicas
+completas, claves, secretos ni rutas personales.
 
 | Archivo | Contenido |
 |---|---|
@@ -89,7 +99,7 @@ que revisar que no contiene secretos, `.env`, IP públicas completas ni el núme
 
 1. B completó los pasos 2-6 sin ayuda verbal, salvo la autenticación de la opción A.
 2. `check-prerequisites.sh` terminó con `fail=0`.
-3. `report.txt` termina en `RESULTADO: IDEMPOTENTE` y las instancias quedaron detenidas.
+3. `report.txt` contiene `RESULTADO: IDEMPOTENTE` y las instancias quedaron detenidas.
 4. Toda desviación de `ACTA.md` está corregida en `infra/README.md` (o justificada) antes de cerrar.
 
 Si el paso 6 falla, la evidencia se conserva igualmente y C5 y C3 quedan en FAIL hasta que se

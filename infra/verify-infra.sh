@@ -134,7 +134,7 @@ memory_line() {
   info "$tool: memoria por contenedor: $(container_memory "$@" | paste -sd ';' | sed 's/;/ · /g')"
 }
 
-# nexus_eula: "aceptado", "pendiente" or "desconocido", read with the managed admin password from
+# nexus_eula: "aceptado", "no-aceptado" or "desconocido", read with the managed admin password from
 # the stack's .env (it reaches curl through stdin; printf is a shell builtin, not a process).
 nexus_eula() {
   local envf
@@ -142,7 +142,7 @@ nexus_eula() {
   remote "set -a; . $(printf '%q' "$envf"); set +a; printf 'user = \"admin:%s\"\n' \"\$NEXUS_ADMIN_PASSWORD\" | curl -s --max-time 10 -K - \"http://127.0.0.1:\$NEXUS_HTTP_PORT/service/rest/v1/system/eula\"" |
     python3 -c 'import json, sys
 try:
-    print("aceptado" if json.load(sys.stdin).get("accepted") else "pendiente")
+    print("aceptado" if json.load(sys.stdin).get("accepted") else "no-aceptado")
 except Exception:
     print("desconocido")'
 }
@@ -190,9 +190,15 @@ check_tools() {
         pass "nexus: EULA de Community Edition aceptado"
         expect "nexus: registro Docker exige autenticación" 401 "$(remote "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:$docker_port/v2/")"
         ;;
-      pendiente)
-        pending "nexus: EULA de Community Edition PENDIENTE de la decisión del equipo: no se pueden descargar ni subir componentes y circleguard-docker no existe"
-        expect "nexus: conector Docker sin publicar mientras el EULA está pendiente" 000 "$(remote "curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:$docker_port/v2/")"
+      no-aceptado)
+        # Team decision: the EULA is not accepted and CNCF Distribution is the registry. Only with
+        # REGISTRY_BACKEND=nexus would the registry depend on it.
+        if [[ "$REGISTRY_BACKEND" == distribution ]]; then
+          pass "nexus: EULA no aceptado por decisión del equipo; Nexus no es el registro (CNCF Distribution)"
+        else
+          pending "nexus: REGISTRY_BACKEND=nexus y el EULA no está aceptado: circleguard-docker no existe"
+        fi
+        expect "nexus: conector Docker de Nexus sin publicar (EULA no aceptado)" 000 "$(remote "curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:$docker_port/v2/")"
         ;;
       *) fail "nexus: no se pudo leer el estado del EULA (¿se aplicó la contraseña gestionada?)" ;;
     esac

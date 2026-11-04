@@ -97,8 +97,21 @@ stop_servers() {
     report "FAIL  la parada automática de la prueba falló: deténgalas YA con bash infra/teardown.sh --stop --apply"
     rc=1
   fi
-  report "INFO  duración con servidores encendidos: $(elapsed) s · resultados en $OUT"
+  report "INFO  duración de la prueba (desde la confirmación hasta la parada): $(elapsed) s · resultados en $OUT"
+  mask_copies
   exit "$rc"
+}
+
+# Masked copies for the evidence folder. Made last, so that report.txt includes the result and
+# the stop of the instances.
+mask_copies() {
+  local f
+  install -d -m 700 "$OUT/masked"
+  report "INFO  copias enmascaradas en $OUT/masked (sin número de cuenta, IP públicas ni hashes de archivos secretos)"
+  for f in S0 S1 S2 S3 run1 run2 diff-S0-S1 diff-S1-S2 diff-S2-S3 registry isolation health-after-restart stop report; do
+    [[ -f "$OUT/$f.txt" ]] || continue
+    cg_mask_evidence "$ACCOUNT" "$OUT/$f.txt" >"$OUT/masked/$f.txt"
+  done
 }
 trap stop_servers EXIT
 
@@ -207,12 +220,6 @@ check "S0 -> S1: la red y las llaves no cambiaron" test -z "$unexpected"
 report "INFO  S0 -> S1: $(grep -c '^[<>] sgrule ' "$OUT/diff-S0-S1.txt" || true) líneas de reglas (solo el 22 si cambió la IP del operador), $(grep -c '^> ssm ' "$OUT/diff-S0-S1.txt" || true) parámetros SSM nuevos, $(grep -c '^[<>] instance ' "$OUT/diff-S0-S1.txt" || true) líneas de instancias"
 (cd "$OUT" && sha256sum S0.txt S1.txt S2.txt run1.txt run2.txt; [[ -f S3.txt ]] && sha256sum S3.txt) >"$OUT/sha256sums.txt"
 
-# --- Masked copies for the evidence folder ------------------------------------------------
-install -d -m 700 "$OUT/masked"
-for f in S0 S1 S2 S3 run1 run2 diff-S0-S1 diff-S1-S2 diff-S2-S3 registry isolation health-after-restart report; do
-  [[ -f "$OUT/$f.txt" ]] || continue
-  cg_mask_evidence "$ACCOUNT" "$OUT/$f.txt" >"$OUT/masked/$f.txt"
-done
-report "INFO  copias enmascaradas en $OUT/masked (sin número de cuenta, IP públicas ni hashes de archivos secretos)"
+# The masked copies are made by stop_servers (EXIT trap), after the result and the stop.
 report "RESULTADO: $([[ $FAILURES -eq 0 ]] && echo 'IDEMPOTENTE (todas las comprobaciones en PASS)' || echo "$FAILURES comprobaciones en FAIL")"
 ((FAILURES == 0)) || exit 1

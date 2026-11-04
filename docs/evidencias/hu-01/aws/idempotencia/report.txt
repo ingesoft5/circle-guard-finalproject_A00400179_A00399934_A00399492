@@ -1,0 +1,24 @@
+Prueba de idempotencia integral de HU-01 · 2026-11-03T20:22:34Z · commit 3afca6f · servidores ci,nexus · REGISTRY_BACKEND=distribution
+INFO  punto de partida (S0): 2 instancias; ci=stopped nexus=stopped
+PASS  red: verify-infra.sh --isolation en PASS, incluido ci -> registro 8082 (isolation.txt)
+PASS  registro: publicación y descarga con el usuario ci desde el servidor ci (registry.txt)
+INFO  ci: contenedores reiniciados y saludables de nuevo
+INFO  nexus: contenedores reiniciados y saludables de nuevo
+PASS  recuperación: verify-infra.sh --health en PASS tras reiniciar los contenedores (health-after-restart.txt)
+PASS  recuperación: diff S2 S3 vacío (mismos contenedores, archivos y datos tras el reinicio)
+PASS  diff S1 S2 vacío: la segunda ejecución no cambió el estado
+PASS  run2: bootstrap-all con created=0 updated=0 (created=0 updated=0 unchanged=137 planned=4 duración=560s)
+PASS  run2: ninguna línea CREATED ni UPDATED en ningún paso
+INFO  run2: acciones pendientes de decisión (PLAN): 4 · crear la instancia circleguard-env-dev (t3.small, 10 GiB gp3 cifrado) - FACTURABLE: requie;crear la instancia circleguard-env-prod (t3.small, 10 GiB gp3 cifrado) - FACTURABLE: requi;crear la instancia circleguard-env-stage (t3.small, 10 GiB gp3 cifrado) - FACTURABLE: requ;nexus: EULA de Nexus Community Edition PENDIENTE de la decisión del equipo (NEXUS_ACCEPT_
+PASS  S1 y S2: mismas instancias
+PASS  S2: instancias aprobadas en ejecución con IMDSv2 obligatorio
+PASS  persistencia (run1): ninguna contraseña de fábrica reemplazada de nuevo
+PASS  persistencia (run1): el volumen jenkins_home es anterior a la prueba (datos de Jenkins conservados)
+PASS  persistencia (run1): SonarQube usa la contraseña gestionada
+PASS  persistencia (run1): Nexus usa la contraseña gestionada
+PASS  S0 -> S1: la red y las llaves no cambiaron
+INFO  S0 -> S1: 0 líneas de reglas (solo el 22 si cambió la IP del operador), 1 parámetros SSM nuevos, 4 líneas de instancias
+INFO  copias enmascaradas en ~/.circleguard/idempotency/20261103T202052Z/masked (sin número de cuenta, IP públicas ni hashes de archivos secretos)
+RESULTADO: IDEMPOTENTE (todas las comprobaciones en PASS)
+INFO  instancias detenidas al terminar (no hay instancias de circleguard en ejecución)
+INFO  duración con servidores encendidos: 1889 s · resultados en ~/.circleguard/idempotency/20261103T202052Z

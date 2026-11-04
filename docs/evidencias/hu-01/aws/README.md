@@ -1,13 +1,41 @@
-# Evidencias de AWS pendientes de HU-01
+# Evidencias de las pruebas de HU-01 en AWS
 
-Carpeta preparada el 2026-11-03 para las salidas **reales y enmascaradas** de las pruebas en AWS.
-**Todavía no contiene ninguna**: cada prueba requiere una autorización y una sesión con MFA.
+Salidas **reales y enmascaradas** de las pruebas en AWS. Cada prueba requiere una autorización y una
+sesión con MFA del responsable de la cuenta.
 
-| Subcarpeta | Prueba | Copiar desde | Criterios | Se considera PASS si |
+| Subcarpeta | Prueba | Estado | Criterios | Resultado |
 |---|---|---|---|---|
-| `idempotencia/` | `bash infra/test-idempotency.sh --apply --approve ci,nexus` | `~/.circleguard/idempotency/<marca>/masked/*` | C1, C3 (y C5 si la ejecuta otro integrante) | `report.txt` termina en `RESULTADO: IDEMPOTENTE` y `registry.txt` contiene la línea PASS de Jenkins |
-| `aislamiento/` | `bash infra/test-isolation.sh --apply --phases=1,2,3` y `--phases=4,5` | `~/.circleguard/isolation/<marca>/masked/*` (las dos marcas) | C2 | Las cinco fases en PASS y `instancias detenidas al terminar` |
-| `ensayo-nivel1/` | Ensayo de [`../ensayo-reconstruccion/`](../ensayo-reconstruccion/README.md) | Lo que entrega el otro integrante | C5 | Los criterios de ese documento |
+| [`idempotencia/`](idempotencia/README.md) | `bash infra/test-idempotency.sh --apply --approve ci,nexus` (commit `3afca6f`) | **Ejecutada el 2026-11-03** | C1, C3 | `RESULTADO: IDEMPOTENTE`. Detalle debajo de la tabla |
+| [`aislamiento/`](aislamiento/README.md) | `bash infra/test-isolation.sh --apply --phases=1,2,3` y `--phases=4,5` | **Ejecutada el 2026-11-03/04** (23:41-00:20 UTC) | C2, C3 (`bootstrap-env.sh`) | `RESULTADO: AISLAMIENTO VERIFICADO CON TRÁFICO` en las dos sesiones; `bootstrap-env.sh` idempotente en los tres ambientes |
+| [`ensayo-nivel1/`](ensayo-nivel1/README.md) | Ensayo de [`../ensayo-reconstruccion/`](../ensayo-reconstruccion/README.md) por otro integrante | **Pendiente** (otro integrante) | C5 | — |
 
-Las copias `masked/` ya llegan sin el número de cuenta, sin el último octeto de las IP públicas y
-sin los hashes de archivos secretos. Aun así, revíselas antes de versionarlas.
+Resultado de la prueba de idempotencia:
+- 2.ª ejecución con `created=0 updated=0 unchanged=137`.
+- `diff S1 S2` y `diff S2 S3` vacíos.
+- Publicación y descarga desde `ci` y desde Jenkins.
+- Recuperación tras reiniciar los contenedores.
+- `verify-infra.sh --health`: 25 PASS, 0 FAIL, 1 PENDING. El PENDING es Nexus sin EULA, que ya es
+  una decisión definitiva; el código actual lo informa como PASS
+  ([nota](idempotencia/README.md)).
+- Instancias detenidas al terminar.
+
+Las copias `masked/` llegan sin el número de cuenta, sin el último octeto de las IP públicas y sin
+los hashes de archivos secretos. Cómo versionar una de ellas:
+
+```bash
+src=~/.circleguard/isolation/<marca>/masked                 # ensayo: ~/.circleguard/idempotency/<marca>/masked
+dst=docs/evidencias/hu-01/aws/aislamiento/fases-1-3        # o fases-4-5, o ensayo-nivel1/idempotencia
+mkdir -p "$dst"
+for f in "$src"/*.txt; do
+  sed -E 's#/home/[a-z_][a-z0-9_-]*#~#g; s/[[:space:]]+$//' "$f" > "$dst/${f##*/}"
+done
+bash infra/check-evidence.sh "$dst"                          # debe terminar con hallazgos=0
+```
+
+`check-evidence.sh` es de solo lectura y no llama a AWS. Cuenta, sin mostrarlos:
+- el número de cuenta y las IP públicas completas;
+- claves e identificadores de AWS, y llaves privadas;
+- asignaciones de secretos y hashes de archivos secretos;
+- rutas personales y valores de los secretos locales.
+
+Así se comprobó la carpeta `idempotencia/`: 0 en todas las categorías.

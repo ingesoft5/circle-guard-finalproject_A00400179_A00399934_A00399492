@@ -1,0 +1,338 @@
+20:23:32 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:23:34 INFO      ==== bootstrap-network.sh --apply
+20:23:36 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:23:40 INFO      red 10.20.0.0/16 en us-east-2/us-east-2a; acceso administrativo desde: 190.66.84.x/32
+20:23:45 UNCHANGED vpc circleguard-vpc (vpc-017214d72e444769e) 10.20.0.0/16
+20:23:46 UNCHANGED vpc circleguard-vpc con nombres DNS
+20:23:49 UNCHANGED internet gateway circleguard-igw (igw-0f567b11545a6b4a4)
+20:23:51 UNCHANGED internet gateway circleguard-igw adjunto a vpc-017214d72e444769e
+20:23:58 UNCHANGED subred circleguard-subnet-tools (subnet-06c029053f5dd52ab) 10.20.0.0/24
+20:24:01 UNCHANGED subred circleguard-subnet-tools asigna IPv4 pública al lanzar
+20:24:06 UNCHANGED subred circleguard-subnet-dev (subnet-0d1140e404f6bf964) 10.20.10.0/24
+20:24:08 UNCHANGED subred circleguard-subnet-dev asigna IPv4 pública al lanzar
+20:24:13 UNCHANGED subred circleguard-subnet-stage (subnet-0d80f95dcb12becfa) 10.20.20.0/24
+20:24:14 UNCHANGED subred circleguard-subnet-stage asigna IPv4 pública al lanzar
+20:24:19 UNCHANGED subred circleguard-subnet-prod (subnet-007a3996a3fdc5dce) 10.20.30.0/24
+20:24:21 UNCHANGED subred circleguard-subnet-prod asigna IPv4 pública al lanzar
+20:24:24 UNCHANGED tabla de rutas circleguard-rt-public (rtb-051f85343e8ca07f0)
+20:24:26 UNCHANGED ruta 0.0.0.0/0 -> igw-0f567b11545a6b4a4
+20:24:29 UNCHANGED subred tools asociada a circleguard-rt-public
+20:24:32 UNCHANGED subred dev asociada a circleguard-rt-public
+20:24:34 UNCHANGED subred stage asociada a circleguard-rt-public
+20:24:37 UNCHANGED subred prod asociada a circleguard-rt-public
+20:24:39 UNCHANGED grupo de seguridad circleguard-sg-ci (sg-01221f89543bed1c7)
+20:24:41 UNCHANGED grupo de seguridad circleguard-sg-nexus (sg-003bb2d4ac0714cb5)
+20:24:42 UNCHANGED grupo de seguridad circleguard-sg-env-dev (sg-02fffa3397e1d9ef4)
+20:24:45 UNCHANGED grupo de seguridad circleguard-sg-env-stage (sg-0cc234f54c37f7422)
+20:24:47 UNCHANGED grupo de seguridad circleguard-sg-env-prod (sg-0b47c8afe1b536692)
+20:24:49 UNCHANGED circleguard-sg-ci: 8 reglas conformes
+20:24:51 UNCHANGED circleguard-sg-nexus: 8 reglas conformes
+20:24:54 UNCHANGED circleguard-sg-env-dev: 5 reglas conformes
+20:24:56 UNCHANGED circleguard-sg-env-stage: 5 reglas conformes
+20:24:58 UNCHANGED circleguard-sg-env-prod: 5 reglas conformes
+20:24:58 SUMMARY   bootstrap-network created=0 updated=0 unchanged=28 planned=0
+20:24:58 INFO      ==== bootstrap-secrets.sh --apply
+20:25:01 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:25:05 UNCHANGED secreto /circleguard/tools/jenkins/JENKINS_ADMIN_PASSWORD (valor no mostrado)
+20:25:07 UNCHANGED secreto /circleguard/tools/sonarqube/SONAR_ADMIN_PASSWORD (valor no mostrado)
+20:25:09 UNCHANGED secreto /circleguard/tools/sonarqube/SONAR_DB_PASSWORD (valor no mostrado)
+20:25:11 UNCHANGED secreto /circleguard/tools/nexus/NEXUS_ADMIN_PASSWORD (valor no mostrado)
+20:25:15 CREATED   secreto /circleguard/tools/registry/REGISTRY_CI_PASSWORD generado (password, valor no mostrado)
+20:25:16 UNCHANGED secreto /circleguard/dev/POSTGRES_USER (valor no mostrado)
+20:25:18 UNCHANGED secreto /circleguard/stage/POSTGRES_USER (valor no mostrado)
+20:25:20 UNCHANGED secreto /circleguard/prod/POSTGRES_USER (valor no mostrado)
+20:25:22 UNCHANGED secreto /circleguard/dev/POSTGRES_PASSWORD (valor no mostrado)
+20:25:24 UNCHANGED secreto /circleguard/stage/POSTGRES_PASSWORD (valor no mostrado)
+20:25:26 UNCHANGED secreto /circleguard/prod/POSTGRES_PASSWORD (valor no mostrado)
+20:25:28 UNCHANGED secreto /circleguard/dev/NEO4J_PASSWORD (valor no mostrado)
+20:25:30 UNCHANGED secreto /circleguard/stage/NEO4J_PASSWORD (valor no mostrado)
+20:25:34 UNCHANGED secreto /circleguard/prod/NEO4J_PASSWORD (valor no mostrado)
+20:25:36 UNCHANGED secreto /circleguard/dev/LDAP_ADMIN_PASSWORD (valor no mostrado)
+20:25:38 UNCHANGED secreto /circleguard/stage/LDAP_ADMIN_PASSWORD (valor no mostrado)
+20:25:40 UNCHANGED secreto /circleguard/prod/LDAP_ADMIN_PASSWORD (valor no mostrado)
+20:25:40 UNCHANGED secreto /circleguard/dev/CG_JWT_SECRET (valor no mostrado)
+20:25:42 UNCHANGED secreto /circleguard/stage/CG_JWT_SECRET (valor no mostrado)
+20:25:44 UNCHANGED secreto /circleguard/prod/CG_JWT_SECRET (valor no mostrado)
+20:25:46 UNCHANGED secreto /circleguard/dev/CG_QR_SECRET (valor no mostrado)
+20:25:48 UNCHANGED secreto /circleguard/stage/CG_QR_SECRET (valor no mostrado)
+20:25:50 UNCHANGED secreto /circleguard/prod/CG_QR_SECRET (valor no mostrado)
+20:25:52 UNCHANGED secreto /circleguard/dev/CG_VAULT_SECRET (valor no mostrado)
+20:25:54 UNCHANGED secreto /circleguard/stage/CG_VAULT_SECRET (valor no mostrado)
+20:25:56 UNCHANGED secreto /circleguard/prod/CG_VAULT_SECRET (valor no mostrado)
+20:25:58 UNCHANGED secreto /circleguard/dev/CG_VAULT_SALT (valor no mostrado)
+20:26:00 UNCHANGED secreto /circleguard/stage/CG_VAULT_SALT (valor no mostrado)
+20:26:02 UNCHANGED secreto /circleguard/prod/CG_VAULT_SALT (valor no mostrado)
+20:26:04 UNCHANGED secreto /circleguard/dev/CG_VAULT_HASH_SALT (valor no mostrado)
+20:26:06 UNCHANGED secreto /circleguard/stage/CG_VAULT_HASH_SALT (valor no mostrado)
+20:26:08 UNCHANGED secreto /circleguard/prod/CG_VAULT_HASH_SALT (valor no mostrado)
+20:26:11 UNCHANGED llave SSH circleguard-tools presente en ~/.ssh/circleguard/circleguard-tools
+20:26:11 UNCHANGED copia de custodia de circleguard-tools en SSM (SecureString)
+20:26:11 UNCHANGED par de llaves EC2 circleguard-tools
+20:26:16 UNCHANGED llave SSH circleguard-dev presente en ~/.ssh/circleguard/circleguard-dev
+20:26:16 UNCHANGED copia de custodia de circleguard-dev en SSM (SecureString)
+20:26:16 UNCHANGED par de llaves EC2 circleguard-dev
+20:26:21 UNCHANGED llave SSH circleguard-stage presente en ~/.ssh/circleguard/circleguard-stage
+20:26:21 UNCHANGED copia de custodia de circleguard-stage en SSM (SecureString)
+20:26:21 UNCHANGED par de llaves EC2 circleguard-stage
+20:26:25 UNCHANGED llave SSH circleguard-prod presente en ~/.ssh/circleguard/circleguard-prod
+20:26:25 UNCHANGED copia de custodia de circleguard-prod en SSM (SecureString)
+20:26:25 UNCHANGED par de llaves EC2 circleguard-prod
+20:26:25 SUMMARY   bootstrap-secrets created=1 updated=0 unchanged=43 planned=0
+20:26:25 INFO      ==== bootstrap-servers.sh --apply --approve ci,nexus
+20:26:27 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+
+Estimación On-Demand (precios de referencia 2026-11-02; verificar con --prices)
+  rol        tipo         EC2 h    IPv4 h   EBS mes    total h   día 24h   mes 730h
+  ci         m7i-flex.large  0.0958    0.0050      2.40     0.1040      2.50      75.95
+  nexus      m7i-flex.large  0.0958    0.0050      2.00     0.1035      2.48      75.55
+  env-dev    t3.small    0.0208    0.0050      0.80     0.0269      0.65      19.63
+  env-stage  t3.small    0.0208    0.0050      0.80     0.0269      0.65      19.63
+  env-prod   t3.small    0.0208    0.0050      0.80     0.0269      0.65      19.63
+  TOTAL                                        6.80     0.2882      6.92     210.41
+  Detenidas solo se cobra el EBS: 0.22 USD/día (la IPv4 automática se libera). Sin NAT Gateway ni Elastic IP.
+  Transferencia de salida a Internet: 0.09 USD/GB (reserva de 3 GB = 0.27 USD); la entrada no se cobra.
+  Parada automática de los hosts a las 4 h del arranque: una sesión olvidada cuesta como máximo 1.12 USD.
+
+20:26:30 INFO      vCPU con todos los servidores encendidos: 10 (QUOTA_VCPU_TARGET=10; cuota real: infra/bootstrap-quota.sh)
+20:26:51 INFO      estimación local (no es un límite de facturación): acumulado 0.27 + esta ejecución (4 h y EBS nuevo por 45 días) 0.81 + transferencia 0.27 = 1.35 de 15 USD
+20:27:02 INFO      vCPU encendidas tras esta ejecución: 4 de 5
+20:27:04 INFO      tipo m7i-flex.large ofrecido en us-east-2a
+20:27:05 INFO      tipo t3.small ofrecido en us-east-2a
+20:27:08 INFO      AMI Ubuntu 24.04: ami-0fc53b217ec1ad816 (dispositivo raíz /dev/sda1)
+20:27:32 UPDATED   instancia circleguard-ci (i-010843f2125041114) iniciada (FACTURABLE desde ahora)
+20:27:32 UNCHANGED circleguard-ci: m7i-flex.large no usa créditos de CPU (sin cargos por ráfagas)
+20:27:34 UNCHANGED circleguard-ci: IMDSv2 obligatorio
+20:27:57 UPDATED   instancia circleguard-nexus (i-08c990919adc43fa1) iniciada (FACTURABLE desde ahora)
+20:27:57 UNCHANGED circleguard-nexus: m7i-flex.large no usa créditos de CPU (sin cargos por ráfagas)
+20:27:59 UNCHANGED circleguard-nexus: IMDSv2 obligatorio
+20:28:10 INFO      permiso verificado con --dry-run: ec2 run-instances
+20:28:10 PLAN      crear la instancia circleguard-env-dev (t3.small, 10 GiB gp3 cifrado) - FACTURABLE: requiere --apply --approve env-dev
+20:28:22 INFO      permiso verificado con --dry-run: ec2 run-instances
+20:28:22 PLAN      crear la instancia circleguard-env-stage (t3.small, 10 GiB gp3 cifrado) - FACTURABLE: requiere --apply --approve env-stage
+20:28:31 INFO      permiso verificado con --dry-run: ec2 run-instances
+20:28:31 PLAN      crear la instancia circleguard-env-prod (t3.small, 10 GiB gp3 cifrado) - FACTURABLE: requiere --apply --approve env-prod
+20:28:31 SUMMARY   bootstrap-servers created=0 updated=2 unchanged=4 planned=3
+20:28:33 INFO      ==== bootstrap-jenkins.sh --apply
+20:28:36 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:28:46 INFO      SSH disponible en ci/jenkins (i-010843f2125041114)
+20:28:51 UNCHANGED ci/jenkins: Docker 29.9.2 y Compose 5.7.0 instalados
+20:28:51 UPDATED   ci/jenkins: /etc/docker/daemon.json con rotación de logs (10 MB x 3) y registro privado de 10.20.0.0/24
+20:28:51 UNCHANGED ci/jenkins: servicio docker habilitado y activo
+20:28:51 UNCHANGED ci/jenkins: /opt/circleguard
+20:28:51 UNCHANGED ci/jenkins: swap /swapfile activo (2 GiB)
+20:28:51 UNCHANGED ci/jenkins: vm.swappiness=10
+20:28:51 UNCHANGED ci/jenkins: parada automática programada (circleguard-autostop.timer en espera, 4 h desde su activación)
+20:28:55 UPDATED   ci/jenkins: /opt/circleguard/jenkins/docker-compose.yml
+20:28:58 UPDATED   ci/jenkins: /opt/circleguard/jenkins/Dockerfile
+20:28:59 UNCHANGED ci/jenkins: /opt/circleguard/jenkins/plugins.txt
+20:29:00 UNCHANGED ci/jenkins: /opt/circleguard/jenkins/casc/jenkins.yaml
+20:29:12 UPDATED   ci/jenkins: /opt/circleguard/jenkins/.env (0600, contenido no mostrado)
+20:29:14 INFO      jenkins: docker compose up -d --build
+ Image circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1 Building
+#1 [internal] load local bake definitions
+#1 reading from stdin 559B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.12kB done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/jenkins/jenkins:2.580.2-lts-jdk21
+#3 DONE 0.3s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/4] FROM docker.io/jenkins/jenkins:2.580.2-lts-jdk21@sha256:74401de6a6f92e1afe1b02d1c8e3d0c33f263bfb5275dd8813f9150355f2367b
+#5 resolve docker.io/jenkins/jenkins:2.580.2-lts-jdk21@sha256:74401de6a6f92e1afe1b02d1c8e3d0c33f263bfb5275dd8813f9150355f2367b 0.0s done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 33B done
+#6 DONE 0.0s
+
+#7 [2/4] COPY --chown=jenkins:jenkins plugins.txt /usr/share/jenkins/ref/plugins.txt
+#7 CACHED
+
+#8 [3/4] RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+#8 CACHED
+
+#9 [4/4] RUN curl -fsSLo /tmp/crane.tgz "https://github.com/google/go-containerregistry/releases/download/v0.22.1/go-containerregistry_Linux_x86_64.tar.gz"   && echo "0ab7a1d6932a213aed964ce97666c3077fe691c8606413674a8b3e0b9ec4cda0  /tmp/crane.tgz" | sha256sum -c -   && tar -xzf /tmp/crane.tgz -C /usr/local/bin crane   && rm -f /tmp/crane.tgz   && crane version
+#9 0.672 /tmp/crane.tgz: OK
+#9 1.039 0.22.1
+#9 DONE 2.2s
+
+#10 exporting to image
+#10 exporting layers
+#10 exporting layers 0.7s done
+#10 exporting manifest sha256:8bd8abd03462e48ef0d7d6777a481197527bb522024c01d1bb860ee2f0793a9e 0.0s done
+#10 exporting config sha256:46c7b6c9dd1792a280ffcce6d52d0650708552bc1ccdf39782968a488c1847ee 0.0s done
+#10 exporting attestation manifest sha256:a08a9403fbe3181f7881e68eb2ea9b8177134f49c4acff62a1cca07122f524dd 0.0s done
+#10 exporting manifest list sha256:ebb0fd7980baf563981e0890b57eb75eb454cb5d3da1d6789e262d12cb094dcc 0.0s done
+#10 naming to docker.io/library/circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1 done
+#10 unpacking to docker.io/library/circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1
+#10 unpacking to docker.io/library/circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1 0.2s done
+#10 DONE 1.0s
+
+#11 resolving provenance for metadata file
+#11 DONE 0.0s
+ Image circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1 Built
+ Container cg-jenkins Recreate
+ Container cg-jenkins Recreated
+ Container cg-jenkins Starting
+ Container cg-jenkins Started
+20:29:24 UPDATED   jenkins: stack circleguard-jenkins actualizado con Docker Compose
+20:29:35 UNCHANGED ci/jenkins: Jenkins responde en /login sin asistente inicial (JCasC)
+20:29:35 UNCHANGED ci/jenkins: el administrador gestionado inicia sesión (contraseña del gestor de secretos)
+20:29:35 UNCHANGED ci/jenkins: acceso anónimo denegado (HTTP 403)
+20:29:35 UNCHANGED ci/jenkins: plugin Configuration as Code activo
+20:29:35 SUMMARY   bootstrap-jenkins created=0 updated=5 unchanged=12 planned=0
+20:29:38 INFO      ==== bootstrap-sonarqube.sh --apply
+20:29:41 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:29:48 INFO      SSH disponible en ci/sonarqube (i-010843f2125041114)
+20:29:50 UNCHANGED ci/sonarqube: Docker 29.9.2 y Compose 5.7.0 instalados
+20:29:50 UNCHANGED ci/sonarqube: /etc/docker/daemon.json con rotación de logs (10 MB x 3) y registro privado de 10.20.0.0/24
+20:29:50 UNCHANGED ci/sonarqube: servicio docker habilitado y activo
+20:29:50 UNCHANGED ci/sonarqube: vm.max_map_count=1048576 (SonarQube requiere >= 524288)
+20:29:50 UNCHANGED ci/sonarqube: /opt/circleguard
+20:29:50 UNCHANGED ci/sonarqube: swap /swapfile activo (2 GiB)
+20:29:50 UNCHANGED ci/sonarqube: vm.swappiness=10
+20:29:50 UNCHANGED ci/sonarqube: parada automática programada (circleguard-autostop.timer en espera, 4 h desde su activación)
+20:29:52 UNCHANGED ci/sonarqube: /opt/circleguard/sonarqube/docker-compose.yml
+20:30:03 UNCHANGED ci/sonarqube: /opt/circleguard/sonarqube/.env (0600, contenido no mostrado)
+20:30:04 INFO      sonarqube: docker compose up -d (sin reconstruir: el contexto no cambió)
+ Container cg-sonarqube Running
+ Container cg-sonarqube-db Running
+ Container cg-sonarqube-db Waiting
+ Container cg-sonarqube-db Healthy
+20:30:08 UNCHANGED sonarqube: contenedores sin cambios (circleguard-sonarqube)
+20:30:10 UNCHANGED ci/sonarqube: SonarQube en estado UP con base de datos PostgreSQL persistente
+20:30:10 UNCHANGED ci/sonarqube: el administrador usa la contraseña gestionada
+20:30:10 UNCHANGED ci/sonarqube: acceso anónimo denegado (HTTP 401, sonar.forceAuthentication)
+20:30:10 SUMMARY   bootstrap-sonarqube created=0 updated=0 unchanged=14 planned=0
+20:30:10 INFO      ==== bootstrap-nexus.sh --apply
+20:30:12 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:30:20 INFO      SSH disponible en nexus (i-08c990919adc43fa1)
+20:30:24 UNCHANGED nexus: Docker 29.9.2 y Compose 5.7.0 instalados
+20:30:24 UPDATED   nexus: /etc/docker/daemon.json con rotación de logs (10 MB x 3) y registro privado de 10.20.0.0/24
+20:30:24 UNCHANGED nexus: servicio docker habilitado y activo
+20:30:24 UNCHANGED nexus: /opt/circleguard
+20:30:24 UNCHANGED nexus: swap /swapfile activo (2 GiB)
+20:30:24 UNCHANGED nexus: vm.swappiness=10
+20:30:24 UNCHANGED nexus: parada automática programada (circleguard-autostop.timer en espera, 4 h desde su activación)
+20:30:28 UPDATED   nexus: /opt/circleguard/nexus/docker-compose.yml
+20:30:30 UNCHANGED nexus: /opt/circleguard/nexus/repositories/circleguard-docker.json
+20:30:37 UPDATED   nexus: /opt/circleguard/nexus/.env (0600, contenido no mostrado)
+20:30:39 INFO      nexus: docker compose up -d --build
+ Container cg-nexus Recreate
+ Container cg-nexus Recreated
+ Container cg-nexus Starting
+ Container cg-nexus Started
+20:30:53 UPDATED   nexus: stack circleguard-nexus actualizado con Docker Compose
+20:31:28 UNCHANGED nexus: Nexus en línea y admitiendo escritura
+20:31:28 UNCHANGED nexus: el administrador usa la contraseña gestionada
+20:31:28 PLAN      nexus: EULA de Nexus Community Edition PENDIENTE de la decisión del equipo (NEXUS_ACCEPT_EULA=false): Nexus no permite descargar ni subir componentes; no se configuran el acceso anónimo, el realm DockerToken ni el repositorio circleguard-docker
+20:31:28 SUMMARY   bootstrap-nexus created=0 updated=4 unchanged=9 planned=1
+20:31:32 INFO      ==== bootstrap-registry.sh --apply
+20:31:36 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:31:44 INFO      SSH disponible en nexus/registry (i-08c990919adc43fa1)
+20:31:46 UNCHANGED nexus/registry: Docker 29.9.2 y Compose 5.7.0 instalados
+20:31:46 UNCHANGED nexus/registry: /etc/docker/daemon.json con rotación de logs (10 MB x 3) y registro privado de 10.20.0.0/24
+20:31:46 UNCHANGED nexus/registry: servicio docker habilitado y activo
+20:31:46 UNCHANGED nexus/registry: /opt/circleguard
+20:31:46 UNCHANGED nexus/registry: swap /swapfile activo (2 GiB)
+20:31:46 UNCHANGED nexus/registry: vm.swappiness=10
+20:31:46 UNCHANGED nexus/registry: parada automática programada (circleguard-autostop.timer en espera, 4 h desde su activación)
+20:31:50 CREATED   nexus/registry: /opt/circleguard/registry/docker-compose.yml
+20:31:52 CREATED   nexus/registry: /opt/circleguard/registry/config.yml
+20:32:02 CREATED   nexus/registry: /opt/circleguard/registry/.env (0600, contenido no mostrado)
+20:32:05 CREATED   nexus/registry: certificado TLS autofirmado del registro (10 años)
+20:32:05 INFO        nexus/registry: Unable to find image 'httpd:2.4.66-alpine' locally
+20:32:05 INFO        nexus/registry: 2.4.66-alpine: Pulling from library/httpd
+20:32:05 INFO        nexus/registry: 719e56c8c985: Pulling fs layer
+20:32:05 INFO        nexus/registry: 4ca6f6797e45: Pulling fs layer
+20:32:05 INFO        nexus/registry: 4f4fb700ef54: Pulling fs layer
+20:32:05 INFO        nexus/registry: b989da80e210: Pulling fs layer
+20:32:05 INFO        nexus/registry: 7b3c5d639c11: Pulling fs layer
+20:32:05 INFO        nexus/registry: 6a0ac1617861: Pulling fs layer
+20:32:05 INFO        nexus/registry: 41c15f5ba584: Pulling fs layer
+20:32:05 INFO        nexus/registry: 41c15f5ba584: Download complete
+20:32:05 INFO        nexus/registry: 4ca6f6797e45: Download complete
+20:32:05 INFO        nexus/registry: 4f4fb700ef54: Download complete
+20:32:05 INFO        nexus/registry: 719e56c8c985: Download complete
+20:32:05 INFO        nexus/registry: b989da80e210: Download complete
+20:32:05 INFO        nexus/registry: 7b3c5d639c11: Download complete
+20:32:05 INFO        nexus/registry: 6a0ac1617861: Download complete
+20:32:05 INFO        nexus/registry: 41c15f5ba584: Pull complete
+20:32:05 INFO        nexus/registry: 4f4fb700ef54: Pull complete
+20:32:05 INFO        nexus/registry: 719e56c8c985: Pull complete
+20:32:05 INFO        nexus/registry: 6a0ac1617861: Pull complete
+20:32:05 INFO        nexus/registry: 23510c905458: Download complete
+20:32:05 INFO        nexus/registry: 02e72aed1fd5: Download complete
+20:32:05 INFO        nexus/registry: b989da80e210: Pull complete
+20:32:06 INFO        nexus/registry: 4ca6f6797e45: Pull complete
+20:32:06 INFO        nexus/registry: 7b3c5d639c11: Pull complete
+20:32:06 INFO        nexus/registry: Digest: sha256:968c8b4098fcecb473762b45f6c541a3b2b2cfab2caccb1edbd2cece071ef160
+20:32:06 INFO        nexus/registry: Status: Downloaded newer image for httpd:2.4.66-alpine
+20:32:06 CREATED   nexus/registry: usuario ci del registro (bcrypt, contraseña del gestor de secretos)
+20:32:07 INFO      registry: docker compose up -d --build
+ Image registry:3.0.0 Pulling
+ Image registry:3.0.0 Pulled
+ Network circleguard-registry_default Creating
+ Network circleguard-registry_default Creating
+ Volume circleguard-registry_registry-data Creating
+ Volume circleguard-registry_registry-data Creating
+ Volume circleguard-registry_registry-data Created
+ Volume circleguard-registry_registry-data Created
+ Network circleguard-registry_default Created
+ Network circleguard-registry_default Created
+ Container cg-registry Creating
+ Container cg-registry Created
+ Container cg-registry Starting
+ Container cg-registry Started
+20:32:11 CREATED   registry: stack circleguard-registry desplegado con Docker Compose
+20:32:13 UNCHANGED nexus/registry: registro en línea por TLS y exigiendo autenticación (HTTP 401 sin credenciales)
+20:32:13 UNCHANGED nexus/registry: el usuario ci se autentica con la contraseña gestionada (HTTP 200)
+20:32:13 SUMMARY   bootstrap-registry created=6 updated=0 unchanged=9 planned=0
+20:32:16 INFO      ambiente dev: su servidor (ENV_SERVERS) no está en ejecución; se preparará cuando lo esté
+20:32:18 INFO      ambiente stage: su servidor (ENV_SERVERS) no está en ejecución; se preparará cuando lo esté
+20:32:19 INFO      ambiente prod: su servidor (ENV_SERVERS) no está en ejecución; se preparará cuando lo esté
+20:32:32 INFO      ==== verify-infra.sh --health --roles=ci,nexus
+20:32:34 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:32:40 PASS      ci: Docker activo
+20:32:42 PASS      ci: parada automática programada (circleguard-autostop.timer en espera)
+20:32:44 INFO      ci: temporizador de parada: Wed 2026-11-04 00:27:23 UTC 3h 54min - - circleguard-autostop.timer circleguard-autostop.service
+20:32:45 PASS      ci: swap de seguridad activo
+20:32:46 INFO      ci: memoria en uso 2580 de 7776 MiB · swap 0 de 2047 MiB
+20:32:50 PASS      nexus: Docker activo
+20:32:52 PASS      nexus: parada automática programada (circleguard-autostop.timer en espera)
+20:32:53 INFO      nexus: temporizador de parada: Wed 2026-11-04 00:27:49 UTC 3h 54min - - circleguard-autostop.timer circleguard-autostop.service
+20:32:55 PASS      nexus: swap de seguridad activo
+20:32:57 INFO      nexus: memoria en uso 2772 de 7776 MiB · swap 0 de 2047 MiB
+20:33:01 PASS      jenkins: /login en el host
+20:33:02 PASS      jenkins: contenedor saludable
+20:33:07 INFO      jenkins: memoria por contenedor: cg-jenkins: 253.1MiB / 7.594GiB (3.25%)
+20:33:16 PASS      jenkins: UI NO expuesta a Internet (puerto 8080)
+20:33:19 PASS      jenkins: UI accesible por túnel SSH
+20:33:23 PASS      sonarqube: estado del sistema
+20:33:25 PASS      sonarqube: contenedor saludable
+20:33:26 PASS      sonarqube: base de datos saludable
+20:33:34 INFO      sonarqube: memoria por contenedor: cg-sonarqube: 1.654GiB / 7.594GiB (21.78%) · cg-sonarqube-db: 54.93MiB / 7.594GiB (0.71%)
+20:33:35 PASS      sonarqube: acceso anónimo denegado
+20:33:44 PASS      sonarqube: UI NO expuesta a Internet (puerto 9000)
+20:33:48 PASS      sonarqube: UI accesible por túnel SSH
+20:33:52 PASS      nexus: API de estado
+20:33:54 PASS      nexus: contenedor saludable
+20:33:59 INFO      nexus: memoria por contenedor: cg-nexus: 2.126GiB / 7.594GiB (27.99%)
+20:34:01 PENDING   nexus: EULA de Community Edition PENDIENTE de la decisión del equipo: no se pueden descargar ni subir componentes y circleguard-docker no existe
+20:34:03 PASS      nexus: conector Docker sin publicar mientras el EULA está pendiente
+20:34:12 PASS      nexus: UI NO expuesta a Internet (puerto 8081)
+20:34:15 PASS      nexus: UI accesible por túnel SSH
+20:34:20 PASS      registry: contenedor saludable
+20:34:21 PASS      registry: exige autenticación por TLS
+20:34:23 PASS      registry: el usuario ci se autentica con la contraseña gestionada
+20:34:28 INFO      registry: memoria por contenedor: cg-registry: 10.7MiB / 7.594GiB (0.14%)
+20:34:39 PASS      registry: NO expuesto a Internet (puerto 8082)
+20:34:39 SUMMARY   verify-infra pass=25 fail=0 pendiente=1
+20:34:39 SUMMARY   bootstrap-all created=7 updated=11 unchanged=119 planned=4 duración=669s
