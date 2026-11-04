@@ -1,8 +1,14 @@
 # 16 · EULA de Nexus Repository Community Edition: información para la decisión del equipo
 
+> **Decisión final del equipo (2026-11-03): el EULA no se acepta.**
+> - Nexus queda instalado, sin repositorio Docker ni función de registro.
+> - El registro de imágenes es CNCF Distribution, verificado en AWS el 2026-11-03
+>   ([registro-artefactos.md](../../arquitectura/registro-artefactos.md),
+>   [aws/idempotencia/](aws/idempotencia/README.md)).
+> - El resto de este documento conserva el análisis que llevó a esa decisión.
+
 **Estado:** el EULA **no está aceptado** (`NEXUS_ACCEPT_EULA=false`). Nexus está desplegado en
-`circleguard-nexus`, en línea y con la contraseña del administrador gestionada (evidencia 14). La
-decisión corresponde al equipo; este documento no la toma.
+`circleguard-nexus`, en línea y con la contraseña del administrador gestionada (evidencia 14).
 
 Fuentes consultadas el 2026-11-02:
 - EULA: <https://www.sonatype.com/dnt/usage/community-edition-eula> (la página no indica versión ni

@@ -1,213 +1,524 @@
 # Informe final de HU-01 · Infraestructura en la nube con Bash (Sprint 1, E1.2)
 
-Actualizado: 2026-11-03, 16:30 UTC. Base: commit `889ce09` de la rama
-`HU01_Infraestructura_nube_bash` más los cambios locales sin confirmar descritos aquí.
-- No se hizo ninguna operación de escritura en AWS, ni commits ni push.
-- El EULA de Nexus sigue sin aceptar.
+Actualizado: 2026-11-04, 00:30 UTC. Base: commit `3afca6f` de la rama
+`HU01_Infraestructura_nube_bash` más los cambios locales sin confirmar descritos en la sección 9.
 
-Estados:
+Estados de la matriz:
 - **PASS:** implementación completa y evidencia verificable.
 - **PARTIAL:** implementación o evidencia incompletas.
 - **FAIL:** requisito incumplido.
 - **BLOCKED:** requiere una autorización, una decisión o una dependencia externa.
 
-## A. Resumen ejecutivo
+Tipos de prueba:
+- **Local:** Git Bash, WSL o Docker Desktop en la estación de trabajo, sin AWS.
+- **Integración local:** contenedor Linux con Docker, sin VPC ni SSH reales.
+- **AWS:** ejecución real en la cuenta del proyecto.
 
-**Resultado global: HU-01 NO está terminada.**
-- **Criterios en PASS:** C4 y C6.
-- **Criterios en BLOCKED:** C1, C2, C3 y C5. Todo su código y sus pruebas están listos y validados en
-  local; falta ejecutarlos en AWS, lo que exige la sesión con MFA del responsable y su autorización.
-  C5 necesita además que otro integrante siga la documentación.
-- **Ningún criterio en FAIL.**
-- **Coste:** acumulado estimado de 0.24 USD; previsto hasta el 2026-11-22, ≈ 6.4 USD de 15.
+**Resultado: HU-01 NO está cerrada.**
 
-**Implementado** (sobre el despliegue en AWS del 2026-11-02, [evidencia 14](14-despliegue-aws-fase4.md)):
-- **Registro principal CNCF Distribution 3.0.0** en el servidor `nexus`, puerto 8082 (decisión del
-  equipo). Nexus sigue instalado sin EULA y nada depende de él
-  ([decisión](../../arquitectura/registro-artefactos.md)).
-  - TLS, con certificado EC P-256 generado en el host.
-  - Usuario bcrypt `ci`, con la contraseña en SSM.
-  - Volumen persistente y *healthcheck*.
-  - Certificado y usuario preparados **antes** de arrancar el contenedor.
-- **Jenkins publica y descarga con `crane`** v0.22.1 (sha256 fijado), sin el socket de Docker.
-  Credenciales desde SSM.
-- **Rotación de la contraseña del registro** con verificación y recuperación automática.
-- **Ambientes:** un `t3.small` por ambiente, con subred, grupo de seguridad, llave y credenciales
-  propios. Se crean y prueban por pares (la cuota es de 5 vCPU), con una guarda que impide superarla.
-- **Pruebas para AWS**, con parada garantizada:
-  - `test-idempotency.sh`: comando único dos veces, persistencia, Jenkins → registro, flujos de
-    red y recuperación tras reiniciar contenedores;
-  - `test-isolation.sh`: tráfico entre ambientes, en dos sesiones.
-- **Ensayo de reconstrucción de nivel 1** preparado para otro integrante
-  ([instrucciones](ensayo-reconstruccion/README.md)) y comprobación de la estación de trabajo
-  (`check-prerequisites.sh`).
-
-**Corregido hoy:**
-- La prueba de idempotencia habría dado un **falso FAIL** de persistencia en Jenkins: el contenedor
-  se recrea con la nueva imagen. Ahora comprueba que el volumen `jenkins_home` es anterior a la prueba.
-- La prueba de aislamiento no actualizaba la regla SSH si cambiaba la IP del operador.
-- `git status` tardó **26 min** desde WSL sobre la carpeta de OneDrive. La prueba ahora lo limita a
-  90 s y lo hace antes de usar la ventana MFA de 1 h.
-- Anteriores: la parada automática de los hosts de ambiente, el error silencioso de `prepare.sh`,
-  `scan-secrets.sh` en Git Bash y la aprobación de roles no configurados.
-
-## B. Matriz de cumplimiento (Sprint 1 / E1.2 y HU-01)
-
-Fuentes del enunciado ([PDF](../../../Proyecto_Final_CircleGuard.pdf)):
-- **p. 2:** contexto: credenciales en texto plano; ciclo «automatizado, seguro, observable y reproducible».
-- **p. 4:** E1.2 y el alcance de despliegue de la Parte 1.
-- **p. 6:** estructura del repositorio y regla de evidencias verificables.
-- **p. 7:** rúbrica P1.2.
-- **p. 9:** instrucciones de entrega 2 y 4.
-
-| # | Requisito (fuente) | Criterio | Implementación | Prueba | Resultado | Evidencia | Estado |
-|---|---|---|---|---|---|---|---|
-| 1 | Servidores en la nube para Jenkins, SonarQube y el registro (E1.2) | C1 | `ci` (Jenkins JCasC, SonarQube y PostgreSQL) y `nexus` (registro Distribution) en EC2 | AWS 2026-11-02: `verify-infra.sh` 22/0/1 y 53/0/5. Local 2026-11-03: registro y Jenkins → registro | Jenkins y SonarQube PASS en AWS; registro y Jenkins PASS en local; **registro sin desplegar en AWS** | [verify 193451Z](fase4/verify-infra-20261102T193451Z.log.txt), [verify 193653Z](fase4/verify-infra-20261102T193653Z.log.txt), [integración local](auditoria/20261103T041534Z-integracion-local-hu01.txt) | **BLOCKED** |
-| 2 | dev, stage y prod aislados (E1.2) · «Tres ambientes aislados» (P1.2) | C2 | Subred, grupo de seguridad, llave, credenciales y servidor `t3.small` por ambiente | AWS 2026-11-02: 15 PASS de configuración; tráfico real `ci↔nexus`. Local: roles y guarda de cuota | **Sin prueba de tráfico entre ambientes** (`test-isolation.sh`) | [verify 193653Z](fase4/verify-infra-20261102T193653Z.log.txt) l. 42-63, [diagrama](../../arquitectura/infra-ambientes.md) | **BLOCKED** |
-| 3 | Scripts Bash idempotentes (E1.2) | C3 | Búsqueda por etiquetas, crear solo si falta, reconciliación, hashes, contadores, guardas | AWS: 2.ª ejecución de red `0/0/28`, secretos `0/0/43` e IAM `0/0/19`. Local: 2.ª, 3.ª y 4.ª ejecución sin cambios | **Integral en AWS pendiente** | [red](fase4/bootstrap-network-20261102T175849Z.log.txt), [secretos](fase4/bootstrap-secrets-20261102T181248Z.log.txt), [IAM](10-iam-creacion-e-idempotencia.txt), [integración local](auditoria/20261103T041534Z-integracion-local-hu01.txt) | **BLOCKED** |
-| 4 | Credenciales de `docker-compose.dev.yml` fuera del repositorio (p. 2) | C4 | `${VAR:?}` sin valores por defecto y `.env.example` vacío (commit `3a43855`) | `docker compose config`; Gitleaks 2026-11-03 | Compose se niega sin variables; ACTIVO=0 | [commit 3a43855](auditoria/20261103T160739Z-commit-3a43855-credenciales.txt), [02](02-validacion-compose.txt), [Gitleaks](auditoria/20261103T162946Z-worktree-summary.txt) | **PASS** |
-| 5 | Bash y Compose sin configuración manual no documentada (E1.2) | C5 | Scripts, JCasC y API; pasos humanos listados con su motivo; ensayo de nivel 1 preparado | AWS 2026-11-02: instalación solo con scripts. Prerrequisitos en WSL: `fail=0` | **Ensayo por otro integrante pendiente** | [14](14-despliegue-aws-fase4.md), [prerrequisitos](auditoria/20261103T162805Z-prerrequisitos-wsl.txt), [ensayo](ensayo-reconstruccion/README.md) | **BLOCKED** |
-| 6 | Credenciales con un mecanismo seguro; sin secretos en el repositorio ni en el PDF (p. 9) | C6 | SSM SecureString, `.env` 0600 root por SSH, IAM con MFA, valores solo por stdin | AWS: credenciales distintas por ambiente, `.env` 0600 y 0 valores en el repositorio. Gitleaks | ACTIVO=0; 51 HISTÓRICO; 2 RESIDUAL explicados | [verify 193653Z](fase4/verify-infra-20261102T193653Z.log.txt) l. 64-76, [historial](auditoria/20261103T162946Z-history-summary.txt) | **PASS** |
-| 7 | «Reconstruyen Jenkins, SonarQube y registro desde cero con un comando» (P1.2) | C3, C5 | `bootstrap-all.sh --apply --approve ci,nexus` | Solo `--plan` en AWS | Pendiente en AWS | [README](../../../infra/README.md#flujo-de-aprovisionamiento-con-control-de-costos) | **BLOCKED** |
-| 8 | Servicios núcleo desplegados en los tres ambientes (p. 4, alcance de la Parte 1) | E1.5 (no es HU-01) | Ambientes aprovisionados y aislados, sin aplicaciones | — | No cabe en la cuota (5 vCPU) ni en el tamaño `t3.small` | [conflicto](../../../infra/README.md#ambientes-dev-stage-y-prod-servidores-por-pares) | **BLOCKED** (cuota; otra HU) |
-| 9 | Estructura `infra/bootstrap/` (p. 6) | — | `infra/bootstrap-*.sh` e `infra/bootstrap/{lib,host,jenkins,sonarqube,nexus,registry}/` | Revisión | Conforme | [infra/README.md](../../../infra/README.md) | **PASS** |
-| 10 | Evidencias verificables con capturas (p. 6 y p. 9, n.º 2) | Todos | Registros y reportes enmascarados en el repositorio | — | Faltan las capturas | [capturas/](capturas/README.md) | **BLOCKED** (manual) |
-| 11 | Evidencias de HU-01: E1 salida del bootstrap, E2 diagrama, E3 commit, E4 captura | — | — | — | E1: falta el comando único en AWS; E2 PASS; E3 PASS; E4: falta la captura | [README de evidencias](README.md) | E1 **BLOCKED** · E2 **PASS** · E3 **PASS** · E4 **BLOCKED** |
-| 12 | Apagar o destruir los recursos tras la evaluación (p. 9, n.º 4) | — | Parada automática a las 4 h, `teardown.sh` y destrucción en CloudShell | Parada controlada en AWS (2026-11-02) | Mecanismo listo; la destrucción final es del equipo | [teardown](fase4/teardown-stop-20261102T194755Z.log.txt) | **PASS** (mecanismo) |
-
-## C. Matriz de evidencias
-
-Tipo: **AWS** = ejecución real en la cuenta; **Local** = Docker Desktop o el contenedor Linux
-auxiliar; **Doc.** = documento o configuración. Fechas en UTC.
-
-| Evidencia | Archivo | Criterio | Tipo | Fecha | Resultado |
+| C1 | C2 | C3 | C4 | C5 | C6 |
 |---|---|---|---|---|---|
-| Salidas de los *bootstrap* | [`fase4/`](fase4/) (25 registros enmascarados), [`local/`](local/) | C1, C3, C5 | AWS / Local | 2026-11-02 / 2026-10-31 | Despliegue completo |
-| Idempotencia (partes) | [red 2.ª](fase4/bootstrap-network-20261102T175849Z.log.txt), [secretos 2.ª](fase4/bootstrap-secrets-20261102T181248Z.log.txt), [IAM](10-iam-creacion-e-idempotencia.txt) | C3 | AWS | 2026-11-01/02 | `created=0 updated=0` |
-| Idempotencia, persistencia y rotación del registro y Jenkins | [integración local](auditoria/20261103T041534Z-integracion-local-hu01.txt) | C1, C3 | Local | 2026-11-03 04:00 | 22/22 |
-| TLS y autenticación del registro | [integración local](auditoria/20261103T041534Z-integracion-local-hu01.txt), [registro](auditoria/20261103T041534Z-prueba-local-registro.txt) | C1, C6 | Local | 2026-11-03 04:00 y 04:08 | 401 sin credenciales; 200 con `ci`; HTTP sin TLS rechazado |
-| Jenkins publica y descarga (digest comparado) | [integración local](auditoria/20261103T041534Z-integracion-local-hu01.txt) §4 | C1 | Local | 2026-11-03 | PASS |
-| Rotación (la contraseña anterior se rechaza) | [integración local](auditoria/20261103T041534Z-integracion-local-hu01.txt) §5 | C1, C6 | Local | 2026-11-03 | PASS |
-| Persistencia y recuperación | [integración local](auditoria/20261103T041534Z-integracion-local-hu01.txt) §6; [14 §9](14-despliegue-aws-fase4.md) | C1, C3 | Local / AWS | 2026-11-03 / 2026-11-02 | Local PASS; EBS conservado en AWS; recuperación en AWS pendiente |
-| Aislamiento de red | [verify 193653Z](fase4/verify-infra-20261102T193653Z.log.txt) | C2 | AWS | 2026-11-02 | 15 PASS de configuración; tráfico entre ambientes pendiente |
-| Servicios funcionando | [verify 193451Z](fase4/verify-infra-20261102T193451Z.log.txt), [Jenkins](fase4/bootstrap-jenkins-20261102T192736Z.log.txt), [SonarQube](fase4/bootstrap-sonarqube-20261102T192956Z.log.txt) | C1 | AWS | 2026-11-02 | 22/0/1 |
-| Diagrama de ambientes, subredes y grupos de seguridad | [infra-ambientes.md](../../arquitectura/infra-ambientes.md) | C2 | Doc. | 2026-11-03 | 31 reglas descritas |
-| Commit que eliminó las credenciales | [auditoria/20261103T160739Z-commit-3a43855-credenciales.txt](auditoria/20261103T160739Z-commit-3a43855-credenciales.txt) | C4 | Repositorio | 2026-11-03 | 4 variables `:?`; valores eliminados (solo contados) |
-| Reporte de Gitleaks | [árbol](auditoria/20261103T162946Z-worktree-summary.txt), [historial](auditoria/20261103T162946Z-history-summary.txt) | C4, C6 | Local | 2026-11-03 16:29 | ACTIVO=0 (426 archivos); historial 68 = 51 HISTÓRICO + 13 PRUEBA + 4 RESIDUAL |
-| Captura de Gitleaks | [capturas/README.md](capturas/README.md) | C4, C6 | — | — | **Pendiente** (manual) |
-| Prerrequisitos de la estación de trabajo | [16:28, 13 s](auditoria/20261103T162805Z-prerrequisitos-wsl.txt) y [15:39, 26 min antes de la corrección](auditoria/20261103T153946Z-prerrequisitos-wsl.txt) | C5 | Local (WSL) | 2026-11-03 | `pass=17 warn=1 fail=0` |
-| Análisis estático | [auditoria/20261103T162716Z-shellcheck-hu01.txt](auditoria/20261103T162716Z-shellcheck-hu01.txt) | C3, C5 | Local | 2026-11-03 16:27 | 0 hallazgos en 33 scripts, con el sha256 de cada uno. El intermedio de las 16:08 (5 avisos `info` SC2031, corregidos) queda superado |
-| Comprobaciones unitarias | [auditoria/20261103T162542Z-comprobaciones-unitarias-hu01.txt](auditoria/20261103T162542Z-comprobaciones-unitarias-hu01.txt) | C2, C3 | Local | 2026-11-03 16:25 | 34/34 |
-| Ensayo de reconstrucción | [ensayo-reconstruccion/README.md](ensayo-reconstruccion/README.md) → `aws/ensayo-nivel1/` | C5 | — | — | **Pendiente** (otro integrante) |
-| Pruebas en AWS | [aws/README.md](aws/README.md) | C1, C2, C3 | — | — | **Pendientes** (autorización) |
+| **PASS** | **PASS** | **PASS** | **PASS** | **BLOCKED** | **PASS** |
 
-## D. Resultados de pruebas
+- C2 y la idempotencia de `bootstrap-env.sh` (C3) quedaron demostrados en AWS el 2026-11-03/04 con
+  la prueba de aislamiento con tráfico, autorizada por el responsable (sección 11).
+- Solo C5 sigue pendiente: depende del ensayo de otro integrante (sección 12).
+- Ningún criterio está en FAIL.
+- Coste acumulado estimado: 0.41 USD de 15.
 
-| Prueba | Comando | Fecha (UTC) | Resultado | Limitaciones |
+## 1. Objetivo y alcance
+
+**Objetivo (E1.2):** crear con scripts Bash idempotentes y Docker Compose:
+- los servidores en la nube de Jenkins, SonarQube y el registro de artefactos;
+- los ambientes `dev`, `stage` y `prod`, aislados entre sí;
+- todo ello con las credenciales fuera del repositorio.
+
+Criterios de aceptación:
+
+| Criterio | Enunciado |
+|---|---|
+| C1 | Servidores en la nube para Jenkins, SonarQube y el registro de artefactos |
+| C2 | `dev`, `stage` y `prod` aislados |
+| C3 | `infra/bootstrap-*.sh` idempotentes |
+| C4 | Credenciales de `docker-compose.dev.yml` fuera del repositorio |
+| C5 | Bash y Docker Compose, sin configuración manual no documentada |
+| C6 | Credenciales fuera del repositorio, con un mecanismo seguro |
+
+**Dentro del alcance:**
+- red, IAM y secretos;
+- servidores `ci` y `nexus`, y un servidor `t3.small` por ambiente;
+- Jenkins, SonarQube, el registro CNCF Distribution y su integración con Jenkins;
+- pruebas de idempotencia, de recuperación y de aislamiento;
+- parada y destrucción.
+
+**Fuera del alcance:**
+- **Despliegue de los servicios núcleo en los ambientes (E1.5):** HU-01 entrega los ambientes
+  aislados y aprovisionados, sin aplicaciones (sección 15).
+- **Pipelines (E1.3 y E1.4).**
+- **Cambios en las migraciones de la base de datos (E2.6).**
+
+## 2. Arquitectura
+
+| Capa | Decisión | Detalle |
+|---|---|---|
+| Nube | AWS `us-east-2` (Ohio), zona `us-east-2a`. Cuenta independiente en el plan gratuito | La cuenta aparece siempre enmascarada (`****3303`) |
+| Red | VPC `10.20.0.0/16` con Internet Gateway, sin NAT Gateway. Cuatro subredes `/24`: `tools` (`10.20.0.0`), `dev` (`10.20.10.0`), `stage` (`10.20.20.0`) y `prod` (`10.20.30.0`) | 5 grupos de seguridad y 31 reglas: 13 de entrada y 18 de salida ([S2](aws/idempotencia/S2.txt)) |
+| Cómputo | `ci` y `nexus`, `m7i-flex.large`. Un `t3.small` por ambiente | Sección 4 |
+| Registro | **CNCF Distribution 3.0.0** en el servidor `nexus` (decisión definitiva) | Sección 6 |
+| Secretos | SSM Parameter Store, SecureString: 36 parámetros | Sección 8 |
+| Identidad | Roles IAM de lectura, operación y destrucción, con MFA y sesiones temporales. Sin claves permanentes | Sección 13 |
+| Plano de control | Estación de trabajo con WSL Ubuntu y los scripts `infra/*.sh` | Los scripts leen SSM y configuran los hosts por SSH. Las UIs solo son accesibles por túnel |
+
+Decisiones registradas:
+- [registro de artefactos](../../arquitectura/registro-artefactos.md);
+- [infraestructura y ambientes](../../arquitectura/infra-ambientes.md);
+- [EULA de Nexus](16-nexus-eula.md).
+
+## 3. Diagrama
+
+Versión resumida. El diagrama completo, con todas las reglas, está en
+[infra-ambientes.md](../../arquitectura/infra-ambientes.md).
+
+```mermaid
+flowchart LR
+    ops["Operador (WSL)<br/>SSH 22 desde ADMIN_CIDRS /32"]
+    ssm[("SSM SecureString<br/>/circleguard/{tools,dev,stage,prod,ssh}")]
+    subgraph vpc["VPC 10.20.0.0/16 · us-east-2a"]
+        subgraph tools["tools 10.20.0.0/24"]
+            ci["ci · m7i-flex.large<br/>Jenkins (crane) · SonarQube · PostgreSQL"]
+            nx["nexus · m7i-flex.large<br/>CNCF Distribution :8082 TLS (registro)<br/>Nexus 3.96.5 (sin repositorio)"]
+        end
+        dev["dev 10.20.10.0/24<br/>env-dev · t3.small"]
+        stage["stage 10.20.20.0/24<br/>env-stage · t3.small"]
+        prod["prod 10.20.30.0/24<br/>env-prod · t3.small"]
+    end
+    ops -- "SSH y túneles" --> ci & nx
+    ops -. "lee secretos" .-> ssm
+    ci -- "8082 push/pull" --> nx
+    ci -- "22 despliegue" --> dev
+    ci -. "22 despliegue" .-> stage & prod
+    dev -- "8082 pull" --> nx
+    stage & prod -. "8082 pull" .-> nx
+    dev x--x stage
+    stage x--x prod
+    dev x--x prod
+```
+
+Leyenda:
+- **Línea continua:** tráfico verificado en AWS (2026-11-03 y 2026-11-03/04).
+- **Línea punteada:** la misma regla de grupo de seguridad que la línea continua equivalente de
+  `dev`. Está verificada por reglas; no se probó con tráfico desde `stage` ni `prod`.
+- **`x--x`:** bloqueado, verificado con tráfico en los dos sentidos. Ningún grupo de seguridad
+  permite tráfico entre ambientes.
+
+## 4. Servidores
+
+| Servidor | Tipo | Disco | Software | Estado (2026-11-04, 00:21 UTC) |
 |---|---|---|---|---|
-| Sintaxis | `bash -n` de los 33 scripts | 2026-11-03 16:08 | 33/33 | — |
-| Análisis estático | ShellCheck v0.11.0 `-x -S style` | 2026-11-03 16:27 (33 scripts) | 0 hallazgos; control SC2086 detectado | — |
-| Unitarias | Roles, guarda de cuota, registro, `daemon.json`, Compose y planes | 2026-11-03 16:25 | 34/34 | AWS simulado en la guarda de cuota |
-| Integración local | Contenedor Linux: secretos, registro (×4), `verify-infra`, *build* de Jenkins y `crane`, rotación, persistencia | 2026-11-03 04:00 | 22/22 | Sin SSH, VPC ni grupos de seguridad. Los scripts que ejercita no han cambiado desde entonces (sha256 en el reporte de ShellCheck) |
-| Registro (scripts del host) | `prepare.sh` y `configure.sh` | 2026-11-03 04:08 | 21/21 | Git Bash en NTFS |
-| Prerrequisitos | `check-prerequisites.sh` en WSL | 2026-11-03 16:28 | `pass=17 warn=1 fail=0` en 13 s | El aviso: cambios sin confirmar. La ejecución de las 15:39 tardó 26 min (`git status` sobre OneDrive) y motivó la corrección |
-| Secretos | `scan-secrets.sh` (árbol de trabajo e historial) | 2026-11-03 16:29 | ACTIVO=0 en 426 archivos; historial 68 = 51 HISTÓRICO + 13 PRUEBA + 4 RESIDUAL | 2 RESIDUAL y 51 HISTÓRICO (sección F) |
-| Estado de AWS (lectura) | `aws-session.sh status` y `teardown.sh --stop` | 03:44 y 15:37 | A las 03:44: todo detenido. A las 15:37: **sesiones caducadas**, sin lectura posible | Requiere el inicio de sesión del responsable |
-| Idempotencia, aislamiento y reconstrucción en AWS | `test-idempotency.sh`, `test-isolation.sh` y el ensayo | — | **No ejecutadas** | Requieren autorización y MFA |
+| `circleguard-ci` | `m7i-flex.large` (2 vCPU, 8 GiB) | 30 GiB gp3 cifrado | Jenkins 2.580.2 LTS (JDK 21, JCasC, `crane` 0.22.1), SonarQube 26.10.0 Community y PostgreSQL 16.15 | **Detenido** (con volumen) |
+| `circleguard-nexus` | `m7i-flex.large` (2 vCPU, 8 GiB) | 25 GiB gp3 cifrado | CNCF Distribution 3.0.0 y Nexus Repository 3.96.5 (sin EULA) | **Detenido** (con volumen) |
+| `circleguard-env-dev`, `-stage`, `-prod` | `t3.small` (2 vCPU, 2 GiB) | 10 GiB gp3 cifrado | Docker 29.9.3, Compose 5.7.0, parada automática, swap y `.env` del ambiente | **Creados el 2026-11-03/04 por la prueba de aislamiento y detenidos** (con volumen) |
 
-Nota: los cambios de hoy por la tarde (`test-idempotency.sh`, `test-isolation.sh` y el nuevo
-`check-prerequisites.sh`) están validados con `bash -n`, ShellCheck y las comprobaciones unitarias
-de sus planes; `check-prerequisites.sh` se ejecutó realmente en WSL. Sus partes que tocan AWS solo
-pueden probarse en AWS.
+Comunes a todos:
+- AMI Ubuntu 24.04 de Canonical fijada (`ami-0fc53b217ec1ad816`). La política del operador solo
+  permite lanzar esa AMI.
+- IMDSv2 obligatorio, sin rol IAM de instancia y con 2 GiB de swap.
+- Parada automática a las 4 h del arranque (temporizador systemd), y parada obligatoria al final
+  de cada prueba.
+- Etiquetas `Project`, `Story`, `ManagedBy`, `Role` y `Environment`.
 
-## E. Costes (estimaciones con los precios de referencia de `infra/config/aws.env`; la factura real está en Billing y llega con retraso)
+Cuota de vCPU:
+- **Cuota real:** 16 vCPU ([lectura del 2026-11-03](auditoria/20261103T201403Z-bootstrap-quota.txt)).
+- **Límite que aplica `bootstrap-servers.sh`:** `QUOTA_VCPU_LIMIT=5`, un límite conservador del
+  equipo. Por eso los servidores se encienden de dos en dos (4 vCPU).
+- **Necesario con los cinco encendidos:** `QUOTA_VCPU_TARGET=10`.
+
+## 5. Separación de ambientes
+
+Cada ambiente tiene recursos propios:
+
+| Recurso | `dev` | `stage` | `prod` |
+|---|---|---|---|
+| Subred | `10.20.10.0/24` | `10.20.20.0/24` | `10.20.30.0/24` |
+| Grupo de seguridad | `sg-env-dev` | `sg-env-stage` | `sg-env-prod` |
+| Par de llaves SSH | `circleguard-dev` | `circleguard-stage` | `circleguard-prod` |
+| Secretos (SSM) | `/circleguard/dev/*` (9) | `/circleguard/stage/*` (9) | `/circleguard/prod/*` (9) |
+| Configuración | `infra/config/envs/dev.env` | `stage.env` | `prod.env` |
+| Servidor | `env-dev` | `env-stage` | `env-prod` |
+
+Reglas:
+- **Permitido:** `ci → ambiente:22` (despliegue) y `ambiente → nexus:8082` (descarga de
+  imágenes); salida 80/443.
+- **Bloqueado:** cualquier tráfico entre ambientes, y de los ambientes hacia Jenkins (8080) y
+  SonarQube (9000).
+- **Credenciales:** cada host recibe solo las de su ambiente, en un `.env` 0600 de root.
+
+Verificado:
+- **En AWS el 2026-11-02:** 15 comprobaciones de configuración en PASS: ninguna regla entre
+  ambientes y solo referencias a `ci` y `nexus` ([evidencia 14](14-despliegue-aws-fase4.md) §8).
+- **En AWS el 2026-11-03:** `verify-infra.sh --isolation` en PASS, incluido `ci → registro:8082`
+  ([isolation.txt](aws/idempotencia/isolation.txt)).
+- **En AWS el 2026-11-03/04, con tráfico real** entre los servidores de ambiente
+  ([aws/aislamiento/](aws/aislamiento/README.md), sección 11):
+  - los 6 flujos entre ambientes, bloqueados;
+  - los permitidos (`ci → env-dev:22` y `env-dev → nexus:8082`) en PASS;
+  - cada host con solo el `.env` de su ambiente.
+
+## 6. Registro de artefactos: CNCF Distribution
+
+**Decisión definitiva del equipo** ([registro-artefactos.md](../../arquitectura/registro-artefactos.md)):
+- el registro principal es CNCF Distribution 3.0.0 (Apache 2.0);
+- **el EULA de Nexus Community Edition no se acepta.** Nexus queda instalado como componente sin
+  repositorio operativo: no se crean el repositorio `circleguard-docker`, el realm DockerToken ni
+  cambios de acceso anónimo;
+- nada depende de Nexus.
+
+| Aspecto | Implementación |
+|---|---|
+| Ubicación | Servidor `nexus`, puerto 8082. El conector Docker de Nexus se movió a `127.0.0.1:18082` para liberar el puerto |
+| TLS | Certificado EC P-256 autofirmado, generado en el host por `prepare.sh` antes de arrancar el contenedor |
+| Autenticación | `htpasswd` bcrypt con un usuario, `ci`. La contraseña está en SSM (`/circleguard/tools/registry/REGISTRY_CI_PASSWORD`) |
+| Clientes | Docker: `insecure-registries` limitado a la subred `tools`. `crane --insecure`: cifra, pero no autentica el servidor (sección 15) |
+| Persistencia y salud | Volumen propio; *healthcheck* por el puerto de depuración `127.0.0.1:5001` |
+| Rotación | `rotate-registry-password.sh`: SSM, registro y Jenkins, con verificación y recuperación. Probada en local; no ejecutada en AWS |
+
+Evidencia en AWS (2026-11-03, [registry.txt](aws/idempotencia/registry.txt)):
+- `PASS registry: el usuario ci publica y descarga una imagen (ci -> 10.20.0.221:8082)`;
+- `PASS registry: Jenkins (contenedor cg-jenkins) se autentica, publica y descarga con crane`;
+- tras reiniciar los contenedores, el registro vuelve a estar sano
+  ([health-after-restart.txt](aws/idempotencia/health-after-restart.txt)).
+
+Sobre el PENDING de esa salida:
+- Es la comprobación del EULA en el texto del commit `3afca6f`. La decisión ya es definitiva: con
+  el código actual, `verify-infra.sh` informa de ella como PASS y `configure.sh` como UNCHANGED
+  ([prueba local, 19/19](auditoria/20261103T230202Z-decision-eula-local.txt)).
+- Ese cambio todavía no se ha ejecutado en AWS.
+
+## 7. Integración de Jenkins con el registro (`crane`)
+
+- **Imagen:** `circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1`, construida en el host.
+  - Incluye `crane` (go-containerregistry v0.22.1, Apache 2.0) con su sha256 fijado
+    (`0ab7a1d6…4cda0`).
+  - No monta el socket de Docker.
+- **Credenciales:** `REGISTRY_ADDRESS`, `REGISTRY_CI_USER` y `REGISTRY_CI_PASSWORD`, en el `.env`
+  0600 del *stack*, generado desde SSM.
+- **Prueba:** desde el contenedor `cg-jenkins`, `crane` se autentica, publica una imagen, la
+  descarga y compara el *digest*.
+  - **AWS:** PASS el 2026-11-03.
+  - **Integración local:** PASS el 2026-11-03 a las 04:15
+    ([integración local](auditoria/20261103T041534Z-integracion-local-hu01.txt) §4).
+- **Persistencia:** el contenedor se recreó con la nueva imagen y el volumen `jenkins_home` es
+  anterior a la prueba: PASS en [report.txt](aws/idempotencia/report.txt).
+
+## 8. Gestión de secretos
+
+| Mecanismo | Detalle |
+|---|---|
+| Almacén | SSM Parameter Store, SecureString: 36 parámetros (`tools` 5, `dev` 9, `stage` 9, `prod` 9, `ssh` 4) ([S2](aws/idempotencia/S2.txt)) |
+| Generación | `bootstrap-secrets.sh` crea los que faltan y no sobrescribe los existentes: `unchanged=44` en la 2.ª ejecución |
+| Transporte | Los valores viajan por stdin y SSH. Nunca aparecen como argumentos ni en la salida; solo se muestran nombres, versiones y hashes |
+| En los hosts | `.env` 0600 de root por *stack*. Sus hashes se omiten en las evidencias (`<hash omitido>`) |
+| Llaves SSH | Una por ambiente y otra para las herramientas. Su copia de custodia está en SSM, y el ensayo las restaura desde allí |
+| Repositorio | `docker-compose.dev.yml` con `${VAR:?}` y sin valores (commit `3a43855`), `.env.example` vacío y `.gitignore` para `.env`, `operator.local.env`, `infra/logs` e `infra/security/reports` |
+| Escaneo | Gitleaks v8.30.1: **0 ACTIVO** en el árbol de trabajo. En el historial, 51 HISTÓRICO, que se consideran comprometidos y no se reutilizan ([árbol](auditoria/20261104T002645Z-worktree-summary.txt), [historial](auditoria/20261104T002645Z-history-summary.txt)) |
+| Evidencias | Copias enmascaradas por `cg_mask_evidence` y comprobadas con `infra/check-evidence.sh`: 0 hallazgos en [`aws/idempotencia/`](aws/idempotencia/README.md) y en [`aws/aislamiento/`](aws/aislamiento/README.md) |
+| Por ambiente | Cada host de ambiente recibió solo su `.env` (`.env pertenece al ambiente`, 0600 root): PASS en AWS en los tres |
+
+## 9. Scripts
+
+`bash infra/bootstrap-all.sh --apply --approve ci,nexus` es el **comando único**. Ejecuta, en
+orden:
+1. red;
+2. secretos;
+3. servidores;
+4. Jenkins;
+5. SonarQube;
+6. Nexus;
+7. registro;
+8. verificación.
+
+Convenciones de todos los scripts ([infra/README.md](../../../infra/README.md)):
+- `--plan` por defecto.
+- `--apply` para cambiar, y `--approve <rol>` para lo que se factura.
+- Salida `CREATED`, `UPDATED`, `UNCHANGED` y `PLAN`, con un `SUMMARY` final. El registro de cada
+  ejecución se guarda en `infra/logs/`.
+- Las pruebas detienen siempre las instancias al salir (`trap`).
+
+Cambios de esta revisión (sin confirmar):
+
+| Archivo | Cambio |
+|---|---|
+| `infra/bootstrap/nexus/configure.sh`, `infra/verify-infra.sh`, `infra/bootstrap-nexus.sh` | El EULA no aceptado deja de presentarse como decisión pendiente. Es UNCHANGED y PASS mientras el registro sea CNCF Distribution; solo queda PENDING con `REGISTRY_BACKEND=nexus` |
+| `infra/test-idempotency.sh` | **Defecto corregido:** las copias `masked/` se hacían antes de escribir `RESULTADO` y la parada en `report.txt`. Ahora se hacen al final e incluyen `stop.txt`. El texto de la duración indica lo que mide realmente |
+| `infra/test-isolation.sh` | Comprueba también la idempotencia de `bootstrap-env.sh` en cada host. Mensajes: límite de vCPU frente a la cuota |
+| `infra/bootstrap-servers.sh`, `infra/config/aws.env` | Distinguen el límite configurado (5) de la cuota real (16) |
+| `infra/check-evidence.sh` (nuevo) | Comprobación de solo lectura, sin AWS, de una carpeta de evidencias antes de versionarla |
+
+Pruebas ejecutadas en esta revisión y en las anteriores:
+
+| Prueba | Tipo | Fecha (UTC) | Resultado | Evidencia |
+|---|---|---|---|---|
+| Sintaxis `bash -n` de los 34 scripts | Local | 2026-11-04 00:28 | 34/34 | [validaciones](auditoria/20261104T002821Z-validaciones-locales-hu01.txt) |
+| ShellCheck v0.11.0 `-x -S style` | Local | 2026-11-03 23:10 | 0 hallazgos en 34 scripts; control positivo SC2086 detectado | [ShellCheck](auditoria/20261103T231008Z-shellcheck-hu01.txt) |
+| Comprobaciones unitarias: roles, guarda de vCPU, orden del registro, Compose, `bootstrap-env` y planes | Local | 2026-11-03 23:10 | 40/40 | [unitarias](auditoria/20261103T231039Z-comprobaciones-unitarias-hu01.txt) |
+| Decisión del EULA (`configure.sh` contra una API simulada y la rama de `verify-infra.sh`) | Local | 2026-11-03 23:02 | 19/19 | [EULA](auditoria/20261103T230202Z-decision-eula-local.txt) |
+| Orden de las copias enmascaradas | Local | 2026-11-03 23:05 | 7/7 | [orden](auditoria/20261103T230549Z-orden-evidencias-local.txt) |
+| `check-evidence.sh`: carpeta real y control negativo | Local | 2026-11-03 22:52 | 0 hallazgos en la real; 6 categorías y el valor ficticio detectados | [check-evidence](auditoria/20261103T225236Z-check-evidence.txt) |
+| Gitleaks: árbol de trabajo e historial | Local | 2026-11-04 00:26 | ACTIVO=0 en 467 archivos; historial de 24 commits: 51 HISTÓRICO, 13 PRUEBA, 4 RESIDUAL | [árbol](auditoria/20261104T002645Z-worktree-summary.txt), [historial](auditoria/20261104T002645Z-history-summary.txt) |
+| Compose, enlaces, `git diff --check` y archivos sensibles | Local | 2026-11-04 00:28 | 5 Compose válidos y rechazados sin variables; 204 enlaces sin errores; sin espacios finales; ningún archivo sensible versionado | [validaciones](auditoria/20261104T002821Z-validaciones-locales-hu01.txt) |
+| Prerrequisitos de la estación de trabajo | Local (WSL) | 2026-11-03 16:28 | `pass=17 warn=1 fail=0` | [prerrequisitos](auditoria/20261103T162805Z-prerrequisitos-wsl.txt) |
+| Secretos, registro (×4), `verify-infra`, Jenkins con `crane`, rotación y persistencia | Integración local | 2026-11-03 04:15 | 22/22 | [integración](auditoria/20261103T041534Z-integracion-local-hu01.txt) |
+| `prepare.sh` y `configure.sh` del registro | Local | 2026-11-03 04:08 | 21/21 | [registro](auditoria/20261103T041534Z-prueba-local-registro.txt) |
+| Despliegue paso a paso de red, IAM, secretos, `ci` y `nexus` | **AWS** | 2026-11-02 | PASS | [evidencia 14](14-despliegue-aws-fase4.md), [`fase4/`](fase4/) |
+| **Idempotencia integral** con `test-idempotency.sh --apply --approve ci,nexus` | **AWS** | 2026-11-03 20:22-20:54 | `RESULTADO: IDEMPOTENTE` | [`aws/idempotencia/`](aws/idempotencia/README.md) |
+| **Aislamiento con tráfico** con `test-isolation.sh --apply` (dos sesiones, autorizada) | **AWS** | 2026-11-03 23:41 → 2026-11-04 00:20 | `AISLAMIENTO VERIFICADO CON TRÁFICO`: fases 1-3 con 16/16 cada una, fase 4 con 3/3 y fase 5 con 2/2; `bootstrap-env.sh` idempotente | [`aws/aislamiento/`](aws/aislamiento/README.md) |
+| Ensayo de reconstrucción por otro integrante | **AWS** | — | **No ejecutado** | [`aws/ensayo-nivel1/`](aws/ensayo-nivel1/README.md) |
+
+Nota sobre la integración local: después de las 04:15 cambiaron `verify-infra.sh`,
+`nexus/configure.sh` y los mensajes de otros scripts. Esos cambios tienen sus propias pruebas
+locales (EULA y orden). Para el registro y Jenkins, la prueba en AWS del 2026-11-03 sustituye a la
+integración local.
+
+## 10. Evidencias de idempotencia
+
+Prueba ejecutada por el responsable de la cuenta el 2026-11-03, sobre el commit `3afca6f`
+([carpeta](aws/idempotencia/README.md)):
+
+| Paso | Resultado | Archivo |
+|---|---|---|
+| S0, punto de partida | 2 instancias detenidas | [S0](aws/idempotencia/S0.txt) |
+| run1 (`bootstrap-all.sh`) | Inicia `ci` y `nexus`; despliega el registro; recrea Jenkins (imagen con `crane`) y Nexus (puerto del conector); crea el secreto del registro | [run1](aws/idempotencia/run1.txt), [diff S0-S1](aws/idempotencia/diff-S0-S1.txt) |
+| S0 → S1 | Red y llaves sin cambios; 1 parámetro SSM nuevo | [report](aws/idempotencia/report.txt) |
+| **run2 (`bootstrap-all.sh`)** | **`created=0 updated=0 unchanged=137 planned=4`**, en 560 s. Ninguna línea CREATED ni UPDATED | [run2](aws/idempotencia/run2.txt) |
+| **diff S1 S2** | **Vacío** | [diff S1-S2](aws/idempotencia/diff-S1-S2.txt) |
+| Registro | `ci` y Jenkins publican y descargan | [registry](aws/idempotencia/registry.txt) |
+| Recuperación | Reinicio de todos los contenedores: salud 25 PASS, 0 FAIL, 1 PENDING (EULA); **diff S2 S3 vacío** | [health](aws/idempotencia/health-after-restart.txt), [diff S2-S3](aws/idempotencia/diff-S2-S3.txt) |
+| Persistencia | Ninguna contraseña de fábrica se reemplazó de nuevo; `jenkins_home` conservado; SonarQube y Nexus usan la contraseña gestionada | [report](aws/idempotencia/report.txt) |
+| Parada | `no hay instancias de circleguard en ejecución` | [stop](aws/idempotencia/stop.txt) |
+| **Resultado** | **`RESULTADO: IDEMPOTENTE (todas las comprobaciones en PASS)`**. Duración: 1889 s desde la confirmación; servidores encendidos ≈ 26 min | [report](aws/idempotencia/report.txt) |
+
+Las 4 líneas `planned` de run2:
+- 3 son los servidores de ambiente, que no se aprobaron en esa prueba;
+- 1 es el EULA de Nexus. Con el código actual, este pasa a UNCHANGED (`planned=3`).
+
+**Qué no cubre:**
+- `bootstrap-env.sh`, porque no había servidores de ambiente. Su idempotencia se demostró en la
+  prueba de aislamiento (sección 11).
+- La reconstrucción desde cero en una cuenta vacía (sección 15).
+
+## 11. Prueba de aislamiento con tráfico
+
+**Estado: ejecutada en AWS el 2026-11-03/04. Resultado: `AISLAMIENTO VERIFICADO CON TRÁFICO (todas
+las comprobaciones en PASS)` en las dos sesiones** ([evidencias](aws/aislamiento/README.md)).
+- **Autorización:** la dio de forma explícita el responsable de la cuenta.
+- **MFA:** la escribió el responsable solo en la página oficial de AWS, una vez por sesión.
+- **Cobertura:** C2 y la idempotencia de `bootstrap-env.sh` (C3).
+
+| Sesión (UTC) | Fases | Resultado | Duración |
+|---|---|---|---|
+| 2026-11-03 23:41 → 2026-11-04 00:05 | 1, 2 y 3 | 16/16 PASS por fase; `bootstrap-env.sh` sin cambios en su 2.ª ejecución en dev, stage y prod | 1427 s |
+| 2026-11-04 00:08 → 00:20 | 4 y 5 | 3/3 y 2/2 PASS; `bootstrap-env.sh` dev sin cambios | 716 s |
+
+| Flujo | Esperado | Resultado en AWS |
+|---|---|---|
+| dev ↔ stage, dev ↔ prod y stage ↔ prod (22, ambos sentidos: 6 flujos) | Bloqueado | **PASS** |
+| `ci → env-dev:22` | Permitido | **PASS** |
+| `env-dev → ci:8080` y `env-dev → ci:9000` | Bloqueado | **PASS** |
+| `env-dev → nexus:8082` | Permitido | **PASS** |
+| `nexus → env-dev:22` | Bloqueado | **PASS** |
+| En cada host: Docker, parada automática, swap y `.env` propio 0600 de root | Presentes | **PASS** |
+
+Otros resultados:
+- **Red:** en la sesión 1 se movió la regla del puerto 22 a la IP nueva del operador en los 5 grupos
+  de seguridad (`updated=10`); en la sesión 2, sin cambios.
+- **Parada:** cada fase detuvo sus servidores. Una comprobación independiente de solo lectura, a
+  las 00:21 UTC, mostró las 5 instancias `stopped`.
+- **Coste de la prueba:** ≈ 0.03 USD según el registro de costos local (estimado: ≤ 0.15), más el
+  EBS de los nuevos volúmenes.
+
+Comprobaciones de `test-isolation.sh` hechas antes, sin AWS:
+
+| Comprobación | Resultado |
+|---|---|
+| Plan | 5 fases de dos servidores y parada final obligatoria. `--phases` inválido se rechaza ([unitarias](auditoria/20261103T231039Z-comprobaciones-unitarias-hu01.txt)) |
+| Guarda de vCPU | Cada fase usa ≤ 4 vCPU: cabe en el límite de 5 y en la cuota real de 16 |
+| Idempotencia de `bootstrap-env.sh` | Una segunda ejecución con cambios da FAIL. Probado con registros de fases simulados |
+| Copias enmascaradas | Se hacen en el `trap` de salida, después de la parada |
+| Requisitos previos | La fase 5 necesita el registro desplegado (ya lo está, en su volumen). La prueba de idempotencia validó con `--dry-run` los permisos de creación de los servidores de ambiente |
+
+| Fase | Servidores | Comprobaciones con `nc` desde los hosts |
+|---|---|---|
+| 1 | `env-dev` + `env-stage` | dev ↔ stage **bloqueado**; Docker, parada automática, swap y `.env` 0600 |
+| 2 | `env-dev` + `env-prod` | dev ↔ prod **bloqueado** |
+| 3 | `env-stage` + `env-prod` | stage ↔ prod **bloqueado** |
+| 4 | `ci` + `env-dev` | `ci → env:22` **permitido**; `env → ci:8080/9000` **bloqueados** |
+| 5 | `nexus` + `env-dev` | `env → nexus:8082` **permitido**; `nexus → env:22` **bloqueado** |
+
+Procedimiento seguido, desde WSL en la raíz del repositorio. La MFA se escribe solo en la página
+oficial de AWS.
+
+```bash
+bash infra/test-isolation.sh                          # plan, sin AWS
+bash infra/aws-session.sh login operator              # sesión 1 (MFA en la página de AWS)
+bash infra/test-isolation.sh --apply --phases=1,2,3   # escribir: PROBAR AISLAMIENTO
+bash infra/aws-session.sh login operator              # sesión 2
+bash infra/test-isolation.sh --apply --phases=4,5
+```
+
+| Aspecto | Valor |
+|---|---|
+| Duración | Sesión 1: ≈ 30-35 min. Sesión 2: ≈ 20-25 min. El script aborta y detiene todo a los 50 min |
+| Coste | ≈ 0.15 USD de horas de instancia, más 0.079 USD/día por los 30 GiB de EBS de los ambientes mientras existan |
+| Qué crea | 3 instancias `t3.small` y sus 3 volúmenes. Quedan detenidos hasta la destrucción final |
+| Riesgo | Bajo: las fases se detienen al terminar y al fallar. No modifica IAM, la VPC ni las cuotas. Solo actualiza la regla 22 si cambió la IP del operador |
+
+Evidencia:
+- Las dos carpetas `masked/` están en [`aws/aislamiento/`](aws/aislamiento/README.md), con el
+  sha256 de los originales y los tres criterios de PASS cumplidos.
+- `bash infra/check-evidence.sh` da `hallazgos=0` en las dos.
+
+## 12. Ensayo de reconstrucción
+
+**Estado: no realizado.** Cubre C5: otra persona reproduce el resultado solo con la documentación.
+Ningún integrante ha hecho el ensayo y este informe no lo simula.
+
+| Aspecto | Detalle |
+|---|---|
+| Quién | Un integrante distinto del responsable («B») |
+| Dónde | Su WSL, sin `~/.circleguard` ni `~/.ssh/circleguard` |
+| Identidad (opción A) | B ejecuta todos los comandos. El responsable escribe el usuario, la contraseña y la MFA del operador en la página de AWS, compartiendo pantalla. Nada se envía por chat |
+| Pasos | Clon; `check-prerequisites.sh` (`fail=0`); sesión; `bootstrap-secrets.sh --apply` (restaura las llaves desde SSM); `bootstrap-all.sh --plan`; `test-idempotency.sh --apply --approve ci,nexus` |
+| Coste y duración | ≤ 0.21 USD; ≈ 30 min de preparación y ≈ 45 min de prueba |
+| Entregables | En [`aws/ensayo-nivel1/`](aws/ensayo-nivel1/README.md): las salidas, la copia `masked/` y `ACTA.md`, que parte de la [plantilla](ensayo-reconstruccion/ACTA-PLANTILLA.md) |
+| Criterios de PASS | [README del ensayo](ensayo-reconstruccion/README.md#criterios-para-declarar-c5-en-pass) |
+
+El ensayo no destruye nada. El nivel 2, que destruye y reconstruye en AWS, no forma parte de HU-01
+(sección 15).
+
+## 13. Seguridad
+
+| Área | Control | Evidencia |
+|---|---|---|
+| Identidad | 3 roles (lectura, operación y destrucción) con MFA y sesiones de 1 h. Usuarios sin claves permanentes. El operador no puede destruir. La destrucción se hace desde CloudShell con un usuario aparte | [06](06-iam-minimo-privilegio.txt), [10](10-iam-creacion-e-idempotencia.txt), [11](11-validacion-identidades.txt) |
+| Políticas | Access Analyzer sin hallazgos. El simulador IAM no encontró escaladas. El lanzamiento de EC2 está limitado a la AMI fijada | [09](09-aws-preparacion-cuenta-e-iam.txt) |
+| Red | Desde Internet solo se acepta el puerto 22, desde `ADMIN_CIDRS` (/32). Las UIs (8080, 9000, 8081) solo son accesibles por túnel SSH. El 8082 solo se abre a `ci` y a los ambientes. Sin tráfico entre ambientes (verificado con tráfico) | [infra-ambientes.md](../../arquitectura/infra-ambientes.md), [S2](aws/idempotencia/S2.txt), [aislamiento](aws/aislamiento/README.md) |
+| Hosts | IMDSv2 obligatorio, EBS cifrado, sin rol de instancia y parada automática a las 4 h | [report](aws/idempotencia/report.txt) |
+| Registro | TLS y autenticación bcrypt. Sin acceso anónimo | Sección 6 |
+| Secretos | SSM SecureString, stdin, `.env` 0600 de root. Gitleaks con ACTIVO=0 | Sección 8 |
+| Evidencias | Sin número de cuenta, IP públicas completas ni hashes de archivos secretos. Comprobadas con `check-evidence.sh` | [check-evidence](auditoria/20261103T225236Z-check-evidence.txt) |
+| Coste | Guardas de presupuesto (15 USD), confirmación con frases explícitas y parada obligatoria | Sección 14 |
+
+## 14. Costes
+
+Estimaciones locales con los precios de referencia de `infra/config/aws.env` (2026-11-02). No son
+la factura: esta llega a Billing con retraso. Los créditos no se cuentan como presupuesto.
 
 | Concepto | USD |
 |---|---|
-| Presupuesto absoluto · línea operativa | 15 · 12 |
-| **Acumulado estimado** (ledger de los scripts: sesión del 2026-11-02 y EBS desde entonces) | **0.24** |
-| Recursos que facturan ahora | 55 GiB de EBS de `ci` y `nexus`: 0.145 USD/día |
-| Prueba de idempotencia (ensayo de nivel 1) | ≤ 0.21 |
-| Prueba de aislamiento | ≈ 0.15, más 0.079 USD/día de EBS de los ambientes (30 GiB) desde su creación |
-| Dos demostraciones de 3 h | ≈ 1.25 |
-| EBS hasta el 2026-11-22 (55 + 30 GiB) | ≈ 2.66 + 1.42 |
-| Reserva de transferencia | 0.27 |
-| **Previsto hasta el 2026-11-22** | **≈ 6.4** |
-| Margen frente a 15 USD y frente a 12 USD | ≈ 8.6 y ≈ 5.6 |
+| Presupuesto absoluto · línea de alerta | 15 · 12 |
+| **Acumulado estimado** (registro de costos local, 2026-11-04 00:22 UTC: dos sesiones con `ci` y `nexus`, la prueba de aislamiento y el EBS) | **0.41** |
+| Lo que factura ahora | 85 GiB de EBS (`ci` 30, `nexus` 25 y 3 × 10 de los ambientes): 0.224 USD/día. Las 5 instancias están detenidas |
+| EBS hasta el 2026-11-22 (18 días) | ≈ 4.03 |
+| Ensayo de reconstrucción (otro integrante) | ≤ 0.21 |
+| Dos demostraciones de 3 h con `ci` y `nexus` | ≈ 1.25 |
+| Reserva de transferencia de datos | 0.27 |
+| **Previsto hasta el 2026-11-22** | **≈ 6.2** |
+| Margen frente a 15 USD · frente a 12 USD | ≈ 8.8 · ≈ 5.8 |
 
-Los créditos no se consideran presupuesto. `bootstrap-servers.sh` rechaza cualquier operación cuya
-estimación supere los 15 USD.
+`bootstrap-servers.sh` rechaza cualquier operación cuya estimación supere el presupuesto. Destruir
+la infraestructura al terminar la evaluación detiene el coste del EBS.
 
-## F. Impedimentos
+## 15. Limitaciones y riesgos
 
-| Impedimento | Tipo | Efecto | Cómo se resuelve |
-|---|---|---|---|
-| Las sesiones de AWS caducaron. Solo el responsable puede iniciarlas (MFA en el navegador) | AWS/permisos | No se pudo verificar hoy la cuota ni el inventario | G1 |
-| Ninguna prueba en AWS está autorizada | AWS/permisos | C1, C2 y C3 en BLOCKED | G2 y G3 |
-| La cuota de 5 vCPU (leída el 2026-11-01) solo permite dos servidores a la vez; la aprobación de un aumento no es segura en una cuenta del plan gratuito | Cuota | Ambientes por pares; los servicios núcleo en tres ambientes (E1.5) no caben | Aceptado en el diseño; G1 confirma la cuota |
-| El único usuario operador tiene la MFA del responsable | AWS/permisos y dependencia del equipo | Otro integrante no puede autenticarse solo | Opción A del ensayo: B ejecuta y el responsable escribe la MFA |
-| El ensayo de reconstrucción debe hacerlo otra persona | Dependencia del equipo | C5 en BLOCKED | H1 |
-| Faltan las capturas de pantalla | Evidencia manual | E4 y el informe PDF | G4 |
-| Desplegar los servicios núcleo en dev, stage y prod (p. 4) | Dependencia de otra HU (E1.5) y cuota | Fuera de HU-01; riesgo en la rúbrica («ambientes operativos») | Decisión de E1.5 (G5) |
-| 2 RESIDUAL de Gitleaks: comentarios de las migraciones V2 y V3 del código base con la contraseña trivial de usuarios de prueba | Dependencia de otra HU (E2.6) | No son secretos de infraestructura; riesgo si se despliegan en stage o prod | E2.6 (las migraciones aplicadas no se modifican) |
-| `git status` sobre OneDrive desde WSL tarda decenas de minutos | Técnico (resuelto) | Podía agotar la ventana MFA | Limitado a 90 s y antes del inicio de sesión; recomendación de clonar en WSL |
-
-## G. Acciones obligatorias del usuario
-
-Todas se hacen **desde WSL en la raíz del repositorio**, mejor en un clon dentro de `~/` (sección F).
-Las credenciales y la MFA se escriben **solo en la página de AWS**, nunca en el chat.
-
-| N.º | Qué hacer | Por qué no puede hacerlo el asistente | Comando | Resultado esperado | Evidencia que entregar | MFA | Coste | Riesgo |
-|---|---|---|---|---|---|---|---|---|
-| G1 | Leer la cuota real de vCPU y el inventario | Requiere su MFA (sesiones de administración y de operador) | `bash infra/aws-session.sh login bootstrap` → `bash infra/bootstrap-quota.sh` → `bash infra/aws-session.sh logout bootstrap` → `bash infra/aws-session.sh login operator` → `bash infra/teardown.sh --stop` | `cuota actual en us-east-2: N vCPU`; `no hay instancias de circleguard en ejecución` | La línea de la cuota. Si N ≠ 5, se actualiza `QUOTA_VCPU_LIMIT` | Sí | 0 | Ninguno (solo lectura) |
-| G2 | Autorizar y lanzar la prueba de idempotencia, que despliega el registro y prueba Jenkins → registro. Recomendado: que la ejecute el otro integrante (H1) para cubrir también C5 | Requiere autorización de gasto y MFA | `bash infra/test-idempotency.sh --apply --approve ci,nexus` (escribir `PROBAR IDEMPOTENCIA`) | `RESULTADO: IDEMPOTENTE (todas las comprobaciones en PASS)` e `instancias detenidas al terminar` | `~/.circleguard/idempotency/<marca>/masked/*` → `docs/evidencias/hu-01/aws/idempotencia/` | Sí (sesión de menos de 1 h) | ≤ 0.21 USD | Si cambió su IP, actualiza la regla 22. Detalle debajo de la tabla |
-| G3 | Autorizar y lanzar la prueba de aislamiento, después de G2 | Crea recursos nuevos facturables; requiere MFA | `bash infra/test-isolation.sh --apply --phases=1,2,3`; nuevo `login operator`; `bash infra/test-isolation.sh --apply --phases=4,5` (frase `PROBAR AISLAMIENTO`) | Las cinco fases en PASS e `instancias detenidas al terminar` | Las dos carpetas `masked/` → `docs/evidencias/hu-01/aws/aislamiento/` | Sí (dos sesiones) | ≈ 0.15 USD + 0.079 USD/día de EBS | Crea 3 instancias y 3 volúmenes que permanecen, detenidos, hasta destruirlos |
-| G4 | Tomar las capturas | Requieren una persona frente a la pantalla | Ver [capturas/README.md](capturas/README.md) | — | Los PNG de esa lista en `docs/evidencias/hu-01/capturas/` | Algunas, durante G2 o G3 | 0 | No mostrar contraseñas, IP públicas ni el número de cuenta |
-| G5 | Decidir con el equipo o el profesor el alcance de los ambientes: HU-01 entrega ambientes aislados y aprovisionados; las aplicaciones (y su cuota y tamaño) llegan con E1.5 | Decisión académica y económica | — | Decisión registrada (por ejemplo, en el acta del sprint) | Referencia a la decisión | No | 0 | Sin ella, la rúbrica podría valorar «ambientes no operativos» |
-| G6 | Revisar y confirmar los cambios (sección I) y publicar la rama | Los commits y el push los hace el usuario | `bash infra/scan-secrets.sh --worktree` (debe dar PASS) y después sus commits | — | — | No | 0 | — |
-| G7 | Al terminar la evaluación, destruir la infraestructura | Destructivo; por diseño se hace desde CloudShell con el usuario de teardown | [Detener o destruir](../../../infra/README.md#detener-o-destruir) | Inventario vacío | Salida de `teardown-cloudshell.sh` | Sí | Detiene el gasto | Pérdida de los datos de las herramientas (esperada) |
-
-Detalles de G2:
-- **Al terminar:** la sesión es de 45-55 min. Puede quedar desplegado el registro y se recrean
-  Jenkins y Nexus una vez.
-- **Acumulado tras G2:** ≈ 0.45 USD; tras G3, ≈ 0.6 USD más el EBS.
-
-## H. Acciones de otros integrantes
-
-| N.º | Quién | Qué | Instrucciones | Evidencia |
-|---|---|---|---|---|
-| H1 | Un integrante distinto del responsable | Ensayo de reconstrucción de nivel 1 en su WSL. Su paso 6 **es** la prueba G2, así que no se repite | [ensayo-reconstruccion/README.md](ensayo-reconstruccion/README.md), con el mensaje listo para enviar | `docs/evidencias/hu-01/aws/ensayo-nivel1/` (prerrequisitos, secretos, plan, `idempotencia/` y `ACTA.md`) |
-| H2 | Equipo | Incluir capturas, enlaces y evidencias en el informe PDF de la Parte 1 | [capturas/README.md](capturas/README.md) y este informe | PDF de entrega |
-
-## I. Commits sugeridos (no ejecutados)
-
-| N.º | Mensaje | Archivos |
+| Limitación | Efecto | Tratamiento |
 |---|---|---|
-| 1 | `feat(registry): registro CNCF Distribution en el servidor nexus` | `infra/bootstrap-registry.sh`, `infra/bootstrap/registry/`, `infra/bootstrap-nexus.sh`, `infra/bootstrap/nexus/docker-compose.yml`, `infra/bootstrap/host/setup-docker.sh`, `infra/config/aws.env`, `infra/config/secrets.catalog`, `docs/arquitectura/registro-artefactos.md` |
-| 2 | `feat(jenkins): publicar en el registro con crane y rotar su contraseña` | `infra/bootstrap/jenkins/{Dockerfile,docker-compose.yml}`, `infra/bootstrap-jenkins.sh`, `infra/bootstrap/lib/remote.sh`, `infra/rotate-registry-password.sh`, `infra/verify-infra.sh` |
-| 3 | `feat(envs): servidores de ambiente por pares dentro de la cuota de vCPU` | `infra/bootstrap/lib/{aws,common}.sh`, `infra/bootstrap-servers.sh`, `infra/bootstrap-env.sh`, `infra/bootstrap-all.sh`, `infra/bootstrap-quota.sh`, `infra/config/envs/*.env`, `infra/test-isolation.sh` |
-| 4 | `test(infra): idempotencia integral, prerrequisitos y escaneo de secretos` | `infra/test-idempotency.sh`, `infra/check-prerequisites.sh`, `infra/scan-secrets.sh` |
-| 5 | `docs(hu-01): informe final del Sprint 1, ensayo y evidencias locales` | `infra/README.md`, `docs/arquitectura/infra-ambientes.md`, `docs/evidencias/hu-01/` (README, 15-18, este informe, `capturas/`, `ensayo-reconstruccion/`, `aws/` y `auditoria/`) |
+| TLS autofirmado sin autenticar el servidor (`insecure-registries`, `crane --insecure`) | El tráfico va cifrado, pero un atacante dentro de la VPC podría suplantar al registro | Limitado a la subred `tools` y a los grupos de seguridad. Mejora: una CA propia distribuida a los clientes |
+| Un solo usuario del registro (`ci`), sin autorización por repositorio | Quien tenga la credencial puede publicar y borrar cualquier imagen | Credencial solo en SSM y en Jenkins, con rotación disponible |
+| Etiquetas mutables en Distribution | Una etiqueta puede reescribirse | Los pipelines (E1.3/E1.4) deben desplegar por *digest* |
+| Credenciales del registro como variables de entorno en Jenkins | Visibles para quien administre el contenedor o los *jobs* | Mejora: el almacén de credenciales de Jenkins (E1.3) |
+| Nexus instalado sin repositorio operativo | Ocupa memoria en el servidor `nexus` sin dar servicio | Decisión del equipo; puede retirarse sin afectar al registro |
+| 2 RESIDUAL de Gitleaks: comentarios de las migraciones Flyway V2/V3 con la contraseña de usuarios de prueba | No son secretos de infraestructura; riesgo si llegan a `stage` o `prod` | E2.6. Las migraciones aplicadas no se modifican |
+| 51 HISTÓRICO en el commit inicial | Credenciales públicas en el historial | Se consideran comprometidas y no se reutilizan. El historial no se reescribe |
+| Servicios núcleo en los tres ambientes (enunciado, p. 4) | Un `t3.small` (2 GiB) no basta. Con `ci` y `nexus`, sumarían 10 vCPU (caben en la cuota de 16) y ≈ 0.50 USD/h | Fuera de HU-01: E1.5 deberá ampliar el tamaño y `QUOTA_VCPU_LIMIT` |
+| «Reconstruir desde cero con un comando» (rúbrica P1.2) | Demostrado: el comando único converge en AWS sobre la infraestructura existente, y la creación desde cero del 2026-11-02 se hizo paso a paso. **No demostrado:** destruir y reconstruir con un solo comando (nivel 2) | Destruiría datos de Jenkins y SonarQube, y requiere una decisión del equipo. Queda en PARTIAL |
+| Rotación del registro | Probada solo en local | Puede ejecutarse en la demostración |
+| Flujos permitidos de `stage` y `prod` (`ci → env:22`, `env → nexus:8082`) | Probados con tráfico solo desde `env-dev` (fases 4 y 5). En `stage` y `prod` son las mismas reglas, verificadas por configuración | Los bloqueos entre ambientes sí se probaron con tráfico en los tres |
+| Sin copias de seguridad del EBS | Perder un volumen implica reconfigurar desde los scripts. Los secretos sobreviven en SSM | Aceptado para un entorno académico |
+| Una sola zona de disponibilidad | Sin alta disponibilidad | Aceptado por coste |
+| Un solo usuario operador, con la MFA del responsable | El ensayo de B necesita al responsable | Opción A del ensayo |
+| Sesión MFA de 1 h | Las pruebas largas se dividen | Fases de `test-isolation.sh` y límite de 50 min |
+| Evidencia del EULA con el texto de `3afca6f` | El PENDING ya no refleja la decisión | Explicado en la sección 6. El texto nuevo aparecerá en la próxima ejecución |
 
-## J. Veredicto final
+## 16. Matriz de cumplimiento
 
-- **¿Está HU-01 terminada?** No.
-- **¿Pueden los seis criterios estar en PASS?** Sí, si las pruebas en AWS (G2 y G3) y el ensayo (H1)
-  dan PASS. El código, la documentación y los procedimientos están listos y validados en local.
-  El coste previsto (≈ 6.4 USD) cabe en 15 USD.
-- **¿Qué falta exactamente?**
-  1. La ejecución autorizada en AWS de `test-idempotency.sh` (C1 y C3) y de `test-isolation.sh` (C2).
-  2. El ensayo de reconstrucción por otro integrante (C5).
-  3. Las capturas.
-  4. La decisión sobre el alcance de los ambientes frente a E1.5.
-  5. Los commits.
-- **¿Qué lo impide?** La MFA y la autorización de gasto del responsable de AWS, que el asistente
-  no puede ni debe suplir, y la participación de otro integrante.
-- **Usuario:** G1 → G2 (con H1) → G3 → G4 → G5 → G6 y, al final de la evaluación, G7.
-- **Otro integrante:** H1 (que incluye G2).
-- **Siguiente paso recomendado:**
-  1. Confirmar los cambios.
-  2. Leer la cuota (G1).
-  3. Hacer una videollamada en la que el otro integrante ejecute el ensayo de nivel 1 mientras el
-     responsable escribe la MFA. Ese ensayo cubre C1, C3 y C5 de una vez.
-  4. En otra sesión, la prueba de aislamiento (G3, C2).
+### Criterios de HU-01
+
+| Criterio | Estado | Evidencia | Qué falta |
+|---|---|---|---|
+| C1 · Servidores en la nube para Jenkins, SonarQube y el registro | **PASS** | AWS 2026-11-02 ([14](14-despliegue-aws-fase4.md)). AWS 2026-11-03: registro, Jenkins con `crane` y salud 25/0/1 ([`aws/idempotencia/`](aws/idempotencia/README.md)) | Capturas (sin AWS para las de texto) |
+| C2 · `dev`, `stage` y `prod` aislados | **PASS** | AWS 2026-11-03/04, con tráfico real: 6 flujos entre ambientes bloqueados; permitidos y bloqueos hacia `ci` y desde `nexus` en PASS ([`aws/aislamiento/`](aws/aislamiento/README.md)). Antes: reglas ([14](14-despliegue-aws-fase4.md) §8) | Capturas |
+| C3 · `infra/bootstrap-*.sh` idempotentes | **PASS** | AWS 2026-11-03: 2.ª ejecución de `bootstrap-all.sh` con `created=0 updated=0 unchanged=137` y diffs vacíos ([run2](aws/idempotencia/run2.txt)). AWS 2026-11-03/04: 2.ª ejecución de `bootstrap-env.sh` con `created=0 updated=0` en dev, stage y prod ([`aws/aislamiento/`](aws/aislamiento/README.md)) | — |
+| C4 · Credenciales de `docker-compose.dev.yml` fuera del repositorio | **PASS** | [commit 3a43855](auditoria/20261103T160739Z-commit-3a43855-credenciales.txt), [02](02-validacion-compose.txt) | — |
+| C5 · Sin configuración manual no documentada | **BLOCKED** (otro integrante) | Instalación y prueba solo con scripts; pasos humanos documentados con su motivo ([infra/README.md](../../../infra/README.md)) | Ensayo de B (sección 12) |
+| C6 · Credenciales con un mecanismo seguro | **PASS** | SSM, `.env` 0600, IAM con MFA, Gitleaks ACTIVO=0 (sección 8) | — |
+
+### Sprint 1 (E1.2) y entrega
+
+| # | Requisito (fuente) | Estado | Nota |
+|---|---|---|---|
+| 1 | Estructura `infra/bootstrap/` (p. 6) | **PASS** | `infra/bootstrap-*.sh` e `infra/bootstrap/{lib,host,jenkins,sonarqube,nexus,registry}/` |
+| 2 | «Tres ambientes aislados» (P1.2) | **PASS** | Igual que C2: verificado con tráfico en AWS |
+| 3 | «Reconstruyen Jenkins, SonarQube y registro desde cero con un comando» (P1.2) | **PARTIAL** | Comando único demostrado en AWS; reconstrucción destructiva no hecha (sección 15) |
+| 4 | Servicios núcleo en los tres ambientes (p. 4) | **BLOCKED** (otra HU, E1.5) | Ambientes aprovisionados y aislados, sin aplicaciones |
+| 5 | E1 · Salida del bootstrap | **PASS** | [run1](aws/idempotencia/run1.txt) y [run2](aws/idempotencia/run2.txt), además de [`fase4/`](fase4/) |
+| 6 | E2 · Diagrama de ambientes | **PASS** | [infra-ambientes.md](../../arquitectura/infra-ambientes.md) y la sección 3 |
+| 7 | E3 · Commit que elimina las credenciales | **PASS** | `3a43855` |
+| 8 | E4 · Captura del escaneo de secretos | **BLOCKED** (manual, sin AWS) | [capturas/README.md](capturas/README.md) |
+| 9 | Evidencias con capturas (p. 6 y p. 9, n.º 2) | **BLOCKED** (manual) | Las de texto se pueden tomar ya, sin AWS |
+| 10 | Apagar o destruir tras la evaluación (p. 9, n.º 4) | **PASS** (mecanismo) | Parada verificada en AWS el 2026-11-02, el 2026-11-03 ([stop](aws/idempotencia/stop.txt)) y el 2026-11-03/04, en cada fase del aislamiento ([stops](aws/aislamiento/fases-1-3/stops.txt)). La destrucción final la hace el equipo |
+
+## 17. Conclusión
+
+HU-01 tiene la infraestructura construida y verificada en AWS:
+- servidores y registro (C1);
+- ambientes aislados, verificados con tráfico (C2);
+- idempotencia del comando único y de `bootstrap-env.sh` (C3);
+- credenciales seguras (C4 y C6).
+
+Para cerrarla falta **el ensayo de reconstrucción de otro integrante** (C5). Quien prepara este
+informe no puede suplirlo y no lo simula. Si da PASS, los seis criterios quedan en PASS. El coste
+previsto (≈ 6.2 USD) cabe en 15 USD.
+
+### Acciones del responsable de la cuenta
+
+Siempre desde WSL. La MFA se escribe solo en la página de AWS.
+
+| N.º | Acción | Comando | Coste |
+|---|---|---|---|
+| U1 | ~~Autorizar y ejecutar la prueba de aislamiento~~ **Hecho el 2026-11-03/04** | Sección 11 | ≈ 0.03 USD + EBS |
+| U2 | ~~Copiar y comprobar las evidencias~~ **Hecho**; falta versionarlas con los commits | [aws/README.md](aws/README.md) | 0 |
+| U3 | Tomar las capturas de texto, incluida la de C2 (no requieren AWS) | [capturas/README.md](capturas/README.md) | 0 |
+| U4 | Acompañar el ensayo de B, escribiendo la MFA en la página de AWS | Sección 12 | ≤ 0.21 USD |
+| U5 | Registrar con el equipo o el profesor el alcance de los ambientes frente a E1.5 | — | 0 |
+| U6 | Revisar y confirmar los cambios, y publicar la rama | Anexo | 0 |
+| U7 | Al terminar la evaluación, destruir la infraestructura desde CloudShell | [Detener o destruir](../../../infra/README.md#detener-o-destruir) | Detiene el gasto |
+
+### Acciones de otro integrante
+
+| N.º | Acción | Instrucciones |
+|---|---|---|
+| B1 | Ensayo de reconstrucción de nivel 1 y su acta | [ensayo-reconstruccion/README.md](ensayo-reconstruccion/README.md), con el mensaje listo para enviar |
+| B2 | Capturas de su ejecución y revisión del informe PDF | [capturas/README.md](capturas/README.md) |
+
+## Anexo · Commits sugeridos (no ejecutados)
+
+Los hace el usuario. No se usa `git add .`: cada commit lista sus rutas. Antes del primero:
+`bash infra/scan-secrets.sh --worktree`, que debe terminar en PASS.
+
+| N.º | Mensaje | Contenido |
+|---|---|---|
+| 1 | `fix(nexus): registrar como definitiva la decisión de no aceptar el EULA` | `configure.sh`, `verify-infra.sh`, `bootstrap-nexus.sh`, `registro-artefactos.md`, evidencia 16 y su prueba local |
+| 2 | `fix(test): copias enmascaradas completas y comprobación de evidencias` | `test-idempotency.sh`, el nuevo `check-evidence.sh` y sus pruebas locales |
+| 3 | `fix(envs): distinguir el límite de vCPU de la cuota y comprobar bootstrap-env.sh` | `aws.env`, `bootstrap-servers.sh`, `test-isolation.sh` y la lectura de la cuota |
+| 4 | `docs(hu-01): evidencias de las pruebas de idempotencia y aislamiento en AWS` | `aws/` (`README`, `idempotencia/`, `aislamiento/` con `fases-1-3/` y `fases-4-5/`, `ensayo-nivel1/`) |
+| 5 | `docs(hu-01): informe final del Sprint 1, ensayo y validaciones locales` | `infra/README.md`, `infra-ambientes.md`, README de evidencias, este informe, `capturas/`, `ensayo-reconstruccion/` y las validaciones de `auditoria/` |

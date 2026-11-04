@@ -69,8 +69,9 @@ vcpu_preview() {
 }
 
 # vcpu_guard: with --apply, the servers already running plus the ones this run would create or
-# start must fit in the account quota (QUOTA_VCPU_LIMIT); otherwise AWS would launch some of them
-# and refuse the rest, leaving a half-done session.
+# start must fit in QUOTA_VCPU_LIMIT, a conservative limit at or below the account quota; otherwise
+# AWS could launch some of them and refuse the rest, leaving a half-done session. It counts the
+# CircleGuard servers only (2 vCPU each): the quota also counts any other instance of the region.
 vcpu_guard() {
   local role state total=0
   is_apply || return 0
@@ -81,8 +82,8 @@ vcpu_guard() {
     fi
   done
   ((total <= QUOTA_VCPU_LIMIT)) ||
-    die "Quedarían $total vCPU encendidas a la vez y la cuota es de $QUOTA_VCPU_LIMIT (QUOTA_VCPU_LIMIT): apruebe menos servidores (de dos en dos) o detenga los que no necesite"
-  info "vCPU encendidas tras esta ejecución: $total de $QUOTA_VCPU_LIMIT"
+    die "Quedarían $total vCPU encendidas a la vez y el límite configurado es de $QUOTA_VCPU_LIMIT (QUOTA_VCPU_LIMIT; la cuota real se lee con infra/bootstrap-quota.sh): apruebe menos servidores (de dos en dos) o detenga los que no necesite"
+  info "vCPU encendidas tras esta ejecución: $total de $QUOTA_VCPU_LIMIT (límite configurado, no la cuota)"
 }
 
 # budget_preview: estimated cost of the instances this run would create or start, checked

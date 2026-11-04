@@ -12,17 +12,20 @@ destruyen la plataforma de HU-01:
     [registro-artefactos.md](../docs/arquitectura/registro-artefactos.md).
   - Jenkins publica y descarga imágenes en el registro con `crane`, sin el socket de Docker
     ([Integración de Jenkins con el registro](#integración-de-jenkins-con-el-registro)).
-  - Probado en local el 2026-11-03; **pendiente de desplegar en AWS** (requiere autorización).
+  - **Verificado en AWS el 2026-11-03** con `test-idempotency.sh`: publicación y descarga desde `ci` y
+    desde Jenkins ([evidencias](../docs/evidencias/hu-01/aws/idempotencia/README.md)).
 - **Ambientes `dev`, `stage` y `prod`:** cada uno tiene subred, grupo de seguridad, credenciales,
-  llave SSH y **servidor propio** (`t3.small`). La cuota actual de vCPU solo permite dos servidores
+  llave SSH y **servidor propio** (`t3.small`). El límite de vCPU que fija el equipo
+  (`QUOTA_VCPU_LIMIT=5`, por presupuesto; la cuota real es de 16) solo permite dos servidores
   encendidos a la vez, así que se crean y se prueban **por pares**.
-  - Hasta su creación, que requiere autorización, el aislamiento está configurado y comprobado por
-    reglas.
+  - **Verificado en AWS el 2026-11-03/04** con `test-isolation.sh`: tráfico entre ambientes
+    bloqueado e idempotencia de `bootstrap-env.sh`
+    ([evidencias](../docs/evidencias/hu-01/aws/aislamiento/README.md)).
   - Detalle en [Ambientes dev, stage y prod](#ambientes-dev-stage-y-prod-servidores-por-pares).
 
 Arquitectura y reglas de red: [docs/arquitectura/infra-ambientes.md](../docs/arquitectura/infra-ambientes.md).
 Evidencias de HU-01: [docs/evidencias/hu-01/](../docs/evidencias/hu-01/README.md). Despliegue en AWS
-del 2026-11-02 (Jenkins, SonarQube y PostgreSQL validados; Nexus con el EULA pendiente; instancias
+del 2026-11-02 (Jenkins, SonarQube y PostgreSQL validados; Nexus sin EULA aceptado; instancias
 detenidas después): [evidencia 14](../docs/evidencias/hu-01/14-despliegue-aws-fase4.md).
 
 > **Costos.** Crear o iniciar instancias consume créditos de AWS. Ningún script crea recursos
@@ -50,6 +53,7 @@ detenidas después): [evidencia 14](../docs/evidencias/hu-01/14-despliegue-aws-f
 | `tunnel.sh <herramienta>` | Acceso administrativo a Jenkins, SonarQube o Nexus por **túnel SSH** (las UIs nunca se exponen a Internet) |
 | `teardown.sh` | Detiene (`--stop`) o elimina (`--destroy`) **solo** los recursos de HU-01 |
 | `scan-secrets.sh` | Escaneo de secretos con Gitleaks (árbol de trabajo e historial) |
+| `check-evidence.sh <carpeta>` | Comprobación de solo lectura, sin AWS, de una carpeta de evidencias antes de versionarla: número de cuenta, IP públicas, claves, secretos y rutas personales (solo cuenta, no muestra nada) |
 | `aws-session.sh` | Sesiones AWS temporales: abre la página oficial de AWS (`aws login`); estado y cierre de sesión |
 | `bootstrap-iam.sh` | Inspección de solo lectura de la cuenta, validación con Access Analyzer y creación de los roles y usuarios de HU-01 (con aprobación) |
 | `config/aws.env` | Configuración **no secreta**: región, CIDR, tipos, puertos, precios de referencia |
@@ -184,7 +188,7 @@ bash infra/aws-session.sh login bootstrap        # se abre el navegador: inicie 
 bash infra/bootstrap-iam.sh                      # solo lectura: cuenta, permisos, cuotas, Access Analyzer y plan
 bash infra/bootstrap-iam.sh --audit              # CloudTrail: contexto MFA y escrituras desde el inicio de sesión
 bash infra/bootstrap-iam.sh --apply --approve iam   # CON APROBACIÓN: crea roles y usuarios (sin costo)
-bash infra/bootstrap-quota.sh                    # cuota de vCPU frente a la necesaria (4: ci + nexus); solo lectura
+bash infra/bootstrap-quota.sh                    # cuota de vCPU frente a QUOTA_VCPU_TARGET (10); solo lectura
 bash infra/bootstrap-quota.sh --apply --approve quota  # CON APROBACIÓN, solo si la cuota fuera menor que QUOTA_VCPU_TARGET (sin costo)
 bash infra/aws-session.sh logout bootstrap       # la identidad administrativa deja de estar disponible
 ```
@@ -215,7 +219,8 @@ del rol de operación dura 1 h como máximo.
 - `config/aws.env`: región `us-east-2`, zona `us-east-2a`, CIDR `10.20.0.0/16`, servidores
   (`CI_*` y `NEXUS_*`: `m7i-flex.large`, 30 y 25 GiB), puertos, parada automática
   (`AUTO_STOP_HOURS`), swap (`SWAP_GB`), precios de referencia, presupuesto estimado
-  (`HU01_BUDGET_USD`) y cuota de vCPU necesaria (`QUOTA_VCPU_TARGET=4`).
+  (`HU01_BUDGET_USD`), vCPU necesarias con todo encendido (`QUOTA_VCPU_TARGET=10`) y límite de
+  vCPU encendidas a la vez (`QUOTA_VCPU_LIMIT=5`).
   La cuenta está en el **plan gratuito de AWS**, que solo lanza tipos aptos para la capa gratuita
   (8 GiB como máximo). Memoria por servidor:
   - `ci`: Jenkins (recomendación oficial para un equipo pequeño: 4 GB) y SonarQube (instalación
@@ -234,16 +239,23 @@ del rol de operación dura 1 h como máximo.
   solo sirve con el EULA aceptado. Cambiar de opción no migra imágenes.
 - `ENV_SERVERS` (en `aws.env`): ambientes con servidor, `dev,stage,prod` (decisión del
   2026-11-03); vacío equivale a solo aislamiento por red.
-- `QUOTA_VCPU_LIMIT` (en `aws.env`): cuota real de la cuenta, 5 vCPU el 2026-11-01.
-  `bootstrap-servers.sh` se niega a crear o iniciar servidores que la superen. Solo debe cambiarse
-  cuando AWS apruebe un aumento (`QUOTA_VCPU_TARGET=10` es lo que se solicitaría).
+- `QUOTA_VCPU_LIMIT` (en `aws.env`): límite conservador de vCPU encendidas a la vez, **5**, por
+  decisión del equipo. **No es la cuota de la cuenta**: `bootstrap-quota.sh` leyó 16 vCPU el
+  2026-11-03 (el valor por defecto de AWS es 5;
+  [evidencia](../docs/evidencias/hu-01/auditoria/20261103T201403Z-bootstrap-quota.txt)).
+  - `bootstrap-servers.sh` se niega a crear o iniciar servidores que lo superen. Solo cuenta los
+    servidores de CircleGuard (2 vCPU cada uno).
+  - Subirlo hasta `QUOTA_VCPU_TARGET=10` permitiría encender los cinco a la vez. Nunca debe superar
+    la cuota real.
 - `config/operator.local.env` (ignorado): `ADMIN_CIDRS` (y, si hace falta, `CG_AWS_PROFILE`). Si `ADMIN_CIDRS` está
   vacío, se usa la IP pública actual del operador (`/32`).
-- `NEXUS_ACCEPT_EULA` (en `aws.env`): Nexus Community Edition 3.96.5 **exige aceptar su EULA**
-  (<https://links.sonatype.com/products/nxrm/ce-eula>) antes de permitir descargar o subir
-  componentes. Es una decisión del equipo. Con `false`, el bootstrap despliega Nexus, aplica la
-  contraseña gestionada y deja el EULA **pendiente** (`PLAN`): no acepta nada, no crea el
-  repositorio `circleguard-docker` ni cambia el acceso anónimo o los *realms*.
+- `NEXUS_ACCEPT_EULA=false` (en `aws.env`): **decisión definitiva del equipo, no se acepta el EULA**
+  de Nexus Community Edition 3.96.5 (<https://links.sonatype.com/products/nxrm/ce-eula>).
+  - El bootstrap despliega Nexus y aplica la contraseña gestionada. No crea el repositorio
+    `circleguard-docker` ni cambia el acceso anónimo o los *realms*.
+  - Nexus queda instalado **sin función de registro**. El registro de imágenes es CNCF
+    Distribution (`REGISTRY_BACKEND=distribution`).
+  - `configure.sh` informa ese estado como `UNCHANGED` y `verify-infra.sh` como `PASS`.
 
 ## Gestión de secretos
 
@@ -282,9 +294,9 @@ bash infra/bootstrap-all.sh --plan                          # recorrido completo
 bash infra/bootstrap-all.sh --apply --approve ci,nexus      # FACTURABLE: Jenkins, SonarQube y registro
 ```
 - **Qué construye o converge:** red, secretos, servidores, Jenkins, SonarQube, Nexus y el registro.
-- **Ambientes:** sus servidores se encienden por pares, porque la cuota (`QUOTA_VCPU_LIMIT`) no
-  admite los cinco a la vez. Por eso `--approve all` se rechaza antes de llamar a AWS mientras la
-  cuota sea de 5 vCPU.
+- **Ambientes:** sus servidores se encienden por pares, porque el límite configurado
+  (`QUOTA_VCPU_LIMIT=5`) no admite los cinco a la vez. Por eso `--approve all` se rechaza antes de
+  llamar a AWS mientras el límite sea de 5 vCPU.
 - **Un solo servidor:** con `--approve ci`, los pasos del servidor `nexus` se omiten.
 
 **Parada automática.** Cada servidor se apaga solo (`shutdown --poweroff`) `AUTO_STOP_HOURS` (4)
@@ -334,12 +346,12 @@ sesiones y cada servidor se apaga solo a las 4 horas: una sesión olvidada cuest
 Cada sesión empieza con la autorización de las operaciones facturables que contiene y termina con
 `bash infra/teardown.sh --stop --apply`. Con `ci` y `nexus` encendidas se cobran 0.2015 USD/h
 (EC2 e IPv4), más el EBS, que se cobra mientras los volúmenes existen. Las dos instancias suman
-4 vCPU: caben en la cuota actual de 5 sin pedir aumentos.
+4 vCPU: caben en el límite configurado de 5 (y en la cuota real de 16).
 
 | Sesión | Contenido | Operaciones facturables que se autorizan | Duración | Costo | Acumulado |
 |---|---|---|---|---|---|
 | Preparación | Fases 0 a 2: inspección, diseño y preparación local | Ninguna | — | 0 | 0 |
-| S1 | Red, secretos y llaves (sin cargo); crear `ci` y `nexus`; Jenkins, SonarQube y Nexus (EULA pendiente); 2.ª ejecución; `verify-infra.sh` | `run-instances` ci y nexus | 3 h | 0.60 | 0.60 |
+| S1 | Red, secretos y llaves (sin cargo); crear `ci` y `nexus`; Jenkins, SonarQube y Nexus (EULA no aceptado); 2.ª ejecución; `verify-infra.sh` | `run-instances` ci y nexus | 3 h | 0.60 | 0.60 |
 | S2 | Evidencias y ensayo: `verify-infra.sh` completo, *snapshot*, túneles | `start-instances` ×2 | 3 h | 0.60 | 1.21 |
 | S3 | Demostración académica | `start-instances` ×2 | 2.5 h | 0.50 | 1.71 |
 | — | Holgura | — | 0.5 h | 0.10 | 1.81 |
@@ -384,8 +396,9 @@ la infraestructura (en CloudShell, con su propia autorización).
   factura, y los créditos no eliminan el riesgo de costo.
 - Al finalizar la evaluación, destruya la infraestructura desde CloudShell (ver «Detener o
   destruir»), como pide el enunciado.
-- **Fuera de HU-01:** los servidores de ambiente (E1.5) necesitarán más vCPU que la cuota actual y
-  aumentarán el costo por hora.
+- **Fuera de HU-01:** desplegar las aplicaciones en los ambientes (E1.5) necesitará servidores más
+  grandes y subir `QUOTA_VCPU_LIMIT` (la cuota real de 16 vCPU lo admite), y aumentará el costo por
+  hora.
 - **Rendimiento:** cada servidor tiene 2 vCPU (por debajo de los 4 vCPU del perfil de referencia
   más pequeño de Sonatype, que es una recomendación). El primer arranque de SonarQube o Nexus puede
   tardar de 5 a 10 minutos; los scripts esperan y se pueden reejecutar sin riesgo.
@@ -419,8 +432,10 @@ El *snapshot* lista:
   `sysctl` y swap);
 - contenedores, con su ID y su fecha de creación.
 
-Mientras el EULA de Nexus siga pendiente, cada ejecución termina con `planned=1`: es la acción que
-espera esa decisión, no un cambio. La primera ejecución tras los cambios del 2026-11-03 también:
+Las líneas `PLAN` que quedan en una segunda ejecución son acciones facturables no aprobadas en esa
+ejecución (por ejemplo, crear los servidores de ambiente), no cambios. La prueba del 2026-11-03
+terminó con `planned=4`. Desde entonces, el EULA de Nexus no aceptado figura como `UNCHANGED`, así que
+la siguiente debería dar `planned=3`. La primera ejecución tras los cambios del 2026-11-03 también:
 - crea el secreto del registro;
 - despliega el registro;
 - recrea Nexus una vez para mover su conector al puerto de reserva;
@@ -443,19 +458,21 @@ autorización).
 
 | Alternativa | Aislamiento | vCPU | Coste | Decisión |
 |---|---|---|---|---|
-| 3 × `t3.small`, probados por pares | Real: host, subred, grupo de seguridad y credenciales propios, verificado con tráfico | 2 a la vez por par; cabe en la cuota de 5 | ≈ 0.08 USD/día de EBS + céntimos por sesión | **Elegida** |
-| 3 × `m7i-flex.large` (8 GiB, capaces de ejecutar los servicios núcleo) | Real | 10 a la vez; la cuota de 5 no lo permite | 0.30 USD/h encendidos + EBS | Descartada en HU-01: cuota inexistente y riesgo de presupuesto |
+| 3 × `t3.small`, probados por pares | Real: host, subred, grupo de seguridad y credenciales propios, verificado con tráfico | 2 a la vez por par; cabe en el límite de 5 | ≈ 0.08 USD/día de EBS + céntimos por sesión | **Elegida** |
+| 3 × `m7i-flex.large` (8 GiB, capaces de ejecutar los servicios núcleo) | Real | 10 con todo encendido; cabe en la cuota real de 16, no en el límite de 5 | 0.30 USD/h encendidos + EBS | Descartada en HU-01: riesgo de presupuesto (15 USD) |
 | Un host compartido con tres proyectos Compose | Débil: mismo núcleo, subred y grupo de seguridad | 2 | Bajo | Descartada: no cumple el aislamiento por red |
 | Solo red, sin servidores | Configurado, sin tráfico | 0 | 0 | Descartada: no demuestra ambientes desplegados |
 
 **Conflicto que se documenta:** el enunciado (p. 4, «Alcance de despliegue en la Parte 1») pide
 desplegar los servicios núcleo y su middleware en los tres ambientes. Un `t3.small` (2 GiB) no
-basta para eso, y tres `m7i-flex.large` encendidos necesitan una cuota de 10 vCPU que la cuenta no
-tiene. HU-01 entrega los tres ambientes **aislados y aprovisionados**. El despliegue de las
-aplicaciones (E1.5) exigirá ampliar la cuota y el tamaño. Ese requisito **no puede demostrarse
-dentro de HU-01**.
+basta para eso. Tres `m7i-flex.large` caben en la cuota real (16 vCPU), pero junto a `ci` y `nexus`
+suman 10 vCPU y unos 0.50 USD/h, fuera del límite de 5 y del presupuesto que fijó el equipo. HU-01
+entrega los tres ambientes **aislados y aprovisionados**. El despliegue de las aplicaciones (E1.5)
+exigirá subir el límite y el tamaño. Ese requisito **no puede demostrarse dentro de HU-01**.
 
-**Prueba de aislamiento con tráfico** (FACTURABLE, ≈ 0.15 USD más el EBS de los ambientes):
+**Prueba de aislamiento con tráfico** (FACTURABLE, ≈ 0.15 USD más el EBS de los ambientes).
+Ejecutada el 2026-11-03/04 en dos sesiones, todas las fases en PASS (≈ 0.03 USD;
+[evidencias](../docs/evidencias/hu-01/aws/aislamiento/README.md)):
 ```bash
 bash infra/test-isolation.sh                          # --plan: fases y costo, sin AWS
 bash infra/aws-session.sh login operator              # ventana MFA de 1 h
@@ -477,8 +494,9 @@ deteniendo las instancias, a los 50 minutos.
 La fase 5 necesita el registro desplegado: ejecute antes `test-idempotency.sh`. Los resultados
 quedan en `~/.circleguard/isolation/<marca UTC>/` con copias enmascaradas en `masked/`.
 
-**Con una cuota de 10 vCPU** (si AWS aprueba el aumento): suba `QUOTA_VCPU_LIMIT` y podrá encender
-todos los servidores a la vez con `bootstrap-all.sh --apply --approve all`.
+**Con todo encendido:** la cuota real (16 vCPU) ya lo admite. Si el equipo sube `QUOTA_VCPU_LIMIT`
+a 10, se pueden encender los cinco servidores a la vez con
+`bootstrap-all.sh --apply --approve all`. Hoy no se hace, por presupuesto.
 
 ## Integración de Jenkins con el registro
 
@@ -587,7 +605,7 @@ su estimación queda por encima del costo real, que se consulta en Billing.
 | `aws-session.sh login operator` y, si hace falta, `unlock` (código MFA) | Cada sesión | Credenciales temporales con MFA; ningún script recibe contraseñas ni códigos |
 | `--approve <rol>` y las frases `DETENER`, `DESTRUIR circleguard`, `PROBAR IDEMPOTENCIA`, `PROBAR AISLAMIENTO` y `ROTAR REGISTRO` | Cada operación facturable, destructiva o disruptiva | Control humano del costo, de la pérdida de datos y de los reinicios |
 | Lectura de la cuota de vCPU (`aws-session.sh login bootstrap` y `bootstrap-quota.sh`) | Antes de cambiar `QUOTA_VCPU_LIMIT` | Solo la identidad administrativa puede leer Service Quotas |
-| `NEXUS_ACCEPT_EULA`, `REGISTRY_BACKEND`, `ENV_SERVERS`, presupuesto y cuota | Cuando el equipo decida | Decisiones contractuales y económicas |
+| `REGISTRY_BACKEND`, `ENV_SERVERS`, `QUOTA_VCPU_LIMIT` y presupuesto (el EULA de Nexus ya está decidido: no se acepta) | Cuando el equipo decida | Decisiones contractuales y económicas |
 | Destrucción en CloudShell con el usuario de teardown | Al cerrar la evaluación | Separación de identidades: el operador no puede destruir |
 
 ## Verificación
@@ -602,7 +620,7 @@ No cambia la infraestructura; `--registry` solo escribe en el registro una image
 (`circleguard/smoke-busybox:1.37.0`), con una configuración de Docker temporal que se borra al
 terminar. Termina con código 1 si alguna comprobación falla. Además de `PASS` y `FAIL` informa
 `PENDING` para lo que espera una decisión o servidores que no existen, sin contarlo como superado:
-- el EULA de Nexus pendiente (y que su conector Docker no está publicado);
+- con `REGISTRY_BACKEND=nexus`, que el EULA de Nexus no esté aceptado. Con `distribution`, el EULA no aceptado es el estado decidido (`PASS`), y se comprueba que el conector Docker de Nexus no está publicado;
 - el aislamiento de `dev`, `stage` y `prod`: se comprueba en la configuración (subred propia,
   grupo de seguridad propio, ninguna regla entre ambientes, solo referencias a `ci` y `nexus`),
   pero no con tráfico, porque no hay servidores de ambiente.
@@ -722,7 +740,7 @@ cifrado de `ci` (Jenkins y SonarQube) y de `nexus` (Nexus y registro). La parada
 | `Sin acceso SSH` | Su IP pública cambió: vuelva a ejecutar `bootstrap-network.sh --apply` (actualiza `ADMIN_CIDRS`) o defínala |
 | La UI no responde en `http://<ip-publica>:8080` | Es intencional: las UIs no se exponen a Internet. Use `bash infra/tunnel.sh jenkins` y abra `http://localhost:8080` |
 | `No hay una instancia '<rol>' en ejecución` | Créela o iníciela con `bootstrap-servers.sh --apply --approve <rol>` (`ci` o `nexus`) |
-| `EULA de Nexus Community Edition PENDIENTE` (`PLAN` o `PENDING`) | Decisión del equipo: revise el EULA y, si lo acepta, defina `NEXUS_ACCEPT_EULA=true` y vuelva a ejecutar `bootstrap-nexus.sh --apply` |
+| `EULA de Nexus Community Edition no aceptado` (`UNCHANGED` o `PASS`) | Es el estado decidido por el equipo: Nexus queda sin repositorio y el registro es CNCF Distribution. No requiere ninguna acción |
 | La instancia se detuvo sola | Es la parada automática (`AUTO_STOP_HOURS`): iníciela con `bootstrap-servers.sh --apply --approve <rol>`; los stacks arrancan con Docker |
 | Aviso «parada automatica en 5 minutos» | Para seguir: `sudo shutdown -c && sudo systemctl restart circleguard-autostop.timer`. Solo `shutdown -c` deja el servidor sin parada programada |
 | `parada automática programada ... (esperado 'waiting', obtenido 'elapsed')` | El temporizador venció (por ejemplo, tras `shutdown -c`): `sudo systemctl restart circleguard-autostop.timer`, o vuelva a ejecutar el *bootstrap* de la herramienta |

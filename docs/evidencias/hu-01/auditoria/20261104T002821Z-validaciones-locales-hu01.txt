@@ -1,0 +1,58 @@
+# Validaciones locales de HU-01 · 2026-11-04T00:28:21Z
+git_head: 3afca6fd8a758bfcc97d92627b1ed790724104b2 · rama HU01_Infraestructura_nube_bash · más los cambios sin confirmar
+herramientas: GNU bash, version 5.2.37(1)-release (x86_64-pc-msys) · Docker 29.2.0 · Compose 5.0.2
+
+## 1. bash -n (sintaxis; scripts versionados y nuevos)
+  PASS  34 scripts sin errores de sintaxis
+  ShellCheck: reporte verificable aparte (auditoria/*-shellcheck-hu01.txt)
+
+## 2. YAML y JSON (análisis sintáctico)
+    OK docker-compose.dev.yml
+    OK infra/bootstrap/jenkins/casc/jenkins.yaml
+    OK infra/bootstrap/jenkins/docker-compose.yml
+    OK infra/bootstrap/nexus/docker-compose.yml
+    OK infra/bootstrap/registry/config.yml
+    OK infra/bootstrap/registry/docker-compose.yml
+    OK infra/bootstrap/sonarqube/docker-compose.yml
+    OK infra/bootstrap/nexus/repositories/circleguard-docker.json
+    OK infra/config/iam/hu01-operator-policy.json
+    OK infra/config/iam/hu01-operator-role-trust.json
+    OK infra/config/iam/hu01-operator-user-policy.json
+    OK infra/config/iam/hu01-reader-policy.json
+    OK infra/config/iam/hu01-reader-role-trust.json
+    OK infra/config/iam/hu01-teardown-policy.json
+    OK infra/config/iam/hu01-teardown-role-trust.json
+    OK infra/config/iam/hu01-teardown-user-policy.json
+  PASS  7 YAML y 9 JSON válidos
+
+## 3. docker compose config -q (sin levantar contenedores; valores ficticios no secretos)
+  PASS  infra/bootstrap/jenkins/docker-compose.yml (9 variables con valores ficticios)
+    sin variables: rechazado, como se espera (${VAR:?})
+  PASS  infra/bootstrap/sonarqube/docker-compose.yml (4 variables con valores ficticios)
+    sin variables: rechazado, como se espera (${VAR:?})
+  PASS  infra/bootstrap/nexus/docker-compose.yml (6 variables con valores ficticios)
+    sin variables: rechazado, como se espera (${VAR:?})
+  PASS  infra/bootstrap/registry/docker-compose.yml (3 variables con valores ficticios)
+    sin variables: rechazado, como se espera (${VAR:?})
+  PASS  docker-compose.dev.yml (4 variables con valores ficticios)
+    sin variables: rechazado, como se espera (${VAR:?})
+
+## 4. .gitignore y archivos sensibles
+  PASS  .env ignorado
+  PASS  infra/config/operator.local.env ignorado
+  PASS  x.pem ignorado
+  PASS  x.key ignorado
+  PASS  infra/logs/x.log ignorado
+  PASS  infra/security/reports/x.txt ignorado
+  PASS  ningún .env, *.local.env, *.pem ni *.key versionado ni pendiente de añadir
+  PASS  ninguna evidencia de docs/evidencias/hu-01 queda ignorada
+
+## 5. Enlaces relativos y anclas de la documentación
+    enlaces comprobados: 218; rotos: 0
+  PASS  18 documentos Markdown sin enlaces rotos
+
+## 6. Espacios en blanco
+  PASS  git diff --check sin errores (archivos versionados)
+  PASS  39 archivos nuevos sin espacios finales
+
+## Resumen: 0 fallos

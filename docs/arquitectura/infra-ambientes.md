@@ -4,12 +4,14 @@ Infraestructura de la plataforma en AWS (topología B, aprobada el 2026-11-02): 
 para Jenkins, SonarQube y Nexus, y tres ambientes (`dev`, `stage`, `prod`) aislados por red. Todo
 se aprovisiona con `infra/bootstrap-*.sh` y Docker Compose (ver [infra/README.md](../../infra/README.md)).
 
-**Decisiones del 2026-11-03, implementadas y probadas en local, pendientes de autorización para AWS:**
+**Decisiones del 2026-11-03:**
 - **Registro principal:** CNCF Distribution en el servidor `nexus`, en el puerto 8082, con TLS,
   usuario `ci` y volumen persistente ([decisión y trade-offs](registro-artefactos.md)). Jenkins
-  publica en él con `crane`.
+  publica en él con `crane`. **Verificado en AWS el 2026-11-03.** Nexus queda instalado sin
+  registro: el EULA no se acepta.
 - **Ambientes:** un servidor `t3.small` por ambiente (`ENV_SERVERS=dev,stage,prod`). Se encienden y
-  prueban por pares, porque la cuota es de 5 vCPU ([detalle](../../infra/README.md#ambientes-dev-stage-y-prod-servidores-por-pares)).
+  prueban por pares, porque el equipo limita a 5 las vCPU encendidas a la vez (`QUOTA_VCPU_LIMIT`;
+  la cuota real de la cuenta es de 16) ([detalle](../../infra/README.md#ambientes-dev-stage-y-prod-servidores-por-pares)).
 
 ```mermaid
 flowchart TB
@@ -25,18 +27,18 @@ flowchart TB
                     sonar["SonarQube 26.10 + PostgreSQL 16<br/>:9000 solo en 127.0.0.1"]
                 end
                 subgraph nx["circleguard-nexus · m7i-flex.large (2 vCPU, 8 GiB) · 25 GiB gp3 · sg-nexus"]
-                    nexus["Nexus Repository 3.96.5<br/>heap 2703 MB + directa 2703 MB<br/>:8081 UI/API · EULA PENDIENTE"]
-                    registry["Registro CNCF Distribution 3.0<br/>:8082 TLS + usuario ci<br/>(registro principal; probado en local,<br/>pendiente de desplegar en AWS)"]
+                    nexus["Nexus Repository 3.96.5 (instalado, sin registro)<br/>heap 2703 MB + directa 2703 MB<br/>:8081 UI/API · EULA no aceptado (decisión)"]
+                    registry["Registro CNCF Distribution 3.0<br/>:8082 TLS + usuario ci<br/>(registro principal;<br/>verificado en AWS el 2026-11-03)"]
                 end
             end
             subgraph dev["Subred dev · 10.20.10.0/24 · sg-env-dev"]
-                envdev["circleguard-env-dev · t3.small · 10 GiB<br/>Docker + .env de dev<br/>(pendiente de autorización)"]
+                envdev["circleguard-env-dev · t3.small · 10 GiB<br/>Docker + .env de dev<br/>(creado; aislamiento verificado con tráfico el 2026-11-03/04)"]
             end
             subgraph stage["Subred stage · 10.20.20.0/24 · sg-env-stage"]
-                envstage["circleguard-env-stage · t3.small · 10 GiB<br/>Docker + .env de stage<br/>(pendiente de autorización)"]
+                envstage["circleguard-env-stage · t3.small · 10 GiB<br/>Docker + .env de stage<br/>(creado; aislamiento verificado con tráfico el 2026-11-03/04)"]
             end
             subgraph prod["Subred prod · 10.20.30.0/24 · sg-env-prod"]
-                envprod["circleguard-env-prod · t3.small · 10 GiB<br/>Docker + .env de prod<br/>(pendiente de autorización)"]
+                envprod["circleguard-env-prod · t3.small · 10 GiB<br/>Docker + .env de prod<br/>(creado; aislamiento verificado con tráfico el 2026-11-03/04)"]
             end
         end
     end
@@ -46,16 +48,19 @@ flowchart TB
     jenkins -- "127.0.0.1 (mismo host)" --- sonar
     ci -- "8081" --> nexus
     ci -- "8082 push/pull" --> registry
-    ci -. "SSH 22 (regla preparada)" .-> dev & stage & prod
-    dev & stage & prod -. "8082 pull (regla preparada)" .-> registry
+    ci -- "SSH 22 (verificado con tráfico)" --> dev
+    ci -. "SSH 22 (misma regla)" .-> stage & prod
+    dev -- "8082 pull (verificado con tráfico)" --> registry
+    stage & prod -. "8082 pull (misma regla)" .-> registry
     dev x--x stage
     stage x--x prod
     dev x--x prod
 ```
 
-`x--x` = tráfico **bloqueado**: ningún grupo de seguridad permite comunicación entre ambientes.
-Las líneas punteadas hacia los ambientes son reglas configuradas para sus servidores, que aún no se
-han creado en AWS. Desde Internet solo se acepta SSH (22) desde `ADMIN_CIDRS`: las interfaces HTTP de las
+`x--x` = tráfico **bloqueado**: ningún grupo de seguridad permite comunicación entre ambientes
+(verificado con tráfico en los dos sentidos el 2026-11-03/04). Las líneas punteadas hacia `stage` y
+`prod` usan las mismas reglas que las continuas de `dev`, probadas con tráfico; en esos dos
+ambientes se verificaron por configuración. Desde Internet solo se acepta SSH (22) desde `ADMIN_CIDRS`: las interfaces HTTP de las
 herramientas no se exponen, y su administración pasa por un túnel SSH cifrado.
 
 ## Comunicación permitida
@@ -80,9 +85,9 @@ Grupos de seguridad de `infra/bootstrap-network.sh`. Todo lo que no figura aquí
 | Subred | CIDR | Grupo de seguridad | Servidores |
 |---|---|---|---|
 | `circleguard-subnet-tools` | 10.20.0.0/24 | `sg-ci`, `sg-nexus` | `circleguard-ci`, `circleguard-nexus` (creados el 2026-11-02, detenidos) |
-| `circleguard-subnet-dev` | 10.20.10.0/24 | `sg-env-dev` | `circleguard-env-dev` (pendiente de autorización) |
-| `circleguard-subnet-stage` | 10.20.20.0/24 | `sg-env-stage` | `circleguard-env-stage` (pendiente de autorización) |
-| `circleguard-subnet-prod` | 10.20.30.0/24 | `sg-env-prod` | `circleguard-env-prod` (pendiente de autorización) |
+| `circleguard-subnet-dev` | 10.20.10.0/24 | `sg-env-dev` | `circleguard-env-dev` (creado el 2026-11-03/04, detenido) |
+| `circleguard-subnet-stage` | 10.20.20.0/24 | `sg-env-stage` | `circleguard-env-stage` (creado el 2026-11-03/04, detenido) |
+| `circleguard-subnet-prod` | 10.20.30.0/24 | `sg-env-prod` | `circleguard-env-prod` (creado el 2026-11-03/04, detenido) |
 
 Las cuatro subredes comparten la tabla de rutas `circleguard-rt-public`, con salida por el
 Internet Gateway. El aislamiento entre ambientes lo imponen los grupos de seguridad, que deniegan
@@ -110,7 +115,7 @@ esta lista, incluida la salida por defecto «todo permitido» de los grupos nuev
 | Credenciales | Ruta SSM propia con valores **distintos** por ambiente (`/circleguard/{dev,stage,prod}/*`) | **Configurado** |
 | Acceso | Par de llaves SSH propio por ambiente (`circleguard-dev`, `circleguard-stage`, `circleguard-prod`) y otro para herramientas | **Configurado** |
 | Configuración | `infra/config/envs/<env>.env` por ambiente | **Configurado** |
-| Cómputo | Un servidor `t3.small` por ambiente (`ENV_SERVERS=dev,stage,prod`), encendidos por pares por la cuota de 5 vCPU | **Implementado y probado en local; crearlos en AWS requiere autorización** ([infra/README.md](../../infra/README.md#ambientes-dev-stage-y-prod-servidores-por-pares)) |
+| Cómputo | Un servidor `t3.small` por ambiente (`ENV_SERVERS=dev,stage,prod`), encendidos por pares por el límite de 5 vCPU (`QUOTA_VCPU_LIMIT`) | **Creados en AWS y verificados con tráfico el 2026-11-03/04** ([evidencias](../evidencias/hu-01/aws/aislamiento/README.md)) |
 | Identificación | Etiquetas `Project`, `Story`, `ManagedBy`, `Role` y `Environment` | **Configurado** |
 
 **Aislamiento configurado frente a verificado.**
@@ -122,8 +127,12 @@ esta lista, incluida la salida por defecto «todo permitido» de los grupos nuev
   - que dev, stage y prod no se alcanzan entre sí;
   - que `ci` puede desplegar en ellos (22);
   - que solo pueden ir al registro (8082).
-- **Estado:** pendiente de autorización. Hasta entonces, el tráfico real solo se ha probado entre
-  `ci` y `nexus` (2026-11-02).
+- **Estado: verificado en AWS el 2026-11-03/04** ([evidencias](../evidencias/hu-01/aws/aislamiento/README.md)):
+  - los 6 flujos entre ambientes, bloqueados;
+  - `ci → env-dev:22` y `env-dev → nexus:8082`, permitidos;
+  - `env-dev → ci:8080/9000` y `nexus → env-dev:22`, bloqueados.
+  Los flujos permitidos de `stage` y `prod` usan las mismas reglas que `dev`, verificadas por
+  configuración.
 
 ## Servidores
 
@@ -137,9 +146,10 @@ Todas las instancias usan Ubuntu 24.04 LTS, IMDSv2 obligatorio, IPv4 pública au
 Elastic IP), un swap de seguridad de 2 GiB y no tienen rol IAM. Se apagan solas a las 4 horas del
 arranque: la instancia queda detenida, con su disco. Los tipos flex no usan créditos de CPU y los
 `t3.small` usan créditos standard (sin cargos por ráfagas). La cuenta está en el plan gratuito de
-AWS, que solo lanza tipos aptos para la capa gratuita (8 GiB como máximo). Con 5 vCPU de cuota
-caben dos instancias encendidas a la vez (4 vCPU): `bootstrap-servers.sh` rechaza cualquier
-combinación que la supere.
+AWS, que solo lanza tipos aptos para la capa gratuita (8 GiB como máximo). Con el límite de 5 vCPU
+(`QUOTA_VCPU_LIMIT`, decisión del equipo; la cuota real leída el 2026-11-03 es de 16) caben dos
+instancias encendidas a la vez (4 vCPU): `bootstrap-servers.sh` rechaza cualquier combinación que
+lo supere.
 
 | Memoria prevista | `ci` | `nexus` |
 |---|---|---|
