@@ -6,7 +6,7 @@ Documento de arquitectura del empaquetamiento reproducible de CircleGuard. Compl
 ```mermaid
 flowchart LR
     dev["Desarrollador<br/>git push"] --> build["deploy/build-images.sh<br/>9 imágenes + tag semver"]
-    build --> registry[("Registro OCI<br/>registry:2 (evidencia)<br/>Nexus (EULA pendiente)")]
+    build --> registry[("Registro OCI<br/>registry:2 local (evidencia)<br/>Distribution 3.0 en nexus:8082")]
     registry --> compose["deploy/compose<br/>dev · stage · prod"]
     compose --> web["web :3000<br/>nginx sin privilegios"]
     web -->|"/auth · /identity · ..."| svc["8 servicios Spring Boot"]
@@ -67,21 +67,24 @@ ${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/circleguard-<servicio>:<MAJOR.MINOR.PATCH>
 - `deploy/verify-images.sh` falla si una imagen corre como root o si la etiqueta de versión no
   coincide.
 
-### Nexus y el EULA
+### Nexus, EULA y registro CNCF Distribution
 
 Nexus Repository Community Edition exige aceptar su **EULA** antes de permitir descargar o subir
-componentes. Es un acuerdo de licencia de Sonatype, no un fallo técnico. Con
-`NEXUS_ACCEPT_EULA=false` (estado actual), `infra/bootstrap/nexus/configure.sh` despliega Nexus
-pero deja el EULA en `PLAN`: no crea el repositorio `circleguard-docker`, no habilita el realm
-DockerToken y no permite publicar.
+componentes. Es un acuerdo de licencia de Sonatype, no un fallo técnico. Por eso el equipo decidió
+el **2026-11-03** no aceptarlo y usar **CNCF Distribution 3.0** como registro oficial
+(`REGISTRY_BACKEND=distribution` en `infra/config/aws.env`).
 
-Mientras el equipo no acepte el EULA:
+Estado actual:
 
-- Se usa `deploy/registry/` (`registry:2.8.3`, loopback, sin autenticación) como **registro
-  equivalente** para las evidencias de HU-02.
-- El repositorio Nexus ya está declarado con `writePolicy: allow_once` (etiquetas inmutables);
-  cuando se acepte el EULA y se creen los usuarios de push/pull, basta cambiar
-  `IMAGE_REGISTRY` al host de Nexus y publicar las mismas imágenes.
+- El registro real está en el host `nexus`, puerto **8082**, con TLS y htpasswd (usuario `ci`).
+  Se publica con `IMAGE_REGISTRY=<ip-privada-nexus>:8082`.
+- Jenkins publica y descarga con `crane` (`infra/bootstrap/jenkins/Dockerfile`), sin socket de
+  Docker.
+- Nexus sigue instalado, con su UI en 8081, pero **no se usa como registro**.
+- `deploy/registry/` (`registry:2.8.3`, loopback, sin autenticación) queda solo como **registro
+  equivalente local** para evidencias de HU-02 cuando no hay AWS.
+- Las imágenes publicadas en `registry:2` no se migran a Distribution: se vuelven a publicar con
+  el mismo tag semver.
 
 ## 5. Compose por ambiente
 
@@ -153,8 +156,9 @@ En [`docs/evidencias/hu-02/`](../evidencias/hu-02/README.md):
 
 - **No se toca el código base.** Por eso no hay Actuator ni configuración por ambiente en
   `mobile/constants/Config.ts`; el cliente web se adapta en el Dockerfile.
-- **EULA de Nexus pendiente.** La publicación se evidencia con `registry:2`; Nexus queda listo
-  para cuando el equipo acepte.
+- **Registro Distribution en AWS.** La publicación en el registro oficial
+  (`<ip-privada-nexus>:8082`) requiere que el host `nexus` esté en ejecución y que el cliente
+  confíe en su TLS; para evidencias locales se usa `registry:2`. Nexus queda instalado sin uso.
 - **Reproducibilidad byte a byte.** Las bases y dependencias están fijadas, pero Gradle conserva
   timestamps en los JAR. Configurar JAR reproducible requiere tocar `build.gradle.kts`.
 - **Sin TLS.** El web de prod queda en loopback; el ingress/TLS es E2.6.
