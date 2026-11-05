@@ -1,0 +1,38 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/teardown-stop-20261102T194644Z.log · sha256 7d14ec3369bd3c57b04c4f17946fd84f04e6303ff2001f70c1fa9d704e7e84ab · 1724 bytes · intacto (ignorado por Git)
+# Propósito: Paso 14: parada de las dos instancias (confirmación DETENER)
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+19:46:44 INFO      registro de la ejecución: infra/logs/teardown-stop-20261102T194644Z.log (modo apply, destino aws)
+19:46:48 INFO      identidad AWS assumed-role/circleguard-hu01-reader/botocore-session-1793647762 · capacidad read · cuenta ****3303 · región us-east-2 · zona us-east-2a
+19:46:51 INFO      recursos de circleguard (HU-01) en us-east-2:
+  instancia  circleguard-nexus	i-08c990919adc43fa1	m7i-flex.large	running
+  instancia  circleguard-ci	i-010843f2125041114	m7i-flex.large	running
+  volumen    circleguard-nexus-root	vol-06a01333bd08c9382	25	in-use
+  volumen    circleguard-ci-root	vol-07b111aa93b1cec4f	30	in-use
+  sg         circleguard-sg-env-dev	sg-02fffa3397e1d9ef4
+  sg         circleguard-sg-env-prod	sg-0b47c8afe1b536692
+  sg         circleguard-sg-env-stage	sg-0cc234f54c37f7422
+  sg         circleguard-sg-ci	sg-01221f89543bed1c7
+  sg         circleguard-sg-nexus	sg-003bb2d4ac0714cb5
+  subred     circleguard-subnet-prod	subnet-007a3996a3fdc5dce
+  subred     circleguard-subnet-tools	subnet-06c029053f5dd52ab
+  subred     circleguard-subnet-dev	subnet-0d1140e404f6bf964
+  subred     circleguard-subnet-stage	subnet-0d80f95dcb12becfa
+  rutas      circleguard-rt-public	rtb-051f85343e8ca07f0
+  igw        circleguard-igw	igw-0f567b11545a6b4a4
+  vpc        circleguard-vpc	vpc-017214d72e444769e
+  llave      circleguard-stage
+  llave      circleguard-prod
+  llave      circleguard-dev
+  llave      circleguard-tools
+19:47:25 INFO        secretos en SSM bajo /circleguard: 10
+10
+10
+5
+19:47:49 UPDATED   instancias detenidas: i-08c990919adc43fa1	i-010843f2125041114 (los volúmenes EBS se conservan y se siguen cobrando)
+19:47:49 SUMMARY   teardown-stop created=0 updated=1 unchanged=0 planned=0

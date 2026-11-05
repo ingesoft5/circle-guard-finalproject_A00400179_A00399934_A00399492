@@ -1,0 +1,81 @@
+# Validaciones locales de HU-01 · 2026-11-02T22:20:31Z
+git_head: 3632068d5a88e798dd0c0efa34cbf7e0b0c37f97 · rama HU01_Infraestructura_nube_bash
+herramientas: GNU bash, version 5.2.37(1)-release (x86_64-pc-msys) · Docker 29.2.0 · Compose 5.0.2
+
+## 1. bash -n (sintaxis)
+  PASS  26 scripts sin errores de sintaxis
+
+## 2. ShellCheck v0.11.0 (-x -S style, formato json1)
+  imagen: koalaman/shellcheck@sha256:61862eba1fcf09a484ebcc6feea46f1782532571a34ed51fedf90dd25f925a8d
+  salida: {"comments":[]} · código 0
+  PASS  26 scripts, 0 hallazgos
+
+## 3. YAML y JSON (análisis sintáctico)
+    OK docker-compose.dev.yml
+    OK infra/bootstrap/jenkins/casc/jenkins.yaml
+    OK infra/bootstrap/jenkins/docker-compose.yml
+    OK infra/bootstrap/nexus/docker-compose.yml
+    OK infra/bootstrap/sonarqube/docker-compose.yml
+    OK infra/bootstrap/nexus/repositories/circleguard-docker.json
+    OK infra/config/iam/hu01-operator-policy.json
+    OK infra/config/iam/hu01-operator-role-trust.json
+    OK infra/config/iam/hu01-operator-user-policy.json
+    OK infra/config/iam/hu01-reader-policy.json
+    OK infra/config/iam/hu01-reader-role-trust.json
+    OK infra/config/iam/hu01-teardown-policy.json
+    OK infra/config/iam/hu01-teardown-role-trust.json
+    OK infra/config/iam/hu01-teardown-user-policy.json
+  PASS  5 YAML y 9 JSON válidos
+
+## 4. docker compose config -q (sin levantar contenedores; valores ficticios no secretos)
+  PASS  infra/bootstrap/jenkins/docker-compose.yml (6 variables con valores ficticios)
+    sin variables: rechazado, como se espera (${VAR:?})
+  PASS  infra/bootstrap/sonarqube/docker-compose.yml (4 variables con valores ficticios)
+    sin variables: rechazado, como se espera (${VAR:?})
+  PASS  infra/bootstrap/nexus/docker-compose.yml (5 variables con valores ficticios)
+    sin variables: rechazado, como se espera (${VAR:?})
+  PASS  docker-compose.dev.yml (4 variables con valores ficticios)
+    sin variables: rechazado, como se espera (${VAR:?})
+
+## 5. .gitignore y archivos sensibles
+  PASS  .env ignorado
+  PASS  infra/config/operator.local.env ignorado
+  PASS  x.pem ignorado
+  PASS  x.key ignorado
+  PASS  infra/logs/x.log ignorado
+  PASS  infra/security/reports/x.txt ignorado
+  PASS  ningún .env, *.local.env, *.pem ni *.key versionado
+  PASS  ninguna evidencia de docs/evidencias/hu-01 queda ignorada
+
+## 6. Modos de archivo de los scripts en Git (informativo)
+    100644 infra/aws-session.sh
+    100755 infra/bootstrap-all.sh
+    100755 infra/bootstrap-env.sh
+    100644 infra/bootstrap-iam.sh
+    100755 infra/bootstrap-jenkins.sh
+    100755 infra/bootstrap-network.sh
+    100755 infra/bootstrap-nexus.sh
+    100644 infra/bootstrap-quota.sh
+    100755 infra/bootstrap-secrets.sh
+    100755 infra/bootstrap-servers.sh
+    100755 infra/bootstrap-sonarqube.sh
+    100644 infra/bootstrap/host/setup-docker.sh
+    100644 infra/bootstrap/jenkins/configure.sh
+    100644 infra/bootstrap/lib/aws.sh
+    100644 infra/bootstrap/lib/budget.sh
+    100644 infra/bootstrap/lib/common.sh
+    100644 infra/bootstrap/lib/open-aws-url.sh
+    100644 infra/bootstrap/lib/remote.sh
+    100644 infra/bootstrap/lib/session.sh
+    100644 infra/bootstrap/nexus/configure.sh
+    100644 infra/bootstrap/sonarqube/configure.sh
+    100755 infra/scan-secrets.sh
+    100644 infra/teardown-cloudshell.sh
+    100755 infra/teardown.sh
+    100755 infra/tunnel.sh
+    100755 infra/verify-infra.sh
+
+## 7. git diff --check
+  PASS  sin errores de espacios en blanco
+
+## Resumen: 0 fallos

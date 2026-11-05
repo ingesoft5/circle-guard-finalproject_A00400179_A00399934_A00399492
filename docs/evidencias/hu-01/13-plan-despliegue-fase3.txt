@@ -601,4 +601,38 @@
   Paso 6a repetido con la v3: 18:57 «permiso verificado con --dry-run: ec2 run-instances» para ci y
     nexus (AMI de AMI_ID, sin consultar SSM); planned=2, created=0; después, 0 instancias y 0
     volúmenes en us-east-2. La estimación local sigue en 0.27 de 15 USD.
-  [PENDIENTE] paso 6b (facturable): requiere su propia autorización.
+  Paso 6b (autorizado): 19:11-19:12 bootstrap-servers.sh --apply --approve ci,nexus; comprobación
+    previa 0.00 + 7.32 + 0.27 = 7.59 de 15 USD; created=2: circleguard-ci i-010843f2125041114 y
+    circleguard-nexus i-08c990919adc43fa1 (m7i-flex.large, AMI fijada, IMDSv2, sin perfil IAM,
+    30 y 25 GiB gp3 cifrados, IPv4 pública automática sin Elastic IP). Facturables desde 19:11:53 y
+    19:12:21. Antes del lanzamiento, sobre 3632068: Gitleaks v8.30.1 (árbol de trabajo ACTIVO=0) y
+    ShellCheck v0.11.0 (19:09; su reporte quedó vacío y no es evidencia verificable: ver la
+    repetición de las 21:42 más abajo).
+  Paso 6c: 19:16 con la raíz, solo describe-instance-attribute: instanceInitiatedShutdownBehavior =
+    stop en las dos instancias [COMPROBADO] (infra/logs/paso6c-20261102T191654Z.log). Criterio 7.14
+    cumplido.
+  Pasos 7-9 (autorizados): 19:24 6c repetido (stop ×2); el rol de operación había vencido (MFA de
+    más de 1 h) y se renovó con un nuevo inicio de sesión del operador a las 19:25.
+    19:27-19:29 Jenkins: Docker 29.9.2 y Compose 5.7.0, rotación de logs, swap de 2 GiB,
+    vm.swappiness=10, temporizador (19:28:15), stack con imagen propia, JCasC, admin gestionado,
+    anónimo 403 (created=9 updated=3 unchanged=5). 19:29-19:32 SonarQube: temporizador UNCHANGED,
+    PostgreSQL healthy, estado UP, contraseña de fábrica sustituida, anónimo 401 (created=3 updated=1
+    unchanged=10). 19:32-19:34 Nexus: Docker, swap, temporizador (19:33:14), stack, contraseña inicial
+    sustituida, EULA PENDIENTE (PLAN; no se aceptó) (created=7 updated=4 unchanged=2 planned=1).
+    Temporizadores comprobados en los hosts: enabled, active, waiting (disparo 23:28 en ci y 23:33 en
+    nexus). Memoria: ci 3.2 de 7.6 GiB, nexus 2.9 de 7.6 GiB, swap sin usar.
+  Pasos 10-11: 19:34-19:36 verify-infra.sh --health --roles=ci,nexus pass=22 fail=0 pendiente=1
+    (EULA); 19:36-19:43 verify-infra.sh pass=53 fail=0 pendiente=5 (EULA y aislamiento de ambientes
+    configurado pero no verificado con tráfico). Interfaces no expuestas a Internet y accesibles por
+    túnel SSH; ci -> nexus:8081 permitido; nexus -> ci:8080/9000 bloqueados.
+  Seguridad del estado final: Gitleaks (19:44, árbol de trabajo) ACTIVO=0; 0 apariciones de los 35
+    valores de SSM en el repositorio y en los 112 registros de infra/logs (comparación en memoria).
+  Paso 14: 19:46-19:48 teardown.sh --stop --apply (confirmación DETENER) sobre exactamente las dos
+    instancias: ambas stopped desde las 19:47:30; volúmenes de 30 y 25 GiB conservados; ninguna
+    instancia terminada. Coste estimado de la sesión: ≈ 0.13 USD (AWS factura con retraso).
+  ShellCheck verificable: 21:42 v0.11.0 (sha256:61862eba…), 26 scripts idénticos a 3632068, 0
+    hallazgos ({"comments":[]}) y control positivo SC2086 detectado
+    (infra/security/reports/20261102T214225Z-shellcheck-hu01.txt; copia en la evidencia fase4/).
+  Detalle y copias enmascaradas de los registros: docs/evidencias/hu-01/14-despliegue-aws-fase4.md.
+  [PENDIENTE] paso 12 (prueba real de la parada automática) y paso 13 (idempotencia con snapshots;
+    procedimiento en la evidencia 15). Requieren encender las instancias: autorización aparte.

@@ -1,0 +1,71 @@
+# Prueba local funcional del registro CNCF Distribution de HU-01 (scripts del host) · inicio 20261103T040802Z
+# Base: commit 889ce09 más cambios locales sin confirmar. Docker Desktop en Git Bash; bootstrap solo en --plan; prepare.sh y configure.sh contra un
+# directorio temporal; verify-infra.sh --health y --registry. Contraseñas aleatorias de prueba, nunca impresas.
+# 'restaurar permisos 0600' del paso 7 es propio de NTFS (stat informa 644); en Linux no aparece (ver la prueba de integración).
+
+
+== 1. bootstrap-registry.sh --target local --plan antes de desplegar (no cambia nada)
+UNCHANGED registry: <scratch>/...
+UNCHANGED registry: <scratch>/...
+PLAN      registry: escribir <scratch>/...
+PLAN      registry: generar el certificado TLS y el usuario del registro cuando exista su .env
+PLAN      registry: desplegar el stack circleguard-registry con Docker Compose
+PLAN      registry: configurar la herramienta por API una vez desplegada
+SUMMARY   bootstrap-registry created=0 updated=0 unchanged=2 planned=4
+
+== 2. prepare.sh en modo plan (sin TLS ni usuarios todavía)
+PLAN=2
+PASS  prepare plan: solo PLAN
+PASS  prepare plan: no crea archivos
+
+== 3. prepare.sh apply (1.ª vez) y 4. apply (2.ª vez: idempotente)
+PASS  prepare 1.ª: certificado y usuario creados
+PASS  prepare 2.ª: todo UNCHANGED
+PASS  prepare 2.ª: htpasswd, certificado y llave idénticos (sha256)
+PASS  htpasswd: un usuario 'ci' con bcrypt
+PASS  htpasswd sin la contraseña en claro
+
+== 5. docker compose up -d y salud del contenedor
+PASS  contenedor cg-registry saludable (healthcheck del servidor de depuración)
+PASS  puerto publicado solo en 127.0.0.1
+
+== 6. configure.sh apply (solo comprobaciones)
+PASS  configure: 401 sin credenciales y 200 con ci
+PASS  HTTP sin TLS rechazado (solo TLS)
+PASS  sin credenciales: 401
+PASS  contraseña incorrecta: 401
+PASS  usuario inexistente: 401
+
+== 7. bootstrap-registry.sh --target local --plan con el stack desplegado (debe verlo convergido)
+UNCHANGED registry: <scratch>/...
+UNCHANGED registry: <scratch>/...
+PLAN      registry: restaurar permisos 0600 de <scratch>/...
+UNCHANGED registry: certificado TLS del registro vigente hasta Oct 31 04:08:13 2036 GMT
+UNCHANGED registry: usuario ci del registro con la contraseña gestionada (bcrypt)
+UNCHANGED registry: registro en línea por TLS y exigiendo autenticación (HTTP 401 sin credenciales)
+UNCHANGED registry: el usuario ci se autentica con la contraseña gestionada (HTTP 200)
+SUMMARY   bootstrap-registry created=0 updated=0 unchanged=6 planned=1
+
+== 8. verify-infra.sh --target local --health y --registry (publicar y descargar una imagen)
+PASS      registry: contenedor saludable
+PASS      registry: exige autenticación por TLS
+PASS      registry: el usuario ci se autentica con la contraseña gestionada
+SUMMARY   verify-infra pass=3 fail=0 pendiente=0
+PASS      registry: el usuario ci publica y descarga una imagen (esta máquina -> 127.0.0.1:5000)
+SUMMARY   verify-infra pass=1 fail=0 pendiente=0
+PASS  la imagen quedó en el registro (catálogo con el usuario ci)
+
+== 9. rotación: nueva contraseña gestionada -> prepare la detecta, reescribe el usuario y reinicia
+PASS  prepare tras la rotación: TLS sin cambios y usuario actualizado
+PASS  prepare reinició el registro
+PASS  configure con la contraseña nueva
+PASS  la contraseña anterior ya no sirve: 401
+
+== 10. puerto ocupado por otro contenedor (como Nexus antes de liberar el 8082)
+PASS  prepare plan: avisa de que hay que liberar el puerto
+PASS  prepare apply: se detiene sin crear nada
+
+== 11. Limpieza: docker compose down SIN -v (el volumen de prueba se conserva)
+circleguard-registry_registry-data
+
+RESULTADO: 21 PASS, 0 FAIL

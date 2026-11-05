@@ -1,0 +1,42 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/verify-infra-20261102T193451Z.log · sha256 787554b9a54b6419222a441b1bb447793688beda1e993efc59c9244882e58dd2 · 2583 bytes · intacto (ignorado por Git)
+# Propósito: Paso 10: verify-infra.sh --health --roles=ci,nexus (pass=22 fail=0 pendiente=1)
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+19:34:51 INFO      registro de la ejecución: infra/logs/verify-infra-20261102T193451Z.log (modo solo-lectura, destino aws)
+19:34:54 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793647628 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+19:35:00 PASS      ci: Docker activo
+19:35:00 PASS      ci: parada automática programada (circleguard-autostop.timer en espera)
+19:35:01 INFO      ci: temporizador de parada: Mon 2026-11-02 23:28:14 UTC 3h 53min - - circleguard-autostop.timer circleguard-autostop.service
+19:35:03 PASS      ci: swap de seguridad activo
+19:35:04 INFO      ci: memoria en uso 3213 de 7776 MiB · swap 0 de 2047 MiB
+19:35:08 PASS      nexus: Docker activo
+19:35:10 PASS      nexus: parada automática programada (circleguard-autostop.timer en espera)
+19:35:11 INFO      nexus: temporizador de parada: Mon 2026-11-02 23:33:13 UTC 3h 58min - - circleguard-autostop.timer circleguard-autostop.service
+19:35:13 PASS      nexus: swap de seguridad activo
+19:35:14 INFO      nexus: memoria en uso 2870 de 7776 MiB · swap 0 de 2047 MiB
+19:35:18 PASS      jenkins: /login en el host
+19:35:20 PASS      jenkins: contenedor saludable
+19:35:24 INFO      jenkins: memoria por contenedor: cg-jenkins: 417.3MiB / 7.594GiB (5.37%)
+19:35:33 PASS      jenkins: UI NO expuesta a Internet (puerto 8080)
+19:35:36 PASS      jenkins: UI accesible por túnel SSH
+19:35:42 PASS      sonarqube: estado del sistema
+19:35:44 PASS      sonarqube: contenedor saludable
+19:35:45 PASS      sonarqube: base de datos saludable
+19:35:52 INFO      sonarqube: memoria por contenedor: cg-sonarqube: 1.997GiB / 7.594GiB (26.30%) · cg-sonarqube-db: 123.4MiB / 7.594GiB (1.59%)
+19:35:54 PASS      sonarqube: acceso anónimo denegado
+19:36:03 PASS      sonarqube: UI NO expuesta a Internet (puerto 9000)
+19:36:06 PASS      sonarqube: UI accesible por túnel SSH
+19:36:10 PASS      nexus: API de estado
+19:36:12 PASS      nexus: contenedor saludable
+19:36:16 INFO      nexus: memoria por contenedor: cg-nexus: 2.193GiB / 7.594GiB (28.87%)
+19:36:18 PENDING   nexus: EULA de Community Edition PENDIENTE de la decisión del equipo: no se pueden descargar ni subir componentes y circleguard-docker no existe
+19:36:19 PASS      nexus: conector Docker sin publicar mientras el EULA está pendiente
+19:36:28 PASS      nexus: UI NO expuesta a Internet (puerto 8081)
+19:36:31 PASS      nexus: UI accesible por túnel SSH
+19:36:42 PASS      nexus: registro Docker NO expuesto a Internet
+19:36:42 SUMMARY   verify-infra pass=22 fail=0 pendiente=1

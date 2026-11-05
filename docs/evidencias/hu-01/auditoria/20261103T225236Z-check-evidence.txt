@@ -1,0 +1,51 @@
+# Prueba local de infra/check-evidence.sh (WSL Ubuntu, sin AWS) · 2026-11-03T22:52:36Z
+# Casos: ayuda, carpeta real aws/idempotencia (0 hallazgos), control negativo con valores ficticios
+# plantados (6 categorías), carpeta inexistente y valor de un secreto local ficticio (CG_LOCAL_HOME temporal).
+# Los directorios temporales se crean con mktemp y se eliminan al terminar; no se leen ni copian secretos reales.
+# sha256 de infra/check-evidence.sh: 4a1cea2e20b90a46fc942f3b1997d3feb8518c2c2b21bfa0917f98b28df93af1
+
+== 1. --help
+Uso: infra/check-evidence.sh <carpeta>
+  Cuenta, sin mostrarlos, el número de cuenta, IP públicas completas, claves o identificadores de AWS,
+  llaves privadas, asignaciones de secretos, hashes de archivos secretos, rutas personales y valores
+  de los secretos locales en los archivos de la carpeta. Termina con código 1 si encuentra alguno.
+rc=0
+== 2. carpeta real aws/idempotencia
+22:52:38 INFO      carpeta: docs/evidencias/hu-01/aws/idempotencia · 14 archivos
+22:52:38 PASS      archivos con el número de cuenta (****3303): 0
+22:52:38 PASS      números sueltos de 12 dígitos (salvo Canonical): 0
+22:52:37 PASS      IPv4 públicas completas: 0
+22:52:38 PASS      archivos con claves o identificadores únicos de AWS, o llaves privadas: 0
+22:52:38 PASS      asignaciones de secretos (NOMBRE=valor): 0
+22:52:38 PASS      hashes de .env, htpasswd o llaves sin omitir: 0
+22:52:38 PASS      archivos con rutas personales (/home/<usuario>): 0
+22:52:38 PASS      valores de secretos locales presentes: 0
+22:52:38 SUMMARY   check-evidence hallazgos=0
+rc=0
+== 3. control negativo (valores ficticios plantados en un directorio temporal)
+22:52:38 INFO      carpeta: /tmp/tmp.XXXXXXXXXX · 1 archivos
+22:52:38 PASS      archivos con el número de cuenta (****3303): 0
+22:52:38 FAIL      números sueltos de 12 dígitos (salvo Canonical): 1
+22:52:38 FAIL      IPv4 públicas completas: 1
+22:52:38 FAIL      archivos con claves o identificadores únicos de AWS, o llaves privadas: 1
+22:52:38 FAIL      asignaciones de secretos (NOMBRE=valor): 1
+22:52:38 FAIL      hashes de .env, htpasswd o llaves sin omitir: 1
+22:52:39 FAIL      archivos con rutas personales (/home/<usuario>): 1
+22:52:39 PASS      valores de secretos locales presentes: 0
+22:52:39 SUMMARY   check-evidence hallazgos=6
+rc=1 (debe ser 1, con 6 categorías)
+== 4. carpeta inexistente
+22:52:39 ERROR     indique una carpeta existente (infra/check-evidence.sh <carpeta>)
+rc=1
+== 5. control del valor de un secreto local (CG_LOCAL_HOME ficticio, sin tocar los secretos reales)
+22:52:39 INFO      carpeta: /tmp/tmp.XXXXXXXXXX · 1 archivos
+22:52:39 WARN      sin la configuración de AWS local no se puede buscar el número de cuenta propio
+22:52:39 PASS      números sueltos de 12 dígitos (salvo Canonical): 0
+22:52:39 PASS      IPv4 públicas completas: 0
+22:52:39 PASS      archivos con claves o identificadores únicos de AWS, o llaves privadas: 0
+22:52:39 PASS      asignaciones de secretos (NOMBRE=valor): 0
+22:52:39 PASS      hashes de .env, htpasswd o llaves sin omitir: 0
+22:52:39 PASS      archivos con rutas personales (/home/<usuario>): 0
+22:52:39 FAIL      valores de secretos locales presentes: 1
+22:52:39 SUMMARY   check-evidence hallazgos=1
+rc=1 (debe ser 1: valores de secretos locales presentes: 1)

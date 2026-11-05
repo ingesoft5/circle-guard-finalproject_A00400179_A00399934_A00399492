@@ -1,0 +1,66 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/bootstrap-jenkins-20261102T192736Z.log · sha256 5d951333b8129690271df1525dca6f800972311af47ccf2eff4ba95ae37b183a · 9307 bytes · intacto (ignorado por Git)
+# Propósito: Paso 8: Jenkins (Docker, swap, temporizador, stack, JCasC, admin, anónimo 403)
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: 86 líneas de progreso de capas de Docker omitidas.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+
+19:27:36 INFO      registro de la ejecución: infra/logs/bootstrap-jenkins-20261102T192736Z.log (modo apply, destino aws)
+19:27:38 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793647628 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+19:27:45 INFO      SSH disponible en ci/jenkins (i-010843f2125041114)
+19:28:15 INFO        ci/jenkins: Running kernel seems to be up-to-date.
+19:28:15 INFO        ci/jenkins: No services need to be restarted.
+19:28:15 INFO        ci/jenkins: No containers need to be restarted.
+19:28:15 INFO        ci/jenkins: No user sessions are running outdated binaries.
+19:28:15 INFO        ci/jenkins: No VM guests are running outdated hypervisor (qemu) binaries on this host.
+19:28:15 CREATED   ci/jenkins: Docker 29.9.2 y Compose 5.7.0 instalados desde el repositorio oficial de Docker
+19:28:15 UPDATED   ci/jenkins: /etc/docker/daemon.json con rotación de logs (10 MB x 3)
+19:28:15 UNCHANGED ci/jenkins: servicio docker habilitado y activo
+19:28:15 CREATED   ci/jenkins: /opt/circleguard
+19:28:15 CREATED   ci/jenkins: swap /swapfile de 2 GiB activo
+19:28:15 UPDATED   ci/jenkins: vm.swappiness=10 (el swap solo se usa bajo presión de memoria)
+19:28:15 UPDATED   ci/jenkins: parada automática a las 4 h (circleguard-autostop.timer)
+19:28:18 CREATED   ci/jenkins: /opt/circleguard/jenkins/docker-compose.yml
+19:28:21 CREATED   ci/jenkins: /opt/circleguard/jenkins/Dockerfile
+19:28:24 CREATED   ci/jenkins: /opt/circleguard/jenkins/plugins.txt
+19:28:27 CREATED   ci/jenkins: /opt/circleguard/jenkins/casc/jenkins.yaml
+19:28:32 CREATED   ci/jenkins: /opt/circleguard/jenkins/.env (0600, contenido no mostrado)
+19:28:34 INFO      jenkins: docker compose up -d --build
+ Image circleguard-jenkins:2.580.2-lts-jdk21-casc2144 Building
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Image circleguard-jenkins:2.580.2-lts-jdk21-casc2144 Built
+ Network circleguard-jenkins_default Creating
+ Volume circleguard-jenkins_jenkins_home Creating
+ Volume circleguard-jenkins_jenkins_home Creating
+ Network circleguard-jenkins_default Creating
+ Volume circleguard-jenkins_jenkins_home Created
+ Volume circleguard-jenkins_jenkins_home Created
+ Network circleguard-jenkins_default Created
+ Network circleguard-jenkins_default Created
+ Container cg-jenkins Creating
+ Container cg-jenkins Created
+ Container cg-jenkins Starting
+ Container cg-jenkins Started
+19:28:56 CREATED   jenkins: stack circleguard-jenkins desplegado con Docker Compose
+19:29:05 UNCHANGED ci/jenkins: Jenkins responde en /login sin asistente inicial (JCasC)
+19:29:05 UNCHANGED ci/jenkins: el administrador gestionado inicia sesión (contraseña del gestor de secretos)
+19:29:05 UNCHANGED ci/jenkins: acceso anónimo denegado (HTTP 403)
+19:29:05 UNCHANGED ci/jenkins: plugin Configuration as Code activo
+19:29:05 SUMMARY   bootstrap-jenkins created=9 updated=3 unchanged=5 planned=0

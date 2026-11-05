@@ -1,0 +1,111 @@
+container ci cg-jenkins 48ca59e4f60b circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1 2026-11-03 20:29:20 +0000 UTC
+container ci cg-sonarqube 9286c78d7b3b sonarqube:26.10.0.133078-community 2026-11-02 19:30:49 +0000 UTC
+container ci cg-sonarqube-db 125220996d93 postgres:16.15 2026-11-02 19:30:44 +0000 UTC
+container nexus cg-nexus 482e24b69081 sonatype/nexus3:3.96.5 2026-11-03 20:30:39 +0000 UTC
+container nexus cg-registry d1755aa2a6fd registry:3.0.0 2026-11-03 20:32:09 +0000 UTC
+file ci 3b24fe879f9e2709e78818d44ecffb15fae07d5db90a438a8442a3e16ad3b2ca  /opt/circleguard/jenkins/Dockerfile
+file ci 47a083a1f37495c63d9705cc9fc7e103a14743d520cbc32d634da34a570056e1  /opt/circleguard/jenkins/docker-compose.yml
+file ci a853979b019455dca594750a08127d76e62ff3760aefa46e703951b6428e1355  /opt/circleguard/jenkins/casc/jenkins.yaml
+file ci b46192c5dc832e261d445246bf940fa154c5736418521f80fb14a4ae35ba7a39  /opt/circleguard/sonarqube/docker-compose.yml
+file ci <hash omitido>  /opt/circleguard/jenkins/.env
+file ci <hash omitido>  /opt/circleguard/sonarqube/.env
+file ci fb6af6d3a0f9915f5f442c0b437651bc2caa7077f99ad5abf1603db285149a73  /opt/circleguard/jenkins/plugins.txt
+file nexus 4b5b2cc5b41f585d4be07900f81bd0e056b9d764a227f13a6d4401748c3f54cb  /opt/circleguard/nexus/repositories/circleguard-docker.json
+file nexus <hash omitido>  /opt/circleguard/registry/auth/htpasswd
+file nexus <hash omitido>  /opt/circleguard/registry/.env
+file nexus b694b26003acbdd84dba23173e3c66d7c10caa7edeb465982bb00ef7cd00b796  /opt/circleguard/registry/docker-compose.yml
+file nexus <hash omitido>  /opt/circleguard/registry/tls/registry.key
+file nexus de3e1eb8120b26bd2f3b3407f7cafd075903872d14761b693d51e3ccf87ba5d2  /opt/circleguard/registry/tls/registry.crt
+file nexus df1a626a3548d16395b72133940ae1d18c45d3a00a5a5950406ed859bd05c627  /opt/circleguard/nexus/docker-compose.yml
+file nexus <hash omitido>  /opt/circleguard/nexus/.env
+file nexus ea894954376d4a3d4bdf99fe8e9724e84c76d48ba69a199d7390de7f9a79ce28  /opt/circleguard/registry/config.yml
+hostfile ci /swapfile none swap sw 0 0
+hostfile ci 0526f6a43e44e31132b42e2867a5241b2e6be667db3f49c6c65a79e3675c35a8  /etc/systemd/system/circleguard-autostop.timer
+hostfile ci a1c46aa9505b76772038851f9935196eb9be9babb0e9c4974835a94545e4d94b  /etc/systemd/system/circleguard-autostop.service
+hostfile ci dc675677ebcc291db589f8a697aee9725644fe9fdae2bcad315cb8b2e958460c  /etc/sysctl.d/99-circleguard-swap.conf
+hostfile ci f6099bce6ac64d4b86df11f7f6383c8ad9895f557807b7a02d02627b4114f253  /etc/docker/daemon.json
+hostfile nexus /swapfile none swap sw 0 0
+hostfile nexus 0526f6a43e44e31132b42e2867a5241b2e6be667db3f49c6c65a79e3675c35a8  /etc/systemd/system/circleguard-autostop.timer
+hostfile nexus a1c46aa9505b76772038851f9935196eb9be9babb0e9c4974835a94545e4d94b  /etc/systemd/system/circleguard-autostop.service
+hostfile nexus dc675677ebcc291db589f8a697aee9725644fe9fdae2bcad315cb8b2e958460c  /etc/sysctl.d/99-circleguard-swap.conf
+hostfile nexus f6099bce6ac64d4b86df11f7f6383c8ad9895f557807b7a02d02627b4114f253  /etc/docker/daemon.json
+igw igw-0f567b11545a6b4a4	vpc-017214d72e444769e
+instance ci	i-010843f2125041114	m7i-flex.large	ami-0fc53b217ec1ad816	running	required
+instance nexus	i-08c990919adc43fa1	m7i-flex.large	ami-0fc53b217ec1ad816	running	required
+key circleguard-dev	EDCrvoVmAMFCiJfcDWWAWApRFNgHTHk/RcVo/Wd+3nM=
+key circleguard-prod	JgWe8uW+SXuMlKR+VV9Vmh/USgJfZ4geWwsurjXXdWk=
+key circleguard-stage	X9PXk107gEcx8PLZjU8TbymDnk7/lwQVkouGPopl7MU=
+key circleguard-tools	VfAlvv+a8nsUBKXC6ilBQkbcnvhQW+iTikyyEM2GmgY=
+rtb rtb-051f85343e8ca07f0	4	igw-0f567b11545a6b4a4
+sgrule sg-003bb2d4ac0714cb5	False	tcp	22	190.66.84.x/32	None
+sgrule sg-003bb2d4ac0714cb5	False	tcp	8081	None	sg-01221f89543bed1c7
+sgrule sg-003bb2d4ac0714cb5	False	tcp	8082	None	sg-01221f89543bed1c7
+sgrule sg-003bb2d4ac0714cb5	False	tcp	8082	None	sg-02fffa3397e1d9ef4
+sgrule sg-003bb2d4ac0714cb5	False	tcp	8082	None	sg-0b47c8afe1b536692
+sgrule sg-003bb2d4ac0714cb5	False	tcp	8082	None	sg-0cc234f54c37f7422
+sgrule sg-003bb2d4ac0714cb5	True	tcp	443	0.0.0.0/0	None
+sgrule sg-003bb2d4ac0714cb5	True	tcp	80	0.0.0.0/0	None
+sgrule sg-01221f89543bed1c7	False	tcp	22	190.66.84.x/32	None
+sgrule sg-01221f89543bed1c7	True	tcp	22	None	sg-02fffa3397e1d9ef4
+sgrule sg-01221f89543bed1c7	True	tcp	22	None	sg-0b47c8afe1b536692
+sgrule sg-01221f89543bed1c7	True	tcp	22	None	sg-0cc234f54c37f7422
+sgrule sg-01221f89543bed1c7	True	tcp	443	0.0.0.0/0	None
+sgrule sg-01221f89543bed1c7	True	tcp	80	0.0.0.0/0	None
+sgrule sg-01221f89543bed1c7	True	tcp	8081	None	sg-003bb2d4ac0714cb5
+sgrule sg-01221f89543bed1c7	True	tcp	8082	None	sg-003bb2d4ac0714cb5
+sgrule sg-02fffa3397e1d9ef4	False	tcp	22	190.66.84.x/32	None
+sgrule sg-02fffa3397e1d9ef4	False	tcp	22	None	sg-01221f89543bed1c7
+sgrule sg-02fffa3397e1d9ef4	True	tcp	443	0.0.0.0/0	None
+sgrule sg-02fffa3397e1d9ef4	True	tcp	80	0.0.0.0/0	None
+sgrule sg-02fffa3397e1d9ef4	True	tcp	8082	None	sg-003bb2d4ac0714cb5
+sgrule sg-0b47c8afe1b536692	False	tcp	22	190.66.84.x/32	None
+sgrule sg-0b47c8afe1b536692	False	tcp	22	None	sg-01221f89543bed1c7
+sgrule sg-0b47c8afe1b536692	True	tcp	443	0.0.0.0/0	None
+sgrule sg-0b47c8afe1b536692	True	tcp	80	0.0.0.0/0	None
+sgrule sg-0b47c8afe1b536692	True	tcp	8082	None	sg-003bb2d4ac0714cb5
+sgrule sg-0cc234f54c37f7422	False	tcp	22	190.66.84.x/32	None
+sgrule sg-0cc234f54c37f7422	False	tcp	22	None	sg-01221f89543bed1c7
+sgrule sg-0cc234f54c37f7422	True	tcp	443	0.0.0.0/0	None
+sgrule sg-0cc234f54c37f7422	True	tcp	80	0.0.0.0/0	None
+sgrule sg-0cc234f54c37f7422	True	tcp	8082	None	sg-003bb2d4ac0714cb5
+ssm /circleguard/dev/CG_JWT_SECRET	1
+ssm /circleguard/dev/CG_QR_SECRET	1
+ssm /circleguard/dev/CG_VAULT_HASH_SALT	1
+ssm /circleguard/dev/CG_VAULT_SALT	1
+ssm /circleguard/dev/CG_VAULT_SECRET	1
+ssm /circleguard/dev/LDAP_ADMIN_PASSWORD	1
+ssm /circleguard/dev/NEO4J_PASSWORD	1
+ssm /circleguard/dev/POSTGRES_PASSWORD	1
+ssm /circleguard/dev/POSTGRES_USER	1
+ssm /circleguard/prod/CG_JWT_SECRET	1
+ssm /circleguard/prod/CG_QR_SECRET	1
+ssm /circleguard/prod/CG_VAULT_HASH_SALT	1
+ssm /circleguard/prod/CG_VAULT_SALT	1
+ssm /circleguard/prod/CG_VAULT_SECRET	1
+ssm /circleguard/prod/LDAP_ADMIN_PASSWORD	1
+ssm /circleguard/prod/NEO4J_PASSWORD	1
+ssm /circleguard/prod/POSTGRES_PASSWORD	1
+ssm /circleguard/prod/POSTGRES_USER	1
+ssm /circleguard/ssh/circleguard-dev	1
+ssm /circleguard/ssh/circleguard-prod	1
+ssm /circleguard/ssh/circleguard-stage	1
+ssm /circleguard/ssh/circleguard-tools	1
+ssm /circleguard/stage/CG_JWT_SECRET	1
+ssm /circleguard/stage/CG_QR_SECRET	1
+ssm /circleguard/stage/CG_VAULT_HASH_SALT	1
+ssm /circleguard/stage/CG_VAULT_SALT	1
+ssm /circleguard/stage/CG_VAULT_SECRET	1
+ssm /circleguard/stage/LDAP_ADMIN_PASSWORD	1
+ssm /circleguard/stage/NEO4J_PASSWORD	1
+ssm /circleguard/stage/POSTGRES_PASSWORD	1
+ssm /circleguard/stage/POSTGRES_USER	1
+ssm /circleguard/tools/jenkins/JENKINS_ADMIN_PASSWORD	1
+ssm /circleguard/tools/nexus/NEXUS_ADMIN_PASSWORD	1
+ssm /circleguard/tools/registry/REGISTRY_CI_PASSWORD	1
+ssm /circleguard/tools/sonarqube/SONAR_ADMIN_PASSWORD	1
+ssm /circleguard/tools/sonarqube/SONAR_DB_PASSWORD	1
+subnet circleguard-subnet-dev	subnet-0d1140e404f6bf964	10.20.10.0/24	True
+subnet circleguard-subnet-prod	subnet-007a3996a3fdc5dce	10.20.30.0/24	True
+subnet circleguard-subnet-stage	subnet-0d80f95dcb12becfa	10.20.20.0/24	True
+subnet circleguard-subnet-tools	subnet-06c029053f5dd52ab	10.20.0.0/24	True
+vpc circleguard-vpc	vpc-017214d72e444769e	10.20.0.0/16

@@ -1,0 +1,35 @@
+# Comprobaciones unitarias de los cambios de HU-01 del 2026-11-03 (sin AWS) · 20261103T030223Z
+# Base: commit 889ce09 más los cambios locales sin confirmar. Roles y ENV_SERVERS, orden del registro, vista previa de vCPU,
+# daemon.json de setup-docker.sh, Compose de Nexus y del registro, y test-idempotency.sh --plan.
+
+== Roles y registro
+PASS  topología B por defecto
+PASS  ENV_SERVERS=dev,prod añade sus roles
+PASS  ENV_SERVERS sin duplicados
+PASS  ENV_SERVERS inválido se rechaza
+PASS  REGISTRY_BACKEND inválido se rechaza
+PASS  tipo, disco y vCPU de env-dev
+PASS  nivel de red de env-prod y del registro
+PASS  el registro vive en el servidor nexus
+PASS  orden con distribution: Nexus libera el 8082 y después el registro lo toma
+PASS  orden con nexus: se retira el registro y después Nexus toma el 8082
+PASS  tipo sin vCPU conocidas se rechaza
+== Vista previa de vCPU (bootstrap-servers.sh)
+PASS  topología B: 4 vCPU, sin aviso
+PASS  con los tres ambientes: 10 vCPU y aviso
+== daemon.json (setup-docker.sh)
+PASS  sin CIDR: idéntico al daemon.json desplegado el 2026-11-02 (los hosts no cambiarían)
+PASS  con CIDR: JSON válido con insecure-registries
+PASS  con CIDR: conserva la rotación de logs
+PASS  CIDR inválido se rechaza
+== Compose
+PASS  Nexus con distribution: conector solo en 127.0.0.1:18082
+PASS  Nexus con nexus: conector en el puerto del registro
+PASS  Nexus sin NEXUS_DOCKER_BIND (.env anterior): conector en loopback por defecto
+PASS  registro en AWS: 0.0.0.0:8082 (el grupo de seguridad limita a ci y ambientes)
+PASS  registro sin variables: Compose se niega
+== test-idempotency.sh --plan (sin AWS)
+PASS  el plan describe 8 pasos y la parada obligatoria
+PASS  el plan no abre ningún registro de ejecución
+
+RESULTADO: 24 PASS, 0 FAIL

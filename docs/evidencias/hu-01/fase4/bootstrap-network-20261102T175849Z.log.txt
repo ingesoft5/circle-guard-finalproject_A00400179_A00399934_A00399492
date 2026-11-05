@@ -1,0 +1,41 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/bootstrap-network-20261102T175849Z.log · sha256 dcd2b6fb9b140e421f5ca848a740ef1192e19c978243068b46355d3d846bf4e3 · 2579 bytes · intacto (ignorado por Git)
+# Propósito: Paso 4: idempotencia de la red (unchanged=28)
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+17:58:49 INFO      registro de la ejecución: infra/logs/bootstrap-network-20261102T175849Z.log (modo plan, destino aws)
+17:58:51 INFO      identidad AWS assumed-role/circleguard-hu01-reader/botocore-session-1793642330 · capacidad read · cuenta ****3303 · región us-east-2 · zona us-east-2a
+17:58:53 INFO      red 10.20.0.0/16 en us-east-2/us-east-2a; acceso administrativo desde: 190.66.84.x/32
+17:58:57 UNCHANGED vpc circleguard-vpc (vpc-017214d72e444769e) 10.20.0.0/16
+17:58:59 UNCHANGED vpc circleguard-vpc con nombres DNS
+17:59:00 UNCHANGED internet gateway circleguard-igw (igw-0f567b11545a6b4a4)
+17:59:02 UNCHANGED internet gateway circleguard-igw adjunto a vpc-017214d72e444769e
+17:59:06 UNCHANGED subred circleguard-subnet-tools (subnet-06c029053f5dd52ab) 10.20.0.0/24
+17:59:07 UNCHANGED subred circleguard-subnet-tools asigna IPv4 pública al lanzar
+17:59:11 UNCHANGED subred circleguard-subnet-dev (subnet-0d1140e404f6bf964) 10.20.10.0/24
+17:59:12 UNCHANGED subred circleguard-subnet-dev asigna IPv4 pública al lanzar
+17:59:15 UNCHANGED subred circleguard-subnet-stage (subnet-0d80f95dcb12becfa) 10.20.20.0/24
+17:59:17 UNCHANGED subred circleguard-subnet-stage asigna IPv4 pública al lanzar
+17:59:21 UNCHANGED subred circleguard-subnet-prod (subnet-007a3996a3fdc5dce) 10.20.30.0/24
+17:59:23 UNCHANGED subred circleguard-subnet-prod asigna IPv4 pública al lanzar
+17:59:24 UNCHANGED tabla de rutas circleguard-rt-public (rtb-051f85343e8ca07f0)
+17:59:26 UNCHANGED ruta 0.0.0.0/0 -> igw-0f567b11545a6b4a4
+17:59:28 UNCHANGED subred tools asociada a circleguard-rt-public
+17:59:30 UNCHANGED subred dev asociada a circleguard-rt-public
+17:59:32 UNCHANGED subred stage asociada a circleguard-rt-public
+17:59:33 UNCHANGED subred prod asociada a circleguard-rt-public
+17:59:35 UNCHANGED grupo de seguridad circleguard-sg-ci (sg-01221f89543bed1c7)
+17:59:37 UNCHANGED grupo de seguridad circleguard-sg-nexus (sg-003bb2d4ac0714cb5)
+17:59:39 UNCHANGED grupo de seguridad circleguard-sg-env-dev (sg-02fffa3397e1d9ef4)
+17:59:41 UNCHANGED grupo de seguridad circleguard-sg-env-stage (sg-0cc234f54c37f7422)
+17:59:43 UNCHANGED grupo de seguridad circleguard-sg-env-prod (sg-0b47c8afe1b536692)
+17:59:43 UNCHANGED circleguard-sg-ci: 8 reglas conformes
+17:59:45 UNCHANGED circleguard-sg-nexus: 8 reglas conformes
+17:59:47 UNCHANGED circleguard-sg-env-dev: 5 reglas conformes
+17:59:48 UNCHANGED circleguard-sg-env-stage: 5 reglas conformes
+17:59:50 UNCHANGED circleguard-sg-env-prod: 5 reglas conformes
+17:59:50 SUMMARY   bootstrap-network created=0 updated=0 unchanged=28 planned=0

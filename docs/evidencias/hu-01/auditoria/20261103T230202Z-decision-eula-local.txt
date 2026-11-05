@@ -1,0 +1,56 @@
+# Decisión final sobre el EULA de Nexus: prueba local (WSL Ubuntu, sin AWS) · 20261103T230202Z
+# 1. infra/bootstrap/nexus/configure.sh contra una API de Nexus simulada en 127.0.0.1 con el EULA sin aceptar
+#    (plan, apply, apply): UNCHANGED, código 0, sin líneas PLAN y sin escrituras en la API.
+# 2. nexus_eula de verify-infra.sh contra la misma API y con la API caída.
+# 3. La rama del EULA de check_tools (extraída de verify-infra.sh) con las llamadas remotas simuladas.
+# La contraseña es un valor de prueba; la API simulada acepta cualquiera. Directorio temporal eliminado al terminar.
+# sha256: ad4c5d1e9a9b26f39a063d030f11b0929da808651e357502764ac176c336cef9  infra/bootstrap/nexus/configure.sh
+# sha256: ba66e22b7a4f60b6ebee03ed1340f6b8381e4d77ff8ea04edd6580177f808aa4  infra/verify-infra.sh
+
+== 1. nexus/configure.sh con el EULA no aceptado (API de Nexus simulada en 127.0.0.1)
+  -- configure.sh plan
+     CG_RESULT UNCHANGED Nexus en línea y admitiendo escritura
+     CG_RESULT UNCHANGED el administrador usa la contraseña gestionada
+     CG_RESULT UNCHANGED EULA de Nexus Community Edition no aceptado (decisión del equipo, NEXUS_ACCEPT_EULA=false): sin repositorio circleguard-docker, realm DockerToken ni cambios de acceso anónimo; el registro es CNCF Distribution
+PASS  configure.sh plan: código de salida 0
+PASS  configure.sh plan: EULA informado como UNCHANGED (decisión del equipo)
+PASS  configure.sh plan: ninguna línea PLAN
+PASS  configure.sh plan: ninguna escritura en la API (POST/PUT/DELETE)
+  -- configure.sh apply
+     CG_RESULT UNCHANGED Nexus en línea y admitiendo escritura
+     CG_RESULT UNCHANGED el administrador usa la contraseña gestionada
+     CG_RESULT UNCHANGED EULA de Nexus Community Edition no aceptado (decisión del equipo, NEXUS_ACCEPT_EULA=false): sin repositorio circleguard-docker, realm DockerToken ni cambios de acceso anónimo; el registro es CNCF Distribution
+PASS  configure.sh apply: código de salida 0
+PASS  configure.sh apply: EULA informado como UNCHANGED (decisión del equipo)
+PASS  configure.sh apply: ninguna línea PLAN
+PASS  configure.sh apply: ninguna escritura en la API (POST/PUT/DELETE)
+  -- configure.sh apply
+     CG_RESULT UNCHANGED Nexus en línea y admitiendo escritura
+     CG_RESULT UNCHANGED el administrador usa la contraseña gestionada
+     CG_RESULT UNCHANGED EULA de Nexus Community Edition no aceptado (decisión del equipo, NEXUS_ACCEPT_EULA=false): sin repositorio circleguard-docker, realm DockerToken ni cambios de acceso anónimo; el registro es CNCF Distribution
+PASS  configure.sh apply: código de salida 0
+PASS  configure.sh apply: EULA informado como UNCHANGED (decisión del equipo)
+PASS  configure.sh apply: ninguna línea PLAN
+PASS  configure.sh apply: ninguna escritura en la API (POST/PUT/DELETE)
+== 2. nexus_eula (destino local, API simulada)
+PASS  nexus_eula con el EULA sin aceptar
+PASS  nexus_eula con la API caída
+== 3. Rama del EULA en check_tools (llamadas remotas simuladas)
+PASS  bloque extraído de verify-infra.sh
+23:02:02 PASS      nexus: EULA no aceptado por decisión del equipo; Nexus no es el registro (CNCF Distribution)
+23:02:02 PASS      nexus: conector Docker de Nexus sin publicar (EULA no aceptado)
+pass=2 fail=0 pendiente=0
+PASS  EULA no-aceptado con REGISTRY_BACKEND=distribution
+23:02:02 PENDING   nexus: REGISTRY_BACKEND=nexus y el EULA no está aceptado: circleguard-docker no existe
+23:02:02 PASS      nexus: conector Docker de Nexus sin publicar (EULA no aceptado)
+pass=1 fail=0 pendiente=1
+PASS  EULA no-aceptado con REGISTRY_BACKEND=nexus
+23:02:02 PASS      nexus: EULA de Community Edition aceptado
+23:02:02 PASS      nexus: registro Docker exige autenticación
+pass=2 fail=0 pendiente=0
+PASS  EULA aceptado con REGISTRY_BACKEND=nexus
+23:02:02 FAIL      nexus: no se pudo leer el estado del EULA (¿se aplicó la contraseña gestionada?)
+pass=0 fail=1 pendiente=0
+PASS  EULA desconocido con REGISTRY_BACKEND=distribution
+
+RESULTADO: 19 PASS, 0 FAIL
