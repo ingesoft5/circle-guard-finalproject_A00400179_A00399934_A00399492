@@ -14,9 +14,41 @@ CG_SERVICES=(
   circleguard-promotion-service
 )
 CG_WEB_SERVICE=circleguard-web
+CG_REPO_ROOT=${CG_REPO_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
+CG_GITHUB_URL=${CG_GITHUB_URL:-https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492}
+CG_RELEASES_DIR=${CG_RELEASES_DIR:-${HOME:-/tmp}/.circleguard/releases}
 
 cg_die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 cg_info() { printf '%s\n' "$*"; }
+
+cg_validate_env() {
+  case "${1:-}" in
+    dev|stage|prod) ;;
+    *) cg_die "Ambiente inválido ('${1:-}'). Use dev, stage o prod." ;;
+  esac
+}
+
+cg_utc_now() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+cg_short_commit() { git -C "$CG_REPO_ROOT" rev-parse --short HEAD 2>/dev/null || printf 'unknown'; }
+
+cg_current_version() {
+  local env_name=${1:?Falta el ambiente}
+  local version=""
+  local json
+  for json in \
+    "$CG_RELEASES_DIR/$env_name.json" \
+    "$CG_REPO_ROOT/deploy/releases/$env_name.json"; do
+    if [[ -f "$json" ]]; then
+      version=$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$json" | head -n 1)
+      [[ -n "$version" && "$version" != "null" ]] && break
+    fi
+  done
+  if [[ -z "$version" && -f "/opt/circleguard/$env_name/VERSION" ]]; then
+    version=$(head -n 1 "/opt/circleguard/$env_name/VERSION")
+  fi
+  [[ -n "$version" && "$version" != "null" ]] || cg_die "No hay versión registrada para $env_name."
+  printf '%s\n' "$version"
+}
 
 cg_validate_semver() {
   local version=${1:-}
