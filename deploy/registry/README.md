@@ -1,13 +1,15 @@
 # Registro OCI local para las evidencias de HU-02
 
-Nexus Repository es el registro oficial del proyecto, pero su **EULA sigue pendiente**
-(`NEXUS_ACCEPT_EULA=false`, decisión de HU-01). Mientras el equipo decide, HU-02 se evidencia
-contra un **registro equivalente**: Docker Distribution (`registry:2.8.3`), que implementa la
-API OCI Distribution estándar.
+El registro oficial del proyecto es **CNCF Distribution 3.0** en el host `nexus` de AWS
+(`REGISTRY_BACKEND=distribution`, TLS + htpasswd, usuario `ci`; ver
+[`docs/arquitectura/registro-artefactos.md`](../../docs/arquitectura/registro-artefactos.md)). Nexus
+sigue instalado, pero el equipo decidió no aceptar su EULA.
 
-> Este registro escucha solo en `127.0.0.1`, no tiene autenticación y **no es para producción**.
-> En los servidores de ambiente se usará Nexus en `nexus:8082/circleguard/...` cuando el EULA
-> esté aceptado.
+Este `registry:2.8.3` local es un **registro equivalente solo para evidencias locales** de HU-02:
+implementa la API OCI Distribution estándar y permite construir/publicar sin AWS.
+
+> Escucha solo en `127.0.0.1`, no tiene autenticación y **no es para producción**. En los servidores
+> de ambiente se usa el registro Distribution en `<ip-privada-nexus>:8082`.
 
 ## Arrancar y detener
 

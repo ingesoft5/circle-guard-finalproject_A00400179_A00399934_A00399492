@@ -19,6 +19,7 @@ trabajo, pero el equipo revisa, entiende y puede explicar cada resultado.
 | Fecha | Historia | Sesión | Decisiones |
 |---|---|---|---|
 | 2026-11-02 | HU-02 · Imágenes Docker inmutables | [Sesión](sesiones/2026-11-02-hu-02.md) | [D-01 a D-11](decisiones.md) |
+| 2026-11-05 | HU-06/HU-07 · CD, rollback y release notes | [Sesión](sesiones/2026-11-05-hu-06.md) | [D-12 a D-25](decisiones.md) |
 
 ## Plantilla
 

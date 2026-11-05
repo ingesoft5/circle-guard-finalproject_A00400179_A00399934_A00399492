@@ -184,6 +184,25 @@ The nine images (8 services + Expo web client) and the per-environment Compose s
 See [`docs/arquitectura/empaquetado-inmutable.md`](docs/arquitectura/empaquetado-inmutable.md)
 for the design and [`docs/evidencias/hu-02/`](docs/evidencias/hu-02/README.md) for the evidence.
 
+## CI/CD pipeline (HU-06/HU-07)
+
+The Jenkins multibranch pipeline is in [`Jenkinsfile`](Jenkinsfile). It builds and tests the
+services, packages and publishes the nine images, deploys to dev, runs the E2E gate, promotes to
+stage, waits for manual approval before prod, creates the semantic Git tag and generates release
+notes.
+
+```bash
+./deploy/deploy.sh dev 1.0.0        # deploy a version
+./deploy/rollback.sh dev 0.9.0      # roll back
+./deploy/current-version.sh dev     # traceability
+./deploy/release-notes.sh 1.0.0     # release notes
+```
+
+Design: [`docs/arquitectura/pipeline-cd.md`](docs/arquitectura/pipeline-cd.md).
+Jenkins prerequisites: [`jenkins/README.md`](jenkins/README.md).
+Evidence: [`docs/evidencias/hu-06/`](docs/evidencias/hu-06/README.md) and
+[`docs/evidencias/hu-07/`](docs/evidencias/hu-07/README.md).
+
 ## AI usage log
 
 Prompts, responses and decision records are kept in [`docs/iag/`](docs/iag/README.md), as required

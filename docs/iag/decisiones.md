@@ -227,3 +227,240 @@ SSH o por un proxy inverso con TLS que llegará en E2.6.
 
 **Consecuencias.** Prod no queda abierto a Internet. La usabilidad final depende del ingress de
 la siguiente entrega.
+
+---
+
+## D-12 · Pipeline de HU-06 en código, independiente de AWS
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Contexto.** No hay Jenkins con plugins, ni Docker en el equipo de desarrollo, ni hosts de
+ambiente con capacidad para el stack completo.
+
+**Decisión.** Implementar el `Jenkinsfile` y los scripts de `deploy/` como código portable, con
+modos `local` y `ssh`, parámetros para construir/publicar imágenes y un destino de despliegue
+configurable. La ejecución end-to-end se hará cuando HU-04 y los hosts estén listos.
+
+**Alternativas.** Esperar a tener AWS/Jenkins para escribir el pipeline (pierde tiempo); simular
+las evidencias (no es aceptable).
+
+**Consecuencias.** El pipeline se puede revisar y probar por partes. Las evidencias de ejecución
+quedan pendientes y deben capturarse antes de cerrar HU-06.
+
+---
+
+## D-13 · Mapeo de ramas dev y main
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Contexto.** HU-06 dice “merge a `main`”, pero el equipo integra en `dev` y publica desde `main`.
+
+**Decisión.** `dev` despliega dev y stage automáticamente; `main` añade la aprobación manual, prod,
+el tag y las release notes. `FORCE_PROD=true` permite probar el flujo desde otra rama.
+
+**Consecuencias.** El flujo respeta la rama de integración del equipo y el criterio de aprobación
+antes de prod. Las evidencias deben mostrar una ejecución en `dev` y otra en `main`.
+
+---
+
+## D-14 · `pollSCM` en lugar de webhook
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada (temporal)
+
+**Contexto.** Jenkins solo escucha en `127.0.0.1`; GitHub no puede llamarlo. HU-01 advierte que un
+webhook exige TLS o un relé.
+
+**Decisión.** Usar `pollSCM('H/5 * * * *')`. Cuando exista TLS/relé (E2.6/HU-04), cambiar a
+webhook.
+
+**Consecuencias.** El despliegue ocurre en ≤ 5 minutos, no instantáneamente. Se documenta como
+limitación.
+
+---
+
+## D-15 · Tests base no bloqueantes
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada (temporal)
+
+**Contexto.** Los 10 fallos base de HU-01 (Testcontainers, seguridad de tests, middleware y JWT)
+siguen existiendo y no son de HU-06.
+
+**Decisión.** La etapa ejecuta `./gradlew test --continue`, publica JUnit y deja el build
+`UNSTABLE` sin bloquear el despliegue. No se ocultan: se archivan y se notifican.
+
+**Alternativas.** Bloquear todo el pipeline hasta corregirlos (impide avanzar HU-06); ignorarlos
+(peor).
+
+**Consecuencias.** El pipeline puede desplegar con un build `UNSTABLE`. HU-04/E1.6 debe corregir
+los 10 tests y volver la etapa bloqueante.
+
+---
+
+## D-16 · Build y publicación de imágenes opcionales
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Contexto.** `crane` publica y descarga, pero no construye; el Jenkins de HU-01 no tiene Docker ni
+un agente de build.
+
+**Decisión.** Parámetros `BUILD_IMAGES` y `PUBLISH_IMAGES` (por defecto `true`). Si el Jenkins no
+tiene Docker, se pueden desactivar y usar imágenes ya publicadas; la construcción queda en HU-04.
+
+**Consecuencias.** El pipeline se puede usar para promoción/rollback sin Docker en el controlador.
+La evidencia de build de imágenes sigue siendo de HU-04.
+
+---
+
+## D-17 · Trazabilidad JSON + historial TSV
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Decisión.** `deploy/releases/<env>.json` guarda la última versión (ambiente, versión, commit,
+fecha, actor, evento) y `history.tsv` el historial append-only. Jenkins archiva ambos.
+
+**Alternativas.** Solo un artefacto de Jenkins (se pierde al limpiar builds); una rama de releases
+(más compleja).
+
+**Consecuencias.** La trazabilidad es legible y versionable. Si se quiere fuente de verdad en Git,
+el equipo puede hacer que Jenkins commitee los archivos.
+
+---
+
+## D-18 · Rollback reutiliza deploy y valida imágenes
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-07
+- **Estado:** Aceptada
+
+**Decisión.** `rollback.sh` rechaza la versión actual, verifica las 9 imágenes con
+`docker manifest inspect`/`crane manifest` y llama a `deploy.sh` con evento `rollback`.
+
+**Consecuencias.** No se redespliega una versión inexistente. La verificación remota se delega al
+host cuando `DEPLOY_MODE=ssh`.
+
+---
+
+## D-19 · Notificaciones Discord/Slack no fatales
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-07
+- **Estado:** Aceptada
+
+**Decisión.** `notify.sh` usa `DISCORD_WEBHOOK_URL` o `SLACK_WEBHOOK_URL`; si no hay webhook o
+falla el envío, informa y termina en 0. El pipeline lo llama en `post`.
+
+**Consecuencias.** Un fallo de notificación no tumba un despliegue. La evidencia de la
+notificación se captura por separado.
+
+---
+
+## D-20 · E2E de humo como gate de stage
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada (ampliable)
+
+**Contexto.** No había pruebas E2E.
+
+**Decisión.** `tests/e2e-playwright` verifica que el web responde y que `/healthz` está en 200.
+`deploy/e2e.sh` es el gate antes de stage.
+
+**Consecuencias.** Hay un gate real y ejecutable; la cobertura funcional (login, cuestionario, QR)
+se amplía en la siguiente iteración.
+
+---
+
+## D-21 · Plantilla y política de cambio
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-07
+- **Estado:** Aceptada
+
+**Decisión.** `docs/operaciones/solicitud-cambio.md` y `politica-aprobacion.md` definen tipos
+(Estándar/Normal/Mayor/Emergencia), aprobadores, evidencias y rollback. `.github/PULL_REQUEST_TEMPLATE.md`
+enlaza el checklist.
+
+**Consecuencias.** Todo cambio Normal/Mayor tiene trazabilidad y aprobación. La política se revisa
+en el tablero ágil.
+
+---
+
+## D-22 · Release notes desde Conventional Commits
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-07
+- **Estado:** Aceptada
+
+**Decisión.** `release-notes.sh` agrupa `feat`, `fix`, `perf` y otros entre el tag anterior y el
+nuevo, enlaza PR `(#N)` y actualiza `docs/release-notes/vX.Y.Z.md` + `CHANGELOG.md`.
+
+**Alternativas.** `semantic-release` (Node, más dependencias); notas manuales (no trazables).
+
+**Consecuencias.** Las notas se generan del historial real. El tag `vX.Y.Z` se crea antes con
+`tag-release.sh`.
+
+---
+
+## D-23 · Wrapper de Gradle versionado
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Contexto.** `*.jar` estaba ignorado y `gradle/wrapper/gradle-wrapper.jar` no se versionaba; un
+clon limpio no podía ejecutar `./gradlew` y Jenkins no podía compilar.
+
+**Decisión.** Versionar el wrapper de Gradle 8.14 (43 KiB, `GradleWrapperMain` verificado) con una
+excepción en `.gitignore`, y normalizar `gradlew`/`Jenkinsfile` a LF.
+
+**Consecuencias.** Jenkins y cualquier host con JDK 21 pueden ejecutar `./gradlew` sin instalar
+Gradle. La imagen de build de HU-02 sigue usando `gradle:8.14-jdk21` para las imágenes.
+
+---
+
+## D-24 · Capacidad y cuota de ambientes pendientes
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Pendiente (decisión del equipo)
+
+**Contexto.** HU-01 creó hosts `t3.small` (2 GiB) y `QUOTA_VCPU_LIMIT=5`. El stack completo tiene
+15 contenedores; `ci` + `nexus` + un ambiente = 6 vCPU.
+
+**Decisión.** No se fuerza un cambio de infraestructura en HU-06. El pipeline soporta `local` y
+`ssh`; la evidencia real en AWS queda condicionada a:
+1. redimensionar los hosts de ambiente (por ejemplo `m7i-flex.large`), y
+2. subir `QUOTA_VCPU_LIMIT`/cuota (la cuenta tiene 16 vCPU reales).
+
+**Consecuencias.** HU-06 puede validarse con Docker local, pero la demostración AWS completa
+requiere aprobación de costo y cuota. Se documenta como bloqueo, no se simula.
+
+---
+
+## D-25 · El registro oficial pasa a CNCF Distribution
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-01 (impacto en HU-02/HU-06)
+- **Estado:** Aceptada; reemplaza D-03 y D-10 en lo relativo a Nexus
+
+**Contexto.** El equipo decidió el 2026-11-03 no aceptar el EULA de Nexus y usar CNCF Distribution
+3.0 en el host `nexus` (`REGISTRY_BACKEND=distribution`, TLS + htpasswd, usuario `ci`).
+
+**Decisión.** El registro de imágenes es Distribution; Nexus queda instalado sin uso. Para AWS,
+`IMAGE_REGISTRY=<ip-privada-nexus>:8082`. `deploy/registry/` (`registry:2`) queda solo como
+equivalente local de evidencias.
+
+**Consecuencias.** La publicación ya no depende del EULA. Jenkins usa `crane` para publicar y
+descargar sin el socket de Docker.

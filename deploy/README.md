@@ -15,7 +15,7 @@ Spring Boot y el cliente web se adapta en tiempo de build dentro de la imagen.
 | `compose-up.sh <env>` | Levanta `dev`, `stage` o `prod` y espera los healthchecks |
 | `compose-down.sh <env>` | Detiene el ambiente sin borrar volúmenes |
 | `compose/` | Stack común + un archivo Compose por ambiente |
-| `registry/` | Registro OCI local equivalente mientras el EULA de Nexus está pendiente |
+| `registry/` | Registro OCI local para evidencias; el registro oficial es CNCF Distribution en `nexus:8082` |
 | `logs/` | Salidas de build (ignoradas por Git) |
 
 ## Prerrequisitos
@@ -57,7 +57,7 @@ digest multi-arquitectura) antes de usarla.
 ## Flujo completo (dev)
 
 ```bash
-# 1. Registro equivalente (Nexus sigue con EULA pendiente)
+# 1. Registro equivalente local (el registro oficial es Distribution en AWS)
 docker compose -f deploy/registry/docker-compose.yml up -d
 
 # 2. Credenciales locales fuera del repositorio (HU-01)
@@ -93,7 +93,7 @@ el despliegue debe indicarlos y Compose falla si faltan. En los hosts de ambient
 están en `/opt/circleguard/<env>/.env` (HU-01).
 
 ```bash
-IMAGE_REGISTRY=nexus.example:8082 IMAGE_TAG=1.0.0 \
+IMAGE_REGISTRY=<ip-privada-nexus>:8082 IMAGE_TAG=1.0.0 \
 CG_ENV_FILE=/opt/circleguard/stage/.env ./deploy/compose-up.sh stage
 ```
 
@@ -111,8 +111,8 @@ ${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/circleguard-web:<MAJOR.MINOR.PATCH>
 - Cada imagen lleva etiquetas OCI `version`, `revision` y `created`.
 - No se usan tags flotantes para las imágenes propias; las imágenes base están fijadas por
   `tag@sha256`.
-- El repositorio Docker de Nexus está configurado con `writePolicy: allow_once`, de modo que un
-  tag ya publicado no se puede sobrescribir.
+- El registro oficial de HU-01 es CNCF Distribution 3.0 (`REGISTRY_BACKEND=distribution`); la
+  inmutabilidad la impone el pipeline (semver, nunca `latest`). Nexus queda instalado sin uso.
 
 ## Variables de entorno
 
@@ -144,10 +144,52 @@ El Dockerfile de `mobile/` reescribe en tiempo de build las URLs absolutas
 redirige a cada servicio. El repositorio no se modifica y la misma imagen funciona en cualquier
 host, sin rebuild por ambiente.
 
+## Entrega continua, rollback y release notes (HU-06/HU-07)
+
+| Script | Función |
+|---|---|
+| `next-version.sh` | Calcula la siguiente versión desde tags y Conventional Commits |
+| `deploy.sh <env> <version>` | Despliega una versión; local o `DEPLOY_MODE=ssh` |
+| `rollback.sh <env> <version>` | Verifica las imágenes y redespliega una versión anterior |
+| `current-version.sh <env>` | Lee la versión registrada del ambiente |
+| `record-release.sh` | Escribe `deploy/releases/<env>.json` e historial TSV |
+| `tag-release.sh <version>` | Crea y publica el tag anotado `vX.Y.Z` |
+| `release-notes.sh <version>` | Genera `docs/release-notes/vX.Y.Z.md` y actualiza `CHANGELOG.md` |
+| `notify.sh` | Envía estado/fallo a Discord o Slack |
+| `e2e.sh <env>` | Ejecuta Playwright contra `E2E_BASE_URL` |
+
+```bash
+# Versión y despliegue local
+./deploy/next-version.sh
+./deploy/deploy.sh dev 1.0.0
+./deploy/current-version.sh dev
+
+# Rollback a una versión anterior publicada
+./deploy/rollback.sh dev 0.9.0
+
+# Despliegue remoto (host preparado por HU-01)
+DEPLOY_MODE=ssh DEPLOY_HOST_STAGE=ubuntu@10.20.20.10 \
+  DEPLOY_PATH=/opt/circleguard/circleguard \
+  ./deploy/deploy.sh stage 1.0.0
+
+# E2E, notificación, tag y notas
+E2E_BASE_URL=http://localhost:3000 ./deploy/e2e.sh dev
+DISCORD_WEBHOOK_URL=... ./deploy/notify.sh failure dev 1.0.0 "Fallo simulado"
+./deploy/tag-release.sh 1.0.0
+./deploy/release-notes.sh 1.0.0
+```
+
+La trazabilidad queda en `deploy/releases/<env>.json` y `deploy/releases/history.tsv`. El
+`Jenkinsfile` usa estos scripts y está documentado en
+[`docs/arquitectura/pipeline-cd.md`](../docs/arquitectura/pipeline-cd.md). Los prerrequisitos de
+Jenkins están en [`jenkins/README.md`](../jenkins/README.md).
+
 ## Limitaciones y siguientes pasos
 
-- Nexus: publicar allí requiere aceptar el EULA y crear usuarios de push/pull (HU-01 los deja
-  pendientes). Hasta entonces se usa `registry:2` como registro equivalente.
+- Registro: el diseño oficial de HU-01 es **CNCF Distribution 3.0** en el host `nexus`
+  (`REGISTRY_BACKEND=distribution`, TLS + htpasswd). Nexus sigue instalado sin uso y no se acepta
+  su EULA. Para publicar en AWS use `IMAGE_REGISTRY=<ip-privada-nexus>:8082`; para evidencias
+  locales se mantiene `deploy/registry/` (`registry:2`).
 - Actuator: añadirlo (una línea en el Gradle raíz) permitiría healthchecks de readiness reales.
 - Ingress/TLS: el cliente web es el único puerto publicado; el TLS y el dominio corresponden a
   E2.6.
