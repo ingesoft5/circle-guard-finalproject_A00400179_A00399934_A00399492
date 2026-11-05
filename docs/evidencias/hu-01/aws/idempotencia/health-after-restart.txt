@@ -1,0 +1,36 @@
+20:49:04 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:49:11 PASS      ci: Docker activo
+20:49:12 PASS      ci: parada automática programada (circleguard-autostop.timer en espera)
+20:49:14 INFO      ci: temporizador de parada: Wed 2026-11-04 00:27:23 UTC 3h 38min - - circleguard-autostop.timer circleguard-autostop.service
+20:49:15 PASS      ci: swap de seguridad activo
+20:49:17 INFO      ci: memoria en uso 2539 de 7776 MiB · swap 0 de 2047 MiB
+20:49:21 PASS      nexus: Docker activo
+20:49:22 PASS      nexus: parada automática programada (circleguard-autostop.timer en espera)
+20:49:24 INFO      nexus: temporizador de parada: Wed 2026-11-04 00:27:49 UTC 3h 38min - - circleguard-autostop.timer circleguard-autostop.service
+20:49:25 PASS      nexus: swap de seguridad activo
+20:49:27 INFO      nexus: memoria en uso 2801 de 7776 MiB · swap 0 de 2047 MiB
+20:49:31 PASS      jenkins: /login en el host
+20:49:32 PASS      jenkins: contenedor saludable
+20:49:36 INFO      jenkins: memoria por contenedor: cg-jenkins: 239.1MiB / 7.594GiB (3.07%)
+20:49:46 PASS      jenkins: UI NO expuesta a Internet (puerto 8080)
+20:49:49 PASS      jenkins: UI accesible por túnel SSH
+20:49:54 PASS      sonarqube: estado del sistema
+20:49:55 PASS      sonarqube: contenedor saludable
+20:49:57 PASS      sonarqube: base de datos saludable
+20:50:03 INFO      sonarqube: memoria por contenedor: cg-sonarqube: 1.613GiB / 7.594GiB (21.24%) · cg-sonarqube-db: 54.86MiB / 7.594GiB (0.71%)
+20:50:05 PASS      sonarqube: acceso anónimo denegado
+20:50:15 PASS      sonarqube: UI NO expuesta a Internet (puerto 9000)
+20:50:18 PASS      sonarqube: UI accesible por túnel SSH
+20:50:23 PASS      nexus: API de estado
+20:50:24 PASS      nexus: contenedor saludable
+20:50:28 INFO      nexus: memoria por contenedor: cg-nexus: 2.158GiB / 7.594GiB (28.42%)
+20:50:30 PENDING   nexus: EULA de Community Edition PENDIENTE de la decisión del equipo: no se pueden descargar ni subir componentes y circleguard-docker no existe
+20:50:32 PASS      nexus: conector Docker sin publicar mientras el EULA está pendiente
+20:50:42 PASS      nexus: UI NO expuesta a Internet (puerto 8081)
+20:50:45 PASS      nexus: UI accesible por túnel SSH
+20:50:49 PASS      registry: contenedor saludable
+20:50:51 PASS      registry: exige autenticación por TLS
+20:50:52 PASS      registry: el usuario ci se autentica con la contraseña gestionada
+20:50:56 INFO      registry: memoria por contenedor: cg-registry: 10.09MiB / 7.594GiB (0.13%)
+20:51:07 PASS      registry: NO expuesto a Internet (puerto 8082)
+20:51:07 SUMMARY   verify-infra pass=25 fail=0 pendiente=1

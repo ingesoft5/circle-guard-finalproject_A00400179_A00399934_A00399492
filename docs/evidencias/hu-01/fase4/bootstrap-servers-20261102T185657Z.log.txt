@@ -1,0 +1,29 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/bootstrap-servers-20261102T185657Z.log · sha256 4f009e927071d9c3262ac124b13aa31c93b8c110e3ffddc9dd291f4633cf1af5 · 1877 bytes · intacto (ignorado por Git)
+# Propósito: Paso 6a: dry-run de run-instances verificado para ci y nexus
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+18:56:57 INFO      registro de la ejecución: infra/logs/bootstrap-servers-20261102T185657Z.log (modo plan, destino aws)
+18:56:58 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793644616 · capacidad read · cuenta ****3303 · región us-east-2 · zona us-east-2a
+
+Estimación On-Demand (precios de referencia 2026-11-02; verificar con --prices)
+  rol        tipo         EC2 h    IPv4 h   EBS mes    total h   día 24h   mes 730h
+  ci         m7i-flex.large  0.0958    0.0050      2.40     0.1040      2.50      75.95
+  nexus      m7i-flex.large  0.0958    0.0050      2.00     0.1035      2.48      75.55
+  TOTAL                                        4.40     0.2075      4.98     151.51
+  Detenidas solo se cobra el EBS: 0.14 USD/día (la IPv4 automática se libera). Sin NAT Gateway ni Elastic IP.
+  Transferencia de salida a Internet: 0.09 USD/GB (reserva de 3 GB = 0.27 USD); la entrada no se cobra.
+  Parada automática de los hosts a las 4 h del arranque: una sesión olvidada cuesta como máximo 0.81 USD.
+
+18:57:04 INFO      estimación local (no es un límite de facturación): acumulado 0.00 + esta ejecución (4 h y EBS nuevo por 45 días) 0.00 + transferencia 0.27 = 0.27 de 15 USD
+18:57:06 INFO      tipo m7i-flex.large ofrecido en us-east-2a
+18:57:07 INFO      AMI Ubuntu 24.04: ami-0fc53b217ec1ad816 (dispositivo raíz /dev/sda1)
+18:57:14 INFO      permiso verificado con --dry-run: ec2 run-instances
+18:57:14 PLAN      crear la instancia circleguard-ci (m7i-flex.large, 30 GiB gp3 cifrado) - FACTURABLE: requiere --apply --approve ci
+18:57:21 INFO      permiso verificado con --dry-run: ec2 run-instances
+18:57:21 PLAN      crear la instancia circleguard-nexus (m7i-flex.large, 25 GiB gp3 cifrado) - FACTURABLE: requiere --apply --approve nexus
+18:57:21 SUMMARY   bootstrap-servers created=0 updated=0 unchanged=0 planned=2

@@ -1,0 +1,47 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/bootstrap-nexus-20261102T193238Z.log · sha256 3a0dbb32036304771ce3c80969cb855293ce7e2039746b05cc4b9383bb9916a6 · 2697 bytes · intacto (ignorado por Git)
+# Propósito: Paso 9: Nexus desplegado, contraseña sustituida, EULA PENDIENTE (PLAN)
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+19:32:38 INFO      registro de la ejecución: infra/logs/bootstrap-nexus-20261102T193238Z.log (modo apply, destino aws)
+19:32:40 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793647628 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+19:32:45 INFO      SSH disponible en nexus (i-08c990919adc43fa1)
+19:33:14 INFO        nexus: Running kernel seems to be up-to-date.
+19:33:14 INFO        nexus: No services need to be restarted.
+19:33:14 INFO        nexus: No containers need to be restarted.
+19:33:14 INFO        nexus: No user sessions are running outdated binaries.
+19:33:14 INFO        nexus: No VM guests are running outdated hypervisor (qemu) binaries on this host.
+19:33:14 CREATED   nexus: Docker 29.9.2 y Compose 5.7.0 instalados desde el repositorio oficial de Docker
+19:33:14 UPDATED   nexus: /etc/docker/daemon.json con rotación de logs (10 MB x 3)
+19:33:14 UNCHANGED nexus: servicio docker habilitado y activo
+19:33:14 CREATED   nexus: /opt/circleguard
+19:33:14 CREATED   nexus: swap /swapfile de 2 GiB activo
+19:33:14 UPDATED   nexus: vm.swappiness=10 (el swap solo se usa bajo presión de memoria)
+19:33:14 UPDATED   nexus: parada automática a las 4 h (circleguard-autostop.timer)
+19:33:17 CREATED   nexus: /opt/circleguard/nexus/docker-compose.yml
+19:33:20 CREATED   nexus: /opt/circleguard/nexus/repositories/circleguard-docker.json
+19:33:27 CREATED   nexus: /opt/circleguard/nexus/.env (0600, contenido no mostrado)
+19:33:29 INFO      nexus: docker compose up -d --build
+ Image sonatype/nexus3:3.96.5 Pulling
+ Image sonatype/nexus3:3.96.5 Pulled
+ Network circleguard-nexus_default Creating
+ Volume circleguard-nexus_nexus-data Creating
+ Volume circleguard-nexus_nexus-data Creating
+ Network circleguard-nexus_default Creating
+ Volume circleguard-nexus_nexus-data Created
+ Volume circleguard-nexus_nexus-data Created
+ Network circleguard-nexus_default Created
+ Network circleguard-nexus_default Created
+ Container cg-nexus Creating
+ Container cg-nexus Created
+ Container cg-nexus Starting
+ Container cg-nexus Started
+19:33:41 CREATED   nexus: stack circleguard-nexus desplegado con Docker Compose
+19:34:26 UNCHANGED nexus: Nexus en línea y admitiendo escritura
+19:34:26 UPDATED   nexus: contraseña inicial del administrador reemplazada por la gestionada
+19:34:26 PLAN      nexus: EULA de Nexus Community Edition PENDIENTE de la decisión del equipo (NEXUS_ACCEPT_EULA=false): Nexus no permite descargar ni subir componentes; no se configuran el acceso anónimo, el realm DockerToken ni el repositorio circleguard-docker
+19:34:26 SUMMARY   bootstrap-nexus created=7 updated=4 unchanged=2 planned=1

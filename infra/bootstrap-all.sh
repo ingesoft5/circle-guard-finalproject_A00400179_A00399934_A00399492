@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # HU-01 · Single command that builds (or converges) the whole platform from scratch:
-#   network -> secrets -> servers (ci, nexus) -> jenkins + sonarqube (ci) -> nexus -> verify
-# dev, stage and prod are isolated by network (subnet + security group) and get no servers in
-# HU-01. Every step is idempotent: a second run over converged infrastructure reports
-# created=0 updated=0. Billable servers are only created or started for the roles listed in
-# --approve. Without --apply nothing is changed.
+#   network -> secrets -> servers -> jenkins + sonarqube (ci) -> nexus + registry (nexus server)
+#   -> environment hosts (only those in ENV_SERVERS that are running) -> verify
+# dev, stage and prod are isolated by network (subnet + security group); they only get servers
+# when the team lists them in ENV_SERVERS. Every step is idempotent: a second run over converged
+# infrastructure reports created=0 updated=0. Billable servers are only created or started for
+# the roles listed in --approve. Without --apply nothing is changed.
 
 # shellcheck source=bootstrap/lib/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/bootstrap/lib/common.sh"
@@ -15,9 +16,10 @@ usage() {
   cat <<'EOF'
 Uso: infra/bootstrap-all.sh [--plan | --apply --approve <roles>]
   --plan   (por defecto) recorre todos los pasos sin cambiar nada y muestra el costo estimado.
-  --apply --approve all        reconstruye toda la plataforma: servidores ci y nexus (FACTURABLE).
+  --apply --approve all        reconstruye toda la plataforma: servidores ci y nexus, y los
+                               ambientes de ENV_SERVERS si los hay (FACTURABLE).
   --apply --approve ci         solo crea o inicia los servidores aprobados; los pasos de los
-                               demás se omiten.
+                               demás se omiten. Roles: ci, nexus, env-<ambiente> (de ENV_SERVERS).
 EOF
 }
 
@@ -63,15 +65,18 @@ cg_aws_preflight
 step bootstrap-network.sh "--$CG_MODE"
 step bootstrap-secrets.sh "--$CG_MODE"
 step bootstrap-servers.sh "${FLAGS[@]}"
-for tool in jenkins sonarqube nexus; do
+# The tools of the nexus server go in the order that frees the registry port before taking it.
+read -ra NEXUS_TOOLS <<<"$(cg_registry_tools)"
+for tool in jenkins sonarqube "${NEXUS_TOOLS[@]}"; do
   if running_or_skip "$(cg_tool_host "$tool")"; then step "bootstrap-$tool.sh" "--$CG_MODE"; fi
 done
-# Environment hosts are not part of HU-01; bootstrap-env.sh only runs if one was approved later.
 for env_name in "${CG_ENVS[@]}"; do
   if [[ -n "$(cg_find_instances "env-$env_name" running)" ]]; then
     step bootstrap-env.sh "$env_name" "--$CG_MODE"
+  elif [[ " ${CG_ROLES[*]} " == *" env-$env_name "* ]]; then
+    info "ambiente $env_name: su servidor (ENV_SERVERS) no está en ejecución; se preparará cuando lo esté"
   else
-    info "ambiente $env_name: aislado por red (subred y grupo de seguridad propios), sin servidor en HU-01"
+    info "ambiente $env_name: aislado por red (subred y grupo de seguridad propios), sin servidor (ENV_SERVERS)"
   fi
 done
 if is_apply; then

@@ -1,0 +1,25 @@
+# Orden de las copias enmascaradas en test-idempotency.sh: prueba local (WSL Ubuntu, sin AWS) · 20261103T230549Z
+# stop_servers y mask_copies se extraen del script; teardown.sh es un sustituto que solo imprime la línea de parada.
+# Archivos sintéticos con un número de cuenta de 12 dígitos y una IP pública, ambos ficticios. Directorio temporal eliminado al terminar.
+# Comprueba que masked/report.txt incluye RESULTADO, la parada y la duración, y que stop.txt también se copia.
+# sha256: 01aaf8ec9ebb9d9dde14b3d8f794a0bbcbbfbe22ffeed7eb01e70d69650d2375  infra/test-idempotency.sh
+
+23:05:49 INFO      parada obligatoria de las instancias (rol de lectura)
+INFO  instancias detenidas al terminar (no hay instancias de circleguard en ejecución)
+INFO  duración de la prueba (desde la confirmación hasta la parada): 0 s · resultados en /tmp/tmp.XXXXXXXXXX/out
+INFO  copias enmascaradas en /tmp/tmp.XXXXXXXXXX/out/masked (sin número de cuenta, IP públicas ni hashes de archivos secretos)
+== masked/report.txt
+  PASS  algo con la cuenta ************ y la IP 3.14.15.x
+  RESULTADO: IDEMPOTENTE (todas las comprobaciones en PASS)
+  INFO  instancias detenidas al terminar (no hay instancias de circleguard en ejecución)
+  INFO  duración de la prueba (desde la confirmación hasta la parada): 0 s · resultados en /tmp/tmp.XXXXXXXXXX/out
+  INFO  copias enmascaradas en /tmp/tmp.XXXXXXXXXX/out/masked (sin número de cuenta, IP públicas ni hashes de archivos secretos)
+PASS  masked/report.txt incluye RESULTADO
+PASS  masked/report.txt incluye la parada
+PASS  masked/report.txt incluye la duración
+PASS  la última línea es la de las copias enmascaradas
+PASS  cuenta ficticia enmascarada en report, run2 y stop
+PASS  IP pública enmascarada
+PASS  stop.txt también se copia enmascarado
+
+RESULTADO: 7 PASS, 0 FAIL

@@ -1,0 +1,67 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/bootstrap-iam-20261102T185123Z.log · sha256 72c1d09cdfcfce96944f282826a301f85e1dffabe1cdd103a51161c9cabf8ba9 · 4954 bytes · intacto (ignorado por Git)
+# Propósito: IAM: operador v3 (RunOnlyPinnedUbuntuImage, ec2:ImageID) aplicado; teardown UNCHANGED
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+18:51:23 INFO      registro de la ejecución: infra/logs/bootstrap-iam-20261102T185123Z.log (modo apply, destino aws)
+18:51:25 INFO      identidad: root · tipo raiz · cuenta ****3303 · credenciales temporales (aws login)
+18:51:25 WARN      es la cuenta raíz: se usa solo para esta inspección y, si se aprueba, para crear IAM; después se cierra la sesión
+18:51:27 INFO      MFA de la cuenta raíz: activado
+18:51:29 INFO      organización: independiente
+  plan FREE · estado ACTIVE · créditos del plan restantes 100.0 USD · vence 2027-04-30T03:45:09.625000+00:00
+18:51:31 WARN      plan gratuito: AWS solo admite en él tipos aptos para la capa gratuita; cambiar de plan es una decisión suya (no se hace aquí)
+18:51:33 INFO      región us-east-2: ENABLED_BY_DEFAULT
+18:51:35 INFO      zona us-east-2a: available
+18:51:37 INFO      AMI Ubuntu 24.04 vigente: ami-0fc53b217ec1ad816 · arquitectura x86_64 · ENA True · arranque uefi-preferred
+18:51:40 INFO        m7i-flex.large en us-east-2a: ofrecido · apto capa gratuita True · 2 vCPU · 8192 MiB · x86_64 · arranque legacy-bios,uefi · ENA required · AMI compatible
+18:51:46 INFO      cuota vCPU On-Demand estándar en us-east-2: 5.0 · necesarias con los 2 servidores encendidos: 4
+18:51:47 INFO      IAM Identity Center en us-east-1: 0 instancia(s)
+18:51:48 INFO      IAM Identity Center en us-east-2: 0 instancia(s)
+18:51:56 INFO      recursos circleguard existentes: instancias 0 · VPC 1 · volúmenes 0 · secretos SSM 10
+10
+10
+5
+18:51:56 INFO      permisos IAM: la cuenta raíz puede crearlos salvo que una SCP lo impida (organización: independiente)
+18:51:57 INFO        Access Analyzer hu01-operator-policy.json: sin hallazgos
+18:51:59 INFO        Access Analyzer hu01-operator-role-trust.json: sin hallazgos
+18:52:00 INFO        Access Analyzer hu01-operator-user-policy.json: sin hallazgos
+18:52:02 INFO        Access Analyzer hu01-reader-policy.json: sin hallazgos
+18:52:03 INFO        Access Analyzer hu01-reader-role-trust.json: sin hallazgos
+18:52:05 INFO        Access Analyzer hu01-teardown-policy.json: sin hallazgos
+18:52:08 INFO        Access Analyzer hu01-teardown-role-trust.json: sin hallazgos
+18:52:08 INFO        Access Analyzer hu01-teardown-user-policy.json: sin hallazgos
+18:52:12 INFO        simulador IAM usuario-operador: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+18:52:15 INFO        simulador IAM rol-lectura: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+18:52:19 INFO        simulador IAM rol-operador: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+18:52:20 INFO        simulador IAM usuario-teardown: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+18:52:24 INFO        simulador IAM rol-teardown: ninguna acción de escalada permitida (25 acciones y asumir teardown)
+18:52:24 INFO        confianza del rol teardown: solo el usuario circleguard-hu01-teardown, con MFA de menos de 15 min
+18:52:27 UNCHANGED política circleguard-hu01-reader
+18:52:34 UPDATED   política circleguard-hu01-operator (nueva versión por defecto)
+18:52:37 UNCHANGED política circleguard-hu01-teardown
+18:52:38 UNCHANGED usuario circleguard-hu01-operator
+18:52:38 UNCHANGED usuario circleguard-hu01-operator: política en línea circleguard-hu01-operator-access
+18:52:41 INFO      usuario circleguard-hu01-operator: contraseña de consola definida
+18:52:42 INFO      usuario circleguard-hu01-operator: dispositivos MFA 1
+18:52:44 UNCHANGED usuario circleguard-hu01-teardown
+18:52:46 UNCHANGED usuario circleguard-hu01-teardown: política en línea circleguard-hu01-teardown-access
+18:52:49 INFO      usuario circleguard-hu01-teardown: contraseña de consola definida
+18:52:50 INFO      usuario circleguard-hu01-teardown: dispositivos MFA 1
+18:52:52 UNCHANGED confianza del rol circleguard-hu01-reader
+18:52:53 UNCHANGED rol circleguard-hu01-reader: sesiones de 1 h como máximo
+18:52:55 UNCHANGED rol circleguard-hu01-reader: política circleguard-hu01-reader adjunta
+18:52:56 UNCHANGED confianza del rol circleguard-hu01-operator
+18:52:58 UNCHANGED rol circleguard-hu01-operator: sesiones de 1 h como máximo
+18:52:59 UNCHANGED rol circleguard-hu01-operator: política circleguard-hu01-operator adjunta
+18:53:01 UNCHANGED confianza del rol circleguard-hu01-teardown
+18:53:02 UNCHANGED rol circleguard-hu01-teardown: sesiones de 1 h como máximo
+18:53:04 UNCHANGED rol circleguard-hu01-teardown: política circleguard-hu01-reader adjunta
+18:53:04 UNCHANGED rol circleguard-hu01-teardown: política circleguard-hu01-teardown adjunta
+18:53:04 UNCHANGED perfil circleguard-hu01-reader
+18:53:04 UNCHANGED perfil circleguard-hu01
+18:53:04 INFO      pasos en la consola de AWS tras crear IAM (contraseña y MFA los escribe usted, nunca un script): ver infra/README.md, 'Primer acceso de los usuarios'
+18:53:04 SUMMARY   bootstrap-iam created=0 updated=1 unchanged=18 planned=0

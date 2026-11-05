@@ -1,0 +1,39 @@
+# Evidencia 3 de HU-01 · commit que elimina las credenciales de docker-compose.dev.yml · 20261103T160739Z
+# Generado con git (solo lectura). Las líneas eliminadas contenían las credenciales del commit inicial 6f254ed (consideradas
+# comprometidas y no reutilizadas): aquí solo se cuentan, nunca se imprimen. El historial no se reescribe.
+
+## git log -1 --format='%H %an %ad %s' 3a43855
+3a43855da28eb69491a2bb0109fea90ced066c9a MatthewLane 2026-10-31 00:38:55 -0500 fix(security): externaliza credenciales y agrega infraestructura HU-01 con Bash y Docker
+
+## Ramas que contienen el commit
+  * HU01_Infraestructura_nube_bash
+    remotes/origin/HU-02_Imágenes-Docker-inmutables
+    remotes/origin/HU-02·-Imágenes-Docker-inmutables
+    remotes/origin/HU-06-_Entrega-continua-y-promoción
+    remotes/origin/HU01_Infraestructura_nube_bash
+    remotes/origin/dev
+
+## git show --stat 3a43855 -- docker-compose.dev.yml .env.example .gitignore
+ .env.example           | 35 +++++++++++++++++++++++++++++++++++
+ .gitignore             | 24 ++++++++++++++++++++++++
+ docker-compose.dev.yml |  8 ++++----
+ 3 files changed, 63 insertions(+), 4 deletions(-)
+
+## docker-compose.dev.yml: líneas añadidas por el commit
++      POSTGRES_USER: "${POSTGRES_USER:?Defina POSTGRES_USER en .env (ver .env.example)}"
++      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env (ver .env.example)}"
++      NEO4J_AUTH: "neo4j/${NEO4J_PASSWORD:?Defina NEO4J_PASSWORD en .env (ver .env.example)}"
++      LDAP_ADMIN_PASSWORD: "${LDAP_ADMIN_PASSWORD:?Defina LDAP_ADMIN_PASSWORD en .env (ver .env.example)}"
+
+## docker-compose.dev.yml: líneas eliminadas (solo el recuento; contenían valores)
+  4 líneas eliminadas
+
+## Estado actual (HEAD): variables obligatorias sin valor por defecto
+8:      POSTGRES_USER: "${POSTGRES_USER:?Defina POSTGRES_USER en .env (ver .env.example)}"
+9:      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en .env (ver .env.example)}"
+24:      NEO4J_AUTH: "neo4j/${NEO4J_PASSWORD:?Defina NEO4J_PASSWORD en .env (ver .env.example)}"
+68:      LDAP_ADMIN_PASSWORD: "${LDAP_ADMIN_PASSWORD:?Defina LDAP_ADMIN_PASSWORD en .env (ver .env.example)}"
+
+## .env.example actual: variables sin valor
+  variables vacías: 8
+  variables con valor: 0
