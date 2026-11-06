@@ -7,6 +7,7 @@ sesión con MFA del responsable de la cuenta.
 |---|---|---|---|---|
 | [`idempotencia/`](idempotencia/README.md) | `bash infra/test-idempotency.sh --apply --approve ci,nexus` (commit `3afca6f`) | **Ejecutada el 2026-11-03** | C1, C3 | `RESULTADO: IDEMPOTENTE`. Detalle debajo de la tabla |
 | [`aislamiento/`](aislamiento/README.md) | `bash infra/test-isolation.sh --apply --phases=1,2,3` y `--phases=4,5` | **Ejecutada el 2026-11-03/04** (23:41-00:20 UTC) | C2, C3 (`bootstrap-env.sh`) | `RESULTADO: AISLAMIENTO VERIFICADO CON TRÁFICO` en las dos sesiones; `bootstrap-env.sh` idempotente en los tres ambientes |
+| [`reconstruccion/`](reconstruccion/README.md) | Destrucción en CloudShell y reconstrucción con `bash infra/bootstrap-all.sh --apply --approve ci,nexus`; después, segunda ejecución y aislamiento sobre la infraestructura nueva | **Ejecutada el 2026-11-06** (02:46-04:11 UTC) | C1, C2, C3 y «desde cero con un comando» (P1.2) | Reconstrucción en 922 s con `verify-infra pass=26 fail=0`; 2.ª ejecución `created=0 updated=0 unchanged=138`; aislamiento en PASS |
 | [`ensayo-nivel1/`](ensayo-nivel1/README.md) | Ensayo de [`../ensayo-reconstruccion/`](../ensayo-reconstruccion/README.md) por otro integrante | **Pendiente** (otro integrante) | C5 | — |
 
 Resultado de la prueba de idempotencia:
