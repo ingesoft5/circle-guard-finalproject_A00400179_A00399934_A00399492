@@ -1,0 +1,87 @@
+# Destrucción de la infraestructura de HU-01 en AWS CloudShell · 2026-11-06 02:42-02:48 UTC
+# Ejecutada por el responsable de la cuenta como el usuario IAM circleguard-hu01-teardown, con su MFA,
+# en AWS CloudShell (región us-east-2). Transcripción de la salida que el responsable pegó en la conversación.
+# Único cambio: el número de cuenta se sustituyó por ************ (aparecía en la línea del código MFA).
+# Los códigos MFA se escriben en la terminal y no aparecen en la salida. Sin --purge-secrets.
+# Un primer intento con --apply (02:43) terminó sin cambios: se escribió 'DESTRUIR' y la frase exacta es
+# 'DESTRUIR circleguard' ("Confirmación no válida: no se realizó ningún cambio"). Abajo, el segundo intento.
+# sha256 del paquete subido a CloudShell (circleguard-teardown.tgz, 10 archivos, sin secretos):
+#   1d2331c08547e25101a9054beb397241e339bc60aa312667d185c7c5009bd348
+
+02:46:46 INFO      escriba el código MFA de circleguard-hu01-teardown cuando la AWS CLI lo pida:
+Enter MFA code for arn:aws:iam::************:mfa/CircleGuardTeardownMFA:
+02:46:54 INFO      rol asumido con MFA: assumed-role/circleguard-hu01-teardown/botocore-session-1793933207 (perfil en ~/.circleguard/aws/.aws/config)
+02:46:54 INFO      registro de la ejecución: infra/logs/teardown-destroy-20261106T024654Z.log (modo apply, destino aws)
+02:46:55 INFO      identidad AWS assumed-role/circleguard-hu01-teardown/botocore-session-1793933207 · capacidad destroy · cuenta ****3303 · región us-east-2 · zona us-east-2a
+02:46:56 INFO      recursos de circleguard (HU-01) en us-east-2:
+  instancia  circleguard-nexus  i-08c990919adc43fa1     m7i-flex.large  stopped
+  instancia  circleguard-ci     i-010843f2125041114     m7i-flex.large  stopped
+  instancia  circleguard-env-dev        i-06c9577f8afb5a763     t3.small        stopped
+  instancia  circleguard-env-stage      i-0eacec7096879d402     t3.small        stopped
+  instancia  circleguard-env-prod       i-0b11b6112952c0dbf     t3.small        stopped
+  volumen    circleguard-env-prod-root  vol-024457f44ef425cf0   10      in-use
+  volumen    circleguard-env-dev-root   vol-0f75d19bd06b26965   10      in-use
+  volumen    circleguard-env-stage-root vol-0fcde29bf55941db2   10      in-use
+  volumen    circleguard-nexus-root     vol-06a01333bd08c9382   25      in-use
+  volumen    circleguard-ci-root        vol-07b111aa93b1cec4f   30      in-use
+  sg         circleguard-sg-env-stage   sg-0cc234f54c37f7422
+  sg         circleguard-sg-env-dev     sg-02fffa3397e1d9ef4
+  sg         circleguard-sg-env-prod    sg-0b47c8afe1b536692
+  sg         circleguard-sg-ci  sg-01221f89543bed1c7
+  sg         circleguard-sg-nexus       sg-003bb2d4ac0714cb5
+  subred     circleguard-subnet-prod    subnet-007a3996a3fdc5dce
+  subred     circleguard-subnet-tools   subnet-06c029053f5dd52ab
+  subred     circleguard-subnet-dev     subnet-0d1140e404f6bf964
+  subred     circleguard-subnet-stage   subnet-0d80f95dcb12becfa
+  rutas      circleguard-rt-public      rtb-051f85343e8ca07f0
+  igw        circleguard-igw    igw-0f567b11545a6b4a4
+  vpc        circleguard-vpc    vpc-017214d72e444769e
+  llave      circleguard-stage
+  llave      circleguard-prod
+  llave      circleguard-dev
+  llave      circleguard-tools
+02:47:05 INFO        secretos en SSM bajo /circleguard: 10
+10
+10
+6
+02:47:08 WARN      --destroy elimina las instancias y sus volúmenes: se PIERDEN los datos de Jenkins, SonarQube y Nexus.
+Esta operación no se puede deshacer. Escriba 'DESTRUIR circleguard' para continuar: DESTRUIR circleguard
+02:47:43 UPDATED   instancias terminadas: i-08c990919adc43fa1   i-010843f2125041114     i-06c9577f8afb5a763     i-0eacec7096879d402     i-0b11b6112952c0dbf
+{
+    "Return": true,
+    "GroupId": "sg-01221f89543bed1c7"
+}
+02:48:11 UPDATED   grupo de seguridad eliminado: sg-01221f89543bed1c7
+{
+    "Return": true,
+    "GroupId": "sg-0cc234f54c37f7422"
+}
+02:48:12 UPDATED   grupo de seguridad eliminado: sg-0cc234f54c37f7422
+{
+    "Return": true,
+    "GroupId": "sg-02fffa3397e1d9ef4"
+}
+02:48:13 UPDATED   grupo de seguridad eliminado: sg-02fffa3397e1d9ef4
+{
+    "Return": true,
+    "GroupId": "sg-003bb2d4ac0714cb5"
+}
+02:48:15 UPDATED   grupo de seguridad eliminado: sg-003bb2d4ac0714cb5
+{
+    "Return": true,
+    "GroupId": "sg-0b47c8afe1b536692"
+}
+02:48:16 UPDATED   grupo de seguridad eliminado: sg-0b47c8afe1b536692
+02:48:24 UPDATED   tabla de rutas eliminada: rtb-051f85343e8ca07f0
+02:48:27 UPDATED   internet gateway eliminado: igw-0f567b11545a6b4a4
+02:48:30 UPDATED   subred eliminada: subnet-007a3996a3fdc5dce
+02:48:31 UPDATED   subred eliminada: subnet-06c029053f5dd52ab
+02:48:32 UPDATED   subred eliminada: subnet-0d1140e404f6bf964
+02:48:34 UPDATED   subred eliminada: subnet-0d80f95dcb12becfa
+02:48:35 UPDATED   vpc eliminada: vpc-017214d72e444769e
+02:48:37 UPDATED   par de llaves EC2 eliminado: circleguard-stage (la llave privada local y su copia en SSM se conservan)
+02:48:38 UPDATED   par de llaves EC2 eliminado: circleguard-prod (la llave privada local y su copia en SSM se conservan)
+02:48:39 UPDATED   par de llaves EC2 eliminado: circleguard-dev (la llave privada local y su copia en SSM se conservan)
+02:48:41 UPDATED   par de llaves EC2 eliminado: circleguard-tools (la llave privada local y su copia en SSM se conservan)
+02:48:41 INFO      los secretos de SSM se conservan (use --purge-secrets para borrarlos)
+02:48:41 SUMMARY   teardown-destroy created=0 updated=17 unchanged=0 planned=0

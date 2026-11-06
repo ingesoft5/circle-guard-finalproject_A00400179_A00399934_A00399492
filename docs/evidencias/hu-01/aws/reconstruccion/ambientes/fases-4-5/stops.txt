@@ -1,0 +1,136 @@
+04:05:51 INFO      identidad AWS assumed-role/circleguard-hu01-reader/botocore-session-1793936034 · capacidad read · cuenta ****3303 · región us-east-2 · zona us-east-2a
+04:05:52 INFO      recursos de circleguard (HU-01) en us-east-2:
+  instancia  circleguard-ci	i-0802315f63ba2f6cc	m7i-flex.large	running
+  instancia  circleguard-env-prod	i-01a3fdafe5d4b27d5	t3.small	stopped
+  instancia  circleguard-env-stage	i-007d7c86d6848eaf6	t3.small	stopped
+  instancia  circleguard-nexus	i-04404084d9394ef13	m7i-flex.large	stopped
+  instancia  circleguard-env-dev	i-09dd58896a6e461a7	t3.small	running
+  volumen    circleguard-env-prod-root	vol-01f665e9f379fd294	10	in-use
+  volumen    circleguard-env-dev-root	vol-0b5cab08d04113b9c	10	in-use
+  volumen    circleguard-nexus-root	vol-0824d74911b9f8d49	25	in-use
+  volumen    circleguard-ci-root	vol-0fe0629a8ad53f7ec	30	in-use
+  volumen    circleguard-env-stage-root	vol-013bc2386f8ad455f	10	in-use
+  sg         circleguard-sg-env-stage	sg-0f44c2f6397e2da86
+  sg         circleguard-sg-env-dev	sg-06673824f0c85f6a2
+  sg         circleguard-sg-nexus	sg-0889a98ebcde7736d
+  sg         circleguard-sg-ci	sg-0ee0d79bd1013da33
+  sg         circleguard-sg-env-prod	sg-0d92e5a7a29c4370c
+  subred     circleguard-subnet-tools	subnet-031473f92c1f9596f
+  subred     circleguard-subnet-prod	subnet-038ea2b878ad542b9
+  subred     circleguard-subnet-dev	subnet-091a17c6aa789f387
+  subred     circleguard-subnet-stage	subnet-06867a26d9c5d0c3c
+  rutas      circleguard-rt-public	rtb-006fd80a07c6ac36a
+  igw        circleguard-igw	igw-0a738a507e8c4b1a3
+  vpc        circleguard-vpc	vpc-00f01f1252488d793
+  llave      circleguard-prod
+  llave      circleguard-tools
+  llave      circleguard-dev
+  llave      circleguard-stage
+04:06:10 INFO        secretos en SSM bajo /circleguard: 10
+10
+10
+6
+04:06:45 UPDATED   instancias detenidas: i-0802315f63ba2f6cc	i-09dd58896a6e461a7 (los volúmenes EBS se conservan y se siguen cobrando)
+04:06:45 SUMMARY   teardown-stop created=0 updated=1 unchanged=0 planned=0
+04:09:55 INFO      identidad AWS assumed-role/circleguard-hu01-reader/botocore-session-1793936034 · capacidad read · cuenta ****3303 · región us-east-2 · zona us-east-2a
+04:09:58 INFO      recursos de circleguard (HU-01) en us-east-2:
+  instancia  circleguard-ci	i-0802315f63ba2f6cc	m7i-flex.large	stopped
+  instancia  circleguard-env-prod	i-01a3fdafe5d4b27d5	t3.small	stopped
+  instancia  circleguard-env-stage	i-007d7c86d6848eaf6	t3.small	stopped
+  instancia  circleguard-nexus	i-04404084d9394ef13	m7i-flex.large	running
+  instancia  circleguard-env-dev	i-09dd58896a6e461a7	t3.small	running
+  volumen    circleguard-env-prod-root	vol-01f665e9f379fd294	10	in-use
+  volumen    circleguard-env-dev-root	vol-0b5cab08d04113b9c	10	in-use
+  volumen    circleguard-nexus-root	vol-0824d74911b9f8d49	25	in-use
+  volumen    circleguard-ci-root	vol-0fe0629a8ad53f7ec	30	in-use
+  volumen    circleguard-env-stage-root	vol-013bc2386f8ad455f	10	in-use
+  sg         circleguard-sg-env-stage	sg-0f44c2f6397e2da86
+  sg         circleguard-sg-env-dev	sg-06673824f0c85f6a2
+  sg         circleguard-sg-nexus	sg-0889a98ebcde7736d
+  sg         circleguard-sg-ci	sg-0ee0d79bd1013da33
+  sg         circleguard-sg-env-prod	sg-0d92e5a7a29c4370c
+  subred     circleguard-subnet-tools	subnet-031473f92c1f9596f
+  subred     circleguard-subnet-prod	subnet-038ea2b878ad542b9
+  subred     circleguard-subnet-dev	subnet-091a17c6aa789f387
+  subred     circleguard-subnet-stage	subnet-06867a26d9c5d0c3c
+  rutas      circleguard-rt-public	rtb-006fd80a07c6ac36a
+  igw        circleguard-igw	igw-0a738a507e8c4b1a3
+  vpc        circleguard-vpc	vpc-00f01f1252488d793
+  llave      circleguard-prod
+  llave      circleguard-tools
+  llave      circleguard-dev
+  llave      circleguard-stage
+04:10:22 INFO        secretos en SSM bajo /circleguard: 10
+10
+10
+6
+04:10:59 UPDATED   instancias detenidas: i-04404084d9394ef13	i-09dd58896a6e461a7 (los volúmenes EBS se conservan y se siguen cobrando)
+04:10:59 SUMMARY   teardown-stop created=0 updated=1 unchanged=0 planned=0
+04:11:01 INFO      identidad AWS assumed-role/circleguard-hu01-reader/botocore-session-1793936034 · capacidad read · cuenta ****3303 · región us-east-2 · zona us-east-2a
+04:11:03 INFO      recursos de circleguard (HU-01) en us-east-2:
+  instancia  circleguard-ci	i-0802315f63ba2f6cc	m7i-flex.large	stopped
+  instancia  circleguard-env-prod	i-01a3fdafe5d4b27d5	t3.small	stopped
+  instancia  circleguard-env-stage	i-007d7c86d6848eaf6	t3.small	stopped
+  instancia  circleguard-nexus	i-04404084d9394ef13	m7i-flex.large	stopped
+  instancia  circleguard-env-dev	i-09dd58896a6e461a7	t3.small	stopped
+  volumen    circleguard-env-prod-root	vol-01f665e9f379fd294	10	in-use
+  volumen    circleguard-env-dev-root	vol-0b5cab08d04113b9c	10	in-use
+  volumen    circleguard-nexus-root	vol-0824d74911b9f8d49	25	in-use
+  volumen    circleguard-ci-root	vol-0fe0629a8ad53f7ec	30	in-use
+  volumen    circleguard-env-stage-root	vol-013bc2386f8ad455f	10	in-use
+  sg         circleguard-sg-env-stage	sg-0f44c2f6397e2da86
+  sg         circleguard-sg-env-dev	sg-06673824f0c85f6a2
+  sg         circleguard-sg-nexus	sg-0889a98ebcde7736d
+  sg         circleguard-sg-ci	sg-0ee0d79bd1013da33
+  sg         circleguard-sg-env-prod	sg-0d92e5a7a29c4370c
+  subred     circleguard-subnet-tools	subnet-031473f92c1f9596f
+  subred     circleguard-subnet-prod	subnet-038ea2b878ad542b9
+  subred     circleguard-subnet-dev	subnet-091a17c6aa789f387
+  subred     circleguard-subnet-stage	subnet-06867a26d9c5d0c3c
+  rutas      circleguard-rt-public	rtb-006fd80a07c6ac36a
+  igw        circleguard-igw	igw-0a738a507e8c4b1a3
+  vpc        circleguard-vpc	vpc-00f01f1252488d793
+  llave      circleguard-prod
+  llave      circleguard-tools
+  llave      circleguard-dev
+  llave      circleguard-stage
+04:11:24 INFO        secretos en SSM bajo /circleguard: 10
+10
+10
+6
+04:11:26 UNCHANGED no hay instancias de circleguard en ejecución
+04:11:26 SUMMARY   teardown-stop created=0 updated=0 unchanged=1 planned=0
+04:11:29 INFO      identidad AWS assumed-role/circleguard-hu01-reader/botocore-session-1793936034 · capacidad read · cuenta ****3303 · región us-east-2 · zona us-east-2a
+04:11:31 INFO      recursos de circleguard (HU-01) en us-east-2:
+  instancia  circleguard-ci	i-0802315f63ba2f6cc	m7i-flex.large	stopped
+  instancia  circleguard-env-prod	i-01a3fdafe5d4b27d5	t3.small	stopped
+  instancia  circleguard-env-stage	i-007d7c86d6848eaf6	t3.small	stopped
+  instancia  circleguard-nexus	i-04404084d9394ef13	m7i-flex.large	stopped
+  instancia  circleguard-env-dev	i-09dd58896a6e461a7	t3.small	stopped
+  volumen    circleguard-env-prod-root	vol-01f665e9f379fd294	10	in-use
+  volumen    circleguard-env-dev-root	vol-0b5cab08d04113b9c	10	in-use
+  volumen    circleguard-nexus-root	vol-0824d74911b9f8d49	25	in-use
+  volumen    circleguard-ci-root	vol-0fe0629a8ad53f7ec	30	in-use
+  volumen    circleguard-env-stage-root	vol-013bc2386f8ad455f	10	in-use
+  sg         circleguard-sg-env-stage	sg-0f44c2f6397e2da86
+  sg         circleguard-sg-env-dev	sg-06673824f0c85f6a2
+  sg         circleguard-sg-nexus	sg-0889a98ebcde7736d
+  sg         circleguard-sg-ci	sg-0ee0d79bd1013da33
+  sg         circleguard-sg-env-prod	sg-0d92e5a7a29c4370c
+  subred     circleguard-subnet-tools	subnet-031473f92c1f9596f
+  subred     circleguard-subnet-prod	subnet-038ea2b878ad542b9
+  subred     circleguard-subnet-dev	subnet-091a17c6aa789f387
+  subred     circleguard-subnet-stage	subnet-06867a26d9c5d0c3c
+  rutas      circleguard-rt-public	rtb-006fd80a07c6ac36a
+  igw        circleguard-igw	igw-0a738a507e8c4b1a3
+  vpc        circleguard-vpc	vpc-00f01f1252488d793
+  llave      circleguard-prod
+  llave      circleguard-tools
+  llave      circleguard-dev
+  llave      circleguard-stage
+04:11:48 INFO        secretos en SSM bajo /circleguard: 10
+10
+10
+6
+04:11:51 UNCHANGED no hay instancias de circleguard en ejecución
+04:11:51 SUMMARY   teardown-stop created=0 updated=0 unchanged=1 planned=0
