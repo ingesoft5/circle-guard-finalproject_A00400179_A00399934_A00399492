@@ -1,6 +1,6 @@
 # Informe final de HU-01 · Infraestructura en la nube con Bash (Sprint 1, E1.2)
 
-Actualizado: 2026-11-04, 00:30 UTC. Base: commit `3afca6f` de la rama
+Actualizado: 2026-11-06, 04:30 UTC. Base: commit `3afca6f` de la rama
 `HU01_Infraestructura_nube_bash` más los cambios locales sin confirmar descritos en la sección 9.
 
 Estados de la matriz:
@@ -24,7 +24,8 @@ Tipos de prueba:
   la prueba de aislamiento con tráfico, autorizada por el responsable (sección 11).
 - Solo C5 sigue pendiente: depende del ensayo de otro integrante (sección 12).
 - Ningún criterio está en FAIL.
-- Coste acumulado estimado: 0.41 USD de 15.
+- **«Desde cero con un comando»** demostrado el 2026-11-06: se destruyó toda la infraestructura y `bootstrap-all.sh` la reconstruyó en 922 s (sección 10).
+- Coste acumulado estimado: 1.12 USD de 15 (el registro local ve la destrucción de CloudShell, y sobrestima).
 
 ## 1. Objetivo y alcance
 
@@ -304,7 +305,25 @@ Las 4 líneas `planned` de run2:
 **Qué no cubre:**
 - `bootstrap-env.sh`, porque no había servidores de ambiente. Su idempotencia se demostró en la
   prueba de aislamiento (sección 11).
-- La reconstrucción desde cero en una cuenta vacía (sección 15).
+- La reconstrucción desde cero: se hizo después, el 2026-11-06 (abajo).
+
+### Reconstrucción desde cero · 2026-11-06
+
+El responsable destruyó toda la infraestructura en CloudShell (usuario `circleguard-hu01-teardown`, con su MFA, sin `--purge-secrets`) y se reconstruyó con el comando único ([carpeta](aws/reconstruccion/README.md)):
+
+| Paso | Resultado | Archivo |
+|---|---|---|
+| Inventario previo | 5 instancias, 5 volúmenes, 5 grupos de seguridad, 4 subredes, VPC y 4 llaves | [01](aws/reconstruccion/01-inventario-previo.txt) |
+| **Destrucción** (CloudShell) | 17 recursos eliminados; secretos conservados | [02](aws/reconstruccion/02-destruccion-cloudshell.txt) |
+| Comprobación | `no hay instancias, red ni llaves de circleguard que destruir` | [03](aws/reconstruccion/03-inventario-posterior.txt) |
+| **Reconstrucción** `bootstrap-all.sh --apply --approve ci,nexus` | `created=43 updated=55 unchanged=67`, **922 s**; `verify-infra pass=26 fail=0 pendiente=0` | [04](aws/reconstruccion/04-bootstrap-all-desde-cero.txt) |
+| **Segunda ejecución** | `created=0 updated=0 unchanged=138`, 475 s; ninguna línea CREATED ni UPDATED | [05](aws/reconstruccion/05-bootstrap-all-segunda-ejecucion.txt) |
+| Ambientes y aislamiento sobre la infraestructura nueva | Fases 1-3 con 16/16, fase 4 con 3/3 y fase 5 con 2/2 en PASS; `bootstrap-env.sh` idempotente | [ambientes/](aws/reconstruccion/ambientes/fases-1-3/report.txt) |
+
+- **Los ambientes se crean con otro comando** (`test-isolation.sh`), porque el límite de 5 vCPU impide encender los cinco servidores a la vez.
+- **La destrucción no es parte del comando:** solo puede hacerse en CloudShell, con otro usuario y su MFA. Es una decisión de seguridad.
+- **Se perdieron** los datos de Jenkins, SonarQube, Nexus y el registro; no había pipelines, proyectos ni imágenes publicadas. Los secretos y las llaves se conservaron.
+- **Los IDs de AWS cambiaron:** las pruebas de idempotencia y aislamiento anteriores corresponden a la infraestructura anterior y se conservan como historia.
 
 ## 11. Prueba de aislamiento con tráfico
 
@@ -392,8 +411,8 @@ Ningún integrante ha hecho el ensayo y este informe no lo simula.
 | Entregables | En [`aws/ensayo-nivel1/`](aws/ensayo-nivel1/README.md): las salidas, la copia `masked/` y `ACTA.md`, que parte de la [plantilla](ensayo-reconstruccion/ACTA-PLANTILLA.md) |
 | Criterios de PASS | [README del ensayo](ensayo-reconstruccion/README.md#criterios-para-declarar-c5-en-pass) |
 
-El ensayo no destruye nada. El nivel 2, que destruye y reconstruye en AWS, no forma parte de HU-01
-(sección 15).
+El ensayo no destruye nada. El nivel 2, que destruye y reconstruye en AWS, lo hizo el responsable el
+2026-11-06 (sección 10).
 
 ## 13. Seguridad
 
@@ -416,7 +435,7 @@ la factura: esta llega a Billing con retraso. Los créditos no se cuentan como p
 | Concepto | USD |
 |---|---|
 | Presupuesto absoluto · línea de alerta | 15 · 12 |
-| **Acumulado estimado** (registro de costos local, 2026-11-04 00:22 UTC: dos sesiones con `ci` y `nexus`, la prueba de aislamiento y el EBS) | **0.41** |
+| **Acumulado estimado** (registro de costos local, 2026-11-06 04:18 UTC; incluye la reconstrucción y sobrestima, porque no ve la destrucción de CloudShell) | **1.12** |
 | Lo que factura ahora | 85 GiB de EBS (`ci` 30, `nexus` 25 y 3 × 10 de los ambientes): 0.224 USD/día. Las 5 instancias están detenidas |
 | EBS hasta el 2026-11-22 (18 días) | ≈ 4.03 |
 | Ensayo de reconstrucción (otro integrante) | ≤ 0.21 |
@@ -440,7 +459,7 @@ la infraestructura al terminar la evaluación detiene el coste del EBS.
 | 2 RESIDUAL de Gitleaks: comentarios de las migraciones Flyway V2/V3 con la contraseña de usuarios de prueba | No son secretos de infraestructura; riesgo si llegan a `stage` o `prod` | E2.6. Las migraciones aplicadas no se modifican |
 | 51 HISTÓRICO en el commit inicial | Credenciales públicas en el historial | Se consideran comprometidas y no se reutilizan. El historial no se reescribe |
 | Servicios núcleo en los tres ambientes (enunciado, p. 4) | Un `t3.small` (2 GiB) no basta. Con `ci` y `nexus`, sumarían 10 vCPU (caben en la cuota de 16) y ≈ 0.50 USD/h | Fuera de HU-01: E1.5 deberá ampliar el tamaño y `QUOTA_VCPU_LIMIT` |
-| «Reconstruir desde cero con un comando» (rúbrica P1.2) | Demostrado: el comando único converge en AWS sobre la infraestructura existente, y la creación desde cero del 2026-11-02 se hizo paso a paso. **No demostrado:** destruir y reconstruir con un solo comando (nivel 2) | Destruiría datos de Jenkins y SonarQube, y requiere una decisión del equipo. Queda en PARTIAL |
+| «Reconstruir desde cero con un comando» (rúbrica P1.2) | **Demostrado el 2026-11-06:** destrucción total en CloudShell y reconstrucción con `bootstrap-all.sh` en 922 s. Quedan dos matices: la destrucción es un paso humano aparte, y los ambientes se crean con `test-isolation.sh` | Es una decisión de seguridad (el operador no puede borrar) y de presupuesto (límite de 5 vCPU). La rúbrica nombra Jenkins, SonarQube y el registro |
 | Rotación del registro | Probada solo en local | Puede ejecutarse en la demostración |
 | Flujos permitidos de `stage` y `prod` (`ci → env:22`, `env → nexus:8082`) | Probados con tráfico solo desde `env-dev` (fases 4 y 5). En `stage` y `prod` son las mismas reglas, verificadas por configuración | Los bloqueos entre ambientes sí se probaron con tráfico en los tres |
 | Sin copias de seguridad del EBS | Perder un volumen implica reconfigurar desde los scripts. Los secretos sobreviven en SSM | Aceptado para un entorno académico |
@@ -468,7 +487,7 @@ la infraestructura al terminar la evaluación detiene el coste del EBS.
 |---|---|---|---|
 | 1 | Estructura `infra/bootstrap/` (p. 6) | **PASS** | `infra/bootstrap-*.sh` e `infra/bootstrap/{lib,host,jenkins,sonarqube,nexus,registry}/` |
 | 2 | «Tres ambientes aislados» (P1.2) | **PASS** | Igual que C2: verificado con tráfico en AWS |
-| 3 | «Reconstruyen Jenkins, SonarQube y registro desde cero con un comando» (P1.2) | **PARTIAL** | Comando único demostrado en AWS; reconstrucción destructiva no hecha (sección 15) |
+| 3 | «Reconstruyen Jenkins, SonarQube y registro desde cero con un comando» (P1.2) | **PASS** | Destrucción total y reconstrucción con el comando único en AWS, 2026-11-06 (sección 10) |
 | 4 | Servicios núcleo en los tres ambientes (p. 4) | **BLOCKED** (otra HU, E1.5) | Ambientes aprovisionados y aislados, sin aplicaciones |
 | 5 | E1 · Salida del bootstrap | **PASS** | [run1](aws/idempotencia/run1.txt) y [run2](aws/idempotencia/run2.txt), además de [`fase4/`](fase4/) |
 | 6 | E2 · Diagrama de ambientes | **PASS** | [infra-ambientes.md](../../arquitectura/infra-ambientes.md) y la sección 3 |
