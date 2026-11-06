@@ -24,7 +24,7 @@ gh api \
     "require_code_owner_reviews": false
   },
   "restrictions": null,
-  "required_linear_history": true,
+  "required_linear_history": false,
   "allow_force_pushes": false,
   "allow_deletions": false,
   "required_conversation_resolution": true
@@ -32,4 +32,4 @@ gh api \
 JSON
 
 gh api "repos/${REPO}/branches/${BRANCH}/protection" \
-  --jq '{checks: .required_status_checks.contexts, reviews: .required_pull_request_reviews.required_approving_review_count, admins: .enforce_admins.enabled, linear: .required_linear_history.enabled}'
+  --jq "{checks: .required_status_checks.contexts, reviews: .required_pull_request_reviews.required_approving_review_count, admins: .enforce_admins.enabled}"
