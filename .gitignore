@@ -74,3 +74,4 @@ deploy/logs/
 *.tmp
 *.swp
 *~
+!gradle/wrapper/gradle-wrapper.jar

@@ -1,9 +1,13 @@
+import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.testing.jacoco.tasks.JacocoReport
+
 plugins {
     id("org.springframework.boot") version "3.2.4" apply false
     id("io.spring.dependency-management") version "1.1.4" apply false
     kotlin("jvm") version "1.9.24" apply false
     kotlin("plugin.spring") version "1.9.24" apply false
     kotlin("plugin.jpa") version "1.9.24" apply false
+    id("org.sonarqube") version "4.4.1.3373" apply false
 }
 
 allprojects {
@@ -18,6 +22,8 @@ allprojects {
 subprojects {
     apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "jacoco")
+    apply(plugin = "org.sonarqube")
     extensions.configure<JavaPluginExtension> {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(21))
@@ -40,6 +46,32 @@ subprojects {
         kotlinOptions {
             freeCompilerArgs = listOf("-Xjsr305=strict")
             jvmTarget = "21"
+        }
+    }
+
+    tasks.named<Test>("test") {
+        filter { excludeTestsMatching("*IntegrationTest") }
+        finalizedBy("jacocoTestReport")
+    }
+
+    val testSourceSet = extensions.getByType<SourceSetContainer>()["test"]
+
+    tasks.register<Test>("integrationTest") {
+        group = "verification"
+        description = "Runs *IntegrationTest classes"
+        testClassesDirs = testSourceSet.output.classesDirs
+        classpath = testSourceSet.runtimeClasspath
+        filter {
+            includeTestsMatching("*IntegrationTest")
+            isFailOnNoMatchingTests = false
+        }
+        shouldRunAfter("test")
+    }
+
+    tasks.withType<JacocoReport> {
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
         }
     }
 
