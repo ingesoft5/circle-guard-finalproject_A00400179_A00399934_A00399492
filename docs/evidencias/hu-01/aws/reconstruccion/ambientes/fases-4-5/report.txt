@@ -1,0 +1,14 @@
+Prueba de aislamiento de HU-01 · 2026-11-06T04:01:26Z · commit a10af9d · ENV_SERVERS=dev,stage,prod · fases 4,5
+INFO  red convergida: created=0 updated=0 unchanged=28 planned=0
+INFO  fase 4: ci,env-dev
+PASS  fase 4 (ci,env-dev): pass=3 fail=0 pendiente=0
+      PASS      aislamiento: env-dev -> ci:8080 bloqueado
+      PASS      aislamiento: env-dev -> ci:9000 bloqueado
+      PASS      permitido: ci -> env-dev:22
+INFO  fase 5: nexus,env-dev
+PASS  fase 5 (nexus,env-dev): pass=2 fail=0 pendiente=0
+      PASS      permitido: env-dev -> nexus:8082 (registro)
+      PASS      aislamiento: nexus -> env-dev:22 bloqueado
+PASS  idempotencia: bootstrap-env.sh dev sin cambios en las ejecuciones 2 a 2 (created=0 updated=0)
+RESULTADO: AISLAMIENTO VERIFICADO CON TRÁFICO (todas las comprobaciones en PASS)
+INFO  instancias detenidas al terminar
