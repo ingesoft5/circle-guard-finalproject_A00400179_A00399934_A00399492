@@ -31,6 +31,12 @@ la matriz y los enlaces a cada evidencia:
     bloqueados;
   - la 2.ª ejecución de `bootstrap-env.sh` dio `created=0 updated=0` en los tres ambientes;
   - las 5 instancias quedaron detenidas.
+- **En AWS el 2026-11-06** ([`aws/reconstruccion/`](aws/reconstruccion/README.md)): **destrucción total y
+  reconstrucción desde cero** con el comando único:
+  - el responsable destruyó todo en CloudShell (17 recursos, secretos conservados);
+  - `bootstrap-all.sh --apply --approve ci,nexus` lo reconstruyó en **922 s** con `verify-infra pass=26 fail=0`;
+  - la 2.ª ejecución dio `created=0 updated=0 unchanged=138`;
+  - los ambientes y el aislamiento se probaron de nuevo sobre la infraestructura nueva (PASS).
 - **Decisiones definitivas:**
   - el registro es CNCF Distribution;
   - el EULA de Nexus no se acepta: Nexus queda instalado sin repositorio operativo;
@@ -157,6 +163,7 @@ esas líneas corresponden ya a los valores ficticios.
 | `aws/README.md` | Índice de las pruebas en AWS y procedimiento para versionar sus salidas enmascaradas con `infra/check-evidence.sh` |
 | `aws/idempotencia/` | **Prueba de idempotencia integral del 2026-11-03** (C1, C3): 14 salidas enmascaradas, con el sha256 de los originales |
 | `auditoria/20261103T230549Z-orden-evidencias-local.txt` | Prueba local de la corrección de `test-idempotency.sh`: las copias enmascaradas se hacen después del resultado y de la parada (7/7) |
+| `aws/reconstruccion/` | **Destrucción y reconstrucción desde cero del 2026-11-06** («desde cero con un comando», P1.2): inventarios antes y después, la salida de CloudShell, el comando único dos veces y el aislamiento sobre la infraestructura nueva. 16 salidas enmascaradas con el sha256 de los originales |
 | `aws/aislamiento/` | **Prueba de aislamiento con tráfico del 2026-11-03/04** (C2, C3): `fases-1-3/` y `fases-4-5/`, 11 salidas enmascaradas, con el sha256 de los originales y los criterios de PASS cumplidos |
 | `aws/ensayo-nivel1/` | Ensayo de reconstrucción (C5): **pendiente del otro integrante**; archivos que debe contener |
 | `auditoria/*-commit-3a43855-credenciales.txt` | Evidencia 3: el commit que eliminó las credenciales, con las líneas añadidas y solo el recuento de las eliminadas |
