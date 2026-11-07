@@ -7,7 +7,7 @@ services:
   jenkins:
     build:
       context: .
-    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1
+    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1-ci1
     container_name: cg-jenkins
     restart: ${RESTART_POLICY:-unless-stopped}
     environment:
