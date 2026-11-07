@@ -27,6 +27,8 @@ cg_start_log bootstrap-sonarqube
 if [[ "$CG_TARGET" == local ]]; then RESTART=no; else RESTART=unless-stopped; fi
 # TOOL_* are read by cg_tool_bootstrap (bootstrap/lib/remote.sh).
 # shellcheck disable=SC2034
+TOOL_NETWORK=cg-ci
+# shellcheck disable=SC2034
 TOOL_FILES=(docker-compose.yml)
 # shellcheck disable=SC2034
 TOOL_SECRETS=(SONAR_ADMIN_PASSWORD SONAR_DB_PASSWORD)
