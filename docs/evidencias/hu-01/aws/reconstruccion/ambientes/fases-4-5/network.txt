@@ -1,0 +1,31 @@
+04:01:28 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793936812 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+04:01:30 INFO      red 10.20.0.0/16 en us-east-2/us-east-2a; acceso administrativo desde: 190.66.84.x/32
+04:01:34 UNCHANGED vpc circleguard-vpc (vpc-00f01f1252488d793) 10.20.0.0/16
+04:01:36 UNCHANGED vpc circleguard-vpc con nombres DNS
+04:01:38 UNCHANGED internet gateway circleguard-igw (igw-0a738a507e8c4b1a3)
+04:01:40 UNCHANGED internet gateway circleguard-igw adjunto a vpc-00f01f1252488d793
+04:01:43 UNCHANGED subred circleguard-subnet-tools (subnet-031473f92c1f9596f) 10.20.0.0/24
+04:01:45 UNCHANGED subred circleguard-subnet-tools asigna IPv4 pública al lanzar
+04:01:48 UNCHANGED subred circleguard-subnet-dev (subnet-091a17c6aa789f387) 10.20.10.0/24
+04:01:51 UNCHANGED subred circleguard-subnet-dev asigna IPv4 pública al lanzar
+04:01:54 UNCHANGED subred circleguard-subnet-stage (subnet-06867a26d9c5d0c3c) 10.20.20.0/24
+04:01:56 UNCHANGED subred circleguard-subnet-stage asigna IPv4 pública al lanzar
+04:02:01 UNCHANGED subred circleguard-subnet-prod (subnet-038ea2b878ad542b9) 10.20.30.0/24
+04:02:03 UNCHANGED subred circleguard-subnet-prod asigna IPv4 pública al lanzar
+04:02:05 UNCHANGED tabla de rutas circleguard-rt-public (rtb-006fd80a07c6ac36a)
+04:02:07 UNCHANGED ruta 0.0.0.0/0 -> igw-0a738a507e8c4b1a3
+04:02:10 UNCHANGED subred tools asociada a circleguard-rt-public
+04:02:11 UNCHANGED subred dev asociada a circleguard-rt-public
+04:02:13 UNCHANGED subred stage asociada a circleguard-rt-public
+04:02:15 UNCHANGED subred prod asociada a circleguard-rt-public
+04:02:17 UNCHANGED grupo de seguridad circleguard-sg-ci (sg-0ee0d79bd1013da33)
+04:02:20 UNCHANGED grupo de seguridad circleguard-sg-nexus (sg-0889a98ebcde7736d)
+04:02:22 UNCHANGED grupo de seguridad circleguard-sg-env-dev (sg-06673824f0c85f6a2)
+04:02:24 UNCHANGED grupo de seguridad circleguard-sg-env-stage (sg-0f44c2f6397e2da86)
+04:02:26 UNCHANGED grupo de seguridad circleguard-sg-env-prod (sg-0d92e5a7a29c4370c)
+04:02:28 UNCHANGED circleguard-sg-ci: 8 reglas conformes
+04:02:30 UNCHANGED circleguard-sg-nexus: 8 reglas conformes
+04:02:32 UNCHANGED circleguard-sg-env-dev: 5 reglas conformes
+04:02:34 UNCHANGED circleguard-sg-env-stage: 5 reglas conformes
+04:02:36 UNCHANGED circleguard-sg-env-prod: 5 reglas conformes
+04:02:36 SUMMARY   bootstrap-network created=0 updated=0 unchanged=28 planned=0

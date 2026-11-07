@@ -15,3 +15,21 @@ jenkins:
 unclassified:
   location:
     url: "${CG_JENKINS_URL}"
+  globalLibraries:
+    libraries:
+      - name: "circleguard"
+        defaultVersion: "dev"
+        implicit: true
+        allowVersionOverride: true
+        retriever:
+          modernSCM:
+            libraryPath: "jenkins/"
+            scm:
+              git:
+                remote: "https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git"
+                credentialsId: "github-token"
+  sonarGlobalConfiguration:
+    installations:
+      - name: "sonarqube"
+        serverUrl: "${CG_SONARQUBE_URL:-http://sonarqube:9000}"
+        credentialsId: "sonar-token"

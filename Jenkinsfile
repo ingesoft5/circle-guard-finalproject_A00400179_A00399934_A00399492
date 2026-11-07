@@ -1,21 +1,26 @@
 #!/usr/bin/env groovy
 /*
- * CircleGuard · Jenkins multibranch pipeline (HU-06)
+ * CircleGuard · Jenkins multibranch pipeline (HU-03 + HU-06)
  *
  * Flujo:
- *   build/test -> imágenes -> registro -> dev -> E2E dev -> stage -> E2E stage
+ *   checkout -> build/test (Shared Library) -> Sonar -> integración -> paquete
+ *   -> imágenes -> registro -> dev -> E2E dev -> stage -> E2E stage
  *   -> aprobación manual -> prod -> tag semver -> release notes
  *
  * Ramas:
- *   dev  : despliega dev y stage; no toca prod.
- *   main : despliega dev y stage, pide aprobación y despliega prod, etiqueta y publica notas.
+ *   dev  : ejecuta CI y despliega dev y stage; no toca prod.
+ *   main : ejecuta CI, despliega dev y stage, pide aprobación y despliega prod,
+ *          etiqueta y publica notas.
+ *
+ * El CI reutilizable vive en la Shared Library `jenkins/vars` (HU-03) y se carga
+ * de forma implícita desde `infra/bootstrap/jenkins/casc/jenkins.yaml`.
  *
  * Requisitos (HU-04):
  *   - Agente con JDK 21, Git, Bash y el Gradle wrapper versionado.
  *   - Docker + Compose si BUILD_IMAGES=true (o un agente con Docker).
  *   - Node 22 + navegadores de Playwright si se ejecuta E2E en el agente.
  *   - Credenciales: circleguard-registry, github-token, discord-webhook,
- *     circleguard-deploy (solo si DEPLOY_MODE=ssh).
+ *     circleguard-deploy (solo si DEPLOY_MODE=ssh) y nexus-credentials (HU-03).
  *   - Jenkinsfile y scripts en la raíz del repositorio.
  */
 
@@ -26,9 +31,17 @@ pipeline {
     timestamps()
     disableConcurrentBuilds()
     buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '10'))
+    timeout(time: 60, unit: 'MINUTES')
   }
 
   parameters {
+    // HU-03: CI selectivo por servicio.
+    choice(name: 'SERVICES_MODE', choices: ['changed', 'all'], description: 'changed = solo servicios modificados; all = los 8 servicios')
+    string(name: 'NEXUS_URL', defaultValue: '', description: 'URL base de Nexus. Vacío omite la publicación de JAR.')
+    string(name: 'NEXUS_REPOSITORY', defaultValue: 'circleguard-artifacts', description: 'Repositorio raw de Nexus')
+    booleanParam(name: 'RUN_SONAR', defaultValue: true, description: 'Ejecutar SonarQube con quality gate bloqueante')
+
+    // HU-06: entrega continua y promoción.
     string(name: 'VERSION', defaultValue: '', description: 'Semver (1.0.0). Vacío = calcular con Conventional Commits.')
     string(name: 'IMAGE_REGISTRY', defaultValue: 'localhost:5000', description: 'Registro OCI (por ejemplo <nexus-ip>:8082).')
     string(name: 'IMAGE_NAMESPACE', defaultValue: 'circleguard', description: 'Namespace de las imágenes.')
@@ -46,6 +59,7 @@ pipeline {
   }
 
   environment {
+    ALL_SERVICES = 'circleguard-auth-service,circleguard-identity-service,circleguard-promotion-service,circleguard-notification-service,circleguard-form-service,circleguard-file-service,circleguard-gateway-service,circleguard-dashboard-service'
     IMAGE_REGISTRY = "${params.IMAGE_REGISTRY}"
     IMAGE_NAMESPACE = "${params.IMAGE_NAMESPACE}"
     DEPLOY_MODE = "${params.DEPLOY_MODE}"
@@ -56,12 +70,26 @@ pipeline {
   }
 
   triggers {
+    // HU-03: webhook de GitHub cuando Jenkins es alcanzable.
+    githubPush()
     // HU-01 no expone Jenkins a Internet: pollSCM evita depender de un webhook.
-    // Para webhook inmediato hace falta TLS o un relé (E2.6 / HU-04).
     pollSCM('H/5 * * * *')
   }
 
   stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+        script {
+          sh 'git fetch --tags --force origin +refs/heads/dev:refs/remotes/origin/dev || true'
+          def all = env.ALL_SERVICES.split(',') as List
+          def selected = cgDetectChanges(services: all, mode: params.SERVICES_MODE, baseRef: 'origin/dev')
+          env.SELECTED_SERVICES = selected.join(',')
+          echo "Servicios a procesar: ${env.SELECTED_SERVICES ?: 'ninguno'}"
+        }
+      }
+    }
+
     stage('Prepare') {
       steps {
         script {
@@ -86,22 +114,43 @@ pipeline {
       }
     }
 
-    stage('Build and unit tests') {
+    stage('Build') {
+      when { expression { env.SELECTED_SERVICES } }
       steps {
-        catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-          // Los 10 fallos base de HU-01 se publican pero no bloquean el despliegue de HU-06.
-          // Se corrigen en HU-04/E1.6; el objetivo es no ocultarlos.
-          sh './gradlew clean test --continue --no-daemon'
+        script { cgGradle('classes', env.SELECTED_SERVICES.split(',') as List, 'testClasses') }
+      }
+    }
+
+    stage('Unit tests and coverage') {
+      when { expression { env.SELECTED_SERVICES } }
+      steps {
+        script { cgUnitTests(env.SELECTED_SERVICES.split(',') as List) }
+      }
+    }
+
+    stage('SonarQube quality gate') {
+      when {
+        allOf {
+          expression { env.SELECTED_SERVICES }
+          expression { params.RUN_SONAR }
         }
       }
-      post {
-        always {
-          script {
-            catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-              junit allowEmptyResults: true, testResults: 'services/*/build/test-results/test/*.xml'
-            }
-          }
-        }
+      steps {
+        script { cgSonar(services: env.SELECTED_SERVICES.split(',') as List, installation: 'sonarqube') }
+      }
+    }
+
+    stage('Integration tests') {
+      when { expression { env.SELECTED_SERVICES } }
+      steps {
+        script { cgIntegrationTests(env.SELECTED_SERVICES.split(',') as List) }
+      }
+    }
+
+    stage('Package') {
+      when { expression { env.SELECTED_SERVICES } }
+      steps {
+        script { cgPackage(env.SELECTED_SERVICES.split(',') as List) }
       }
     }
 
@@ -121,6 +170,25 @@ pipeline {
           passwordVariable: 'REGISTRY_PASSWORD'
         )]) {
           sh "./deploy/publish-images.sh '${env.VERSION}'"
+        }
+      }
+    }
+
+    stage('Publish artifacts') {
+      when {
+        allOf {
+          expression { env.SELECTED_SERVICES }
+          anyOf { branch 'dev'; branch 'main' }
+        }
+      }
+      steps {
+        script {
+          cgPublish(
+            services: env.SELECTED_SERVICES.split(',') as List,
+            nexusUrl: params.NEXUS_URL,
+            repository: params.NEXUS_REPOSITORY,
+            version: "${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+          )
         }
       }
     }
@@ -271,6 +339,7 @@ pipeline {
     failure {
       script { notify('failure', 'Pipeline falló') }
     }
+    cleanup { cleanWs(deleteDirs: true, notFailBuild: true) }
   }
 }
 
