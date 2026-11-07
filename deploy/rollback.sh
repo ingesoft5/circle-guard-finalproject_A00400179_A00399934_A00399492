@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Rolls an environment back to a previously published semantic version (HU-07).
+# Rolls an environment back to a previously published semantic version (HU-06).
 # Usage:
 #   IMAGE_REGISTRY=localhost:5000 ./deploy/rollback.sh dev 1.0.0
 # The target version must be different from the current one and its images must

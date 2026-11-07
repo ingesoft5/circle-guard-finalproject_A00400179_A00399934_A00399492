@@ -5,12 +5,12 @@
  * Flujo:
  *   checkout -> build/test (Shared Library) -> Sonar -> integración -> paquete
  *   -> imágenes -> registro -> dev -> E2E dev -> stage -> E2E stage
- *   -> aprobación manual -> prod -> tag semver -> release notes
+ *   -> aprobación manual -> prod -> tag semver
  *
  * Ramas:
  *   dev  : ejecuta CI y despliega dev y stage; no toca prod.
  *   main : ejecuta CI, despliega dev y stage, pide aprobación y despliega prod,
- *          etiqueta y publica notas.
+ *          y etiqueta la release.
  *
  * El CI reutilizable vive en la Shared Library `jenkins/vars` (HU-03) y se carga
  * de forma implícita desde `infra/bootstrap/jenkins/casc/jenkins.yaml`.
@@ -305,25 +305,11 @@ pipeline {
       }
     }
 
-    stage('Release notes') {
-      when {
-        allOf {
-          anyOf {
-            branch 'main'
-            expression { params.FORCE_PROD }
-          }
-          expression { !params.SKIP_E2E }
-        }
-      }
-      steps {
-        sh "./deploy/release-notes.sh '${env.VERSION}'"
-      }
-    }
   }
 
   post {
     always {
-      archiveArtifacts artifacts: 'deploy/releases/*.json,deploy/releases/*.tsv,docs/release-notes/*.md,CHANGELOG.md,tests/e2e-playwright/results.xml,tests/e2e-playwright/playwright-report/**', allowEmptyArchive: true
+      archiveArtifacts artifacts: 'deploy/releases/*.json,deploy/releases/*.tsv,tests/e2e-playwright/results.xml,tests/e2e-playwright/playwright-report/**', allowEmptyArchive: true
       script {
         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
           junit allowEmptyResults: true, testResults: 'tests/e2e-playwright/results.xml'

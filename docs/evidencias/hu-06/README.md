@@ -1,8 +1,8 @@
 # Evidencias de HU-06 · Entrega continua y promoción
 
 **Estado: pipeline y scripts implementados; evidencias de ejecución pendientes de Jenkins,
-Docker y un destino de despliegue.** El código está listo para ejecutarse cuando HU-04 instale los
-plugins y el agente con Docker/Node.
+Docker y un destino de despliegue.** El cambio de alcance separó HU-07 (change management y
+release notes) a su propia rama; este documento cubre solo HU-06.
 
 ## Matriz de criterios
 
@@ -13,8 +13,9 @@ plugins y el agente con Docker/Node.
 | Aprobación manual antes de prod | `input` en `Approve prod` (`submitter: admin`) | `05-approval.png` |
 | Versionado semántico automático + tag | `deploy/next-version.sh`, `tag-release.sh`, `vX.Y.Z` | `07-tag.txt` + captura de GitHub |
 | Prod solo tras aprobación | `Deploy prod` después del `input` | `06-prod-deploy.txt` |
-| Trazabilidad por ambiente | `deploy/releases/<env>.json`, `history.tsv`, copia persistente en `CG_RELEASES_DIR`; artefactos | `09-traceability.json` |
-| Notificación de fallos | `deploy/notify.sh` (Discord/Slack) en `post` | `10-notification.png` |
+| Trazabilidad por ambiente | `deploy/releases/<env>.json`, `history.tsv`, copia persistente en `CG_RELEASES_DIR`; artefactos | `08-traceability.json` |
+| Notificación de fallos | `deploy/notify.sh` (Discord/Slack) en `post` | `09-notification.png` |
+| Rollback a una versión anterior | `deploy/rollback.sh` y evento `rollback` | `10-rollback.txt` |
 
 ## Evidencias a generar
 
@@ -27,9 +28,9 @@ plugins y el agente con Docker/Node.
 | `05-approval.png` | Captura del `input` de Jenkins |
 | `06-prod-deploy.txt` | Salida del despliegue a prod |
 | `07-tag.txt` | `git tag -l`, `git show v1.0.0`, captura del tag en GitHub |
-| `08-release-notes.md` | `docs/release-notes/v1.0.0.md` y `CHANGELOG.md` |
-| `09-traceability.json` | `deploy/releases/*.json` y `history.tsv` |
-| `10-notification.png` | Captura del mensaje de Discord/Slack |
+| `08-traceability.json` | `deploy/releases/*.json` y `history.tsv` |
+| `09-notification.png` | Captura del mensaje de Discord/Slack |
+| `10-rollback.txt` | `./deploy/rollback.sh dev <versión-anterior>` y el historial TSV |
 
 ## Flujo local (sin Jenkins)
 

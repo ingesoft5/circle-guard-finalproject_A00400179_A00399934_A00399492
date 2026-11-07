@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sends a deployment notification to Discord or Slack (HU-07).
+# Sends a deployment notification to Discord or Slack (HU-06).
 # Usage: ./deploy/notify.sh <success|failure|rollback|unstable|info> <env> <version> [message]
 # The webhook URL is read from DISCORD_WEBHOOK_URL or SLACK_WEBHOOK_URL and is
 # never printed. If no webhook is configured, the script exits 0 (local runs).
