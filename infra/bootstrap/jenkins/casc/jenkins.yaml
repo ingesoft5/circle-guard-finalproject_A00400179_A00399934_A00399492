@@ -23,11 +23,11 @@ unclassified:
         allowVersionOverride: true
         retriever:
           modernSCM:
+            libraryPath: "jenkins/"
             scm:
               git:
                 remote: "https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git"
                 credentialsId: "github-token"
-        libraryPath: "jenkins/"
   sonarGlobalConfiguration:
     installations:
       - name: "sonarqube"
