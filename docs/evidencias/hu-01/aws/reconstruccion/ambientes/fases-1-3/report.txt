@@ -1,0 +1,61 @@
+Prueba de aislamiento de HU-01 · 2026-11-06T03:37:29Z · commit a10af9d · ENV_SERVERS=dev,stage,prod · fases 1,2,3
+INFO  red convergida: created=0 updated=0 unchanged=28 planned=0
+INFO  fase 1: env-dev,env-stage
+PASS  fase 1 (env-dev,env-stage): pass=16 fail=0 pendiente=0
+      PASS      env-dev: Docker activo
+      PASS      env-dev: parada automática programada (circleguard-autostop.timer en espera)
+      PASS      env-dev: swap de seguridad activo
+      PASS      env-stage: Docker activo
+      PASS      env-stage: parada automática programada (circleguard-autostop.timer en espera)
+      PASS      env-stage: swap de seguridad activo
+      PASS      env-dev: Docker activo
+      PASS      env-dev: plugin Compose disponible
+      PASS      env-dev: .env propio con permisos 0600 root
+      PASS      env-dev: .env pertenece al ambiente
+      PASS      env-stage: Docker activo
+      PASS      env-stage: plugin Compose disponible
+      PASS      env-stage: .env propio con permisos 0600 root
+      PASS      env-stage: .env pertenece al ambiente
+      PASS      aislamiento: env-dev -> env-stage:22 bloqueado
+      PASS      aislamiento: env-stage -> env-dev:22 bloqueado
+INFO  fase 2: env-dev,env-prod
+PASS  fase 2 (env-dev,env-prod): pass=16 fail=0 pendiente=0
+      PASS      env-dev: Docker activo
+      PASS      env-dev: parada automática programada (circleguard-autostop.timer en espera)
+      PASS      env-dev: swap de seguridad activo
+      PASS      env-prod: Docker activo
+      PASS      env-prod: parada automática programada (circleguard-autostop.timer en espera)
+      PASS      env-prod: swap de seguridad activo
+      PASS      env-dev: Docker activo
+      PASS      env-dev: plugin Compose disponible
+      PASS      env-dev: .env propio con permisos 0600 root
+      PASS      env-dev: .env pertenece al ambiente
+      PASS      env-prod: Docker activo
+      PASS      env-prod: plugin Compose disponible
+      PASS      env-prod: .env propio con permisos 0600 root
+      PASS      env-prod: .env pertenece al ambiente
+      PASS      aislamiento: env-dev -> env-prod:22 bloqueado
+      PASS      aislamiento: env-prod -> env-dev:22 bloqueado
+INFO  fase 3: env-stage,env-prod
+PASS  fase 3 (env-stage,env-prod): pass=16 fail=0 pendiente=0
+      PASS      env-stage: Docker activo
+      PASS      env-stage: parada automática programada (circleguard-autostop.timer en espera)
+      PASS      env-stage: swap de seguridad activo
+      PASS      env-prod: Docker activo
+      PASS      env-prod: parada automática programada (circleguard-autostop.timer en espera)
+      PASS      env-prod: swap de seguridad activo
+      PASS      env-stage: Docker activo
+      PASS      env-stage: plugin Compose disponible
+      PASS      env-stage: .env propio con permisos 0600 root
+      PASS      env-stage: .env pertenece al ambiente
+      PASS      env-prod: Docker activo
+      PASS      env-prod: plugin Compose disponible
+      PASS      env-prod: .env propio con permisos 0600 root
+      PASS      env-prod: .env pertenece al ambiente
+      PASS      aislamiento: env-stage -> env-prod:22 bloqueado
+      PASS      aislamiento: env-prod -> env-stage:22 bloqueado
+PASS  idempotencia: bootstrap-env.sh dev sin cambios en las ejecuciones 2 a 2 (created=0 updated=0)
+PASS  idempotencia: bootstrap-env.sh stage sin cambios en las ejecuciones 2 a 2 (created=0 updated=0)
+PASS  idempotencia: bootstrap-env.sh prod sin cambios en las ejecuciones 2 a 2 (created=0 updated=0)
+RESULTADO: AISLAMIENTO VERIFICADO CON TRÁFICO (todas las comprobaciones en PASS)
+INFO  instancias detenidas al terminar

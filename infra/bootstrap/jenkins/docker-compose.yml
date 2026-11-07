@@ -7,7 +7,7 @@ services:
   jenkins:
     build:
       context: .
-    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1
+    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1-ci1
     container_name: cg-jenkins
     restart: ${RESTART_POLICY:-unless-stopped}
     environment:
@@ -20,6 +20,10 @@ services:
       REGISTRY_ADDRESS: ${REGISTRY_ADDRESS:-}
       REGISTRY_CI_USER: ${REGISTRY_CI_USER:?Defina REGISTRY_CI_USER}
       REGISTRY_CI_PASSWORD: ${REGISTRY_CI_PASSWORD:?Defina REGISTRY_CI_PASSWORD}
+    networks:
+      ci:
+        aliases:
+          - jenkins
     ports:
       - "${BIND_ADDRESS:?Defina BIND_ADDRESS}:${JENKINS_HTTP_PORT:-8080}:8080"
     volumes:
@@ -31,6 +35,11 @@ services:
       timeout: 10s
       retries: 10
       start_period: 120s
+
+networks:
+  ci:
+    name: cg-ci
+    external: true
 
 volumes:
   jenkins_home:

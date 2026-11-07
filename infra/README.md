@@ -517,6 +517,33 @@ a 10, se pueden encender los cinco servidores a la vez con
 - **E1.4:** el *pipeline* usará estas variables (o una credencial de Jenkins creada a partir de
   ellas) para publicar en `REGISTRY_ADDRESS/circleguard/<servicio>:<versión>`.
 
+## Pipeline CI de Jenkins (HU-03)
+
+El `Jenkinsfile` de la raíz y la Shared Library `jenkins/vars/` los carga Jenkins desde GitHub. La
+configuración del controlador (plugins, biblioteca global `circleguard` y la instalación `sonarqube`) vive
+en `bootstrap/jenkins/casc/jenkins.yaml` y `bootstrap/jenkins/plugins.txt`. Al cambiar los plugins se
+cambia el tag de la imagen en `docker-compose.yml` (`-ciN`) para que `bootstrap-jenkins.sh` la reconstruya.
+
+Red: `bootstrap-jenkins.sh` y `bootstrap-sonarqube.sh` crean (si falta) la red Docker compartida `cg-ci`.
+Jenkins la usa con el alias `jenkins` y SonarQube con el alias `sonarqube` (`http://sonarqube:9000` en la
+instalación de Jenkins). `configure.sh` de SonarQube registra el webhook hacia
+`http://jenkins:8080/sonarqube-webhook/`, que `waitForQualityGate` necesita, y SonarQube desactiva la
+validación de webhooks para aceptar ese destino privado. Las dos interfaces siguen escuchando solo en 127.0.0.1.
+
+Credenciales (Manage Jenkins → Credentials → Global). Los valores se toman de SSM o de cada servicio y nunca se versionan:
+
+| ID | Tipo | Uso |
+|:---|:---|:---|
+| `github-token` | Secret text | Leer el repositorio y la Shared Library |
+| `sonar-token` | Secret text | Análisis de SonarQube (My Account → Security → Generate Tokens) |
+| `nexus-credentials` | Usuario y contraseña | Publicar artefactos (opcional: sin `NEXUS_URL` se omite) |
+| `discord-webhook` | Secret text | Notificación de fallos (opcional) |
+
+Job: New Item → Multibranch Pipeline → Branch Sources: GitHub, repositorio del proyecto, credencial `github-token`,
+Build Configuration: by Jenkinsfile. El disparo `githubPush()` requiere que GitHub alcance a Jenkins; como la
+interfaz no se expone a Internet (ver `tunnel.sh`), el webhook llega por un relé o por una regla temporal del
+grupo de seguridad, documentado en la evidencia de HU-03.
+
 ## Rotación de la contraseña del registro
 
 ```bash
