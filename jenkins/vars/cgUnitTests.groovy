@@ -3,8 +3,7 @@ def call(List<String> services) {
         return
     }
     try {
-        cgGradle('test', services)
-        cgGradle('jacocoTestReport', services)
+        cgGradle('test jacocoTestReport', services)
     } finally {
         junit allowEmptyResults: true, testResults: 'services/*/build/test-results/test/*.xml'
         publishCoverage(services)
