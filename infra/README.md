@@ -524,6 +524,12 @@ configuración del controlador (plugins, biblioteca global `circleguard` y la in
 en `bootstrap/jenkins/casc/jenkins.yaml` y `bootstrap/jenkins/plugins.txt`. Al cambiar los plugins se
 cambia el tag de la imagen en `docker-compose.yml` (`-ciN`) para que `bootstrap-jenkins.sh` la reconstruya.
 
+Red: `bootstrap-jenkins.sh` y `bootstrap-sonarqube.sh` crean (si falta) la red Docker compartida `cg-ci`.
+Jenkins la usa con el alias `jenkins` y SonarQube con el alias `sonarqube` (`http://sonarqube:9000` en la
+instalación de Jenkins). `configure.sh` de SonarQube registra el webhook hacia
+`http://jenkins:8080/sonarqube-webhook/`, que `waitForQualityGate` necesita, y SonarQube desactiva la
+validación de webhooks para aceptar ese destino privado. Las dos interfaces siguen escuchando solo en 127.0.0.1.
+
 Credenciales (Manage Jenkins → Credentials → Global). Los valores se toman de SSM o de cada servicio y nunca se versionan:
 
 | ID | Tipo | Uso |

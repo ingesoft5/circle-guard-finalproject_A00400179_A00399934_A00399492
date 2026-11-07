@@ -69,3 +69,18 @@ elif [[ "$MODE" == apply ]]; then
 else
   result PLAN "deshabilitar el acceso anónimo (sonar.forceAuthentication)"
 fi
+
+JENKINS_HOOK_URL="http://jenkins:8080/sonarqube-webhook/"
+hooks=$(printf 'user = "admin:%s"\n' "$SONAR_ADMIN_PASSWORD" | curl -s -K - "$URL/api/webhooks/list" || true)
+if grep -q "\"url\":\"$JENKINS_HOOK_URL\"" <<<"$hooks"; then
+  result UNCHANGED "webhook de SonarQube hacia Jenkins existente"
+elif [[ "$MODE" == apply ]]; then
+  {
+    printf 'user = "admin:%s"\n' "$SONAR_ADMIN_PASSWORD"
+    printf 'data-urlencode = "name=jenkins"\n'
+    printf 'data-urlencode = "url=%s"\n' "$JENKINS_HOOK_URL"
+  } | curl -fsS -K - -o /dev/null "$URL/api/webhooks/create"
+  result UPDATED "webhook de SonarQube hacia Jenkins creado ($JENKINS_HOOK_URL)"
+else
+  result PLAN "crear el webhook de SonarQube hacia Jenkins"
+fi
