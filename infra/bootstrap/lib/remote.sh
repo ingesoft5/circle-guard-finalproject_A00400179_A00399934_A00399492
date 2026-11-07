@@ -208,6 +208,9 @@ cg_tool_bootstrap() {
     # digest (provenance timestamp), so an unconditional --build would recreate containers.
     local build=""
     [[ "$CG_FILES_CHANGED" == true ]] && build=--build
+    if [[ -n "${TOOL_NETWORK:-}" ]]; then
+      cg_root "docker network inspect $(printf '%q' "$TOOL_NETWORK") >/dev/null 2>&1 || docker network create $(printf '%q' "$TOOL_NETWORK")" >&2
+    fi
     info "$tool: docker compose up -d ${build:-(sin reconstruir: el contexto no cambió)}"
     cg_root "cd $(printf '%q' "$dir") && docker compose up -d $build --remove-orphans --quiet-pull" >&2
     after=$(cg_root "docker ps -a --filter label=com.docker.compose.project=$project --format '{{.Names}}={{.ID}}={{.State}}' | sort")

@@ -20,6 +20,10 @@ services:
       REGISTRY_ADDRESS: ${REGISTRY_ADDRESS:-}
       REGISTRY_CI_USER: ${REGISTRY_CI_USER:?Defina REGISTRY_CI_USER}
       REGISTRY_CI_PASSWORD: ${REGISTRY_CI_PASSWORD:?Defina REGISTRY_CI_PASSWORD}
+    networks:
+      ci:
+        aliases:
+          - jenkins
     ports:
       - "${BIND_ADDRESS:?Defina BIND_ADDRESS}:${JENKINS_HTTP_PORT:-8080}:8080"
     volumes:
@@ -31,6 +35,11 @@ services:
       timeout: 10s
       retries: 10
       start_period: 120s
+
+networks:
+  ci:
+    name: cg-ci
+    external: true
 
 volumes:
   jenkins_home:
