@@ -16,14 +16,13 @@ flowchart LR
     e2e2 --> approve{"Aprobación manual<br/>input"}
     approve --> prod["Deploy prod"]
     prod --> tag["Tag semver<br/>vX.Y.Z"]
-    tag --> notes["Release notes<br/>CHANGELOG.md"]
     test -.-> notify["Discord / Slack<br/>fallos y estados"]
     prod -.-> trace[("deploy/releases/&lt;env&gt;.json")]
 ```
 
 ## Ramas y etapas
 
-| Rama | Build/tests | dev | E2E dev | stage | E2E stage | prod | tag + notas |
+| Rama | Build/tests | dev | E2E dev | stage | E2E stage | prod | tag |
 |---|---|---|---|---|---|---|---|
 | `dev` | Sí | Automático | Sí | Automático | Sí | No | No |
 | `main` | Sí | Automático | Sí | Automático | Sí | **Aprobación manual** | Sí |
@@ -54,7 +53,6 @@ flowchart LR
 | Approve prod | `input` con `submitter: admin`, timeout 24 h | Jenkinsfile |
 | Deploy prod | Despliega prod | `deploy/deploy.sh prod` |
 | Tag release | Crea y publica `vX.Y.Z` | `deploy/tag-release.sh` |
-| Release notes | Genera notas y actualiza `CHANGELOG.md` | `deploy/release-notes.sh` |
 
 ## Versionado
 
@@ -146,5 +144,4 @@ El pipeline está escrito, pero para ejecutarlo en Jenkins faltan:
 
 ## Evidencias
 
-Ver [`docs/evidencias/hu-06/`](../evidencias/hu-06/README.md) y
-[`docs/evidencias/hu-07/`](../evidencias/hu-07/README.md).
+Ver [`docs/evidencias/hu-06/`](../evidencias/hu-06/README.md).

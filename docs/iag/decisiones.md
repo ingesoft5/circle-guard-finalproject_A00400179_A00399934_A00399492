@@ -259,8 +259,8 @@ quedan pendientes y deben capturarse antes de cerrar HU-06.
 
 **Contexto.** HU-06 dice “merge a `main`”, pero el equipo integra en `dev` y publica desde `main`.
 
-**Decisión.** `dev` despliega dev y stage automáticamente; `main` añade la aprobación manual, prod,
-el tag y las release notes. `FORCE_PROD=true` permite probar el flujo desde otra rama.
+**Decisión.** `dev` despliega dev y stage automáticamente; `main` añade la aprobación manual, prod y
+el tag. `FORCE_PROD=true` permite probar el flujo desde otra rama.
 
 **Consecuencias.** El flujo respeta la rama de integración del equipo y el criterio de aprobación
 antes de prod. Las evidencias deben mostrar una ejecución en `dev` y otra en `main`.
@@ -341,7 +341,7 @@ el equipo puede hacer que Jenkins commitee los archivos.
 ## D-18 · Rollback reutiliza deploy y valida imágenes
 
 - **Fecha:** 2026-11-05
-- **Historia:** HU-07
+- **Historia:** HU-06
 - **Estado:** Aceptada
 
 **Decisión.** `rollback.sh` rechaza la versión actual, verifica las 9 imágenes con
@@ -355,7 +355,7 @@ host cuando `DEPLOY_MODE=ssh`.
 ## D-19 · Notificaciones Discord/Slack no fatales
 
 - **Fecha:** 2026-11-05
-- **Historia:** HU-07
+- **Historia:** HU-06
 - **Estado:** Aceptada
 
 **Decisión.** `notify.sh` usa `DISCORD_WEBHOOK_URL` o `SLACK_WEBHOOK_URL`; si no hay webhook o
@@ -384,32 +384,15 @@ se amplía en la siguiente iteración.
 
 ## D-21 · Plantilla y política de cambio
 
-- **Fecha:** 2026-11-05
-- **Historia:** HU-07
-- **Estado:** Aceptada
-
-**Decisión.** `docs/operaciones/solicitud-cambio.md` y `politica-aprobacion.md` definen tipos
-(Estándar/Normal/Mayor/Emergencia), aprobadores, evidencias y rollback. `.github/PULL_REQUEST_TEMPLATE.md`
-enlaza el checklist.
-
-**Consecuencias.** Todo cambio Normal/Mayor tiene trazabilidad y aprobación. La política se revisa
-en el tablero ágil.
+> **Movida a HU-07.** La plantilla de solicitud de cambio, la política de aprobación y
+> `.github/PULL_REQUEST_TEMPLATE.md` se desarrollan en la rama de HU-07 para no mezclar alcances.
 
 ---
 
 ## D-22 · Release notes desde Conventional Commits
 
-- **Fecha:** 2026-11-05
-- **Historia:** HU-07
-- **Estado:** Aceptada
-
-**Decisión.** `release-notes.sh` agrupa `feat`, `fix`, `perf` y otros entre el tag anterior y el
-nuevo, enlaza PR `(#N)` y actualiza `docs/release-notes/vX.Y.Z.md` + `CHANGELOG.md`.
-
-**Alternativas.** `semantic-release` (Node, más dependencias); notas manuales (no trazables).
-
-**Consecuencias.** Las notas se generan del historial real. El tag `vX.Y.Z` se crea antes con
-`tag-release.sh`.
+> **Movida a HU-07.** `deploy/release-notes.sh`, `CHANGELOG.md` y `docs/release-notes/` se
+> desarrollan en la rama de HU-07.
 
 ---
 

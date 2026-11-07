@@ -1,6 +1,6 @@
 # Jenkins para HU-06
 
-El `Jenkinsfile` de la raíz implementa el pipeline de HU-06/HU-07 y, desde la integración de HU-03,
+El `Jenkinsfile` de la raíz implementa el pipeline de HU-06 y, desde la integración de HU-03,
 reutiliza la Shared Library de `jenkins/vars`. `infra/bootstrap/jenkins/plugins.txt` ya instala el
 conjunto de pipeline de HU-03; esta carpeta documenta los extras que necesita el CD (Node/Playwright
 y SSH) y cómo completar la imagen.
