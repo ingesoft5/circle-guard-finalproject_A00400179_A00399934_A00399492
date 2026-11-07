@@ -1,15 +1,18 @@
 # Jenkins para HU-06
 
-El `Jenkinsfile` de la raíz implementa el pipeline de HU-06, pero **HU-01 dejó Jenkins solo con
-`configuration-as-code`**. Esta carpeta contiene lo necesario para completar la integración en
-HU-04 sin modificar todavía la imagen de HU-01.
+El `Jenkinsfile` de la raíz implementa el pipeline de HU-06/HU-07 y, desde la integración de HU-03,
+reutiliza la Shared Library de `jenkins/vars`. `infra/bootstrap/jenkins/plugins.txt` ya instala el
+conjunto de pipeline de HU-03; esta carpeta documenta los extras que necesita el CD (Node/Playwright
+y SSH) y cómo completar la imagen.
 
 ## 1. Plugins
 
-`jenkins/plugins.txt` es el conjunto propuesto. Para aplicarlo:
+`infra/bootstrap/jenkins/plugins.txt` ya incluye el conjunto de pipeline de HU-03 (workflow, Git y
+GitHub, credenciales, JUnit, Sonar, timestamper, ws-cleanup y build-timeout). `jenkins/plugins.txt`
+añade lo propio del CD: `nodejs` y `ssh-credentials`/`ssh-agent`. Para aplicarlo:
 
-1. Copiar sus entradas en `infra/bootstrap/jenkins/plugins.txt` (manteniendo
-   `configuration-as-code`).
+1. Copiar las entradas que falten de `jenkins/plugins.txt` en `infra/bootstrap/jenkins/plugins.txt`
+   (manteniendo `configuration-as-code`).
 2. Cambiar el tag de la imagen en `infra/bootstrap/jenkins/docker-compose.yml`, por ejemplo:
    `circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1-pipeline1`.
 3. Reconstruir y recrear Jenkins:
@@ -19,7 +22,8 @@ HU-04 sin modificar todavía la imagen de HU-01.
 4. Verificar en **Manage Jenkins → Plugins** que no hay dependencias pendientes ni errores de
    compatibilidad. Fijar las versiones resueltas en `plugins.txt` para reproducibilidad.
 
-> No se modificó `infra/bootstrap/jenkins/` en HU-06 para no romper la imagen validada de HU-01.
+> La imagen validada de HU-01 aún no tiene `nodejs` ni el plugin SSH; hasta reconstruirla, el E2E y
+> el despliegue `DEPLOY_MODE=ssh` quedan bloqueados.
 > Esa es la primera tarea de HU-04.
 
 ## 2. Credenciales (IDs exactos que usa el Jenkinsfile)
@@ -72,11 +76,14 @@ El `input` usa `submitter: 'admin'`, el usuario creado por JCasC. Si el equipo t
 aprobadores, se deben crear usuarios/grupos y cambiar el `submitter` a un grupo (por ejemplo
 `circleguard-approvers`).
 
-## 7. Shared Library (opcional, E1.4)
+## 7. Shared Library (HU-03)
 
-El Jenkinsfile es autocontenido. Para cumplir la Shared Library del entregable E1.4, las funciones
-`deployEnv` y `notify` se pueden extraer a `jenkins/vars/` y registrar la librería en JCasC. Se dejó
-para HU-04 para no añadir una dependencia que impida ejecutar el pipeline hoy.
+La librería vive en `jenkins/vars/` y está registrada en JCasC
+(`infra/bootstrap/jenkins/casc/jenkins.yaml`, `defaultVersion: dev`, `implicit: true`). El
+`Jenkinsfile` usa `cgDetectChanges`, `cgGradle`, `cgUnitTests`, `cgSonar`, `cgIntegrationTests`,
+`cgPackage` y `cgPublish` para el CI; `deployEnv` y `notify` siguen en el `Jenkinsfile` porque son
+específicos de HU-06. Jenkins carga la librería desde `dev`, así que cualquier cambio en `jenkins/vars`
+debe mergearse a esa rama antes de usarlo.
 
 ## 8. Limitaciones
 
