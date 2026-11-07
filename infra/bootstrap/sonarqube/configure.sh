@@ -72,7 +72,7 @@ fi
 
 JENKINS_HOOK_URL="http://jenkins:8080/sonarqube-webhook/"
 hooks=$(printf 'user = "admin:%s"\n' "$SONAR_ADMIN_PASSWORD" | curl -s -K - "$URL/api/webhooks/list" || true)
-if grep -q "\"url\":\"$JENKINS_HOOK_URL\"" <<<"$hooks"; then
+if grep -qF "$JENKINS_HOOK_URL" <<<"$hooks"; then
   result UNCHANGED "webhook de SonarQube hacia Jenkins existente"
 elif [[ "$MODE" == apply ]]; then
   {
