@@ -15,6 +15,12 @@ services:
       SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
       SONAR_JDBC_USERNAME: sonar
       SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD:?Defina SONAR_DB_PASSWORD}
+      SONAR_VALIDATEWEBHOOKS: "false"
+    networks:
+      default:
+      ci:
+        aliases:
+          - sonarqube
     ports:
       - "${BIND_ADDRESS:?Defina BIND_ADDRESS}:${SONARQUBE_HTTP_PORT:-9000}:9000"
     volumes:
@@ -48,6 +54,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
+
+networks:
+  ci:
+    name: cg-ci
+    external: true
 
 volumes:
   sonarqube_data:

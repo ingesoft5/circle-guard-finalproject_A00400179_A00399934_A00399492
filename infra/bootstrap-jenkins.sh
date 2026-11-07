@@ -46,6 +46,8 @@ fi
 # TOOL_* are read by cg_tool_bootstrap (bootstrap/lib/remote.sh). The URL is the one seen
 # through the SSH tunnel, so it does not change when the instance gets a new public IP.
 # shellcheck disable=SC2034
+TOOL_NETWORK=cg-ci
+# shellcheck disable=SC2034
 TOOL_FILES=(docker-compose.yml Dockerfile plugins.txt casc/jenkins.yaml)
 # shellcheck disable=SC2034
 TOOL_SECRETS=(JENKINS_ADMIN_PASSWORD)
