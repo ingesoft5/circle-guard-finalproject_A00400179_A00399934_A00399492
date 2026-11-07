@@ -1,0 +1,25 @@
+# Local OCI registry for HU-02 evidence (equivalent registry)
+# Nexus Repository is the project registry, but its EULA is still pending
+# (NEXUS_ACCEPT_EULA=false, HU-01 decision). This Docker Distribution registry
+# is used only to demonstrate image publication while that decision is taken.
+# It listens on loopback and has no authentication: do not expose it.
+name: circleguard-registry
+
+services:
+  registry:
+    image: registry:2.8.3@sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${REGISTRY_PORT:-5000}:5000"
+    environment:
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
+    volumes:
+      - registry-data:/var/lib/registry
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:5000/v2/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  registry-data:

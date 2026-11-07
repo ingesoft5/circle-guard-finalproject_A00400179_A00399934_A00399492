@@ -2,5 +2,10 @@
 # repository is cloned on Windows (HU-01).
 *.sh                text eol=lf
 infra/**            text eol=lf
+deploy/**           text eol=lf
 .env.example        text eol=lf
 docker-compose*.yml text eol=lf
+**/Dockerfile       text eol=lf
+**/.dockerignore    text eol=lf
+mobile/*.conf       text eol=lf
+mobile/*.inc        text eol=lf
