@@ -37,8 +37,14 @@ flowchart LR
 
 | Etapa | Qué hace | Script |
 |---|---|---|
+| Checkout | Detecta los servicios modificados (Shared Library) | `cgDetectChanges` |
 | Prepare | Calcula la versión o valida la indicada | `deploy/next-version.sh` |
-| Build and unit tests | `./gradlew clean test --continue` y publica JUnit | Gradle wrapper |
+| Build | Compila clases y testClasses de los servicios seleccionados | `cgGradle` |
+| Unit tests and coverage | `test` + JaCoCo, publica JUnit | `cgUnitTests` |
+| SonarQube quality gate | Analiza y bloquea si el gate falla | `cgSonar` |
+| Integration tests | Ejecuta `integrationTest` | `cgIntegrationTests` |
+| Package | Genera y archiva los `bootJar` | `cgPackage` |
+| Publish artifacts | Publica los JAR en Nexus (solo `dev`/`main`) | `cgPublish` |
 | Package images | Construye las 9 imágenes | `deploy/build-images.sh` |
 | Publish images | Publica en el registro | `deploy/publish-images.sh` |
 | Deploy dev | Despliega dev | `deploy/deploy.sh dev` |
@@ -113,7 +119,8 @@ cuestionario, QR) la suite se amplía en la siguiente iteración.
 
 El pipeline está escrito, pero para ejecutarlo en Jenkins faltan:
 
-1. Plugins de pipeline (`jenkins/plugins.txt`).
+1. Plugins de pipeline: `infra/bootstrap/jenkins/plugins.txt` ya trae el conjunto de HU-03;
+   `jenkins/plugins.txt` añade los extras del CD (Node/Playwright y SSH).
 2. Un agente/herramienta con **JDK 21 + Gradle wrapper** (ya versionado), **Git** y **Bash**.
 3. Docker + Compose si `BUILD_IMAGES=true`, o un agente con Docker.
 4. Node 22 + Playwright si el E2E corre en el agente.

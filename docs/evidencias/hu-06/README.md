@@ -49,8 +49,8 @@ E2E_BASE_URL=http://localhost:3000 ./deploy/e2e.sh dev
 
 | Bloqueo | Impacto |
 |---|---|
-| Jenkins sin plugins de pipeline | El Jenkinsfile no arranca |
-| Jenkins sin Docker/Node | No construye imágenes ni ejecuta Playwright en el controlador |
+| Imagen de Jenkins sin `nodejs`/SSH | El CI arranca con los plugins de HU-03, pero el E2E y el despliegue `DEPLOY_MODE=ssh` necesitan reconstruir la imagen con los extras de `jenkins/plugins.txt` |
+| Jenkins sin Docker | No construye imágenes en el controlador |
 | Hosts `t3.small` (2 GiB) | No aguantan los 15 contenedores |
 | `QUOTA_VCPU_LIMIT=5` | `ci` + `nexus` + un ambiente = 6 vCPU |
 | Jenkins privado | No hay webhook; se usa `pollSCM` cada 5 min |

@@ -419,12 +419,13 @@ The nine images (8 services + Expo web client) and the per-environment Compose s
 See [`docs/arquitectura/empaquetado-inmutable.md`](docs/arquitectura/empaquetado-inmutable.md)
 for the design and [`docs/evidencias/hu-02/`](docs/evidencias/hu-02/README.md) for the evidence.
 
-## CI/CD pipeline (HU-06/HU-07)
+## CI/CD pipeline (HU-03, HU-06/HU-07)
 
-The Jenkins multibranch pipeline is in [`Jenkinsfile`](Jenkinsfile). It builds and tests the
-services, packages and publishes the nine images, deploys to dev, runs the E2E gate, promotes to
-stage, waits for manual approval before prod, creates the semantic Git tag and generates release
-notes.
+The Jenkins multibranch pipeline is in [`Jenkinsfile`](Jenkinsfile). The CI stages reuse the
+Shared Library in [`jenkins/vars/`](jenkins/vars) (change detection, Gradle, JaCoCo, SonarQube
+quality gate, integration tests, packaging and publication). The CD stages package and publish the
+nine images, deploy to dev, run the E2E gate, promote to stage, wait for manual approval before prod,
+create the semantic Git tag and generate release notes.
 
 ```bash
 ./deploy/deploy.sh dev 1.0.0        # deploy a version
