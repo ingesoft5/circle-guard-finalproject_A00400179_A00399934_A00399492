@@ -144,7 +144,7 @@ El Dockerfile de `mobile/` reescribe en tiempo de build las URLs absolutas
 redirige a cada servicio. El repositorio no se modifica y la misma imagen funciona en cualquier
 host, sin rebuild por ambiente.
 
-## Entrega continua, rollback y notificaciones (HU-06)
+## Entrega continua, rollback y release notes (HU-06/HU-07)
 
 | Script | Función |
 |---|---|
@@ -154,6 +154,7 @@ host, sin rebuild por ambiente.
 | `current-version.sh <env>` | Lee la versión registrada del ambiente |
 | `record-release.sh` | Escribe `deploy/releases/<env>.json` e historial TSV |
 | `tag-release.sh <version>` | Crea y publica el tag anotado `vX.Y.Z` |
+| `release-notes.sh <version>` | Genera `docs/release-notes/vX.Y.Z.md` y actualiza `CHANGELOG.md` |
 | `notify.sh` | Envía estado/fallo a Discord o Slack |
 | `e2e.sh <env>` | Ejecuta Playwright contra `E2E_BASE_URL` |
 
@@ -171,10 +172,11 @@ DEPLOY_MODE=ssh DEPLOY_HOST_STAGE=ubuntu@10.20.20.10 \
   DEPLOY_PATH=/opt/circleguard/circleguard \
   ./deploy/deploy.sh stage 1.0.0
 
-# E2E, notificación y tag
+# E2E, notificación, tag y notas
 E2E_BASE_URL=http://localhost:3000 ./deploy/e2e.sh dev
 DISCORD_WEBHOOK_URL=... ./deploy/notify.sh failure dev 1.0.0 "Fallo simulado"
 ./deploy/tag-release.sh 1.0.0
+./deploy/release-notes.sh 1.0.0
 ```
 
 La trazabilidad queda en `deploy/releases/<env>.json` y `deploy/releases/history.tsv`. El
