@@ -6,7 +6,7 @@
 
 | Criterio | Implementación | Evidencia |
 |---|---|---|
-| Rollback a una versión anterior, verificado | `deploy/rollback.sh <env> <version>`; valida imágenes y redespliega | `01-rollback.txt` + `09-traceability.json` |
+| Rollback a una versión anterior, verificado | `deploy/rollback.sh <env> <version>`; valida imágenes y redespliega | `01-rollback.txt` + `deploy/releases/history.tsv` |
 | Notificación automática de fallos | `deploy/notify.sh` (Discord/Slack) en `post` de Jenkins | `02-notification.png` |
 | Plantilla de solicitud de cambio | `docs/operaciones/solicitud-cambio.md` | Archivo versionado |
 | Política de aprobación por tipo | `docs/operaciones/politica-aprobacion.md` | Archivo versionado |

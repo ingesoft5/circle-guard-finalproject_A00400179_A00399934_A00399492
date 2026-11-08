@@ -1,4 +1,4 @@
-# Pipeline de entrega continua (HU-06)
+# Pipeline de entrega continua (HU-06/HU-07)
 
 Diseño del pipeline de Jenkins que construye, publica, despliega y promueve CircleGuard. La
 implementación está en `Jenkinsfile` y en los scripts de `deploy/`.
@@ -17,6 +17,7 @@ flowchart LR
     approve --> prod["Deploy prod"]
     prod --> tag["Tag semver<br/>vX.Y.Z"]
     tag --> notes["Release notes<br/>CHANGELOG.md"]
+    notes --> release["GitHub Release"]
     test -.-> notify["Discord / Slack<br/>fallos y estados"]
     prod -.-> trace[("deploy/releases/&lt;env&gt;.json")]
 ```
@@ -55,6 +56,7 @@ flowchart LR
 | Deploy prod | Despliega prod | `deploy/deploy.sh prod` |
 | Tag release | Crea y publica `vX.Y.Z` | `deploy/tag-release.sh` |
 | Release notes | Genera notas y actualiza `CHANGELOG.md` | `deploy/release-notes.sh` |
+| GitHub release | Publica las notas como GitHub Release | `deploy/github-release.sh` |
 
 ## Versionado
 

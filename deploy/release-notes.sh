@@ -18,6 +18,7 @@ git rev-parse -q --verify "refs/tags/$TAG" >/dev/null || cg_die "No existe el ta
 PREV=$(git describe --tags --abbrev=0 --match 'v[0-9]*' "$TAG^" 2>/dev/null || true)
 RANGE="${PREV:+$PREV..}$TAG"
 LOG=$(git log --pretty=format:'%s' "$RANGE")
+TAG_COMMIT=$(git rev-parse --short "$TAG^{commit}")
 DATE=$(date -u +%Y-%m-%d)
 OUT_DIR="$ROOT_DIR/docs/release-notes"
 OUT="$OUT_DIR/v$VERSION.md"
@@ -43,8 +44,8 @@ OTHER=$(printf '%s\n' "$LOG" | grep -Ev '^(feat|fix|perf)(\(.+\))?:' || true)
   printf '# Release v%s\n\n' "$VERSION"
   printf -- '- Fecha: %s\n' "$DATE"
   printf -- '- Tag: `%s`\n' "$TAG"
-  printf -- '- Commit: `%s`\n' "$(cg_short_commit)"
-  [[ -n "$PREV" ]] && printf -- '- Desde: `%s`\n' "$PREV"
+  printf -- '- Commit: `%s`\n' "$TAG_COMMIT"
+  if [[ -n "$PREV" ]]; then printf -- '- Desde: `%s`\n' "$PREV"; fi
   printf '\n'
   section 'Features' "$FEATURES"
   section 'Fixes' "$FIXES"
@@ -58,7 +59,7 @@ if [[ -f "$CHANGELOG" ]] && grep -Fq "## [v$VERSION]" "$CHANGELOG"; then
 else
   TMP=$(mktemp)
   if [[ -f "$CHANGELOG" ]] && grep -q '<!-- releases -->' "$CHANGELOG"; then
-    # Insert after the marker, before [Unreleased].
+    # Insert after the marker (the marker sits after Unreleased and before the releases).
     awk -v notes="$OUT" -v version="$VERSION" -v date="$DATE" '
       { print }
       /<!-- releases -->/ {
