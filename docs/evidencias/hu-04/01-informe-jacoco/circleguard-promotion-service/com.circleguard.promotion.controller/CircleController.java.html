@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CircleController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-promotion-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.promotion.controller</a> &gt; <span class="el_source">CircleController.java</span></div><h1>CircleController.java</h1><pre class="source lang-java linenums">package com.circleguard.promotion.controller;
+
+import com.circleguard.promotion.model.graph.CircleNode;
+import com.circleguard.promotion.service.CircleService;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/v1/circles&quot;)
+@RequiredArgsConstructor
+public class CircleController {
+
+    private final CircleService circleService;
+
+    @Data
+    public static class CircleCreateRequest {
+        private String name;
+        private String locationId;
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;CircleNode&gt; createCircle(@RequestBody CircleCreateRequest request) {
+<span class="fc" id="L26">        return ResponseEntity.ok(circleService.createCircle(request.getName(), request.getLocationId()));</span>
+    }
+
+    @PostMapping(&quot;/join/{code}/user/{anonymousId}&quot;)
+    public ResponseEntity&lt;CircleNode&gt; joinCircle(@PathVariable String code, @PathVariable String anonymousId) {
+<span class="fc" id="L31">        return ResponseEntity.ok(circleService.joinCircle(anonymousId, code));</span>
+    }
+
+    @PostMapping(&quot;/{id}/members/{anonymousId}&quot;)
+    public ResponseEntity&lt;CircleNode&gt; addMember(@PathVariable Long id, @PathVariable String anonymousId) {
+<span class="fc" id="L36">        return ResponseEntity.ok(circleService.addMember(id, anonymousId));</span>
+    }
+
+    @GetMapping(&quot;/user/{anonymousId}&quot;)
+    public ResponseEntity&lt;List&lt;CircleNode&gt;&gt; getUserCircles(@PathVariable String anonymousId) {
+<span class="fc" id="L41">        return ResponseEntity.ok(circleService.getUserCircles(anonymousId));</span>
+    }
+
+    @PatchMapping(&quot;/{id}/validity&quot;)
+    @org.springframework.security.access.prepost.PreAuthorize(&quot;hasRole('HEALTH_CENTER')&quot;)
+    public ResponseEntity&lt;Void&gt; toggleValidity(@PathVariable Long id) {
+<span class="fc" id="L47">        circleService.toggleCircleValidity(id);</span>
+<span class="fc" id="L48">        return ResponseEntity.ok().build();</span>
+    }
+
+    @PostMapping(&quot;/{id}/force-fence&quot;)
+    @org.springframework.security.access.prepost.PreAuthorize(&quot;hasRole('HEALTH_CENTER')&quot;)
+    public ResponseEntity&lt;Void&gt; forceFence(@PathVariable Long id) {
+<span class="fc" id="L54">        circleService.forceFenceCircle(id);</span>
+<span class="fc" id="L55">        return ResponseEntity.ok().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

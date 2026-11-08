@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HealthStatsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-promotion-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.promotion.controller</a> &gt; <span class="el_source">HealthStatsController.java</span></div><h1>HealthStatsController.java</h1><pre class="source lang-java linenums">package com.circleguard.promotion.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.neo4j.core.Neo4jClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.*;
+
+@RestController
+@RequestMapping(&quot;/api/v1/health-status&quot;)
+@RequiredArgsConstructor
+@CrossOrigin(origins = &quot;*&quot;)
+public class HealthStatsController {
+
+    private final Neo4jClient neo4jClient;
+
+    /**
+     * Returns aggregated, anonymized counts of users by health status.
+     * No individual IDs are exposed (FR-23).
+     */
+    @GetMapping(&quot;/stats&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getStats() {
+<span class="fc" id="L24">        String query = &quot;MATCH (u:User) &quot; +</span>
+                       &quot;RETURN u.status AS status, count(u) AS total &quot; +
+                       &quot;ORDER BY total DESC&quot;;
+
+<span class="fc" id="L28">        Collection&lt;Map&lt;String, Object&gt;&gt; rows = neo4jClient.query(query)</span>
+<span class="fc" id="L29">                .fetch().all();</span>
+
+<span class="fc" id="L31">        Map&lt;String, Object&gt; result = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L32">        long grandTotal = 0;</span>
+
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        for (Map&lt;String, Object&gt; row : rows) {</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">            String status = row.get(&quot;status&quot;) != null ? row.get(&quot;status&quot;).toString() : &quot;UNKNOWN&quot;;</span>
+<span class="fc" id="L36">            long count = ((Number) row.get(&quot;total&quot;)).longValue();</span>
+<span class="fc" id="L37">            result.put(status.toLowerCase() + &quot;Count&quot;, count);</span>
+<span class="fc" id="L38">            grandTotal += count;</span>
+<span class="fc" id="L39">        }</span>
+
+<span class="fc" id="L41">        result.put(&quot;totalUsers&quot;, grandTotal);</span>
+<span class="fc" id="L42">        result.put(&quot;timestamp&quot;, new Date());</span>
+<span class="fc" id="L43">        return ResponseEntity.ok(result);</span>
+    }
+
+    /**
+     * Returns status counts filtered by department/building.
+     */
+    @GetMapping(&quot;/stats/department/{department}&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getStatsByDepartment(@PathVariable String department) {
+<span class="fc" id="L51">        String query = &quot;MATCH (u:User) &quot; +</span>
+                       &quot;WHERE u.department = $dept &quot; +
+                       &quot;RETURN u.status AS status, count(u) AS total &quot; +
+                       &quot;ORDER BY total DESC&quot;;
+
+<span class="fc" id="L56">        Collection&lt;Map&lt;String, Object&gt;&gt; rows = neo4jClient.query(query)</span>
+<span class="fc" id="L57">                .bind(department).to(&quot;dept&quot;)</span>
+<span class="fc" id="L58">                .fetch().all();</span>
+
+<span class="fc" id="L60">        Map&lt;String, Object&gt; result = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L61">        long grandTotal = 0;</span>
+
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        for (Map&lt;String, Object&gt; row : rows) {</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">            String status = row.get(&quot;status&quot;) != null ? row.get(&quot;status&quot;).toString() : &quot;UNKNOWN&quot;;</span>
+<span class="fc" id="L65">            long count = ((Number) row.get(&quot;total&quot;)).longValue();</span>
+<span class="fc" id="L66">            result.put(status.toLowerCase() + &quot;Count&quot;, count);</span>
+<span class="fc" id="L67">            grandTotal += count;</span>
+<span class="fc" id="L68">        }</span>
+
+<span class="fc" id="L70">        result.put(&quot;department&quot;, department);</span>
+<span class="fc" id="L71">        result.put(&quot;totalUsers&quot;, grandTotal);</span>
+<span class="fc" id="L72">        result.put(&quot;timestamp&quot;, new Date());</span>
+<span class="fc" id="L73">        return ResponseEntity.ok(result);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -26,7 +26,7 @@ unclassified:
             libraryPath: "jenkins/"
             scm:
               git:
-                remote: "https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git"
+                remote: "${CG_LIBRARY_REMOTE}"
                 credentialsId: "github-token"
   sonarGlobalConfiguration:
     installations:
