@@ -56,7 +56,6 @@ services:
       POSTGRES_DB: circleguard
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ../../init-db.sql:/docker-entrypoint-initdb.d/00-init-db.sql:ro
     mem_limit: ${POSTGRES_MEM_LIMIT:-512m}
     cpus: ${POSTGRES_CPUS:-1.0}
     healthcheck:
