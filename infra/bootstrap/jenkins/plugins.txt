@@ -1,4 +1,4 @@
-# Plugins required by HU-01 only (Configuration as Code). Pipeline plugins belong to E1.4.
+# Plugins of HU-01 (Configuration as Code), HU-03 (pipeline) and HU-04 (coverage reports).
 configuration-as-code:2144.ve8c697101488
 workflow-aggregator
 workflow-multibranch
@@ -10,6 +10,9 @@ github-branch-source
 credentials-binding
 plain-credentials
 junit
+# HU-04: JaCoCo coverage with quality gates, and HTML reports published per build.
+coverage
+htmlpublisher
 sonar
 timestamper
 ws-cleanup

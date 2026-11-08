@@ -21,15 +21,15 @@ services:
       - "127.0.0.1:${LDAPS_PORT:-636}:636"
   # Ajustes de memoria para Docker Desktop (~7.4 GiB). Son topes, no reservas.
   file:
-    mem_limit: 384m
+    mem_limit: ${FILE_MEM_LIMIT:-384m}
   gateway:
-    mem_limit: 384m
+    mem_limit: ${GATEWAY_MEM_LIMIT:-384m}
   form:
-    mem_limit: 640m
+    mem_limit: ${FORM_MEM_LIMIT:-640m}
   notification:
-    mem_limit: 640m
+    mem_limit: ${NOTIFICATION_MEM_LIMIT:-640m}
   promotion:
-    mem_limit: 768m
+    mem_limit: ${PROMOTION_MEM_LIMIT:-768m}
   web:
     ports:
-      - "127.0.0.1:${WEB_PORT:-3000}:8080"
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3000}:8080"
