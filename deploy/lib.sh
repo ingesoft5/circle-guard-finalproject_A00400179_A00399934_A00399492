@@ -31,7 +31,7 @@ cg_validate_env() {
 cg_utc_now() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 cg_short_commit() { git -C "$CG_REPO_ROOT" rev-parse --short HEAD 2>/dev/null || printf 'unknown'; }
 
-cg_current_version() {
+cg_current_version_optional() {
   local env_name=${1:?Falta el ambiente}
   local version=""
   local json
@@ -46,7 +46,15 @@ cg_current_version() {
   if [[ -z "$version" && -f "/opt/circleguard/$env_name/VERSION" ]]; then
     version=$(head -n 1 "/opt/circleguard/$env_name/VERSION")
   fi
-  [[ -n "$version" && "$version" != "null" ]] || cg_die "No hay versión registrada para $env_name."
+  [[ -n "$version" && "$version" != "null" ]] || return 1
+  printf '%s\n' "$version"
+}
+
+cg_current_version() {
+  local env_name=${1:?Falta el ambiente}
+  local version
+  version=$(cg_current_version_optional "$env_name") \
+    || cg_die "No hay versión registrada para $env_name."
   printf '%s\n' "$version"
 }
 
