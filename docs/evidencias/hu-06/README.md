@@ -57,6 +57,7 @@ reconstruyó. Las etapas `Package images`, `Publish images`, `SonarQube`, `Integ
 | Rollback a una versión anterior | `deploy/rollback.sh` y evento `rollback` | [`10-rollback.txt`](10-rollback.txt) — **limitación: solo existe 0.1.0** |
 | Parada secuencial de ambientes | `Stop dev`, `Stop stage`, `CG_DOWN_VOLUMES=1` | [`11-stop-envs.txt`](11-stop-envs.txt) |
 | Restauración de prod tras el rollback | reinicio del web de prod | [`12-prod-web-restored.txt`](12-prod-web-restored.txt) |
+| Higiene de secretos | `infra/scan-secrets.sh` (Gitleaks) | [`13-secret-scan.txt`](13-secret-scan.txt) — worktree PASS |
 
 ## Evidencias
 
@@ -75,6 +76,7 @@ reconstruyó. Las etapas `Package images`, `Publish images`, `SonarQube`, `Integ
 | `10-rollback.txt` | Etapa `Rollback` del build #13, `event=rollback`, historial y limitación |
 | `11-stop-envs.txt` | Contenedores y volúmenes eliminados al promover (libera el puerto 3000) |
 | `12-prod-web-restored.txt` | Estado final `Up (healthy)` del web de prod |
+| `13-secret-scan.txt` | Gitleaks: worktree PASS, corrección del falso positivo y conteos del historial |
 | `console-build-6.txt` | Log completo del build de entrega continua |
 | `console-build-13.txt` | Log completo del build de rollback |
 | `e2e-results-build-6.xml` | Resultado JUnit de Playwright del build #6 |
@@ -94,8 +96,10 @@ reconstruyó. Las etapas `Package images`, `Publish images`, `SonarQube`, `Integ
    promoción normal, `Stop dev`/`Stop stage` liberan el puerto y los volúmenes.
 5. **Tag.** El build usó `PUSH_TAG=false` para no publicar desde Jenkins; el tag `v0.1.0` se recreó
    en el repositorio de entrega en el mismo commit `dd825e6` y se publicó en GitHub.
-6. **Sin secretos.** Los archivos de entorno son credenciales Secret file de Jenkins y el log
-   enmascara `$CG_ENV_FILE`. No se versionaron contraseñas, tokens, Account ID ni códigos MFA.
+6. **Sin secretos.** `infra/scan-secrets.sh` (Gitleaks) pasó el árbol de trabajo sin ACTIVOS
+   (`13-secret-scan.txt`); el historial conserva hallazgos históricos informativos y no se reescribe.
+   Los `.env` son credenciales Secret file de Jenkins y el log enmascara `$CG_ENV_FILE`. No se
+   versionaron contraseñas, tokens, Account ID ni códigos MFA.
 
 ## Cambios de código relevantes
 
@@ -108,3 +112,5 @@ reconstruyó. Las etapas `Package images`, `Publish images`, `SonarQube`, `Integ
 - `deploy/compose-up.sh`: crea las bases de datos después de que postgres esté healthy.
 - `deploy/compose/docker-compose.common.yml`: healthcheck de OpenLDAP y `start_period` de
   zookeeper.
+- `jenkins/vars/cgPublish.groovy`: publicación de artifacts con `netrc` temporal en lugar de
+  `curl --user`; evita el falso positivo de Gitleaks y no expone el password en el log.
