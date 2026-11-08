@@ -52,6 +52,8 @@ services:
     privileged: true
     environment:
       DOCKER_TLS_CERTDIR: ""
+    dns:
+      - "${DIND_DNS:-8.8.8.8}"
     command:
       - "--storage-driver=overlay2"
       - "--insecure-registry=${REGISTRY_ADDRESS:-127.0.0.1:5000}"

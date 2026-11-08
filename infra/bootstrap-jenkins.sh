@@ -45,6 +45,11 @@ else
 fi
 # TOOL_* are read by cg_tool_bootstrap (bootstrap/lib/remote.sh). The URL is the one seen
 # through the SSH tunnel, so it does not change when the instance gets a new public IP.
+# Nested containers of the DinD daemon need a resolver that is not Docker's embedded 127.0.0.11:
+# the VPC resolver in AWS, a public resolver for the local Docker Desktop target.
+if [[ -z "${DIND_DNS:-}" ]]; then
+  if [[ "$CG_TARGET" == local ]]; then DIND_DNS=8.8.8.8; else DIND_DNS=10.20.0.2; fi
+fi
 # shellcheck disable=SC2034
 TOOL_NETWORK=cg-ci
 # shellcheck disable=SC2034
@@ -63,6 +68,7 @@ TOOL_ENV=(
   "CG_LIBRARY_REMOTE=${CG_LIBRARY_REMOTE:-https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git}"
   "REGISTRY_ADDRESS=$REGISTRY_ADDRESS"
   "REGISTRY_CI_USER=ci"
+  "DIND_DNS=$DIND_DNS"
 )
 
 cg_tool_bootstrap jenkins
