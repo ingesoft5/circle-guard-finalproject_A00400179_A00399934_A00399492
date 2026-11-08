@@ -127,7 +127,7 @@ pipeline {
         }
       }
       steps {
-        script { cgGradle('classes', env.SELECTED_SERVICES.split(',') as List, 'testClasses') }
+        script { cgGradle('classes testClasses', env.SELECTED_SERVICES.split(',') as List) }
       }
     }
 
