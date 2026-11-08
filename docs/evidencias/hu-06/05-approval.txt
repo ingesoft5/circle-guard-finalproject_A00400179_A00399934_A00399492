@@ -1,0 +1,22 @@
+# 05 · Aprobación manual antes de prod
+
+Build: http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/6/
+Commit: dd825e6
+Fecha: 2026-11-08
+Etapa: Approve prod
+Estado: SUCCESS
+
+El input queda registrado con el usuario que aprueba; no se registra ninguna contraseña. La captura de pantalla está en 05-approval.png.
+
+[Pipeline] { (Approve prod)
+[Pipeline] timeout
+Timeout set to expire in 1 day 0 hr
+[Pipeline] {
+[Pipeline] input
+¿Desplegar 0.1.0 a prod?
+Desplegar a prod or Abort
+Approved by admin
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // stage
