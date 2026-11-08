@@ -5,10 +5,9 @@ def call(Map cfg = [:]) {
     if (!services) {
         return
     }
-    // The Sonar plugin registers its task on the parent project, which analyses every service below it.
-    String targets = ':services:sonar'
+    String selected = services.join(',')
     withSonarQubeEnv(installation) {
-        sh "chmod +x ./gradlew && ./gradlew ${targets} -Dsonar.projectKey=circleguard -Dsonar.projectName=CircleGuard --no-daemon --console=plain"
+        sh "chmod +x ./gradlew && ./gradlew sonar -PsonarServices=${selected} -Dsonar.projectKey=circleguard -Dsonar.projectName=CircleGuard --no-daemon --console=plain"
     }
     timeout(time: minutes, unit: 'MINUTES') {
         def gate = waitForQualityGate()

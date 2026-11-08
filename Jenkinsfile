@@ -41,7 +41,7 @@ pipeline {
     stage('Build') {
       when { expression { env.SELECTED_SERVICES } }
       steps {
-        script { cgGradle('classes', env.SELECTED_SERVICES.split(',') as List, 'testClasses') }
+        script { cgGradle('classes testClasses', env.SELECTED_SERVICES.split(',') as List) }
       }
     }
 
