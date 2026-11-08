@@ -10,6 +10,7 @@
 - El host de Jenkins es efímero (se apaga al terminar); por eso el log completo de ambos builds
   queda versionado en `console-build-6.txt` y `console-build-13.txt`. La URL `localhost:8080`
   corresponde al túnel del operador y no es accesible desde fuera.
+- PR abierto contra `dev`: <https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492/pull/9>.
 
 ## Resumen de la ejecución
 
