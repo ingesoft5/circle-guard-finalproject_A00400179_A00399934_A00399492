@@ -1,0 +1,63 @@
+# Jenkins build #10 (rama HU04-Pruebas-unitarias-y-integracion) - extracto de consola
+{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowRun","duration":426687,"result":"SUCCESS","timestamp":************1}
+
+## Etapas
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] { (Checkout)
+[Pipeline] { (Build)
+[Pipeline] { (Unit tests and coverage)
+[Pipeline] { (SonarQube quality gate)
+Stage "SonarQube quality gate" skipped due to when conditional
+[Pipeline] { (Integration tests)
+[Pipeline] { (Package)
+[Pipeline] { (Publish)
+Stage "Publish" skipped due to when conditional
+[Pipeline] { (Declarative: Post Actions)
+
+## Cobertura (gate LINE >= 60 %)
+| Service | Covered lines | Total lines | Line coverage | Minimum |
+|---|---|---|---|---|
+| circleguard-auth-service | 146 | 149 | 98.0 % (OK) | 60 % |
+| circleguard-identity-service | 102 | 104 | 98.1 % (OK) | 60 % |
+| circleguard-promotion-service | 641 | 705 | 90.9 % (OK) | 60 % |
+| circleguard-form-service | 93 | 95 | 97.9 % (OK) | 60 % |
+| circleguard-gateway-service | 16 | 16 | 100.0 % (OK) | 60 % |
+
+## Pruebas de integracion
+BUILD SUCCESSFUL in 39s
+BUILD SUCCESSFUL in 2m 13s
+BUILD SUCCESSFUL in 14s
+BUILD SUCCESSFUL in 9s
+> Task :services:circleguard-auth-service:integrationTest
+> Task :services:circleguard-identity-service:integrationTest
+> Task :services:circleguard-promotion-service:integrationTest
+> Task :services:circleguard-notification-service:integrationTest
+> Task :services:circleguard-form-service:integrationTest
+> Task :services:circleguard-file-service:integrationTest
+> Task :services:circleguard-gateway-service:integrationTest
+> Task :services:circleguard-dashboard-service:integrationTest
+> Task :tests:integration:integrationTest
+BUILD SUCCESSFUL in 3m 20s
+BUILD SUCCESSFUL in 17s
+
+## Resultado JUnit
+{"_class":"hudson.tasks.junit.TestResult","failCount":0,"skipCount":0}
+## Publicacion de reportes
+Recording test results
+[Coverage] Recording coverage results
+[Coverage] Finished coverage processing - adding the action to the build...
+[htmlpublisher] Archiving HTML reports...
+[htmlpublisher] Archiving at BUILD level services/circleguard-auth-service/build/reports/jacoco/test/html to JaCoCo_20circleguard-auth-service
+[htmlpublisher] Archiving HTML reports...
+[htmlpublisher] Archiving at BUILD level services/circleguard-identity-service/build/reports/jacoco/test/html to JaCoCo_20circleguard-identity-service
+[htmlpublisher] Archiving HTML reports...
+[htmlpublisher] Archiving at BUILD level services/circleguard-promotion-service/build/reports/jacoco/test/html to JaCoCo_20circleguard-promotion-service
+[htmlpublisher] Archiving HTML reports...
+[htmlpublisher] Archiving at BUILD level services/circleguard-form-service/build/reports/jacoco/test/html to JaCoCo_20circleguard-form-service
+[htmlpublisher] Archiving HTML reports...
+[htmlpublisher] Archiving at BUILD level services/circleguard-gateway-service/build/reports/jacoco/test/html to JaCoCo_20circleguard-gateway-service
+Recording test results
+[htmlpublisher] Archiving HTML reports...
+[htmlpublisher] Archiving at BUILD level tests/integration/build/reports/tests/integrationTest to Integration_20tests_20_28cross-service_29
+
+Finished: SUCCESS

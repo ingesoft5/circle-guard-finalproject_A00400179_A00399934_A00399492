@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HealthStatusService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-promotion-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.promotion.service</a> &gt; <span class="el_source">HealthStatusService.java</span></div><h1>HealthStatusService.java</h1><pre class="source lang-java linenums">package com.circleguard.promotion.service;
+
+import com.circleguard.promotion.exception.FenceException;
+import com.circleguard.promotion.repository.graph.UserNodeRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.neo4j.core.Neo4jClient;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+<span class="fc" id="L18">@Slf4j</span>
+public class HealthStatusService {
+    private final UserNodeRepository userNodeRepository;
+    private final Neo4jClient neo4jClient;
+    private final StringRedisTemplate redisTemplate;
+    private final KafkaTemplate&lt;String, Object&gt; kafkaTemplate;
+    private final com.circleguard.promotion.repository.jpa.SystemSettingsRepository systemSettingsRepository;
+    private final com.circleguard.promotion.repository.graph.CircleNodeRepository circleNodeRepository;
+
+    private static final String STATUS_KEY_PREFIX = &quot;user:status:&quot;;
+    private static final String TOPIC_STATUS_CHANGED = &quot;promotion.status.changed&quot;;
+
+    /**
+     * Updates a user's health status and triggers recursive fencing if required.
+     * Consolidated into a single transaction with optimized Cypher to meet NFR-1 (&lt;1s target).
+     */
+    public void updateStatus(String anonymousId, String status) {
+<span class="fc" id="L35">        updateStatus(anonymousId, status, false);</span>
+<span class="fc" id="L36">    }</span>
+
+    @Transactional(&quot;neo4jTransactionManager&quot;)
+    @CacheEvict(cacheNames = &quot;userStatus&quot;, allEntries = true)
+    public void updateStatus(String anonymousId, String status, boolean adminOverride) {
+<span class="fc" id="L41">        log.info(&quot;Updating status: {} -&gt; {} (Admin Override: {})&quot;, anonymousId, status, adminOverride);</span>
+
+<span class="pc bpc" id="L43" title="3 of 4 branches missed.">        if (&quot;ACTIVE&quot;.equals(status) &amp;&amp; !adminOverride) {</span>
+<span class="nc" id="L44">            checkFenceWindow(anonymousId);</span>
+        }
+        
+<span class="fc" id="L47">        var settings = systemSettingsRepository.getSettings()</span>
+<span class="fc" id="L48">                .orElse(com.circleguard.promotion.model.jpa.SystemSettings.builder()</span>
+<span class="fc" id="L49">                        .encounterWindowDays(14)</span>
+<span class="fc" id="L50">                        .mandatoryFenceDays(14)</span>
+<span class="fc" id="L51">                        .unconfirmedFencingEnabled(true)</span>
+<span class="fc" id="L52">                        .autoThresholdSeconds(3600L)</span>
+<span class="fc" id="L53">                        .build());</span>
+        
+<span class="fc" id="L55">        long threshold = System.currentTimeMillis() - ((long)settings.getEncounterWindowDays() * 24 * 60 * 60 * 1000);</span>
+
+        // Robust Multi-Tier High-Confidence Propagation Cypher - Augmented with isValid checks and timing
+<span class="fc" id="L58">        String unifiedQuery = </span>
+            &quot;MATCH (source:User {anonymousId: $id}) &quot; +
+            &quot;SET source.status = $status, source.statusUpdatedAt = timestamp() &quot; +
+            &quot;WITH source &quot; +
+            &quot;OPTIONAL MATCH (source)-[r1]-(c1:User) &quot; +
+            &quot;WHERE ( &quot; +
+            &quot;  (type(r1)='ENCOUNTERED' AND coalesce(r1.isValid, true) AND r1.startTime &gt; $threshold) OR &quot; +
+            &quot;  (type(r1)='MEMBER_OF' AND EXISTS { MATCH (source)-[:MEMBER_OF]-&gt;(circ:Circle)&lt;-[:MEMBER_OF]-(c1) WHERE coalesce(circ.isValid, true) }) &quot; +
+            &quot;) &quot; +
+            &quot;  AND c1.status &lt;&gt; 'CONFIRMED' AND c1.status &lt;&gt; 'RECOVERED' &quot; +
+            &quot;WITH source, c1, &quot; +
+            &quot;     CASE WHEN $status = 'CONFIRMED' THEN 'SUSPECT' &quot; +
+            &quot;          WHEN $status = 'SUSPECT' THEN 'PROBABLE' &quot; +
+            &quot;          ELSE c1.status END as l1Status &quot; +
+            &quot;WHERE c1 IS NOT NULL AND c1.status &lt;&gt; l1Status &quot; +
+            &quot;SET c1.status = l1Status, c1.statusUpdatedAt = timestamp() &quot; +
+            &quot;WITH source, collect(DISTINCT {id: c1.anonymousId, status: l1Status}) as l1 &quot; +
+            &quot;OPTIONAL MATCH (source)-[r1]-(c1_node:User)-[r2]-(c2:User) &quot; +
+            &quot;WHERE $status = 'CONFIRMED' &quot; +
+            &quot;  AND ( &quot; +
+            &quot;    (type(r1)='ENCOUNTERED' AND coalesce(r1.isValid, true) AND r1.startTime &gt; $threshold) OR &quot; +
+            &quot;    (type(r1)='MEMBER_OF' AND EXISTS { MATCH (source)-[:MEMBER_OF]-&gt;(circ1:Circle)&lt;-[:MEMBER_OF]-(c1_node) WHERE coalesce(circ1.isValid, true) }) &quot; +
+            &quot;  ) &quot; +
+            &quot;  AND ( &quot; +
+            &quot;    (type(r2)='ENCOUNTERED' AND coalesce(r2.isValid, true) AND r2.startTime &gt; $threshold) OR &quot; +
+            &quot;    (type(r2)='MEMBER_OF' AND EXISTS { MATCH (c1_node)-[:MEMBER_OF]-&gt;(circ2:Circle)&lt;-[:MEMBER_OF]-(c2) WHERE coalesce(circ2.isValid, true) }) &quot; +
+            &quot;  ) &quot; +
+            &quot;  AND c2.status = 'ACTIVE' AND c2.anonymousId &lt;&gt; source.anonymousId &quot; +
+            &quot;SET c2.status = 'PROBABLE' &quot; +
+            &quot;WITH source, l1, collect(DISTINCT {id: c2.anonymousId, status: 'PROBABLE'}) as l2 &quot; +
+            &quot;RETURN source.anonymousId as sourceId, [x in (l1 + l2) WHERE x.id IS NOT NULL] as affectedContacts&quot;;
+
+<span class="fc" id="L90">        var result = neo4jClient.query(unifiedQuery)</span>
+<span class="fc" id="L91">                .bind(anonymousId).to(&quot;id&quot;)</span>
+<span class="fc" id="L92">                .bind(status).to(&quot;status&quot;)</span>
+<span class="fc" id="L93">                .bind(threshold).to(&quot;threshold&quot;)</span>
+<span class="fc" id="L94">                .fetch().one();</span>
+
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (result.isPresent()) {</span>
+<span class="fc" id="L97">            Map&lt;String, String&gt; cacheUpdates = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L98">            cacheUpdates.put(STATUS_KEY_PREFIX + anonymousId, status);</span>
+            
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L101">            List&lt;Map&lt;String, String&gt;&gt; affected = (List&lt;Map&lt;String, String&gt;&gt;) result.get().get(&quot;affectedContacts&quot;);</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">            if (affected != null) {</span>
+<span class="fc" id="L103">                affected.forEach(m -&gt; {</span>
+<span class="nc bnc" id="L104" title="All 4 branches missed.">                    if (m != null &amp;&amp; m.get(&quot;id&quot;) != null) {</span>
+<span class="nc" id="L105">                        cacheUpdates.put(STATUS_KEY_PREFIX + m.get(&quot;id&quot;), m.get(&quot;status&quot;));</span>
+                    }
+<span class="nc" id="L107">                });</span>
+            }
+
+<span class="fc" id="L110">            log.info(&quot;Batch updating {} Redis entries based on consolidated propagation&quot;, cacheUpdates.size());</span>
+<span class="fc" id="L111">            updateRedisInBatches(cacheUpdates);</span>
+
+            // Broadcast change
+<span class="fc" id="L114">            Map&lt;String, Object&gt; payload = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L115">            payload.put(&quot;anonymousId&quot;, anonymousId);</span>
+<span class="fc" id="L116">            payload.put(&quot;status&quot;, status);</span>
+<span class="fc" id="L117">            payload.put(&quot;timestamp&quot;, System.currentTimeMillis());</span>
+
+<span class="fc" id="L119">            kafkaTemplate.send(TOPIC_STATUS_CHANGED, anonymousId, payload);</span>
+
+            // Story 5.4: Automated Room Reservation Cancellation
+<span class="fc" id="L122">            checkAndBroadcastFencedCircles(anonymousId);</span>
+
+            // Story 5.5: Administrative Alerting for Priority Roles
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">            int affectedCount = (affected != null) ? affected.size() : 0;</span>
+<span class="pc bpc" id="L126" title="2 of 4 branches missed.">            if (&quot;CONFIRMED&quot;.equals(status) || affectedCount &gt; 20) {</span>
+<span class="nc" id="L127">                log.info(&quot;Priority Alert triggered. Status: {}, Affected Count: {}&quot;, status, affectedCount);</span>
+<span class="nc" id="L128">                Map&lt;String, Object&gt; priorityPayload = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L129">                priorityPayload.put(&quot;anonymousId&quot;, anonymousId);</span>
+<span class="nc" id="L130">                priorityPayload.put(&quot;status&quot;, status);</span>
+<span class="nc" id="L131">                priorityPayload.put(&quot;affectedCount&quot;, affectedCount);</span>
+<span class="nc" id="L132">                priorityPayload.put(&quot;timestamp&quot;, System.currentTimeMillis());</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                priorityPayload.put(&quot;eventType&quot;, &quot;CONFIRMED&quot;.equals(status) ? &quot;CONFIRMED_CASE&quot; : &quot;LARGE_OUTBREAK&quot;);</span>
+                
+<span class="nc" id="L135">                kafkaTemplate.send(&quot;alert.priority&quot;, anonymousId, priorityPayload);</span>
+            }
+        }
+<span class="fc" id="L138">    }</span>
+
+    private void checkAndBroadcastFencedCircles(String anonymousId) {
+<span class="fc" id="L141">        var fencedCircles = circleNodeRepository.findNewlyFencedCircles(anonymousId);</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">        for (var circle : fencedCircles) {</span>
+<span class="nc" id="L143">            log.info(&quot;Circle {} is now fully fenced. Broadcasting circle.fenced event.&quot;, circle.getName());</span>
+<span class="nc" id="L144">            Map&lt;String, Object&gt; circlePayload = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L145">            circlePayload.put(&quot;circleId&quot;, circle.getId().toString());</span>
+<span class="nc" id="L146">            circlePayload.put(&quot;locationId&quot;, circle.getLocationId());</span>
+<span class="nc" id="L147">            circlePayload.put(&quot;name&quot;, circle.getName());</span>
+<span class="nc" id="L148">            circlePayload.put(&quot;timestamp&quot;, System.currentTimeMillis());</span>
+            
+<span class="nc" id="L150">            kafkaTemplate.send(&quot;circle.fenced&quot;, circle.getId().toString(), circlePayload);</span>
+<span class="nc" id="L151">        }</span>
+<span class="fc" id="L152">    }</span>
+
+    private void updateRedisInBatches(Map&lt;String, String&gt; updates) {
+<span class="fc" id="L155">        Map&lt;String, String&gt; batch = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L156">        updates.forEach((key, value) -&gt; {</span>
+<span class="fc" id="L157">            batch.put(key, value);</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">            if (batch.size() &gt;= 2000) {</span>
+<span class="nc" id="L159">                redisTemplate.opsForValue().multiSet(batch);</span>
+<span class="nc" id="L160">                batch.clear();</span>
+            }
+<span class="fc" id="L162">        });</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (!batch.isEmpty()) {</span>
+<span class="fc" id="L164">            redisTemplate.opsForValue().multiSet(batch);</span>
+        }
+<span class="fc" id="L166">    }</span>
+
+    @CacheEvict(cacheNames = &quot;userStatus&quot;, key = &quot;#anonymousId&quot;)
+    public void evictUserCache(String anonymousId) {
+        // Method used for programmatic eviction
+<span class="nc" id="L171">    }</span>
+
+    @Cacheable(cacheNames = &quot;userStatus&quot;, key = &quot;#anonymousId&quot;)
+    public String getCachedStatus(String anonymousId) {
+<span class="nc" id="L175">        return redisTemplate.opsForValue().get(STATUS_KEY_PREFIX + anonymousId);</span>
+    }
+
+    /**
+     * Resolves a user's status to ACTIVE and re-evaluates downstream contacts.
+     * Implements the &quot;Pulse Recovery&quot; algorithm for Story 4.4.
+     */
+    public void resolveStatus(String anonymousId) {
+<span class="nc" id="L183">        resolveStatus(anonymousId, false);</span>
+<span class="nc" id="L184">    }</span>
+
+    @Transactional(&quot;neo4jTransactionManager&quot;)
+    public void resolveStatus(String anonymousId, boolean adminOverride) {
+<span class="fc" id="L188">        log.info(&quot;Resolving status for user: {} (Admin Override: {})&quot;, anonymousId, adminOverride);</span>
+
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        if (!adminOverride) {</span>
+<span class="nc" id="L191">            checkFenceWindow(anonymousId);</span>
+        }
+
+        // 1. Resolve source
+<span class="fc" id="L195">        neo4jClient.query(&quot;MATCH (u:User {anonymousId: $id}) SET u.status = 'ACTIVE', u.statusUpdatedAt = timestamp()&quot;)</span>
+<span class="fc" id="L196">                .bind(anonymousId).to(&quot;id&quot;)</span>
+<span class="fc" id="L197">                .run();</span>
+
+        // 2. Refined Two-Hop Pulse Recovery
+        // Phase 1: Release direct SUSPECT neighbors that have no other CONFIRMED paths
+<span class="fc" id="L201">        String phase1Query = </span>
+            &quot;MATCH (source:User {anonymousId: $id}) &quot; +
+            &quot;OPTIONAL MATCH (source)-[:ENCOUNTERED|MEMBER_OF]-(target:User) &quot; +
+            &quot;WHERE target.status = 'SUSPECT' &quot; +
+            &quot;AND NOT EXISTS { &quot; +
+            &quot;  MATCH (target)-[:ENCOUNTERED|MEMBER_OF]-(risk:User) &quot; +
+            &quot;  WHERE risk.status = 'CONFIRMED' AND risk.anonymousId &lt;&gt; $id &quot; +
+            &quot;} &quot; +
+            &quot;SET target.status = 'ACTIVE', target.statusUpdatedAt = timestamp() &quot; +
+            &quot;RETURN collect(DISTINCT target.anonymousId) as releasedIds&quot;;
+
+<span class="fc" id="L212">        var phase1Result = neo4jClient.query(phase1Query)</span>
+<span class="fc" id="L213">                .bind(anonymousId).to(&quot;id&quot;)</span>
+<span class="fc" id="L214">                .fetch().one();</span>
+
+<span class="fc" id="L216">        List&lt;String&gt; releasedL1 = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">        if (phase1Result.isPresent()) {</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L219">            List&lt;String&gt; ids = (List&lt;String&gt;) phase1Result.get().get(&quot;releasedIds&quot;);</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (ids != null) releasedL1.addAll(ids);</span>
+        }
+
+        // Phase 2: Release L2 PROBABLE neighbors that have no other risk paths (CONFIRMED or remaining SUSPECT)
+<span class="fc" id="L224">        String phase2Query = </span>
+            &quot;MATCH (l1:User) WHERE l1.anonymousId IN $l1Ids &quot; +
+            &quot;OPTIONAL MATCH (l1)-[:ENCOUNTERED|MEMBER_OF]-(target:User) &quot; +
+            &quot;WHERE target.status = 'PROBABLE' &quot; +
+            &quot;AND NOT EXISTS { &quot; +
+            &quot;  MATCH (target)-[:ENCOUNTERED|MEMBER_OF]-(risk:User) &quot; +
+            &quot;  WHERE (risk.status = 'CONFIRMED' OR risk.status = 'SUSPECT') &quot; +
+            &quot;  AND NOT risk.anonymousId IN $l1Ids &quot; +
+            &quot;  AND risk.anonymousId &lt;&gt; $sourceId &quot; +
+            &quot;} &quot; +
+            &quot;SET target.status = 'ACTIVE', target.statusUpdatedAt = timestamp() &quot; +
+            &quot;RETURN collect(DISTINCT target.anonymousId) as releasedIds&quot;;
+
+<span class="fc" id="L237">        var phase2Result = neo4jClient.query(phase2Query)</span>
+<span class="fc" id="L238">                .bind(releasedL1).to(&quot;l1Ids&quot;)</span>
+<span class="fc" id="L239">                .bind(anonymousId).to(&quot;sourceId&quot;)</span>
+<span class="fc" id="L240">                .fetch().one();</span>
+
+<span class="fc" id="L242">        Map&lt;String, String&gt; cacheUpdates = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L243">        cacheUpdates.put(STATUS_KEY_PREFIX + anonymousId, &quot;ACTIVE&quot;);</span>
+
+        // Add phase 1 released IDs
+<span class="fc" id="L246">        releasedL1.forEach(id -&gt; {</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">            if (id != null) cacheUpdates.put(STATUS_KEY_PREFIX + id, &quot;ACTIVE&quot;);</span>
+<span class="nc" id="L248">        });</span>
+
+        // Add phase 2 released IDs
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">        if (phase2Result.isPresent()) {</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L253">            List&lt;String&gt; releasedIds = (List&lt;String&gt;) phase2Result.get().get(&quot;releasedIds&quot;);</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">            if (releasedIds != null) {</span>
+<span class="nc" id="L255">                releasedIds.forEach(id -&gt; {</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">                    if (id != null) cacheUpdates.put(STATUS_KEY_PREFIX + id, &quot;ACTIVE&quot;);</span>
+<span class="nc" id="L257">                });</span>
+            }
+        }
+
+<span class="fc" id="L261">        updateRedisInBatches(cacheUpdates);</span>
+
+<span class="fc" id="L263">        Map&lt;String, Object&gt; payload = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L264">        payload.put(&quot;anonymousId&quot;, anonymousId);</span>
+<span class="fc" id="L265">        payload.put(&quot;status&quot;, &quot;ACTIVE&quot;);</span>
+<span class="fc" id="L266">        payload.put(&quot;timestamp&quot;, System.currentTimeMillis());</span>
+
+<span class="fc" id="L268">        kafkaTemplate.send(TOPIC_STATUS_CHANGED, anonymousId, payload);</span>
+<span class="fc" id="L269">    }</span>
+
+    /**
+     * Promotion to RECOVERED (Immunity Window)
+     */
+    @Transactional(&quot;neo4jTransactionManager&quot;)
+    public void promoteToRecovered(String anonymousId) {
+<span class="nc" id="L276">        resolveStatus(anonymousId);</span>
+        // Note: resolveStatus sets to ACTIVE first, then we update to RECOVERED
+<span class="nc" id="L278">        neo4jClient.query(&quot;MATCH (u:User {anonymousId: $id}) SET u.status = 'RECOVERED'&quot;)</span>
+<span class="nc" id="L279">                .bind(anonymousId).to(&quot;id&quot;).run();</span>
+        
+        // Immunize in Redis for 30 days
+<span class="nc" id="L282">        redisTemplate.opsForValue().set(STATUS_KEY_PREFIX + anonymousId, &quot;RECOVERED&quot;);</span>
+<span class="nc" id="L283">        redisTemplate.expire(STATUS_KEY_PREFIX + anonymousId, java.time.Duration.ofDays(30));</span>
+<span class="nc" id="L284">    }</span>
+    private void checkFenceWindow(String anonymousId) {
+<span class="fc" id="L286">        var userOpt = userNodeRepository.findById(anonymousId);</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">        if (userOpt.isPresent()) {</span>
+<span class="fc" id="L288">            var user = userOpt.get();</span>
+<span class="pc bpc" id="L289" title="3 of 4 branches missed.">            if ((&quot;SUSPECT&quot;.equals(user.getStatus()) || &quot;PROBABLE&quot;.equals(user.getStatus())) </span>
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">                &amp;&amp; user.getStatusUpdatedAt() != null) {</span>
+                
+<span class="fc" id="L292">                var settings = systemSettingsRepository.getSettings()</span>
+<span class="pc" id="L293">                        .orElseThrow(() -&gt; new IllegalStateException(&quot;System Settings not initialized&quot;));</span>
+                
+<span class="fc" id="L295">                long fenceDurationMs = (long) settings.getMandatoryFenceDays() * 24 * 60 * 60 * 1000;</span>
+<span class="fc" id="L296">                long elapsed = System.currentTimeMillis() - user.getStatusUpdatedAt();</span>
+                
+<span class="pc bpc" id="L298" title="1 of 2 branches missed.">                if (elapsed &lt; fenceDurationMs) {</span>
+<span class="fc" id="L299">                    long remainingDays = (fenceDurationMs - elapsed) / (24 * 60 * 60 * 1000);</span>
+<span class="fc" id="L300">                    throw new FenceException(&quot;Cannot transition to ACTIVE. User is in mandatory fence window for &quot; + remainingDays + &quot; more days.&quot;);</span>
+                }
+            }
+        }
+<span class="nc" id="L304">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
