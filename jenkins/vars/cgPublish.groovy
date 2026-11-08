@@ -15,10 +15,14 @@ def call(Map cfg = [:]) {
         services.each { svc ->
             sh """
                 set -e
+                netrc=\$(mktemp)
+                trap 'rm -f "\$netrc"' EXIT
+                printf 'default login %s password %s\\n' "\$NEXUS_USER" "\$NEXUS_PASSWORD" > "\$netrc"
+                chmod 600 "\$netrc"
                 for jar in services/${svc}/build/libs/*.jar; do
                   [ -e "\$jar" ] || continue
                   name=\$(basename "\$jar")
-                  curl -fsS --user "\$NEXUS_USER:\$NEXUS_PASSWORD" --upload-file "\$jar" "${url}/repository/${repo}/${svc}/${version}/\$name"
+                  curl -fsS --netrc-file "\$netrc" --upload-file "\$jar" "${url}/repository/${repo}/${svc}/${version}/\$name"
                 done
             """
         }
