@@ -20,6 +20,8 @@ trabajo, pero el equipo revisa, entiende y puede explicar cada resultado.
 |---|---|---|---|
 | 2026-11-02 | HU-02 · Imágenes Docker inmutables | [Sesión](sesiones/2026-11-02-hu-02.md) | [D-01 a D-11](decisiones.md) |
 | 2026-11-05 | HU-06 · Entrega continua y promoción | [Sesión](sesiones/2026-11-05-hu-06.md) | [D-12 a D-25](decisiones.md) (D-21/D-22 en HU-07) |
+| 2026-11-08 | HU-06 · Ejecución real en AWS | [Sesión](sesiones/2026-11-08-hu-06-ejecucion.md) | Evidencias de build #6 y rollback #13 |
+| 2026-11-08 | HU-07 · Rollback, notificaciones y release notes | [Sesión](sesiones/2026-11-08-hu-07.md) | D-21, D-22 y ejecución real #17–#21 |
 
 ## Plantilla
 

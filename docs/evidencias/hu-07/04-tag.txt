@@ -1,0 +1,53 @@
+# 04 · Tag y esquema de releases
+
+Fecha: 2026-11-08
+Esquema: `vMAJOR.MINOR.PATCH` (tag anotado)
+
+## Tags
+
+```text
+$ git tag -l "v0.*"
+v0.1.0
+v0.2.0
+```
+
+## v0.2.0
+
+```text
+$ git show -s --format='%H %s' v0.2.0
+59cec5cac1456cb3da1f205cde39ba97a6bc3b1c fix(hu-07): publicar el tag en GitHub desde Jenkins
+
+$ git rev-parse v0.2.0^{commit}
+59cec5cac1456cb3da1f205cde39ba97a6bc3b1c
+
+$ git tag -n
+v0.1.0          CircleGuard 0.1.0
+v0.2.0          Release 0.2.0
+```
+
+Tag anotado: `Release 0.2.0`.
+Commit: `59cec5c`.
+GitHub Release: <https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492/releases/tag/v0.2.0>
+
+## v0.1.0 (versión anterior)
+
+```text
+$ git show -s --format='%H %s' v0.1.0
+dd825e6ccf567e64fe6d724b82b66521b12261d7 fix(jenkins): eliminar volumenes de dev/stage al promover
+```
+
+Tag anotado: `CircleGuard 0.1.0`.
+
+## Corrección aplicada
+
+En el build #18 el tag `v0.2.0` quedó solo local porque `tag-release.sh` comparaba `PUSH_TAG`
+contra `1` y Jenkins envía `true` para un parámetro booleano. Además, `github-release.sh` no
+enviaba `target_commitish`, así que el GitHub Release inicialmente apuntó al branch por defecto.
+
+Correcciones:
+
+- `deploy/tag-release.sh`: acepta `1`/`true` para publicar; `0`/`false` deja el tag local.
+- `deploy/github-release.sh`: agrega `target_commitish` con el commit del tag.
+
+El tag/release se recreó apuntando a `59cec5c`. El tag `v0.2.0` local y remoto coinciden con el
+commit de la release.

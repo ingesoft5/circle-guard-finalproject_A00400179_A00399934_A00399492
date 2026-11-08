@@ -28,15 +28,19 @@ git config user.name "${GIT_AUTHOR_NAME:-CircleGuard CI}"
 git config user.email "${GIT_AUTHOR_EMAIL:-ci@circleguard.local}"
 git tag -a "$TAG" -m "Release $VERSION"
 
-if [[ "${PUSH_TAG:-1}" != "1" ]]; then
-  cg_info "PUSH_TAG=0: tag $TAG creado localmente; no se publica en origin."
-  exit 0
-fi
+case "${PUSH_TAG:-1}" in
+  0|false|False|FALSE|no|No|NO)
+    cg_info "PUSH_TAG=0: tag $TAG creado localmente; no se publica en origin."
+    exit 0
+    ;;
+esac
 
 REMOTE=$(git remote get-url origin)
 PUSH_URL=$REMOTE
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-  if [[ "$REMOTE" == git@github.com:* ]]; then
+  if [[ -n "${CG_GITHUB_URL:-}" ]]; then
+    PUSH_URL="${CG_GITHUB_URL%.git}.git"
+  elif [[ "$REMOTE" == git@github.com:* ]]; then
     PUSH_URL="https://github.com/${REMOTE#git@github.com:}"
   fi
   # Pass the token through the environment, not through the command line.

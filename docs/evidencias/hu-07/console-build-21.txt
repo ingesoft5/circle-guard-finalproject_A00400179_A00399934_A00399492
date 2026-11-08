@@ -1,0 +1,452 @@
+Started by user admin
+ > git rev-parse --resolve-git-dir /var/jenkins_home/caches/git-d5985a344ef229171a066e2dd3fb8f5b/.git # timeout=10
+Setting origin to http://cg-gitsrv/cg-hu06.git
+ > git config remote.origin.url http://cg-gitsrv/cg-hu06.git # timeout=10
+Fetching origin...
+Fetching upstream changes from origin
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git config --get remote.origin.url # timeout=10
+ > git fetch --no-tags --force --progress -- origin +refs/heads/*:refs/remotes/origin/* # timeout=10
+Seen branch in repository origin/HU-06-run
+Seen branch in repository origin/dev
+Seen 2 remote branches
+Obtained Jenkinsfile from 506673344fe99f453eb62ad9e6456e0891e13099
+Loading library circleguard@dev:jenkins/
+Attempting to resolve dev from remote references...
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git ls-remote -- http://cg-gitsrv/cg-src.git # timeout=10
+Found match: refs/heads/dev revision e45ba14a7909e83fc5d7e918d15cc0dd606ee47e
+The recommended git tool is: NONE
+Warning: CredentialId "github-token" could not be found.
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run@libs/917d25667adb46bc77ed4543844f6425abce2272bb846e005e0389b76eb4d364/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url http://cg-gitsrv/cg-src.git # timeout=10
+Fetching without tags
+Fetching upstream changes from http://cg-gitsrv/cg-src.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --no-tags --force --progress -- http://cg-gitsrv/cg-src.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+Checking out Revision e45ba14a7909e83fc5d7e918d15cc0dd606ee47e (dev)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f e45ba14a7909e83fc5d7e918d15cc0dd606ee47e # timeout=10
+Commit message: "Merge pull request #7 from ingesoft5/fix/jenkins-pipeline-stages"
+ > git rev-list --no-walk e45ba14a7909e83fc5d7e918d15cc0dd606ee47e # timeout=10
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning with configured refspecs honoured and without tags
+Cloning repository http://cg-gitsrv/cg-hu06.git
+ > git init /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run # timeout=10
+Fetching upstream changes from http://cg-gitsrv/cg-hu06.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --no-tags --force --progress -- http://cg-gitsrv/cg-hu06.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url http://cg-gitsrv/cg-hu06.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+Checking out Revision 506673344fe99f453eb62ad9e6456e0891e13099 (HU-06-run)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 506673344fe99f453eb62ad9e6456e0891e13099 # timeout=10
+Commit message: "fix(hu-07): corregir tag/release y registrar notas v0.2.0"
+ > git rev-list --no-walk 506673344fe99f453eb62ad9e6456e0891e13099 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+[2026-11-08T22:39:47.088Z] The recommended git tool is: NONE
+[2026-11-08T22:39:47.088Z] No credentials specified
+[2026-11-08T22:39:47.088Z]  > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/.git # timeout=10
+[2026-11-08T22:39:47.100Z] Fetching changes from the remote Git repository
+[2026-11-08T22:39:47.105Z]  > git config remote.origin.url http://cg-gitsrv/cg-hu06.git # timeout=10
+[2026-11-08T22:39:47.118Z] Fetching without tags
+[2026-11-08T22:39:47.118Z] Fetching upstream changes from http://cg-gitsrv/cg-hu06.git
+[2026-11-08T22:39:47.118Z]  > git --version # timeout=10
+[2026-11-08T22:39:47.125Z]  > git --version # 'git version 2.47.3'
+[2026-11-08T22:39:47.125Z]  > git fetch --no-tags --force --progress -- http://cg-gitsrv/cg-hu06.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-08T22:39:47.168Z] Checking out Revision 506673344fe99f453eb62ad9e6456e0891e13099 (HU-06-run)
+[2026-11-08T22:39:47.169Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-08T22:39:47.177Z]  > git checkout -f 506673344fe99f453eb62ad9e6456e0891e13099 # timeout=10
+[2026-11-08T22:39:47.452Z] Commit message: "fix(hu-07): corregir tag/release y registrar notas v0.2.0"
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:39:47.850Z] + git fetch --tags --force origin +refs/heads/dev:refs/remotes/origin/dev
+[Pipeline] echo
+[2026-11-08T22:39:47.998Z] Servicios a procesar: circleguard-auth-service,circleguard-identity-service,circleguard-promotion-service,circleguard-notification-service,circleguard-form-service,circleguard-file-service,circleguard-gateway-service,circleguard-dashboard-service
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Prepare)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:39:48.765Z] + git fetch --tags --force
+[Pipeline] echo
+[2026-11-08T22:39:48.858Z] CircleGuard version: 0.2.0
+[Pipeline] sh
+[2026-11-08T22:39:49.144Z] + ./deploy/current-version.sh dev
+[2026-11-08T22:39:49.144Z] 0.1.0
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+Stage "Build" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit tests and coverage)
+Stage "Unit tests and coverage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (SonarQube quality gate)
+Stage "SonarQube quality gate" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Integration tests)
+Stage "Integration tests" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Package)
+Stage "Package" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Package images)
+Stage "Package images" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish images)
+Stage "Publish images" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish artifacts)
+Stage "Publish artifacts" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Rollback)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T22:39:51.353Z] Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:39:51.766Z] + ./deploy/rollback.sh prod 0.1.0
+[2026-11-08T22:39:52.680Z] Rollback de prod: 0.2.0 -> 0.1.0
+[2026-11-08T22:39:52.680Z] CircleGuard deploy
+[2026-11-08T22:39:52.680Z]   environment: prod
+[2026-11-08T22:39:52.680Z]   version:     0.1.0
+[2026-11-08T22:39:52.680Z]   registry:    10.20.0.106:8082/circleguard
+[2026-11-08T22:39:52.680Z]   mode:        local
+[2026-11-08T22:39:53.593Z]  Container circleguard-prod-postgres-1  Running
+[2026-11-08T22:39:53.593Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:39:53.844Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-zookeeper-1  Running
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-redis-1  Running
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-kafka-1  Running
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-openldap-1  Running
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-postgres-1  Running
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-neo4j-1  Running
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopping
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopping
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopping
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopped
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopped
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopping
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopping
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopped
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopping
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopped
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-identity-1  Recreate
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopped
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-file-1  Recreate
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-form-1  Recreate
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopped
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-notification-1  Stopping
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-gateway-1  Recreate
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-promotion-1  Recreate
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopping
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-web-1  Stopped
+[2026-11-08T22:39:54.398Z]  Container circleguard-prod-dashboard-1  Recreate
+[2026-11-08T22:39:55.645Z]  Container circleguard-prod-form-1  Recreated
+[2026-11-08T22:39:55.645Z]  Container circleguard-prod-dashboard-1  Recreated
+[2026-11-08T22:39:55.645Z]  Container circleguard-prod-promotion-1  Recreated
+[2026-11-08T22:39:55.899Z]  Container circleguard-prod-gateway-1  Recreated
+[2026-11-08T22:39:55.899Z]  Container circleguard-prod-file-1  Recreated
+[2026-11-08T22:39:55.899Z]  Container circleguard-prod-identity-1  Recreated
+[2026-11-08T22:39:58.428Z]  Container circleguard-prod-notification-1  Stopped
+[2026-11-08T22:39:58.428Z]  Container circleguard-prod-auth-1  Recreate
+[2026-11-08T22:39:59.342Z]  Container circleguard-prod-auth-1  Recreated
+[2026-11-08T22:39:59.594Z]  Container circleguard-prod-web-1  Stopping
+[2026-11-08T22:39:59.594Z]  Container circleguard-prod-web-1  Stopped
+[2026-11-08T22:39:59.594Z]  Container circleguard-prod-notification-1  Recreate
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-notification-1  Recreated
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-web-1  Recreate
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-web-1  Recreated
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-file-1  Starting
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-openldap-1  Waiting
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-redis-1  Waiting
+[2026-11-08T22:39:59.845Z]  Container circleguard-prod-zookeeper-1  Waiting
+[2026-11-08T22:40:00.105Z]  Container circleguard-prod-file-1  Started
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-dashboard-1  Starting
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-redis-1  Healthy
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-gateway-1  Starting
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-zookeeper-1  Healthy
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-kafka-1  Waiting
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-redis-1  Waiting
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-neo4j-1  Waiting
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-openldap-1  Healthy
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-kafka-1  Waiting
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-auth-1  Starting
+[2026-11-08T22:40:00.421Z]  Container circleguard-prod-identity-1  Starting
+[2026-11-08T22:40:00.990Z]  Container circleguard-prod-dashboard-1  Started
+[2026-11-08T22:40:00.990Z]  Container circleguard-prod-auth-1  Started
+[2026-11-08T22:40:00.990Z]  Container circleguard-prod-kafka-1  Waiting
+[2026-11-08T22:40:00.990Z]  Container circleguard-prod-auth-1  Waiting
+[2026-11-08T22:40:00.990Z]  Container circleguard-prod-gateway-1  Started
+[2026-11-08T22:40:00.990Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:40:00.990Z]  Container circleguard-prod-kafka-1  Healthy
+[2026-11-08T22:40:00.990Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:40:00.990Z]  Container circleguard-prod-neo4j-1  Healthy
+[2026-11-08T22:40:01.547Z]  Container circleguard-prod-identity-1  Started
+[2026-11-08T22:40:01.547Z]  Container circleguard-prod-redis-1  Healthy
+[2026-11-08T22:40:01.547Z]  Container circleguard-prod-kafka-1  Healthy
+[2026-11-08T22:40:01.547Z]  Container circleguard-prod-form-1  Starting
+[2026-11-08T22:40:01.547Z]  Container circleguard-prod-kafka-1  Healthy
+[2026-11-08T22:40:01.798Z]  Container circleguard-prod-promotion-1  Starting
+[2026-11-08T22:40:03.142Z]  Container circleguard-prod-form-1  Started
+[2026-11-08T22:40:03.142Z]  Container circleguard-prod-promotion-1  Started
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-auth-1  Healthy
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-notification-1  Starting
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-notification-1  Started
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-file-1  Waiting
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-form-1  Waiting
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-gateway-1  Waiting
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-notification-1  Waiting
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-promotion-1  Waiting
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-auth-1  Waiting
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-identity-1  Waiting
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-dashboard-1  Waiting
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-identity-1  Healthy
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-dashboard-1  Healthy
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-form-1  Healthy
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-file-1  Healthy
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-auth-1  Healthy
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-gateway-1  Healthy
+[2026-11-08T22:42:39.479Z]  Container circleguard-prod-promotion-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-notification-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-web-1  Starting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-web-1  Started
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-promotion-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-openldap-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-dashboard-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-zookeeper-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-file-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-web-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-redis-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-kafka-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-identity-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-auth-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-gateway-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-notification-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-neo4j-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-form-1  Waiting
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-neo4j-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-form-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-promotion-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-dashboard-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-openldap-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-file-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-zookeeper-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-redis-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-identity-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-kafka-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-auth-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-notification-1  Healthy
+[2026-11-08T22:43:05.959Z]  Container circleguard-prod-gateway-1  Healthy
+[2026-11-08T22:43:10.083Z]  Container circleguard-prod-web-1  Healthy
+[2026-11-08T22:43:10.084Z] NAME                              IMAGE                                                                                                     COMMAND                  SERVICE        CREATED          STATUS                    PORTS
+[2026-11-08T22:43:10.084Z] circleguard-prod-auth-1           10.20.0.106:8082/circleguard/circleguard-auth-service:0.1.0                                               "java -jar /app/app.…"   auth           3 minutes ago    Up 3 minutes (healthy)    8180/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-dashboard-1      10.20.0.106:8082/circleguard/circleguard-dashboard-service:0.1.0                                          "java -jar /app/app.…"   dashboard      3 minutes ago    Up 3 minutes (healthy)    8084/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-file-1           10.20.0.106:8082/circleguard/circleguard-file-service:0.1.0                                               "java -jar /app/app.…"   file           3 minutes ago    Up 3 minutes (healthy)    8085/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-form-1           10.20.0.106:8082/circleguard/circleguard-form-service:0.1.0                                               "java -jar /app/app.…"   form           3 minutes ago    Up 3 minutes (healthy)    8086/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-gateway-1        10.20.0.106:8082/circleguard/circleguard-gateway-service:0.1.0                                            "java -jar /app/app.…"   gateway        3 minutes ago    Up 3 minutes (healthy)    8087/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-identity-1       10.20.0.106:8082/circleguard/circleguard-identity-service:0.1.0                                           "java -jar /app/app.…"   identity       3 minutes ago    Up 3 minutes (healthy)    8083/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-kafka-1          confluentinc/cp-kafka:7.6.0@sha256:24cdd3a7fa89d2bed150560ebea81ff1943badfa61e51d66bb541a6b0d7fb047       "/etc/confluent/dock…"   kafka          17 minutes ago   Up 15 minutes (healthy)   9092/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-neo4j-1          neo4j:5.26.32-community@sha256:249a1ec6e3c52d82101a5ed33d6ed2b5ed5b0017b21a28c0bfebc335e87fb177           "tini -g -- /startup…"   neo4j          17 minutes ago   Up 17 minutes (healthy)   7473-7474/tcp, 7687/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-notification-1   10.20.0.106:8082/circleguard/circleguard-notification-service:0.1.0                                       "java -jar /app/app.…"   notification   3 minutes ago    Up 35 seconds (healthy)   8082/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-openldap-1       osixia/openldap:1.5.0                                                                                     "/container/tool/run"    openldap       17 minutes ago   Up 17 minutes (healthy)   389/tcp, 636/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-postgres-1       postgres:16.15@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a                    "docker-entrypoint.s…"   postgres       17 minutes ago   Up 17 minutes (healthy)   5432/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-promotion-1      10.20.0.106:8082/circleguard/circleguard-promotion-service:0.1.0                                          "java -jar /app/app.…"   promotion      3 minutes ago    Up 3 minutes (healthy)    8088/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-redis-1          redis:7.2.5-alpine@sha256:6aaf3f5e6bc8a592fbfe2cccf19eb36d27c39d12dab4f4b01556b7449e7b1f44                "docker-entrypoint.s…"   redis          17 minutes ago   Up 17 minutes (healthy)   6379/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-web-1            10.20.0.106:8082/circleguard/circleguard-web:0.1.0                                                        "/docker-entrypoint.…"   web            3 minutes ago    Up 6 seconds (healthy)    0.0.0.0:3000->8080/tcp
+[2026-11-08T22:43:10.086Z] circleguard-prod-zookeeper-1      confluentinc/cp-zookeeper:7.6.0@sha256:9babd1c0beaf93189982bdbb9fe4bf194a2730298b640c057817746c19838866   "/etc/confluent/dock…"   zookeeper      17 minutes ago   Up 17 minutes (healthy)   2181/tcp, 2888/tcp, 3888/tcp
+[2026-11-08T22:43:10.087Z] Trazabilidad actualizada: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/deploy/releases/prod.json
+[2026-11-08T22:43:10.087Z] Copia persistente:        /var/jenkins_home/.circleguard/releases/prod.json
+[2026-11-08T22:43:10.087Z] Notificación omitida: defina DISCORD_WEBHOOK_URL o SLACK_WEBHOOK_URL.
+[2026-11-08T22:43:10.087Z] OK: prod desplegado en 0.1.0
+[2026-11-08T22:43:10.087Z] Rollback registrado en deploy/releases/prod.json
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy dev)
+Stage "Deploy dev" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (E2E dev)
+Stage "E2E dev" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Stop dev)
+Stage "Stop dev" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy stage)
+Stage "Deploy stage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (E2E stage)
+Stage "E2E stage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Stop stage)
+Stage "Stop stage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Approve prod)
+Stage "Approve prod" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy prod)
+Stage "Deploy prod" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Tag release)
+Stage "Tag release" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Release notes)
+Stage "Release notes" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (GitHub release)
+Stage "GitHub release" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] archiveArtifacts
+[2026-11-08T22:43:13.195Z] Archiving artifacts
+[Pipeline] script
+[Pipeline] {
+[Pipeline] catchError
+[Pipeline] {
+[Pipeline] junit
+[2026-11-08T22:43:13.442Z] Recording test results
+[2026-11-08T22:43:13.442Z] No test report files were found. Configuration error?
+[2026-11-08T22:43:13.449Z] None of the test reports contained any result
+[2026-11-08T22:43:13.449Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // catchError
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T22:43:13.807Z] Masking supported pattern matches of $DISCORD_WEBHOOK_URL
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:43:14.207Z] + ./deploy/notify.sh success ci 0.2.0 Pipeline completado
+[2026-11-08T22:43:14.458Z] Notificación enviada.
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] cleanWs
+[2026-11-08T22:43:14.786Z] [WS-CLEANUP] Deleting project workspace...
+[2026-11-08T22:43:14.786Z] [WS-CLEANUP] Deferred wipeout is used...
+[2026-11-08T22:43:14.800Z] [WS-CLEANUP] done
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

@@ -38,6 +38,11 @@ def category(f):
     path = path_of(f)
     if "/src/test/" in path:
         return "PRUEBA"
+    # HTML de evidencias generado por tests (por ejemplo HU-04): contiene el password
+    # efimero que Spring genera en cada arranque de prueba, no un secreto real. Se sigue
+    # reportando en la salida, pero se clasifica como evidencia de prueba en vez de ACTIVO.
+    if path.startswith("docs/evidencias/") and path.endswith(".html"):
+        return "PRUEBA"
     if re.search(r"db/migration/V[23]__", path):
         return "RESIDUAL"
     return "ACTIVO" if kind == "worktree" else "HISTORICO"
