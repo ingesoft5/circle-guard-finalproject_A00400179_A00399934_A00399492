@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Stops a CircleGuard environment. Volumes are preserved on purpose: this script
-# never passes -v. To remove data, name the volume explicitly and with approval.
+# Stops a CircleGuard environment. Volumes are preserved by default; set
+# CG_DOWN_VOLUMES=1 to delete them as well (used by the sequential CI promotion
+# so dev/stage do not keep ~2 GB of data each on the 30 GB CI host).
 # Usage: ./deploy/compose-down.sh dev
 set -Eeuo pipefail
 
@@ -14,5 +15,13 @@ source "$ROOT_DIR/deploy/compose-env.sh" "$ENV_NAME"
 source "$ROOT_DIR/deploy/lib.sh"
 cg_require_docker
 
-"${CG_COMPOSE[@]}" down --remove-orphans
-printf 'Contenedores detenidos. Los volúmenes se conservan.\n'
+DOWN_ARGS=(down --remove-orphans)
+if [[ "${CG_DOWN_VOLUMES:-0}" == "1" ]]; then
+  DOWN_ARGS+=(--volumes)
+fi
+"${CG_COMPOSE[@]}" "${DOWN_ARGS[@]}"
+if [[ "${CG_DOWN_VOLUMES:-0}" == "1" ]]; then
+  printf 'Contenedores y volúmenes del ambiente %s eliminados.\n' "$ENV_NAME"
+else
+  printf 'Contenedores detenidos. Los volúmenes se conservan.\n'
+fi
