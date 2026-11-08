@@ -1,7 +1,7 @@
 # Evidencias de HU-07 · Rollback, notificaciones y release notes
 
-**Estado: ejecutado en AWS/Jenkins con evidencias completas. Pendiente la aprobación del PR a
-`dev` y el apagado de AWS.**
+**Estado: ejecutado en AWS/Jenkins con evidencias completas. AWS detenida. Pendiente únicamente la
+aprobación y merge del PR a `dev`.**
 
 ## Matriz de criterios
 
@@ -15,6 +15,7 @@
 | Esquema de etiquetado de releases | `vMAJOR.MINOR.PATCH` en `deploy/tag-release.sh` | [`04-tag.txt`](04-tag.txt) | Cumplido |
 | Trazabilidad de despliegues y rollbacks | `deploy/releases/*.json` e historial TSV | [`08-traceability.json`](08-traceability.json) | Cumplido |
 | Escaneo de secretos en PASS | `infra/scan-secrets.sh` | [`13-secret-scan.txt`](13-secret-scan.txt) | Cumplido |
+| Apagado de la infraestructura | `infra/teardown.sh --stop --apply` | [`11-stop.txt`](11-stop.txt) | Cumplido |
 
 ## Ejecución real
 
@@ -71,6 +72,7 @@ Detalle completo en [`00-build-summary.txt`](00-build-summary.txt).
 | [`05-politica.md`](05-politica.md) | Política, RFC y PR template |
 | [`08-traceability.json`](08-traceability.json) | Estado dev/prod/stage e historial |
 | [`13-secret-scan.txt`](13-secret-scan.txt) | Worktree PASS e historial |
+| [`11-stop.txt`](11-stop.txt) | Apagado de `ci`/`nexus` y estado de instancias |
 | [`console-build-18.txt`](console-build-18.txt) | Consola del build de CD |
 | [`console-build-19.txt`](console-build-19.txt) | Consola del rollback dev |
 | [`console-build-21.txt`](console-build-21.txt) | Consola del rollback prod |
@@ -78,4 +80,3 @@ Detalle completo en [`00-build-summary.txt`](00-build-summary.txt).
 ## Pendiente para cerrar
 
 1. Aprobar y mergear el PR de HU-07 a `dev` (el autor no puede autoaprobar).
-2. Detener `ci`/`nexus` si no se necesita la infraestructura.
