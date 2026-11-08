@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FloorController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-promotion-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.promotion.controller</a> &gt; <span class="el_source">FloorController.java</span></div><h1>FloorController.java</h1><pre class="source lang-java linenums">package com.circleguard.promotion.controller;
+
+import com.circleguard.promotion.dto.AccessPointDTO;
+import com.circleguard.promotion.dto.FloorDTO;
+import com.circleguard.promotion.model.AccessPoint;
+import com.circleguard.promotion.model.Floor;
+import com.circleguard.promotion.service.AccessPointService;
+import com.circleguard.promotion.service.FloorService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping(&quot;/api/v1/floors&quot;)
+@RequiredArgsConstructor
+public class FloorController {
+    private final FloorService floorService;
+    private final AccessPointService accessPointService;
+
+    @PostMapping(&quot;/{id}/access-points&quot;)
+    @PreAuthorize(&quot;hasAuthority('ADMIN')&quot;)
+    public ResponseEntity&lt;AccessPointDTO&gt; addAccessPoint(@PathVariable UUID id, @RequestBody AccessPointDTO request) {
+<span class="fc" id="L27">        AccessPoint ap = accessPointService.registerAccessPoint(</span>
+                id,
+<span class="fc" id="L29">                request.getMacAddress(),</span>
+<span class="fc" id="L30">                request.getCoordinateX(),</span>
+<span class="fc" id="L31">                request.getCoordinateY(),</span>
+<span class="fc" id="L32">                request.getName()</span>
+        );
+<span class="fc" id="L34">        return ResponseEntity.ok(convertApToDTO(ap));</span>
+    }
+
+    @GetMapping(&quot;/{id}/access-points&quot;)
+    public ResponseEntity&lt;List&lt;AccessPointDTO&gt;&gt; getAccessPoints(@PathVariable UUID id) {
+<span class="fc" id="L39">        List&lt;AccessPointDTO&gt; dtos = accessPointService.getAccessPointsByFloor(id).stream()</span>
+<span class="fc" id="L40">                .map(this::convertApToDTO)</span>
+<span class="fc" id="L41">                .collect(Collectors.toList());</span>
+<span class="fc" id="L42">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasAuthority('ADMIN')&quot;)
+    public ResponseEntity&lt;FloorDTO&gt; updateFloor(@PathVariable UUID id, @RequestBody FloorDTO request) {
+<span class="fc" id="L48">        Floor floor = floorService.updateFloor(</span>
+                id,
+<span class="fc" id="L50">                request.getFloorNumber(),</span>
+<span class="fc" id="L51">                request.getName(),</span>
+<span class="fc" id="L52">                request.getFloorPlanUrl()</span>
+        );
+<span class="fc" id="L54">        return ResponseEntity.ok(convertFloorToDTO(floor));</span>
+    }
+
+    private FloorDTO convertFloorToDTO(Floor floor) {
+<span class="fc" id="L58">        return FloorDTO.builder()</span>
+<span class="fc" id="L59">                .id(floor.getId())</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">                .buildingId(floor.getBuilding() != null ? floor.getBuilding().getId() : null)</span>
+<span class="fc" id="L61">                .floorNumber(floor.getFloorNumber())</span>
+<span class="fc" id="L62">                .name(floor.getName())</span>
+<span class="fc" id="L63">                .floorPlanUrl(floor.getFloorPlanUrl())</span>
+<span class="fc" id="L64">                .build();</span>
+    }
+
+    private AccessPointDTO convertApToDTO(AccessPoint ap) {
+<span class="fc" id="L68">        return AccessPointDTO.builder()</span>
+<span class="fc" id="L69">                .id(ap.getId())</span>
+<span class="fc" id="L70">                .macAddress(ap.getMacAddress())</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">                .floorId(ap.getFloor() != null ? ap.getFloor().getId() : null)</span>
+<span class="fc" id="L72">                .coordinateX(ap.getCoordinateX())</span>
+<span class="fc" id="L73">                .coordinateY(ap.getCoordinateY())</span>
+<span class="fc" id="L74">                .name(ap.getName())</span>
+<span class="fc" id="L75">                .build();</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteFloor(@PathVariable UUID id) {
+<span class="fc" id="L80">        floorService.deleteFloor(id);</span>
+<span class="fc" id="L81">        return ResponseEntity.ok().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

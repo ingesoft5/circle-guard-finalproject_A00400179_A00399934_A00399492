@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IdentityClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-auth-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.auth.client</a> &gt; <span class="el_source">IdentityClient.java</span></div><h1>IdentityClient.java</h1><pre class="source lang-java linenums">package com.circleguard.auth.client;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import java.util.*;
+
+@Component
+<span class="fc" id="L8">public class IdentityClient {</span>
+    // In a real microservice, this would use Feign or WebClient
+<span class="fc" id="L10">    private final RestTemplate restTemplate = new RestTemplate();</span>
+    private static final String IDENTITY_URL = &quot;http://localhost:8083/api/v1/identities/map&quot;;
+
+    public UUID getAnonymousId(String realIdentity) {
+<span class="fc" id="L14">        Map&lt;String, String&gt; request = Map.of(&quot;realIdentity&quot;, realIdentity);</span>
+<span class="fc" id="L15">        Map response = restTemplate.postForObject(IDENTITY_URL, request, Map.class);</span>
+<span class="fc" id="L16">        return UUID.fromString(response.get(&quot;anonymousId&quot;).toString());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

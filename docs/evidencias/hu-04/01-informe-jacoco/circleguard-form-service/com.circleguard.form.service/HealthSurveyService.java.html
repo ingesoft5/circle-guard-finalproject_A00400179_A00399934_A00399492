@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HealthSurveyService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-form-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.form.service</a> &gt; <span class="el_source">HealthSurveyService.java</span></div><h1>HealthSurveyService.java</h1><pre class="source lang-java linenums">package com.circleguard.form.service;
+
+import com.circleguard.form.model.HealthSurvey;
+import com.circleguard.form.model.Questionnaire;
+import com.circleguard.form.model.ValidationStatus;
+import com.circleguard.form.repository.HealthSurveyRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class HealthSurveyService {
+    private final HealthSurveyRepository repository;
+    private final QuestionnaireService questionnaireService;
+    private final SymptomMapper symptomMapper;
+    private final KafkaTemplate&lt;String, Object&gt; kafkaTemplate;
+
+    private static final String TOPIC_SURVEY_SUBMITTED = &quot;survey.submitted&quot;;
+    private static final String TOPIC_CERTIFICATE_VALIDATED = &quot;certificate.validated&quot;;
+
+    @Transactional
+    public HealthSurvey submitSurvey(HealthSurvey survey) {
+<span class="fc" id="L29">        Optional&lt;Questionnaire&gt; activeQuestionnaire = questionnaireService.getActiveQuestionnaire();</span>
+        
+<span class="fc" id="L31">        boolean hasSymptoms = activeQuestionnaire</span>
+<span class="fc" id="L32">                .map(q -&gt; symptomMapper.hasSymptoms(survey, q))</span>
+<span class="fc" id="L33">                .orElse(false);</span>
+        
+        // Compatibility: update the legacy fields if they are missing in request but present in responses
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (survey.getHasFever() == null) survey.setHasFever(hasSymptoms);</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (survey.getHasCough() == null) survey.setHasCough(hasSymptoms);</span>
+        
+        // Set initial validation status if attachment is present
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (survey.getAttachmentPath() != null) {</span>
+<span class="fc" id="L41">            survey.setValidationStatus(ValidationStatus.PENDING);</span>
+        }
+        
+<span class="fc" id="L44">        HealthSurvey saved = repository.save(survey);</span>
+        
+        // Emit Event for Promotion Service
+<span class="fc" id="L47">        Map&lt;String, Object&gt; event = Map.of(</span>
+<span class="fc" id="L48">            &quot;anonymousId&quot;, saved.getAnonymousId(),</span>
+<span class="fc" id="L49">            &quot;hasSymptoms&quot;, hasSymptoms,</span>
+<span class="fc" id="L50">            &quot;timestamp&quot;, System.currentTimeMillis()</span>
+        );
+<span class="fc" id="L52">        kafkaTemplate.send(TOPIC_SURVEY_SUBMITTED, saved.getAnonymousId().toString(), event);</span>
+        
+<span class="fc" id="L54">        return saved;</span>
+    }
+
+    public List&lt;HealthSurvey&gt; getPendingSurveys() {
+<span class="fc" id="L58">        return repository.findByAttachmentPathIsNotNullAndValidationStatus(ValidationStatus.PENDING);</span>
+    }
+
+    @Transactional
+    public void validateSurvey(UUID surveyId, ValidationStatus status, UUID adminId) {
+<span class="fc" id="L63">        HealthSurvey survey = repository.findById(surveyId)</span>
+<span class="fc" id="L64">                .orElseThrow(() -&gt; new RuntimeException(&quot;Survey not found: &quot; + surveyId));</span>
+        
+<span class="fc" id="L66">        survey.setValidationStatus(status);</span>
+<span class="fc" id="L67">        survey.setValidatedBy(adminId);</span>
+<span class="fc" id="L68">        repository.save(survey);</span>
+
+        // Emit event so promotion-service can restore access if approved
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (status == ValidationStatus.APPROVED) {</span>
+<span class="fc" id="L72">            Map&lt;String, Object&gt; event = Map.of(</span>
+<span class="fc" id="L73">                &quot;anonymousId&quot;, survey.getAnonymousId(),</span>
+                &quot;status&quot;, &quot;APPROVED&quot;,
+                &quot;adminId&quot;, adminId,
+<span class="fc" id="L76">                &quot;timestamp&quot;, System.currentTimeMillis()</span>
+            );
+<span class="fc" id="L78">            kafkaTemplate.send(TOPIC_CERTIFICATE_VALIDATED, survey.getAnonymousId().toString(), event);</span>
+        }
+<span class="fc" id="L80">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

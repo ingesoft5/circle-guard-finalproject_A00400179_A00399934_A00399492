@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Questionnaire.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-form-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.form.model</a> &gt; <span class="el_source">Questionnaire.java</span></div><h1>Questionnaire.java</h1><pre class="source lang-java linenums">package com.circleguard.form.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.UUID;
+import java.util.List;
+import java.time.OffsetDateTime;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+@Entity
+@Table(name = &quot;questionnaires&quot;)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Questionnaire {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false)
+    private String title;
+
+    private String description;
+
+    @Column(nullable = false)
+    private Integer version;
+
+    @Column(name = &quot;is_active&quot;)
+    private Boolean isActive;
+
+    @OneToMany(mappedBy = &quot;questionnaire&quot;, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy(&quot;orderIndex ASC&quot;)
+    @JsonManagedReference
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List&lt;Question&gt; questions;
+
+    @Column(name = &quot;created_at&quot;, updatable = false)
+    private OffsetDateTime createdAt;
+
+    @Column(name = &quot;updated_at&quot;)
+    private OffsetDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+<span class="fc" id="L47">        createdAt = OffsetDateTime.now();</span>
+<span class="fc" id="L48">        updatedAt = OffsetDateTime.now();</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (version == null) version = 1;</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (isActive == null) isActive = false;</span>
+<span class="fc" id="L51">    }</span>
+
+    @PreUpdate
+    protected void onUpdate() {
+<span class="fc" id="L55">        updatedAt = OffsetDateTime.now();</span>
+<span class="fc" id="L56">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
