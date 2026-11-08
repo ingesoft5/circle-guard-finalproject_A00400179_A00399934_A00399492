@@ -1,6 +1,7 @@
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
+import org.sonarqube.gradle.SonarExtension
 
 plugins {
     id("org.springframework.boot") version "3.2.4" apply false
@@ -8,7 +9,7 @@ plugins {
     kotlin("jvm") version "1.9.24" apply false
     kotlin("plugin.spring") version "1.9.24" apply false
     kotlin("plugin.jpa") version "1.9.24" apply false
-    id("org.sonarqube") version "4.4.1.3373" apply false
+    id("org.sonarqube") version "4.4.1.3373"
 }
 
 // HU-04: services whose line coverage must stay at or above the threshold (JaCoCo verification).
@@ -37,7 +38,13 @@ subprojects {
     apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "jacoco")
-    apply(plugin = "org.sonarqube")
+    val serviceName = name
+    extensions.configure<SonarExtension>("sonar") {
+        val selected = (findProperty("sonarServices") as String?)?.split(",")?.map { it.trim() }
+        if (selected != null && serviceName !in selected) {
+            setSkipProject(true)
+        }
+    }
     extensions.configure<JavaPluginExtension> {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(21))
