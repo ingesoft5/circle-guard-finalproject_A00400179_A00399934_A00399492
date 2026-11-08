@@ -155,6 +155,7 @@ host, sin rebuild por ambiente.
 | `record-release.sh` | Escribe `deploy/releases/<env>.json` e historial TSV |
 | `tag-release.sh <version>` | Crea y publica el tag anotado `vX.Y.Z` |
 | `release-notes.sh <version>` | Genera `docs/release-notes/vX.Y.Z.md` y actualiza `CHANGELOG.md` |
+| `github-release.sh <version>` | Publica las notas como GitHub Release (requiere `GITHUB_TOKEN`) |
 | `notify.sh` | Envía estado/fallo a Discord o Slack |
 | `e2e.sh <env>` | Ejecuta Playwright contra `E2E_BASE_URL` |
 
@@ -177,6 +178,7 @@ E2E_BASE_URL=http://localhost:3000 ./deploy/e2e.sh dev
 DISCORD_WEBHOOK_URL=... ./deploy/notify.sh failure dev 1.0.0 "Fallo simulado"
 ./deploy/tag-release.sh 1.0.0
 ./deploy/release-notes.sh 1.0.0
+GITHUB_TOKEN=... ./deploy/github-release.sh 1.0.0
 ```
 
 La trazabilidad queda en `deploy/releases/<env>.json` y `deploy/releases/history.tsv`. El

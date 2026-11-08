@@ -414,10 +414,30 @@ pipeline {
             expression { params.FORCE_PROD }
           }
           expression { !params.SKIP_E2E }
+          expression { !params.ROLLBACK_VERSION?.trim() }
         }
       }
       steps {
         sh "./deploy/release-notes.sh '${env.VERSION}'"
+      }
+    }
+
+    stage('GitHub release') {
+      when {
+        allOf {
+          anyOf {
+            branch 'main'
+            expression { params.FORCE_PROD }
+          }
+          expression { params.PUSH_TAG }
+          expression { !params.SKIP_E2E }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+        }
+      }
+      steps {
+        withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+          sh "./deploy/github-release.sh '${env.VERSION}'"
+        }
       }
     }
   }
