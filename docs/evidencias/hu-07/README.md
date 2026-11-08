@@ -1,70 +1,82 @@
 # Evidencias de HU-07 · Rollback, notificaciones y release notes
 
-**Estado: mecanismos implementados; evidencias pendientes de una ejecución real.**
+**Estado: ejecutado en AWS/Jenkins. Pendiente únicamente la captura `02-notification.png` y la
+aprobación del PR a `dev`.**
 
 ## Matriz de criterios
 
-| Criterio | Implementación | Evidencia |
+| Criterio | Implementación | Evidencia | Estado |
+|---|---|---|---|
+| Rollback a una versión anterior, verificado en dev y prod | `deploy/rollback.sh <env> <version>`; valida imágenes y redespliega con `event=rollback` | [`01-rollback.txt`](01-rollback.txt) y [`08-traceability.json`](08-traceability.json) | Cumplido |
+| Notificación automática de fallos | `deploy/notify.sh` (Discord/Slack) en el `post` de Jenkins | [`02-notification.txt`](02-notification.txt) + captura `02-notification.png` | Texto cumple; captura pendiente |
+| Plantilla de solicitud de cambio | `docs/operaciones/solicitud-cambio.md` | [`05-politica.md`](05-politica.md) | Cumplido |
+| Política de aprobación por tipo | `docs/operaciones/politica-aprobacion.md` | [`05-politica.md`](05-politica.md) | Cumplido |
+| Release notes desde commits/PR | `deploy/release-notes.sh` + `CHANGELOG.md` | [`03-release-notes.md`](03-release-notes.md) | Cumplido |
+| Esquema de etiquetado de releases | `vMAJOR.MINOR.PATCH` en `deploy/tag-release.sh` | [`04-tag.txt`](04-tag.txt) | Cumplido |
+| Trazabilidad de despliegues y rollbacks | `deploy/releases/*.json` e historial TSV | [`08-traceability.json`](08-traceability.json) | Cumplido |
+| Escaneo de secretos en PASS | `infra/scan-secrets.sh` | [`13-secret-scan.txt`](13-secret-scan.txt) | Cumplido |
+
+## Ejecución real
+
+| Build | Resultado | Detalle |
 |---|---|---|
-| Rollback a una versión anterior, verificado | `deploy/rollback.sh <env> <version>`; valida imágenes y redespliega | `01-rollback.txt` + `deploy/releases/history.tsv` |
-| Notificación automática de fallos | `deploy/notify.sh` (Discord/Slack) en `post` de Jenkins | `02-notification.png` |
-| Plantilla de solicitud de cambio | `docs/operaciones/solicitud-cambio.md` | Archivo versionado |
-| Política de aprobación por tipo | `docs/operaciones/politica-aprobacion.md` | Archivo versionado |
-| Release notes desde commits/PR | `deploy/release-notes.sh` + `CHANGELOG.md` | `03-release-notes.md` |
-| Esquema de etiquetado de releases | `vMAJOR.MINOR.PATCH` en `deploy/tag-release.sh` | `04-tag.txt` |
+| #16 | FAILURE | `ENOSPC` en `Package images`; se limpió disco. |
+| #17 | FAILURE | Unit/coverage e integración OK; imágenes 0.2.0 publicadas; `Deploy stage` unhealthy; notificación de fallo enviada. |
+| #18 | UNSTABLE | CD completo; prod 0.2.0; tag/release notes/GitHub Release. `Unit tests` interrumpidos por reinicio de Jenkins, no por test fallido. |
+| #19 | SUCCESS | Rollback dev `0.2.0 → 0.1.0`; 15 contenedores healthy. |
+| #20 | SUCCESS | Build SCM sin tests ni despliegue. |
+| #21 | SUCCESS | Rollback prod `0.2.0 → 0.1.0`; 15 contenedores healthy. |
 
-## Evidencias a generar
-
-| Archivo | Cómo |
-|---|---|
-| `01-rollback.txt` | `IMAGE_REGISTRY=... ./deploy/rollback.sh dev <version-anterior>` |
-| `02-notification.png` | Captura del mensaje de fallo en Discord/Slack |
-| `03-release-notes.md` | `docs/release-notes/v1.0.0.md` y `CHANGELOG.md` |
-| `04-tag.txt` | `git tag -l`, `git show v1.0.0` |
-| `05-politica.md` | Copia/enlace de la política y la plantilla |
+Detalle completo en [`00-build-summary.txt`](00-build-summary.txt).
 
 ## Rollback
 
-```bash
-# Ver la versión actual
-./deploy/current-version.sh dev
-
-# Volver a la versión anterior publicada
-IMAGE_REGISTRY=localhost:5000 ./deploy/rollback.sh dev 0.9.0
-
-# Verificar el registro
-cat deploy/releases/dev.json
-```
-
-El script:
-
-1. Rechaza la versión actual.
-2. Verifica las 9 imágenes en el registro.
-3. Redespliega con `event=rollback`.
-4. Notifica y deja la trazabilidad en `deploy/releases/`.
+- Dev: build #19, evento `rollback`, `0.2.0 → 0.1.0`; stack dev eliminado tras la evidencia.
+- Prod: build #21, evento `rollback`, `0.2.0 → 0.1.0`; 15 servicios healthy.
+- El campo `commit` de los rollbacks es el checkout de Jenkins; la imagen `0.1.0` corresponde al
+  tag `v0.1.0` (`dd825e6`). La relación queda documentada en `01` y `08`.
 
 ## Notificaciones
 
-```bash
-DISCORD_WEBHOOK_URL=... ./deploy/notify.sh failure dev 1.0.0 "Fallo simulado"
-```
+- Fallo real: build #17, `./deploy/notify.sh failure stage 0.2.0 Pipeline falló`.
+- Mensaje: `[CircleGuard] failure · stage · 0.2.0 · Pipeline falló`.
+- Captura de Discord pendiente: guardar como `02-notification.png` (sin webhook visible).
 
-Sin webhook configurado, el script informa y termina en 0: una notificación ausente no debe
-marcar un despliegue como fallido.
+## Release notes y tag
 
-## Release notes
+- `docs/release-notes/v0.2.0.md` y `CHANGELOG.md` actualizados.
+- `v0.2.0` → `59cec5c`.
+- GitHub Release:
+  <https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492/releases/tag/v0.2.0>
+- El tag/release se corrigió después de detectar que `PUSH_TAG=true` no era reconocido por
+  `tag-release.sh` y que faltaba `target_commitish` en `github-release.sh`.
 
-```bash
-./deploy/release-notes.sh 1.0.0
-cat docs/release-notes/v1.0.0.md
-head -40 CHANGELOG.md
-```
+## Tests
 
-El generador agrupa `feat`, `fix`, `perf` y otros, convierte `(#123)` en enlaces al PR y actualiza
-`CHANGELOG.md` sin duplicar la versión.
+- #17: `Unit tests and coverage` y `Integration tests` en SUCCESS.
+- #18: `Unit tests and coverage` UNSTABLE por reinicio de Jenkins (JENKINS-48300), no por fallo de
+  tests; el CD continuó y terminó.
+- #20: no ejecutó tests.
+- HU-04 no se modificó; los tests base siguen siendo no bloqueantes por decisión D2.
 
-## Pendiente
+## Archivos
 
-- Ejecutar un rollback real en dev o stage con dos versiones publicadas.
-- Capturar la notificación de un fallo real del pipeline.
-- Publicar las notas generadas por Jenkins en el PR/release de GitHub.
+| Archivo | Contenido |
+|---|---|
+| [`00-build-summary.txt`](00-build-summary.txt) | Resumen de #16–#21 y estado de tests |
+| [`01-rollback.txt`](01-rollback.txt) | Rollback dev/prod, JSON e historial |
+| [`02-notification.txt`](02-notification.txt) | Fallo real #17 y prueba manual |
+| [`03-release-notes.md`](03-release-notes.md) | Notas v0.2.0, CHANGELOG y GitHub Release |
+| [`04-tag.txt`](04-tag.txt) | Tags v0.1.0/v0.2.0 y corrección |
+| [`05-politica.md`](05-politica.md) | Política, RFC y PR template |
+| [`08-traceability.json`](08-traceability.json) | Estado dev/prod/stage e historial |
+| [`13-secret-scan.txt`](13-secret-scan.txt) | Worktree PASS e historial |
+| [`console-build-18.txt`](console-build-18.txt) | Consola del build de CD |
+| [`console-build-19.txt`](console-build-19.txt) | Consola del rollback dev |
+| [`console-build-21.txt`](console-build-21.txt) | Consola del rollback prod |
+
+## Pendiente para cerrar
+
+1. Guardar `02-notification.png` con la captura real del mensaje de Discord.
+2. Aprobar y mergear el PR de HU-07 a `dev` (el autor no puede autoaprobar).
+3. Detener `ci`/`nexus` si no se necesita la infraestructura.

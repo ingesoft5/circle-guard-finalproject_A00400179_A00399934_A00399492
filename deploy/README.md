@@ -186,6 +186,10 @@ La trazabilidad queda en `deploy/releases/<env>.json` y `deploy/releases/history
 [`docs/arquitectura/pipeline-cd.md`](../docs/arquitectura/pipeline-cd.md). Los prerrequisitos de
 Jenkins están en [`jenkins/README.md`](../jenkins/README.md).
 
+`PUSH_TAG` acepta `1`/`true` para publicar el tag y `0`/`false` para dejarlo solo local.
+`github-release.sh` usa `target_commitish` con el commit del tag, de modo que el release no
+apunte al branch por defecto si el tag aún no existe en GitHub.
+
 ## Limitaciones y siguientes pasos
 
 - Registro: el diseño oficial de HU-01 es **CNCF Distribution 3.0** en el host `nexus`

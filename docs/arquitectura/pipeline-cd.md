@@ -71,6 +71,10 @@ El tag es `vMAJOR.MINOR.PATCH` (anotado) y la imagen de release usa `MAJOR.MINOR
 admite `+` ni `latest`). En `dev` y otras ramas, el pipeline añade `-<sha>` (por ejemplo
 `0.2.0-a1b2c3d`) para que cada commit tenga una imagen única; el tag estable se crea en `main`.
 
+`PUSH_TAG` acepta `1`/`true` para publicar el tag; `0`/`false` solo lo crea localmente.
+`github-release.sh` fija `target_commitish` al commit del tag para que el GitHub Release no apunte
+al branch por defecto cuando el tag aún no existe en el remoto.
+
 ## Trazabilidad
 
 Cada despliegue escribe:

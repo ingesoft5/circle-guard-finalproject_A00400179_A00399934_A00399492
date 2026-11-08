@@ -1,0 +1,2237 @@
+Started by user admin
+ > git rev-parse --resolve-git-dir /var/jenkins_home/caches/git-d5985a344ef229171a066e2dd3fb8f5b/.git # timeout=10
+Setting origin to http://cg-gitsrv/cg-hu06.git
+ > git config remote.origin.url http://cg-gitsrv/cg-hu06.git # timeout=10
+Fetching origin...
+Fetching upstream changes from origin
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git config --get remote.origin.url # timeout=10
+ > git fetch --no-tags --force --progress -- origin +refs/heads/*:refs/remotes/origin/* # timeout=10
+Seen branch in repository origin/HU-06-run
+Seen branch in repository origin/dev
+Seen 2 remote branches
+Obtained Jenkinsfile from 59cec5cac1456cb3da1f205cde39ba97a6bc3b1c
+Loading library circleguard@dev:jenkins/
+Attempting to resolve dev from remote references...
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git ls-remote -- http://cg-gitsrv/cg-src.git # timeout=10
+Found match: refs/heads/dev revision e45ba14a7909e83fc5d7e918d15cc0dd606ee47e
+The recommended git tool is: NONE
+Warning: CredentialId "github-token" could not be found.
+ > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run@libs/917d25667adb46bc77ed4543844f6425abce2272bb846e005e0389b76eb4d364/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url http://cg-gitsrv/cg-src.git # timeout=10
+Fetching without tags
+Fetching upstream changes from http://cg-gitsrv/cg-src.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --no-tags --force --progress -- http://cg-gitsrv/cg-src.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+Checking out Revision e45ba14a7909e83fc5d7e918d15cc0dd606ee47e (dev)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f e45ba14a7909e83fc5d7e918d15cc0dd606ee47e # timeout=10
+Commit message: "Merge pull request #7 from ingesoft5/fix/jenkins-pipeline-stages"
+ > git rev-list --no-walk e45ba14a7909e83fc5d7e918d15cc0dd606ee47e # timeout=10
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Still waiting to schedule task
+Waiting for next available executor
+Running on Jenkins in /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+The recommended git tool is: NONE
+No credentials specified
+Cloning the remote Git repository
+Cloning with configured refspecs honoured and without tags
+Cloning repository http://cg-gitsrv/cg-hu06.git
+ > git init /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run # timeout=10
+Fetching upstream changes from http://cg-gitsrv/cg-hu06.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.47.3'
+ > git fetch --no-tags --force --progress -- http://cg-gitsrv/cg-hu06.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url http://cg-gitsrv/cg-hu06.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+Checking out Revision 59cec5cac1456cb3da1f205cde39ba97a6bc3b1c (HU-06-run)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 59cec5cac1456cb3da1f205cde39ba97a6bc3b1c # timeout=10
+Commit message: "fix(hu-07): publicar el tag en GitHub desde Jenkins"
+ > git rev-list --no-walk 59cec5cac1456cb3da1f205cde39ba97a6bc3b1c # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+[2026-11-08T22:00:52.515Z] The recommended git tool is: NONE
+[2026-11-08T22:00:52.515Z] No credentials specified
+[2026-11-08T22:00:52.515Z]  > git rev-parse --resolve-git-dir /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/.git # timeout=10
+[2026-11-08T22:00:52.524Z] Fetching changes from the remote Git repository
+[2026-11-08T22:00:52.525Z]  > git config remote.origin.url http://cg-gitsrv/cg-hu06.git # timeout=10
+[2026-11-08T22:00:52.531Z] Fetching without tags
+[2026-11-08T22:00:52.531Z] Fetching upstream changes from http://cg-gitsrv/cg-hu06.git
+[2026-11-08T22:00:52.531Z]  > git --version # timeout=10
+[2026-11-08T22:00:52.538Z]  > git --version # 'git version 2.47.3'
+[2026-11-08T22:00:52.539Z]  > git fetch --no-tags --force --progress -- http://cg-gitsrv/cg-hu06.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+[2026-11-08T22:00:52.561Z] Checking out Revision 59cec5cac1456cb3da1f205cde39ba97a6bc3b1c (HU-06-run)
+[2026-11-08T22:00:52.561Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-08T22:00:52.564Z]  > git checkout -f 59cec5cac1456cb3da1f205cde39ba97a6bc3b1c # timeout=10
+[2026-11-08T22:00:52.689Z] Commit message: "fix(hu-07): publicar el tag en GitHub desde Jenkins"
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:00:53.015Z] + git fetch --tags --force origin +refs/heads/dev:refs/remotes/origin/dev
+[Pipeline] echo
+[2026-11-08T22:00:53.110Z] Servicios a procesar: circleguard-auth-service,circleguard-identity-service,circleguard-promotion-service,circleguard-notification-service,circleguard-form-service,circleguard-file-service,circleguard-gateway-service,circleguard-dashboard-service
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Prepare)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:00:53.575Z] + git fetch --tags --force
+[Pipeline] echo
+[2026-11-08T22:00:53.616Z] CircleGuard version: 0.2.0
+[Pipeline] sh
+[2026-11-08T22:00:53.886Z] + ./deploy/current-version.sh dev
+[2026-11-08T22:00:53.886Z] 0.2.0
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:00:54.419Z] + chmod +x ./gradlew
+[2026-11-08T22:00:54.420Z] + ./gradlew :services:circleguard-auth-service:classes :services:circleguard-auth-service:testClasses :services:circleguard-identity-service:classes :services:circleguard-identity-service:testClasses :services:circleguard-promotion-service:classes :services:circleguard-promotion-service:testClasses :services:circleguard-notification-service:classes :services:circleguard-notification-service:testClasses :services:circleguard-form-service:classes :services:circleguard-form-service:testClasses :services:circleguard-file-service:classes :services:circleguard-file-service:testClasses :services:circleguard-gateway-service:classes :services:circleguard-gateway-service:testClasses :services:circleguard-dashboard-service:classes :services:circleguard-dashboard-service:testClasses --continue --no-daemon --console=plain
+[2026-11-08T22:00:55.332Z] To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+[2026-11-08T22:00:56.675Z] Daemon will be stopped at the end of the build 
+[2026-11-08T22:01:03.157Z] 
+[2026-11-08T22:01:03.157Z] > Configure project :
+[2026-11-08T22:01:03.157Z] The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+[2026-11-08T22:01:03.157Z] The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+[2026-11-08T22:01:04.500Z] 
+[2026-11-08T22:01:04.500Z] > Task :services:circleguard-auth-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:05.410Z] > Task :services:circleguard-auth-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:09.537Z] > Task :services:circleguard-auth-service:compileJava
+[2026-11-08T22:01:09.537Z] > Task :services:circleguard-auth-service:processResources
+[2026-11-08T22:01:09.537Z] > Task :services:circleguard-auth-service:classes
+[2026-11-08T22:01:09.537Z] > Task :services:circleguard-auth-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:10.880Z] 
+[2026-11-08T22:01:10.880Z] > Task :services:circleguard-auth-service:compileTestJava
+[2026-11-08T22:01:10.880Z] Note: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/services/circleguard-auth-service/src/test/java/com/circleguard/auth/service/JwtTokenServiceTest.java uses unchecked or unsafe operations.
+[2026-11-08T22:01:10.880Z] Note: Recompile with -Xlint:unchecked for details.
+[2026-11-08T22:01:10.880Z] 
+[2026-11-08T22:01:10.880Z] > Task :services:circleguard-auth-service:processTestResources
+[2026-11-08T22:01:10.880Z] > Task :services:circleguard-auth-service:testClasses
+[2026-11-08T22:01:10.880Z] > Task :services:circleguard-identity-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:10.880Z] > Task :services:circleguard-identity-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:12.744Z] 
+[2026-11-08T22:01:12.744Z] > Task :services:circleguard-identity-service:compileJava
+[2026-11-08T22:01:12.744Z] Note: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/services/circleguard-identity-service/src/main/java/com/circleguard/identity/config/JwtAuthenticationFilter.java uses unchecked or unsafe operations.
+[2026-11-08T22:01:12.744Z] Note: Recompile with -Xlint:unchecked for details.
+[2026-11-08T22:01:12.744Z] 
+[2026-11-08T22:01:12.744Z] > Task :services:circleguard-identity-service:processResources
+[2026-11-08T22:01:12.744Z] > Task :services:circleguard-identity-service:classes
+[2026-11-08T22:01:12.744Z] > Task :services:circleguard-identity-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:14.087Z] > Task :services:circleguard-identity-service:compileTestJava
+[2026-11-08T22:01:14.087Z] > Task :services:circleguard-identity-service:processTestResources
+[2026-11-08T22:01:14.087Z] > Task :services:circleguard-identity-service:testClasses
+[2026-11-08T22:01:14.087Z] > Task :services:circleguard-promotion-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:14.087Z] > Task :services:circleguard-promotion-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:16.571Z] 
+[2026-11-08T22:01:16.571Z] > Task :services:circleguard-promotion-service:compileJava
+[2026-11-08T22:01:16.571Z] Note: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/security/JwtAuthenticationFilter.java uses unchecked or unsafe operations.
+[2026-11-08T22:01:16.571Z] Note: Recompile with -Xlint:unchecked for details.
+[2026-11-08T22:01:16.826Z] 
+[2026-11-08T22:01:16.826Z] > Task :services:circleguard-promotion-service:processResources
+[2026-11-08T22:01:16.826Z] > Task :services:circleguard-promotion-service:classes
+[2026-11-08T22:01:16.826Z] > Task :services:circleguard-promotion-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:18.687Z] > Task :services:circleguard-promotion-service:compileTestJava
+[2026-11-08T22:01:18.687Z] > Task :services:circleguard-promotion-service:processTestResources
+[2026-11-08T22:01:18.687Z] > Task :services:circleguard-promotion-service:testClasses
+[2026-11-08T22:01:18.687Z] > Task :services:circleguard-notification-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:18.938Z] > Task :services:circleguard-notification-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:19.849Z] > Task :services:circleguard-notification-service:compileJava
+[2026-11-08T22:01:19.849Z] > Task :services:circleguard-notification-service:processResources
+[2026-11-08T22:01:19.849Z] > Task :services:circleguard-notification-service:classes
+[2026-11-08T22:01:19.849Z] > Task :services:circleguard-notification-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:20.760Z] > Task :services:circleguard-notification-service:compileTestJava
+[2026-11-08T22:01:20.760Z] > Task :services:circleguard-notification-service:processTestResources NO-SOURCE
+[2026-11-08T22:01:20.760Z] > Task :services:circleguard-notification-service:testClasses
+[2026-11-08T22:01:20.760Z] > Task :services:circleguard-form-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:21.013Z] > Task :services:circleguard-form-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:21.924Z] > Task :services:circleguard-form-service:compileJava
+[2026-11-08T22:01:21.924Z] > Task :services:circleguard-form-service:processResources
+[2026-11-08T22:01:21.924Z] > Task :services:circleguard-form-service:classes
+[2026-11-08T22:01:21.924Z] > Task :services:circleguard-form-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:22.835Z] > Task :services:circleguard-form-service:compileTestJava
+[2026-11-08T22:01:22.835Z] > Task :services:circleguard-form-service:processTestResources NO-SOURCE
+[2026-11-08T22:01:22.835Z] > Task :services:circleguard-form-service:testClasses
+[2026-11-08T22:01:22.835Z] > Task :services:circleguard-file-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:22.835Z] > Task :services:circleguard-file-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:23.385Z] > Task :services:circleguard-file-service:compileJava
+[2026-11-08T22:01:23.385Z] > Task :services:circleguard-file-service:processResources
+[2026-11-08T22:01:23.385Z] > Task :services:circleguard-file-service:classes
+[2026-11-08T22:01:23.385Z] > Task :services:circleguard-file-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:23.937Z] > Task :services:circleguard-file-service:compileTestJava
+[2026-11-08T22:01:23.937Z] > Task :services:circleguard-file-service:processTestResources NO-SOURCE
+[2026-11-08T22:01:23.937Z] > Task :services:circleguard-file-service:testClasses
+[2026-11-08T22:01:23.937Z] > Task :services:circleguard-gateway-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:23.937Z] > Task :services:circleguard-gateway-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:24.853Z] > Task :services:circleguard-gateway-service:compileJava
+[2026-11-08T22:01:24.853Z] > Task :services:circleguard-gateway-service:processResources
+[2026-11-08T22:01:24.853Z] > Task :services:circleguard-gateway-service:classes
+[2026-11-08T22:01:24.853Z] > Task :services:circleguard-gateway-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:25.105Z] 
+[2026-11-08T22:01:25.105Z] > Task :services:circleguard-gateway-service:compileTestJava
+[2026-11-08T22:01:25.105Z] Note: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/services/circleguard-gateway-service/src/test/java/com/circleguard/gateway/service/QrValidationServiceTest.java uses unchecked or unsafe operations.
+[2026-11-08T22:01:25.105Z] Note: Recompile with -Xlint:unchecked for details.
+[2026-11-08T22:01:25.105Z] 
+[2026-11-08T22:01:25.105Z] > Task :services:circleguard-gateway-service:processTestResources NO-SOURCE
+[2026-11-08T22:01:25.105Z] > Task :services:circleguard-gateway-service:testClasses
+[2026-11-08T22:01:25.105Z] > Task :services:circleguard-dashboard-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:25.361Z] > Task :services:circleguard-dashboard-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:26.272Z] > Task :services:circleguard-dashboard-service:compileJava
+[2026-11-08T22:01:26.273Z] > Task :services:circleguard-dashboard-service:processResources
+[2026-11-08T22:01:26.273Z] > Task :services:circleguard-dashboard-service:classes
+[2026-11-08T22:01:26.273Z] > Task :services:circleguard-dashboard-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:26.523Z] > Task :services:circleguard-dashboard-service:compileTestJava
+[2026-11-08T22:01:26.523Z] > Task :services:circleguard-dashboard-service:processTestResources NO-SOURCE
+[2026-11-08T22:01:26.523Z] > Task :services:circleguard-dashboard-service:testClasses
+[2026-11-08T22:01:26.773Z] 
+[2026-11-08T22:01:26.773Z] [Incubating] Problems report is available at: file:///var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/build/reports/problems/problems-report.html
+[2026-11-08T22:01:26.773Z] 
+[2026-11-08T22:01:26.773Z] Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+[2026-11-08T22:01:26.773Z] 
+[2026-11-08T22:01:26.773Z] You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+[2026-11-08T22:01:26.773Z] 
+[2026-11-08T22:01:26.773Z] For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+[2026-11-08T22:01:26.773Z] 
+[2026-11-08T22:01:26.773Z] BUILD SUCCESSFUL in 32s
+[2026-11-08T22:01:26.773Z] 35 actionable tasks: 35 executed
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit tests and coverage)
+[Pipeline] catchError
+[Pipeline] {
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:01:27.318Z] + chmod +x ./gradlew
+[2026-11-08T22:01:27.318Z] + ./gradlew :services:circleguard-auth-service:test :services:circleguard-auth-service:jacocoTestReport :services:circleguard-identity-service:test :services:circleguard-identity-service:jacocoTestReport :services:circleguard-promotion-service:test :services:circleguard-promotion-service:jacocoTestReport :services:circleguard-notification-service:test :services:circleguard-notification-service:jacocoTestReport :services:circleguard-form-service:test :services:circleguard-form-service:jacocoTestReport :services:circleguard-file-service:test :services:circleguard-file-service:jacocoTestReport :services:circleguard-gateway-service:test :services:circleguard-gateway-service:jacocoTestReport :services:circleguard-dashboard-service:test :services:circleguard-dashboard-service:jacocoTestReport --continue --no-daemon --console=plain
+[2026-11-08T22:01:28.232Z] To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+[2026-11-08T22:01:29.575Z] Daemon will be stopped at the end of the build 
+[2026-11-08T22:01:36.057Z] 
+[2026-11-08T22:01:36.057Z] > Configure project :
+[2026-11-08T22:01:36.057Z] The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+[2026-11-08T22:01:36.057Z] The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+[2026-11-08T22:01:37.919Z] 
+[2026-11-08T22:01:37.919Z] > Task :services:circleguard-auth-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:38.173Z] > Task :services:circleguard-auth-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:39.085Z] > Task :services:circleguard-auth-service:compileJava UP-TO-DATE
+[2026-11-08T22:01:39.085Z] > Task :services:circleguard-auth-service:processResources UP-TO-DATE
+[2026-11-08T22:01:39.085Z] > Task :services:circleguard-auth-service:classes UP-TO-DATE
+[2026-11-08T22:01:39.085Z] > Task :services:circleguard-auth-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:39.336Z] > Task :services:circleguard-auth-service:compileTestJava UP-TO-DATE
+[2026-11-08T22:01:39.336Z] > Task :services:circleguard-auth-service:processTestResources UP-TO-DATE
+[2026-11-08T22:01:39.336Z] > Task :services:circleguard-auth-service:testClasses UP-TO-DATE
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-auth-service:test
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-identity-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-identity-service:compileKotlin NO-SOURCE
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-identity-service:compileJava UP-TO-DATE
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-identity-service:processResources UP-TO-DATE
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-identity-service:classes UP-TO-DATE
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-identity-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-identity-service:compileTestJava UP-TO-DATE
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-identity-service:processTestResources UP-TO-DATE
+[2026-11-08T22:01:54.100Z] > Task :services:circleguard-identity-service:testClasses UP-TO-DATE
+[2026-11-08T22:01:54.350Z] > Task :services:circleguard-auth-service:jacocoTestReport
+[2026-11-08T22:02:12.317Z] 2026-11-08T22:02:10.672Z  INFO 19007 --- [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+[2026-11-08T22:02:12.317Z] Hibernate: drop table if exists identity_mappings cascade 
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-identity-service:test
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-auth-service:jacocoTestCoverageVerification
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-promotion-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-promotion-service:compileKotlin NO-SOURCE
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-identity-service:jacocoTestReport
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-promotion-service:compileJava UP-TO-DATE
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-promotion-service:processResources UP-TO-DATE
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-promotion-service:classes UP-TO-DATE
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-promotion-service:compileTestKotlin NO-SOURCE
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-identity-service:jacocoTestCoverageVerification
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-promotion-service:compileTestJava UP-TO-DATE
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-promotion-service:processTestResources UP-TO-DATE
+[2026-11-08T22:02:12.317Z] > Task :services:circleguard-promotion-service:testClasses UP-TO-DATE
+Pausing (shutting down)
+Resuming build at Sun Nov 08 22:02:31 UTC 2026 after Jenkins restart
+Ready to run at Sun Nov 08 22:02:31 UTC 2026
+[2026-11-08T22:12:38.068Z] wrapper script does not seem to be touching the log file in /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run@tmp/durable-ded7e88c
+[2026-11-08T22:12:38.069Z] This may occur if the durable task process was terminated externally, for example by interrupting an interactive terminal session running the agent since the interrupt can terminate forked durable task processes.
+[2026-11-08T22:12:38.069Z] (JENKINS-48300: if on an extremely laggy filesystem, consider -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL=86400)
+[Pipeline] junit
+[2026-11-08T22:12:38.101Z] Recording test results
+[2026-11-08T22:12:38.249Z] [Checks API] No suitable checks publisher found.
+[Pipeline] archiveArtifacts
+[2026-11-08T22:12:38.291Z] Archiving artifacts
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[2026-11-08T22:12:38.552Z] ERROR: script returned exit code -1
+[2026-11-08T22:12:38.552Z] Setting overall build result to UNSTABLE
+[Pipeline] // catchError
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (SonarQube quality gate)
+Stage "SonarQube quality gate" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Integration tests)
+Stage "Integration tests" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Package)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:12:39.639Z] + chmod +x ./gradlew
+[2026-11-08T22:12:39.639Z] + ./gradlew :services:circleguard-auth-service:bootJar :services:circleguard-identity-service:bootJar :services:circleguard-promotion-service:bootJar :services:circleguard-notification-service:bootJar :services:circleguard-form-service:bootJar :services:circleguard-file-service:bootJar :services:circleguard-gateway-service:bootJar :services:circleguard-dashboard-service:bootJar -x test --continue --no-daemon --console=plain
+[2026-11-08T22:12:41.503Z] To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+[2026-11-08T22:12:43.993Z] Daemon will be stopped at the end of the build 
+[2026-11-08T22:12:53.882Z] 
+[2026-11-08T22:12:53.882Z] > Configure project :
+[2026-11-08T22:12:53.882Z] The 'sonarqube' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+[2026-11-08T22:12:53.882Z] The 'sonar' task depends on compile tasks. This behavior is now deprecated and will be removed in version 5.x. To avoid implicit compilation, set property 'sonar.gradle.skipCompile' to 'true' and make sure your project is compiled, before analysis has started.
+[2026-11-08T22:13:01.919Z] 
+[2026-11-08T22:13:01.919Z] > Task :services:circleguard-auth-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:13:03.787Z] > Task :services:circleguard-auth-service:compileKotlin NO-SOURCE
+[2026-11-08T22:13:05.653Z] > Task :services:circleguard-auth-service:compileJava UP-TO-DATE
+[2026-11-08T22:13:05.653Z] > Task :services:circleguard-auth-service:processResources UP-TO-DATE
+[2026-11-08T22:13:05.653Z] > Task :services:circleguard-auth-service:classes UP-TO-DATE
+[2026-11-08T22:13:05.653Z] > Task :services:circleguard-auth-service:resolveMainClassName
+[2026-11-08T22:13:06.999Z] > Task :services:circleguard-auth-service:bootJar
+[2026-11-08T22:13:06.999Z] > Task :services:circleguard-identity-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:13:07.252Z] > Task :services:circleguard-identity-service:compileKotlin NO-SOURCE
+[2026-11-08T22:13:08.639Z] > Task :services:circleguard-identity-service:compileJava UP-TO-DATE
+[2026-11-08T22:13:08.639Z] > Task :services:circleguard-identity-service:processResources UP-TO-DATE
+[2026-11-08T22:13:08.639Z] > Task :services:circleguard-identity-service:classes UP-TO-DATE
+[2026-11-08T22:13:08.639Z] > Task :services:circleguard-identity-service:resolveMainClassName
+[2026-11-08T22:13:10.502Z] > Task :services:circleguard-identity-service:bootJar
+[2026-11-08T22:13:10.502Z] > Task :services:circleguard-promotion-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:13:10.502Z] > Task :services:circleguard-promotion-service:compileKotlin NO-SOURCE
+[2026-11-08T22:13:12.372Z] > Task :services:circleguard-promotion-service:compileJava UP-TO-DATE
+[2026-11-08T22:13:12.372Z] > Task :services:circleguard-promotion-service:processResources UP-TO-DATE
+[2026-11-08T22:13:12.372Z] > Task :services:circleguard-promotion-service:classes UP-TO-DATE
+[2026-11-08T22:13:12.372Z] > Task :services:circleguard-promotion-service:resolveMainClassName
+[2026-11-08T22:13:13.722Z] > Task :services:circleguard-promotion-service:bootJar
+[2026-11-08T22:13:13.722Z] > Task :services:circleguard-notification-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:13:13.722Z] > Task :services:circleguard-notification-service:compileKotlin NO-SOURCE
+[2026-11-08T22:13:14.636Z] > Task :services:circleguard-notification-service:compileJava UP-TO-DATE
+[2026-11-08T22:13:14.636Z] > Task :services:circleguard-notification-service:processResources UP-TO-DATE
+[2026-11-08T22:13:14.636Z] > Task :services:circleguard-notification-service:classes UP-TO-DATE
+[2026-11-08T22:13:14.636Z] > Task :services:circleguard-notification-service:resolveMainClassName
+[2026-11-08T22:13:15.552Z] > Task :services:circleguard-notification-service:bootJar
+[2026-11-08T22:13:15.552Z] > Task :services:circleguard-form-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:13:15.803Z] > Task :services:circleguard-form-service:compileKotlin NO-SOURCE
+[2026-11-08T22:13:16.355Z] > Task :services:circleguard-form-service:compileJava UP-TO-DATE
+[2026-11-08T22:13:16.355Z] > Task :services:circleguard-form-service:processResources UP-TO-DATE
+[2026-11-08T22:13:16.355Z] > Task :services:circleguard-form-service:classes UP-TO-DATE
+[2026-11-08T22:13:16.355Z] > Task :services:circleguard-form-service:resolveMainClassName
+[2026-11-08T22:13:17.268Z] > Task :services:circleguard-form-service:bootJar
+[2026-11-08T22:13:17.268Z] > Task :services:circleguard-file-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:13:17.268Z] > Task :services:circleguard-file-service:compileKotlin NO-SOURCE
+[2026-11-08T22:13:17.823Z] > Task :services:circleguard-file-service:compileJava UP-TO-DATE
+[2026-11-08T22:13:17.823Z] > Task :services:circleguard-file-service:processResources UP-TO-DATE
+[2026-11-08T22:13:17.823Z] > Task :services:circleguard-file-service:classes UP-TO-DATE
+[2026-11-08T22:13:17.823Z] > Task :services:circleguard-file-service:resolveMainClassName
+[2026-11-08T22:13:18.077Z] > Task :services:circleguard-file-service:bootJar
+[2026-11-08T22:13:18.077Z] > Task :services:circleguard-gateway-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:13:18.328Z] > Task :services:circleguard-gateway-service:compileKotlin NO-SOURCE
+[2026-11-08T22:13:18.883Z] > Task :services:circleguard-gateway-service:compileJava UP-TO-DATE
+[2026-11-08T22:13:18.883Z] > Task :services:circleguard-gateway-service:processResources UP-TO-DATE
+[2026-11-08T22:13:18.883Z] > Task :services:circleguard-gateway-service:classes UP-TO-DATE
+[2026-11-08T22:13:18.883Z] > Task :services:circleguard-gateway-service:resolveMainClassName
+[2026-11-08T22:13:19.434Z] > Task :services:circleguard-gateway-service:bootJar
+[2026-11-08T22:13:19.434Z] > Task :services:circleguard-dashboard-service:checkKotlinGradlePluginConfigurationErrors
+[2026-11-08T22:13:19.686Z] > Task :services:circleguard-dashboard-service:compileKotlin NO-SOURCE
+[2026-11-08T22:13:20.238Z] > Task :services:circleguard-dashboard-service:compileJava UP-TO-DATE
+[2026-11-08T22:13:20.238Z] > Task :services:circleguard-dashboard-service:processResources UP-TO-DATE
+[2026-11-08T22:13:20.238Z] > Task :services:circleguard-dashboard-service:classes UP-TO-DATE
+[2026-11-08T22:13:20.238Z] > Task :services:circleguard-dashboard-service:resolveMainClassName
+[2026-11-08T22:13:21.154Z] > Task :services:circleguard-dashboard-service:bootJar
+[2026-11-08T22:13:21.154Z] 
+[2026-11-08T22:13:21.154Z] [Incubating] Problems report is available at: file:///var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/build/reports/problems/problems-report.html
+[2026-11-08T22:13:21.154Z] 
+[2026-11-08T22:13:21.154Z] Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+[2026-11-08T22:13:21.154Z] 
+[2026-11-08T22:13:21.154Z] You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+[2026-11-08T22:13:21.154Z] 
+[2026-11-08T22:13:21.154Z] For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+[2026-11-08T22:13:21.154Z] 
+[2026-11-08T22:13:21.154Z] BUILD SUCCESSFUL in 41s
+[2026-11-08T22:13:21.154Z] 40 actionable tasks: 24 executed, 16 up-to-date
+[Pipeline] archiveArtifacts
+[2026-11-08T22:13:21.453Z] Archiving artifacts
+[2026-11-08T22:13:21.844Z] Recording fingerprints
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Package images)
+Stage "Package images" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish images)
+Stage "Publish images" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish artifacts)
+Stage "Publish artifacts" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Rollback)
+Stage "Rollback" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy dev)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T22:13:25.799Z] Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:13:26.244Z] + ./deploy/deploy.sh dev 0.2.0
+[2026-11-08T22:13:26.244Z] CircleGuard deploy
+[2026-11-08T22:13:26.244Z]   environment: dev
+[2026-11-08T22:13:26.244Z]   version:     0.2.0
+[2026-11-08T22:13:26.244Z]   registry:    10.20.0.106:8082/circleguard
+[2026-11-08T22:13:26.244Z]   mode:        local
+[2026-11-08T22:13:26.512Z]  postgres Pulling 
+[2026-11-08T22:13:27.065Z]  6fc242d221a6 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  d06edb2e3f43 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  3795839385bc Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  cea4f0db46a6 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  9b1a18996a22 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  fbc84e711712 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  879995175298 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  d89068781d71 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  5c4d204f6daa Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  28d8a96df569 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  b355a8fcc1d3 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  dc3e98153fd4 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  c60d02d02e9b Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  7ee6ed8de1c8 Pulling fs layer 
+[2026-11-08T22:13:27.065Z]  d89068781d71 Waiting 
+[2026-11-08T22:13:27.065Z]  5c4d204f6daa Waiting 
+[2026-11-08T22:13:27.065Z]  28d8a96df569 Waiting 
+[2026-11-08T22:13:27.065Z]  b355a8fcc1d3 Waiting 
+[2026-11-08T22:13:27.065Z]  dc3e98153fd4 Waiting 
+[2026-11-08T22:13:27.065Z]  c60d02d02e9b Waiting 
+[2026-11-08T22:13:27.065Z]  7ee6ed8de1c8 Waiting 
+[2026-11-08T22:13:27.065Z]  cea4f0db46a6 Waiting 
+[2026-11-08T22:13:27.065Z]  9b1a18996a22 Waiting 
+[2026-11-08T22:13:27.065Z]  fbc84e711712 Waiting 
+[2026-11-08T22:13:27.065Z]  879995175298 Waiting 
+[2026-11-08T22:13:27.065Z]  3795839385bc Downloading [>                                                  ]  64.94kB/6.443MB
+[2026-11-08T22:13:27.065Z]  d06edb2e3f43 Downloading [==================================================>]   1.17kB/1.17kB
+[2026-11-08T22:13:27.065Z]  d06edb2e3f43 Verifying Checksum 
+[2026-11-08T22:13:27.065Z]  d06edb2e3f43 Download complete 
+[2026-11-08T22:13:27.065Z]  6fc242d221a6 Downloading [>                                                  ]  310.7kB/29.86MB
+[2026-11-08T22:13:27.065Z]  3795839385bc Verifying Checksum 
+[2026-11-08T22:13:27.065Z]  3795839385bc Download complete 
+[2026-11-08T22:13:27.065Z]  cea4f0db46a6 Downloading [>                                                  ]  15.79kB/1.257MB
+[2026-11-08T22:13:27.065Z]  cea4f0db46a6 Verifying Checksum 
+[2026-11-08T22:13:27.065Z]  cea4f0db46a6 Download complete 
+[2026-11-08T22:13:27.065Z]  9b1a18996a22 Downloading [>                                                  ]  97.71kB/8.204MB
+[2026-11-08T22:13:27.065Z]  9b1a18996a22 Verifying Checksum 
+[2026-11-08T22:13:27.065Z]  9b1a18996a22 Download complete 
+[2026-11-08T22:13:27.065Z]  6fc242d221a6 Downloading [===================================>               ]  21.48MB/29.86MB
+[2026-11-08T22:13:27.065Z]  fbc84e711712 Downloading [>                                                  ]  15.79kB/1.312MB
+[2026-11-08T22:13:27.065Z]  fbc84e711712 Verifying Checksum 
+[2026-11-08T22:13:27.065Z]  fbc84e711712 Download complete 
+[2026-11-08T22:13:27.065Z]  6fc242d221a6 Verifying Checksum 
+[2026-11-08T22:13:27.065Z]  6fc242d221a6 Download complete 
+[2026-11-08T22:13:27.065Z]  879995175298 Downloading [==================================================>]     116B/116B
+[2026-11-08T22:13:27.065Z]  879995175298 Verifying Checksum 
+[2026-11-08T22:13:27.065Z]  879995175298 Download complete 
+[2026-11-08T22:13:27.065Z]  6fc242d221a6 Extracting [>                                                  ]  327.7kB/29.86MB
+[2026-11-08T22:13:27.065Z]  d89068781d71 Downloading [==================================================>]  3.144kB/3.144kB
+[2026-11-08T22:13:27.065Z]  d89068781d71 Verifying Checksum 
+[2026-11-08T22:13:27.065Z]  d89068781d71 Download complete 
+[2026-11-08T22:13:27.065Z]  5c4d204f6daa Downloading [>                                                  ]  540.6kB/113.2MB
+[2026-11-08T22:13:27.065Z]  28d8a96df569 Downloading [=================>                                 ]    3.5kB/10.11kB
+[2026-11-08T22:13:27.065Z]  28d8a96df569 Downloading [==================================================>]  10.11kB/10.11kB
+[2026-11-08T22:13:27.065Z]  28d8a96df569 Verifying Checksum 
+[2026-11-08T22:13:27.065Z]  28d8a96df569 Download complete 
+[2026-11-08T22:13:27.316Z]  b355a8fcc1d3 Downloading [==================================================>]     128B/128B
+[2026-11-08T22:13:27.316Z]  b355a8fcc1d3 Verifying Checksum 
+[2026-11-08T22:13:27.316Z]  b355a8fcc1d3 Download complete 
+[2026-11-08T22:13:27.316Z]  6fc242d221a6 Extracting [====>                                              ]  2.949MB/29.86MB
+[2026-11-08T22:13:27.316Z]  dc3e98153fd4 Downloading [==================================================>]     167B/167B
+[2026-11-08T22:13:27.316Z]  dc3e98153fd4 Verifying Checksum 
+[2026-11-08T22:13:27.316Z]  dc3e98153fd4 Download complete 
+[2026-11-08T22:13:27.316Z]  c60d02d02e9b Downloading [============================>                      ]  3.501kB/6.108kB
+[2026-11-08T22:13:27.316Z]  c60d02d02e9b Downloading [==================================================>]  6.108kB/6.108kB
+[2026-11-08T22:13:27.316Z]  c60d02d02e9b Verifying Checksum 
+[2026-11-08T22:13:27.316Z]  c60d02d02e9b Download complete 
+[2026-11-08T22:13:27.316Z]  5c4d204f6daa Downloading [=========>                                         ]  22.44MB/113.2MB
+[2026-11-08T22:13:27.316Z]  7ee6ed8de1c8 Downloading [==================================================>]     186B/186B
+[2026-11-08T22:13:27.316Z]  7ee6ed8de1c8 Verifying Checksum 
+[2026-11-08T22:13:27.316Z]  7ee6ed8de1c8 Download complete 
+[2026-11-08T22:13:27.316Z]  6fc242d221a6 Extracting [========>                                          ]  4.915MB/29.86MB
+[2026-11-08T22:13:27.316Z]  5c4d204f6daa Downloading [=====================>                             ]  48.07MB/113.2MB
+[2026-11-08T22:13:27.567Z]  5c4d204f6daa Downloading [==============================>                    ]  68.35MB/113.2MB
+[2026-11-08T22:13:27.567Z]  6fc242d221a6 Extracting [==============>                                    ]  8.847MB/29.86MB
+[2026-11-08T22:13:27.567Z]  5c4d204f6daa Downloading [======================================>            ]  87.01MB/113.2MB
+[2026-11-08T22:13:27.567Z]  6fc242d221a6 Extracting [=================>                                 ]  10.16MB/29.86MB
+[2026-11-08T22:13:27.567Z]  5c4d204f6daa Verifying Checksum 
+[2026-11-08T22:13:27.567Z]  5c4d204f6daa Download complete 
+[2026-11-08T22:13:27.817Z]  6fc242d221a6 Extracting [===================>                               ]   11.8MB/29.86MB
+[2026-11-08T22:13:27.817Z]  6fc242d221a6 Extracting [=========================>                         ]   15.4MB/29.86MB
+[2026-11-08T22:13:28.068Z]  6fc242d221a6 Extracting [================================>                  ]  19.33MB/29.86MB
+[2026-11-08T22:13:28.068Z]  6fc242d221a6 Extracting [======================================>            ]  22.94MB/29.86MB
+[2026-11-08T22:13:28.068Z]  6fc242d221a6 Extracting [===========================================>       ]  25.89MB/29.86MB
+[2026-11-08T22:13:28.619Z]  6fc242d221a6 Extracting [===========================================>       ]  26.21MB/29.86MB
+[2026-11-08T22:13:28.619Z]  6fc242d221a6 Extracting [===============================================>   ]  28.51MB/29.86MB
+[2026-11-08T22:13:28.871Z]  6fc242d221a6 Extracting [================================================>  ]  29.16MB/29.86MB
+[2026-11-08T22:13:29.122Z]  6fc242d221a6 Extracting [=================================================> ]  29.82MB/29.86MB
+[2026-11-08T22:13:29.122Z]  6fc242d221a6 Extracting [==================================================>]  29.86MB/29.86MB
+[2026-11-08T22:13:29.386Z]  6fc242d221a6 Pull complete 
+[2026-11-08T22:13:29.386Z]  d06edb2e3f43 Extracting [==================================================>]   1.17kB/1.17kB
+[2026-11-08T22:13:29.386Z]  d06edb2e3f43 Extracting [==================================================>]   1.17kB/1.17kB
+[2026-11-08T22:13:29.386Z]  d06edb2e3f43 Pull complete 
+[2026-11-08T22:13:29.386Z]  3795839385bc Extracting [>                                                  ]  65.54kB/6.443MB
+[2026-11-08T22:13:29.386Z]  3795839385bc Extracting [================================>                  ]  4.194MB/6.443MB
+[2026-11-08T22:13:29.647Z]  3795839385bc Extracting [==================================================>]  6.443MB/6.443MB
+[2026-11-08T22:13:29.647Z]  3795839385bc Pull complete 
+[2026-11-08T22:13:29.647Z]  cea4f0db46a6 Extracting [=>                                                 ]  32.77kB/1.257MB
+[2026-11-08T22:13:29.647Z]  cea4f0db46a6 Extracting [==================================================>]  1.257MB/1.257MB
+[2026-11-08T22:13:29.647Z]  cea4f0db46a6 Pull complete 
+[2026-11-08T22:13:29.647Z]  9b1a18996a22 Extracting [>                                                  ]   98.3kB/8.204MB
+[2026-11-08T22:13:29.898Z]  9b1a18996a22 Extracting [===================>                               ]  3.146MB/8.204MB
+[2026-11-08T22:13:29.898Z]  9b1a18996a22 Extracting [=============================>                     ]  4.915MB/8.204MB
+[2026-11-08T22:13:30.149Z]  9b1a18996a22 Extracting [============================================>      ]  7.274MB/8.204MB
+[2026-11-08T22:13:30.150Z]  9b1a18996a22 Extracting [==================================================>]  8.204MB/8.204MB
+[2026-11-08T22:13:30.701Z]  9b1a18996a22 Pull complete 
+[2026-11-08T22:13:30.701Z]  fbc84e711712 Extracting [=>                                                 ]  32.77kB/1.312MB
+[2026-11-08T22:13:30.951Z]  fbc84e711712 Extracting [==================================================>]  1.312MB/1.312MB
+[2026-11-08T22:13:30.951Z]  fbc84e711712 Pull complete 
+[2026-11-08T22:13:30.951Z]  879995175298 Extracting [==================================================>]     116B/116B
+[2026-11-08T22:13:30.951Z]  879995175298 Extracting [==================================================>]     116B/116B
+[2026-11-08T22:13:30.951Z]  879995175298 Pull complete 
+[2026-11-08T22:13:30.951Z]  d89068781d71 Extracting [==================================================>]  3.144kB/3.144kB
+[2026-11-08T22:13:30.951Z]  d89068781d71 Extracting [==================================================>]  3.144kB/3.144kB
+[2026-11-08T22:13:30.951Z]  d89068781d71 Pull complete 
+[2026-11-08T22:13:30.951Z]  5c4d204f6daa Extracting [>                                                  ]  557.1kB/113.2MB
+[2026-11-08T22:13:31.202Z]  5c4d204f6daa Extracting [>                                                  ]  2.228MB/113.2MB
+[2026-11-08T22:13:31.202Z]  5c4d204f6daa Extracting [==>                                                ]  5.014MB/113.2MB
+[2026-11-08T22:13:31.454Z]  5c4d204f6daa Extracting [===>                                               ]  7.242MB/113.2MB
+[2026-11-08T22:13:31.454Z]  5c4d204f6daa Extracting [===>                                               ]  8.356MB/113.2MB
+[2026-11-08T22:13:31.704Z]  5c4d204f6daa Extracting [====>                                              ]  11.14MB/113.2MB
+[2026-11-08T22:13:31.704Z]  5c4d204f6daa Extracting [======>                                            ]  13.93MB/113.2MB
+[2026-11-08T22:13:31.955Z]  5c4d204f6daa Extracting [========>                                          ]  18.38MB/113.2MB
+[2026-11-08T22:13:31.955Z]  5c4d204f6daa Extracting [=========>                                         ]  22.28MB/113.2MB
+[2026-11-08T22:13:31.955Z]  5c4d204f6daa Extracting [===========>                                       ]  25.62MB/113.2MB
+[2026-11-08T22:13:32.206Z]  5c4d204f6daa Extracting [=============>                                     ]  30.64MB/113.2MB
+[2026-11-08T22:13:32.207Z]  5c4d204f6daa Extracting [===============>                                   ]  35.09MB/113.2MB
+[2026-11-08T22:13:32.470Z]  5c4d204f6daa Extracting [================>                                  ]  38.44MB/113.2MB
+[2026-11-08T22:13:32.470Z]  5c4d204f6daa Extracting [==================>                                ]  41.78MB/113.2MB
+[2026-11-08T22:13:32.747Z]  5c4d204f6daa Extracting [===================>                               ]  44.56MB/113.2MB
+[2026-11-08T22:13:32.747Z]  5c4d204f6daa Extracting [====================>                              ]  47.35MB/113.2MB
+[2026-11-08T22:13:32.997Z]  5c4d204f6daa Extracting [======================>                            ]  51.81MB/113.2MB
+[2026-11-08T22:13:32.997Z]  5c4d204f6daa Extracting [========================>                          ]  54.59MB/113.2MB
+[2026-11-08T22:13:32.997Z]  5c4d204f6daa Extracting [=========================>                         ]  56.82MB/113.2MB
+[2026-11-08T22:13:33.424Z]  5c4d204f6daa Extracting [=========================>                         ]  58.49MB/113.2MB
+[2026-11-08T22:13:34.054Z]  5c4d204f6daa Extracting [==========================>                        ]   59.6MB/113.2MB
+[2026-11-08T22:13:34.054Z]  5c4d204f6daa Extracting [===========================>                       ]  61.28MB/113.2MB
+[2026-11-08T22:13:34.054Z]  5c4d204f6daa Extracting [============================>                      ]   63.5MB/113.2MB
+[2026-11-08T22:13:34.054Z]  5c4d204f6daa Extracting [=============================>                     ]  66.85MB/113.2MB
+[2026-11-08T22:13:34.054Z]  5c4d204f6daa Extracting [==============================>                    ]  68.52MB/113.2MB
+[2026-11-08T22:13:34.054Z]  5c4d204f6daa Extracting [===============================>                   ]   71.3MB/113.2MB
+[2026-11-08T22:13:34.054Z]  5c4d204f6daa Extracting [================================>                  ]  73.53MB/113.2MB
+[2026-11-08T22:13:34.054Z]  5c4d204f6daa Extracting [=================================>                 ]  76.87MB/113.2MB
+[2026-11-08T22:13:34.305Z]  5c4d204f6daa Extracting [===================================>               ]  79.66MB/113.2MB
+[2026-11-08T22:13:34.305Z]  5c4d204f6daa Extracting [====================================>              ]  82.44MB/113.2MB
+[2026-11-08T22:13:34.557Z]  5c4d204f6daa Extracting [======================================>            ]  87.46MB/113.2MB
+[2026-11-08T22:13:34.557Z]  5c4d204f6daa Extracting [=======================================>           ]  89.69MB/113.2MB
+[2026-11-08T22:13:34.825Z]  5c4d204f6daa Extracting [=========================================>         ]  93.03MB/113.2MB
+[2026-11-08T22:13:34.825Z]  5c4d204f6daa Extracting [==========================================>        ]  95.26MB/113.2MB
+[2026-11-08T22:13:35.081Z]  5c4d204f6daa Extracting [==========================================>        ]  96.37MB/113.2MB
+[2026-11-08T22:13:35.331Z]  5c4d204f6daa Extracting [==========================================>        ]  96.93MB/113.2MB
+[2026-11-08T22:13:35.331Z]  5c4d204f6daa Extracting [===========================================>       ]  99.16MB/113.2MB
+[2026-11-08T22:13:35.582Z]  5c4d204f6daa Extracting [============================================>      ]  100.8MB/113.2MB
+[2026-11-08T22:13:35.833Z]  5c4d204f6daa Extracting [=============================================>     ]  101.9MB/113.2MB
+[2026-11-08T22:13:35.833Z]  5c4d204f6daa Extracting [=============================================>     ]  103.1MB/113.2MB
+[2026-11-08T22:13:36.083Z]  5c4d204f6daa Extracting [==============================================>    ]  105.3MB/113.2MB
+[2026-11-08T22:13:36.083Z]  5c4d204f6daa Extracting [===============================================>   ]  107.5MB/113.2MB
+[2026-11-08T22:13:36.335Z]  5c4d204f6daa Extracting [================================================>  ]  109.2MB/113.2MB
+[2026-11-08T22:13:36.335Z]  5c4d204f6daa Extracting [================================================>  ]  110.9MB/113.2MB
+[2026-11-08T22:13:36.586Z]  5c4d204f6daa Extracting [=================================================> ]    112MB/113.2MB
+[2026-11-08T22:13:36.586Z]  5c4d204f6daa Extracting [==================================================>]  113.2MB/113.2MB
+[2026-11-08T22:13:36.837Z]  5c4d204f6daa Pull complete 
+[2026-11-08T22:13:36.837Z]  28d8a96df569 Extracting [==================================================>]  10.11kB/10.11kB
+[2026-11-08T22:13:36.837Z]  28d8a96df569 Extracting [==================================================>]  10.11kB/10.11kB
+[2026-11-08T22:13:36.837Z]  28d8a96df569 Pull complete 
+[2026-11-08T22:13:36.837Z]  b355a8fcc1d3 Extracting [==================================================>]     128B/128B
+[2026-11-08T22:13:36.837Z]  b355a8fcc1d3 Extracting [==================================================>]     128B/128B
+[2026-11-08T22:13:36.837Z]  b355a8fcc1d3 Pull complete 
+[2026-11-08T22:13:36.837Z]  dc3e98153fd4 Extracting [==================================================>]     167B/167B
+[2026-11-08T22:13:36.837Z]  dc3e98153fd4 Extracting [==================================================>]     167B/167B
+[2026-11-08T22:13:36.837Z]  dc3e98153fd4 Pull complete 
+[2026-11-08T22:13:36.837Z]  c60d02d02e9b Extracting [==================================================>]  6.108kB/6.108kB
+[2026-11-08T22:13:36.837Z]  c60d02d02e9b Extracting [==================================================>]  6.108kB/6.108kB
+[2026-11-08T22:13:36.837Z]  c60d02d02e9b Pull complete 
+[2026-11-08T22:13:36.838Z]  7ee6ed8de1c8 Extracting [==================================================>]     186B/186B
+[2026-11-08T22:13:36.838Z]  7ee6ed8de1c8 Extracting [==================================================>]     186B/186B
+[2026-11-08T22:13:36.838Z]  7ee6ed8de1c8 Pull complete 
+[2026-11-08T22:13:36.838Z]  postgres Pulled 
+[2026-11-08T22:13:36.838Z]  Network circleguard-dev_circleguard  Creating
+[2026-11-08T22:13:36.838Z]  Network circleguard-dev_circleguard  Created
+[2026-11-08T22:13:36.838Z]  Volume "circleguard-dev_postgres-data"  Creating
+[2026-11-08T22:13:36.838Z]  Volume "circleguard-dev_postgres-data"  Created
+[2026-11-08T22:13:36.838Z]  Container circleguard-dev-postgres-1  Creating
+[2026-11-08T22:13:39.324Z]  Container circleguard-dev-postgres-1  Created
+[2026-11-08T22:13:39.324Z]  Container circleguard-dev-postgres-1  Starting
+[2026-11-08T22:13:39.324Z]  Container circleguard-dev-postgres-1  Started
+[2026-11-08T22:13:39.324Z]  Container circleguard-dev-postgres-1  Waiting
+[2026-11-08T22:13:45.812Z]  Container circleguard-dev-postgres-1  Healthy
+[2026-11-08T22:13:45.813Z] CREATE DATABASE
+[2026-11-08T22:13:45.813Z] CREATE DATABASE
+[2026-11-08T22:13:45.813Z] CREATE DATABASE
+[2026-11-08T22:13:45.813Z] CREATE DATABASE
+[2026-11-08T22:13:45.813Z] CREATE DATABASE
+[2026-11-08T22:13:45.813Z]  redis Pulling 
+[2026-11-08T22:13:45.813Z]  kafka Pulling 
+[2026-11-08T22:13:45.813Z]  neo4j Pulling 
+[2026-11-08T22:13:45.813Z]  zookeeper Pulling 
+[2026-11-08T22:13:45.813Z]  fe36fc382320 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  4250354b4fb7 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  c4c5f447179d Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  17fe3a92262f Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  5420596c14ab Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  0e55377ebe37 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  da7039bb2113 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  d389b3791c2e Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  c24709eccb2a Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  ad79ffd84e00 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  218229bf30d9 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  17fe3a92262f Waiting 
+[2026-11-08T22:13:45.813Z]  d389b3791c2e Waiting 
+[2026-11-08T22:13:45.813Z]  5420596c14ab Waiting 
+[2026-11-08T22:13:45.813Z]  0e55377ebe37 Waiting 
+[2026-11-08T22:13:45.813Z]  da7039bb2113 Waiting 
+[2026-11-08T22:13:45.813Z]  c24709eccb2a Waiting 
+[2026-11-08T22:13:45.813Z]  ad79ffd84e00 Waiting 
+[2026-11-08T22:13:45.813Z]  218229bf30d9 Waiting 
+[2026-11-08T22:13:45.813Z]  6fc242d221a6 Already exists 
+[2026-11-08T22:13:45.813Z]  f5afcf74bc18 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  5c8417247a04 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  72bdcbad1887 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  b09fdb4422b6 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  4f4fb700ef54 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  f5afcf74bc18 Waiting 
+[2026-11-08T22:13:45.813Z]  5c8417247a04 Waiting 
+[2026-11-08T22:13:45.813Z]  72bdcbad1887 Waiting 
+[2026-11-08T22:13:45.813Z]  b09fdb4422b6 Waiting 
+[2026-11-08T22:13:45.813Z]  4f4fb700ef54 Waiting 
+[2026-11-08T22:13:45.813Z]  fe36fc382320 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  4250354b4fb7 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  c4c5f447179d Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  17fe3a92262f Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  5420596c14ab Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  0e55377ebe37 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  da7039bb2113 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  d389b3791c2e Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  c24709eccb2a Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  2f1cd7af357c Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  17fe3a92262f Waiting 
+[2026-11-08T22:13:45.813Z]  03b1128dd5e0 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  5420596c14ab Waiting 
+[2026-11-08T22:13:45.813Z]  0e55377ebe37 Waiting 
+[2026-11-08T22:13:45.813Z]  da7039bb2113 Waiting 
+[2026-11-08T22:13:45.813Z]  d389b3791c2e Waiting 
+[2026-11-08T22:13:45.813Z]  c24709eccb2a Waiting 
+[2026-11-08T22:13:45.813Z]  2f1cd7af357c Waiting 
+[2026-11-08T22:13:45.813Z]  03b1128dd5e0 Waiting 
+[2026-11-08T22:13:45.813Z]  43c4264eed91 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  2da3df2b9c28 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  969098876df7 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  8e76de07cee7 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  1d54dcb25c1a Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  329afa62e843 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  4f4fb700ef54 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  21af72ec0381 Pulling fs layer 
+[2026-11-08T22:13:45.813Z]  43c4264eed91 Waiting 
+[2026-11-08T22:13:45.813Z]  2da3df2b9c28 Waiting 
+[2026-11-08T22:13:45.813Z]  969098876df7 Waiting 
+[2026-11-08T22:13:45.813Z]  8e76de07cee7 Waiting 
+[2026-11-08T22:13:45.813Z]  1d54dcb25c1a Waiting 
+[2026-11-08T22:13:45.813Z]  329afa62e843 Waiting 
+[2026-11-08T22:13:45.813Z]  4f4fb700ef54 Waiting 
+[2026-11-08T22:13:45.813Z]  21af72ec0381 Waiting 
+[2026-11-08T22:13:45.813Z]  c4c5f447179d Downloading [>                                                  ]  81.92kB/7.734MB
+[2026-11-08T22:13:45.813Z]  4250354b4fb7 Downloading [>                                                  ]  536.8kB/254.1MB
+[2026-11-08T22:13:45.813Z]  fe36fc382320 Downloading [>                                                  ]  375.4kB/37.02MB
+[2026-11-08T22:13:45.813Z]  c4c5f447179d Downloading [>                                                  ]  81.92kB/7.734MB
+[2026-11-08T22:13:45.813Z]  4250354b4fb7 Downloading [>                                                  ]  536.8kB/254.1MB
+[2026-11-08T22:13:45.813Z]  fe36fc382320 Downloading [>                                                  ]  375.4kB/37.02MB
+[2026-11-08T22:13:45.813Z]  c4c5f447179d Verifying Checksum 
+[2026-11-08T22:13:45.813Z]  c4c5f447179d Download complete 
+[2026-11-08T22:13:45.813Z]  c4c5f447179d Verifying Checksum 
+[2026-11-08T22:13:45.813Z]  c4c5f447179d Download complete 
+[2026-11-08T22:13:46.064Z]  4250354b4fb7 Downloading [====>                                              ]  23.47MB/254.1MB
+[2026-11-08T22:13:46.064Z]  4250354b4fb7 Downloading [====>                                              ]  23.47MB/254.1MB
+[2026-11-08T22:13:46.064Z]  fe36fc382320 Downloading [=======>                                           ]  5.226MB/37.02MB
+[2026-11-08T22:13:46.064Z]  17fe3a92262f Downloading [=========================================>         ]  16.38kB/19.96kB
+[2026-11-08T22:13:46.064Z]  17fe3a92262f Downloading [==================================================>]  19.96kB/19.96kB
+[2026-11-08T22:13:46.064Z]  17fe3a92262f Verifying Checksum 
+[2026-11-08T22:13:46.064Z]  17fe3a92262f Download complete 
+[2026-11-08T22:13:46.064Z]  fe36fc382320 Downloading [=======>                                           ]  5.226MB/37.02MB
+[2026-11-08T22:13:46.064Z]  17fe3a92262f Downloading [=========================================>         ]  16.38kB/19.96kB
+[2026-11-08T22:13:46.064Z]  17fe3a92262f Downloading [==================================================>]  19.96kB/19.96kB
+[2026-11-08T22:13:46.064Z]  17fe3a92262f Verifying Checksum 
+[2026-11-08T22:13:46.064Z]  17fe3a92262f Download complete 
+[2026-11-08T22:13:46.064Z]  5420596c14ab Downloading [>                                                  ]  400.9kB/39.51MB
+[2026-11-08T22:13:46.064Z]  5420596c14ab Downloading [>                                                  ]  400.9kB/39.51MB
+[2026-11-08T22:13:46.319Z]  4250354b4fb7 Downloading [==========>                                        ]  54.43MB/254.1MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Downloading [==============>                                    ]  10.82MB/37.02MB
+[2026-11-08T22:13:46.319Z]  5420596c14ab Downloading [==============>                                    ]  11.72MB/39.51MB
+[2026-11-08T22:13:46.319Z]  4250354b4fb7 Downloading [==============>                                    ]  72.09MB/254.1MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Downloading [=====================================>             ]  27.42MB/37.02MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  4250354b4fb7 Downloading [==========>                                        ]  54.43MB/254.1MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Downloading [==============>                                    ]  10.82MB/37.02MB
+[2026-11-08T22:13:46.319Z]  5420596c14ab Downloading [==============>                                    ]  11.72MB/39.51MB
+[2026-11-08T22:13:46.319Z]  4250354b4fb7 Downloading [==============>                                    ]  72.09MB/254.1MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Downloading [=====================================>             ]  27.42MB/37.02MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Download complete 
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Download complete 
+[2026-11-08T22:13:46.319Z]  5420596c14ab Downloading [==========================================>        ]  33.59MB/39.51MB
+[2026-11-08T22:13:46.319Z]  5420596c14ab Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  5420596c14ab Download complete 
+[2026-11-08T22:13:46.319Z]  5420596c14ab Downloading [==========================================>        ]  33.59MB/39.51MB
+[2026-11-08T22:13:46.319Z]  5420596c14ab Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  5420596c14ab Download complete 
+[2026-11-08T22:13:46.319Z]  4250354b4fb7 Downloading [================>                                  ]  82.23MB/254.1MB
+[2026-11-08T22:13:46.319Z]  4250354b4fb7 Downloading [================>                                  ]  82.23MB/254.1MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Extracting [>                                                  ]  393.2kB/37.02MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Extracting [>                                                  ]  393.2kB/37.02MB
+[2026-11-08T22:13:46.319Z]  da7039bb2113 Downloading [==================================================>]     880B/880B
+[2026-11-08T22:13:46.319Z]  da7039bb2113 Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  da7039bb2113 Download complete 
+[2026-11-08T22:13:46.319Z]  da7039bb2113 Downloading [==================================================>]     880B/880B
+[2026-11-08T22:13:46.319Z]  da7039bb2113 Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  da7039bb2113 Download complete 
+[2026-11-08T22:13:46.319Z]  0e55377ebe37 Downloading [==================================================>]  1.104kB/1.104kB
+[2026-11-08T22:13:46.319Z]  0e55377ebe37 Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  0e55377ebe37 Download complete 
+[2026-11-08T22:13:46.319Z]  0e55377ebe37 Downloading [==================================================>]  1.104kB/1.104kB
+[2026-11-08T22:13:46.319Z]  0e55377ebe37 Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  0e55377ebe37 Download complete 
+[2026-11-08T22:13:46.319Z]  4250354b4fb7 Downloading [=======================>                           ]  117.5MB/254.1MB
+[2026-11-08T22:13:46.319Z]  4250354b4fb7 Downloading [=======================>                           ]  117.5MB/254.1MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Extracting [===>                                               ]  2.753MB/37.02MB
+[2026-11-08T22:13:46.319Z]  fe36fc382320 Extracting [===>                                               ]  2.753MB/37.02MB
+[2026-11-08T22:13:46.319Z]  d389b3791c2e Downloading [==================================================>]     131B/131B
+[2026-11-08T22:13:46.319Z]  c24709eccb2a Downloading [==================================================>]     172B/172B
+[2026-11-08T22:13:46.319Z]  d389b3791c2e Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  d389b3791c2e Download complete 
+[2026-11-08T22:13:46.319Z]  c24709eccb2a Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  c24709eccb2a Download complete 
+[2026-11-08T22:13:46.319Z]  d389b3791c2e Downloading [==================================================>]     131B/131B
+[2026-11-08T22:13:46.319Z]  c24709eccb2a Downloading [==================================================>]     172B/172B
+[2026-11-08T22:13:46.319Z]  d389b3791c2e Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  c24709eccb2a Verifying Checksum 
+[2026-11-08T22:13:46.319Z]  c24709eccb2a Download complete 
+[2026-11-08T22:13:46.319Z]  d389b3791c2e Download complete 
+[2026-11-08T22:13:46.571Z]  4250354b4fb7 Downloading [=============================>                     ]  147.9MB/254.1MB
+[2026-11-08T22:13:46.571Z]  4250354b4fb7 Downloading [=============================>                     ]  147.9MB/254.1MB
+[2026-11-08T22:13:46.571Z]  218229bf30d9 Downloading [================================================>  ]  3.501kB/3.629kB
+[2026-11-08T22:13:46.571Z]  218229bf30d9 Downloading [==================================================>]  3.629kB/3.629kB
+[2026-11-08T22:13:46.571Z]  218229bf30d9 Verifying Checksum 
+[2026-11-08T22:13:46.571Z]  218229bf30d9 Download complete 
+[2026-11-08T22:13:46.571Z]  ad79ffd84e00 Downloading [>                                                  ]  530.5kB/114.9MB
+[2026-11-08T22:13:46.571Z]  fe36fc382320 Extracting [=======>                                           ]  5.898MB/37.02MB
+[2026-11-08T22:13:46.571Z]  fe36fc382320 Extracting [=======>                                           ]  5.898MB/37.02MB
+[2026-11-08T22:13:46.571Z]  4250354b4fb7 Downloading [=================================>                 ]  172.4MB/254.1MB
+[2026-11-08T22:13:46.571Z]  ad79ffd84e00 Downloading [==========>                                        ]  25.12MB/114.9MB
+[2026-11-08T22:13:46.571Z]  4250354b4fb7 Downloading [=================================>                 ]  172.4MB/254.1MB
+[2026-11-08T22:13:46.571Z]  f5afcf74bc18 Downloading [>                                                  ]  525.3kB/158.4MB
+[2026-11-08T22:13:46.571Z]  4250354b4fb7 Downloading [========================================>          ]  203.9MB/254.1MB
+[2026-11-08T22:13:46.571Z]  4250354b4fb7 Downloading [========================================>          ]  203.9MB/254.1MB
+[2026-11-08T22:13:46.571Z]  fe36fc382320 Extracting [=========>                                         ]  6.685MB/37.02MB
+[2026-11-08T22:13:46.571Z]  fe36fc382320 Extracting [=========>                                         ]  6.685MB/37.02MB
+[2026-11-08T22:13:46.822Z]  ad79ffd84e00 Downloading [====================>                              ]   48.1MB/114.9MB
+[2026-11-08T22:13:46.822Z]  f5afcf74bc18 Downloading [==>                                                ]  7.363MB/158.4MB
+[2026-11-08T22:13:46.822Z]  4250354b4fb7 Downloading [=============================================>     ]  232.7MB/254.1MB
+[2026-11-08T22:13:46.822Z]  4250354b4fb7 Downloading [=============================================>     ]  232.7MB/254.1MB
+[2026-11-08T22:13:46.822Z]  fe36fc382320 Extracting [=========>                                         ]  7.078MB/37.02MB
+[2026-11-08T22:13:46.822Z]  fe36fc382320 Extracting [=========>                                         ]  7.078MB/37.02MB
+[2026-11-08T22:13:46.822Z]  ad79ffd84e00 Downloading [==============================>                    ]  71.07MB/114.9MB
+[2026-11-08T22:13:46.822Z]  4250354b4fb7 Verifying Checksum 
+[2026-11-08T22:13:46.822Z]  4250354b4fb7 Download complete 
+[2026-11-08T22:13:46.822Z]  4250354b4fb7 Verifying Checksum 
+[2026-11-08T22:13:46.822Z]  4250354b4fb7 Download complete 
+[2026-11-08T22:13:46.822Z]  f5afcf74bc18 Downloading [=====>                                             ]  16.39MB/158.4MB
+[2026-11-08T22:13:46.822Z]  fe36fc382320 Extracting [===========>                                       ]  8.258MB/37.02MB
+[2026-11-08T22:13:46.822Z]  fe36fc382320 Extracting [===========>                                       ]  8.258MB/37.02MB
+[2026-11-08T22:13:46.822Z]  5c8417247a04 Downloading [==================================================>]     129B/129B
+[2026-11-08T22:13:46.822Z]  5c8417247a04 Verifying Checksum 
+[2026-11-08T22:13:46.822Z]  5c8417247a04 Download complete 
+[2026-11-08T22:13:46.822Z]  ad79ffd84e00 Downloading [===========================================>       ]  100.4MB/114.9MB
+[2026-11-08T22:13:46.822Z]  f5afcf74bc18 Downloading [=============>                                     ]  42.45MB/158.4MB
+[2026-11-08T22:13:47.073Z]  72bdcbad1887 Downloading [=================>                                 ]  3.501kB/10.06kB
+[2026-11-08T22:13:47.073Z]  72bdcbad1887 Downloading [==================================================>]  10.06kB/10.06kB
+[2026-11-08T22:13:47.073Z]  72bdcbad1887 Verifying Checksum 
+[2026-11-08T22:13:47.073Z]  72bdcbad1887 Download complete 
+[2026-11-08T22:13:47.073Z]  ad79ffd84e00 Download complete 
+[2026-11-08T22:13:47.073Z]  fe36fc382320 Extracting [============>                                      ]  9.437MB/37.02MB
+[2026-11-08T22:13:47.073Z]  fe36fc382320 Extracting [============>                                      ]  9.437MB/37.02MB
+[2026-11-08T22:13:47.073Z]  f5afcf74bc18 Downloading [====================>                              ]  64.28MB/158.4MB
+[2026-11-08T22:13:47.073Z]  b09fdb4422b6 Downloading [>                                                  ]  525.5kB/163.7MB
+[2026-11-08T22:13:47.073Z]  4f4fb700ef54 Downloading [==================================================>]      32B/32B
+[2026-11-08T22:13:47.073Z]  4f4fb700ef54 Verifying Checksum 
+[2026-11-08T22:13:47.073Z]  4f4fb700ef54 Download complete 
+[2026-11-08T22:13:47.073Z]  f5afcf74bc18 Downloading [===========================>                       ]  85.67MB/158.4MB
+[2026-11-08T22:13:47.073Z]  fe36fc382320 Extracting [=============>                                     ]   9.83MB/37.02MB
+[2026-11-08T22:13:47.073Z]  fe36fc382320 Extracting [=============>                                     ]   9.83MB/37.02MB
+[2026-11-08T22:13:47.073Z]  43c4264eed91 Downloading [>                                                  ]  48.51kB/3.624MB
+[2026-11-08T22:13:47.332Z]  43c4264eed91 Downloading [==================================================>]  3.624MB/3.624MB
+[2026-11-08T22:13:47.332Z]  b09fdb4422b6 Downloading [=>                                                 ]   6.32MB/163.7MB
+[2026-11-08T22:13:47.332Z]  43c4264eed91 Verifying Checksum 
+[2026-11-08T22:13:47.332Z]  43c4264eed91 Download complete 
+[2026-11-08T22:13:47.332Z]  f5afcf74bc18 Downloading [==============================>                    ]  97.98MB/158.4MB
+[2026-11-08T22:13:47.332Z]  43c4264eed91 Extracting [>                                                  ]  65.54kB/3.624MB
+[2026-11-08T22:13:47.332Z]  fe36fc382320 Extracting [==============>                                    ]  10.62MB/37.02MB
+[2026-11-08T22:13:47.332Z]  fe36fc382320 Extracting [==============>                                    ]  10.62MB/37.02MB
+[2026-11-08T22:13:47.332Z]  2da3df2b9c28 Downloading [==================================================>]     962B/962B
+[2026-11-08T22:13:47.332Z]  2da3df2b9c28 Verifying Checksum 
+[2026-11-08T22:13:47.332Z]  2da3df2b9c28 Download complete 
+[2026-11-08T22:13:47.332Z]  b09fdb4422b6 Downloading [=======>                                           ]  23.87MB/163.7MB
+[2026-11-08T22:13:47.332Z]  fe36fc382320 Extracting [===============>                                   ]   11.8MB/37.02MB
+[2026-11-08T22:13:47.332Z]  fe36fc382320 Extracting [===============>                                   ]   11.8MB/37.02MB
+[2026-11-08T22:13:47.596Z]  969098876df7 Downloading [====>                                              ]  16.38kB/171.2kB
+[2026-11-08T22:13:47.596Z]  969098876df7 Downloading [==================================================>]  171.2kB/171.2kB
+[2026-11-08T22:13:47.596Z]  969098876df7 Verifying Checksum 
+[2026-11-08T22:13:47.596Z]  969098876df7 Download complete 
+[2026-11-08T22:13:47.596Z]  43c4264eed91 Extracting [==>                                                ]  196.6kB/3.624MB
+[2026-11-08T22:13:47.596Z]  f5afcf74bc18 Downloading [===============================>                   ]  100.1MB/158.4MB
+[2026-11-08T22:13:47.596Z]  b09fdb4422b6 Downloading [============>                                      ]  41.45MB/163.7MB
+[2026-11-08T22:13:47.596Z]  fe36fc382320 Extracting [=================>                                 ]  12.98MB/37.02MB
+[2026-11-08T22:13:47.596Z]  fe36fc382320 Extracting [=================>                                 ]  12.98MB/37.02MB
+[2026-11-08T22:13:47.596Z]  b09fdb4422b6 Downloading [=======================>                           ]   75.6MB/163.7MB
+[2026-11-08T22:13:47.596Z]  8e76de07cee7 Downloading [>                                                  ]  16.38kB/1.003MB
+[2026-11-08T22:13:47.596Z]  f5afcf74bc18 Downloading [==================================>                ]  108.7MB/158.4MB
+[2026-11-08T22:13:47.596Z]  8e76de07cee7 Verifying Checksum 
+[2026-11-08T22:13:47.596Z]  8e76de07cee7 Download complete 
+[2026-11-08T22:13:47.596Z]  43c4264eed91 Extracting [=====>                                             ]  393.2kB/3.624MB
+[2026-11-08T22:13:47.596Z]  fe36fc382320 Extracting [==================>                                ]  13.76MB/37.02MB
+[2026-11-08T22:13:47.596Z]  b09fdb4422b6 Downloading [=============================>                     ]  96.96MB/163.7MB
+[2026-11-08T22:13:47.596Z]  f5afcf74bc18 Downloading [========================================>          ]  128.3MB/158.4MB
+[2026-11-08T22:13:47.596Z]  1d54dcb25c1a Downloading [>                                                  ]  130.4kB/11.97MB
+[2026-11-08T22:13:47.596Z]  43c4264eed91 Extracting [=======================>                           ]  1.704MB/3.624MB
+[2026-11-08T22:13:47.596Z]  fe36fc382320 Extracting [==================>                                ]  13.76MB/37.02MB
+[2026-11-08T22:13:47.847Z]  b09fdb4422b6 Downloading [================================>                  ]  107.1MB/163.7MB
+[2026-11-08T22:13:47.847Z]  fe36fc382320 Extracting [===================>                               ]  14.55MB/37.02MB
+[2026-11-08T22:13:47.847Z]  fe36fc382320 Extracting [===================>                               ]  14.55MB/37.02MB
+[2026-11-08T22:13:47.847Z]  f5afcf74bc18 Downloading [===========================================>       ]  137.4MB/158.4MB
+[2026-11-08T22:13:47.847Z]  43c4264eed91 Extracting [================================>                  ]  2.359MB/3.624MB
+[2026-11-08T22:13:47.847Z]  b09fdb4422b6 Downloading [===================================>               ]  115.6MB/163.7MB
+[2026-11-08T22:13:47.847Z]  fe36fc382320 Extracting [====================>                              ]  15.34MB/37.02MB
+[2026-11-08T22:13:47.847Z]  fe36fc382320 Extracting [====================>                              ]  15.34MB/37.02MB
+[2026-11-08T22:13:47.847Z]  f5afcf74bc18 Downloading [=============================================>     ]  144.9MB/158.4MB
+[2026-11-08T22:13:47.847Z]  43c4264eed91 Extracting [=============================================>     ]  3.277MB/3.624MB
+[2026-11-08T22:13:47.847Z]  b09fdb4422b6 Downloading [=====================================>             ]  123.6MB/163.7MB
+[2026-11-08T22:13:48.099Z]  fe36fc382320 Extracting [=====================>                             ]  15.73MB/37.02MB
+[2026-11-08T22:13:48.099Z]  fe36fc382320 Extracting [=====================>                             ]  15.73MB/37.02MB
+[2026-11-08T22:13:48.099Z]  43c4264eed91 Extracting [==================================================>]  3.624MB/3.624MB
+[2026-11-08T22:13:48.099Z]  f5afcf74bc18 Downloading [================================================>  ]  153.9MB/158.4MB
+[2026-11-08T22:13:48.099Z]  1d54dcb25c1a Downloading [=================>                                 ]  4.248MB/11.97MB
+[2026-11-08T22:13:48.099Z]  b09fdb4422b6 Downloading [=======================================>           ]  127.9MB/163.7MB
+[2026-11-08T22:13:48.099Z]  f5afcf74bc18 Downloading [=================================================> ]  158.2MB/158.4MB
+[2026-11-08T22:13:48.099Z]  f5afcf74bc18 Verifying Checksum 
+[2026-11-08T22:13:48.099Z]  f5afcf74bc18 Download complete 
+[2026-11-08T22:13:48.099Z]  b09fdb4422b6 Downloading [========================================>          ]  131.1MB/163.7MB
+[2026-11-08T22:13:48.099Z]  1d54dcb25c1a Downloading [=================================>                 ]  8.121MB/11.97MB
+[2026-11-08T22:13:48.409Z]  329afa62e843 Downloading [==================================================>]     100B/100B
+[2026-11-08T22:13:48.409Z]  329afa62e843 Verifying Checksum 
+[2026-11-08T22:13:48.409Z]  329afa62e843 Download complete 
+[2026-11-08T22:13:48.409Z]  1d54dcb25c1a Downloading [===================================>               ]  8.484MB/11.97MB
+[2026-11-08T22:13:48.409Z]  b09fdb4422b6 Downloading [==========================================>        ]    138MB/163.7MB
+[2026-11-08T22:13:48.409Z]  fe36fc382320 Extracting [======================>                            ]  16.52MB/37.02MB
+[2026-11-08T22:13:48.409Z]  fe36fc382320 Extracting [======================>                            ]  16.52MB/37.02MB
+[2026-11-08T22:13:48.409Z]  4f4fb700ef54 Downloading [==================================================>]      32B/32B
+[2026-11-08T22:13:48.409Z]  4f4fb700ef54 Verifying Checksum 
+[2026-11-08T22:13:48.409Z]  4f4fb700ef54 Download complete 
+[2026-11-08T22:13:48.409Z]  1d54dcb25c1a Downloading [===========================================>       ]  10.41MB/11.97MB
+[2026-11-08T22:13:48.409Z]  b09fdb4422b6 Downloading [===========================================>       ]  141.2MB/163.7MB
+[2026-11-08T22:13:48.665Z]  fe36fc382320 Extracting [=======================>                           ]  17.69MB/37.02MB
+[2026-11-08T22:13:48.665Z]  fe36fc382320 Extracting [=======================>                           ]  17.69MB/37.02MB
+[2026-11-08T22:13:48.665Z]  1d54dcb25c1a Verifying Checksum 
+[2026-11-08T22:13:48.665Z]  1d54dcb25c1a Download complete 
+[2026-11-08T22:13:48.665Z]  21af72ec0381 Downloading [==================================================>]     574B/574B
+[2026-11-08T22:13:48.665Z]  21af72ec0381 Verifying Checksum 
+[2026-11-08T22:13:48.665Z]  21af72ec0381 Download complete 
+[2026-11-08T22:13:48.665Z]  fe36fc382320 Extracting [========================>                          ]  18.09MB/37.02MB
+[2026-11-08T22:13:48.665Z]  b09fdb4422b6 Downloading [=============================================>     ]  148.7MB/163.7MB
+[2026-11-08T22:13:48.665Z]  2f1cd7af357c Downloading [>                                                  ]  539.3kB/114.9MB
+[2026-11-08T22:13:48.665Z]  fe36fc382320 Extracting [========================>                          ]  18.09MB/37.02MB
+[2026-11-08T22:13:48.665Z]  03b1128dd5e0 Downloading [==================================================>]  3.449kB/3.449kB
+[2026-11-08T22:13:48.665Z]  03b1128dd5e0 Verifying Checksum 
+[2026-11-08T22:13:48.665Z]  03b1128dd5e0 Download complete 
+[2026-11-08T22:13:48.665Z]  2f1cd7af357c Downloading [====>                                              ]   10.8MB/114.9MB
+[2026-11-08T22:13:48.665Z]  fe36fc382320 Extracting [========================>                          ]  18.48MB/37.02MB
+[2026-11-08T22:13:48.665Z]  b09fdb4422b6 Downloading [===============================================>   ]  155.6MB/163.7MB
+[2026-11-08T22:13:48.665Z]  fe36fc382320 Extracting [========================>                          ]  18.48MB/37.02MB
+[2026-11-08T22:13:48.665Z]  f5afcf74bc18 Extracting [>                                                  ]  557.1kB/158.4MB
+[2026-11-08T22:13:48.665Z]  2f1cd7af357c Downloading [=======>                                           ]  18.36MB/114.9MB
+[2026-11-08T22:13:48.665Z]  b09fdb4422b6 Downloading [================================================>  ]  158.8MB/163.7MB
+[2026-11-08T22:13:48.665Z]  b09fdb4422b6 Verifying Checksum 
+[2026-11-08T22:13:48.665Z]  b09fdb4422b6 Download complete 
+[2026-11-08T22:13:48.941Z]  f5afcf74bc18 Extracting [>                                                  ]  1.671MB/158.4MB
+[2026-11-08T22:13:48.942Z]  fe36fc382320 Extracting [==========================>                        ]  19.27MB/37.02MB
+[2026-11-08T22:13:48.942Z]  fe36fc382320 Extracting [==========================>                        ]  19.27MB/37.02MB
+[2026-11-08T22:13:48.942Z]  2f1cd7af357c Downloading [==============>                                    ]  32.41MB/114.9MB
+[2026-11-08T22:13:48.942Z]  43c4264eed91 Pull complete 
+[2026-11-08T22:13:48.942Z]  fe36fc382320 Extracting [===========================>                       ]  20.45MB/37.02MB
+[2026-11-08T22:13:49.221Z]  f5afcf74bc18 Extracting [=>                                                 ]  3.342MB/158.4MB
+[2026-11-08T22:13:49.221Z]  fe36fc382320 Extracting [===========================>                       ]  20.45MB/37.02MB
+[2026-11-08T22:13:49.221Z]  2f1cd7af357c Downloading [===================>                               ]  43.75MB/114.9MB
+[2026-11-08T22:13:49.221Z]  fe36fc382320 Extracting [============================>                      ]  21.23MB/37.02MB
+[2026-11-08T22:13:49.221Z]  f5afcf74bc18 Extracting [=>                                                 ]  6.128MB/158.4MB
+[2026-11-08T22:13:49.221Z]  2da3df2b9c28 Extracting [==================================================>]     962B/962B
+[2026-11-08T22:13:49.221Z]  2da3df2b9c28 Extracting [==================================================>]     962B/962B
+[2026-11-08T22:13:49.221Z]  fe36fc382320 Extracting [============================>                      ]  21.23MB/37.02MB
+[2026-11-08T22:13:49.221Z]  2f1cd7af357c Downloading [===================>                               ]  44.83MB/114.9MB
+[2026-11-08T22:13:49.221Z]  fe36fc382320 Extracting [==============================>                    ]  22.81MB/37.02MB
+[2026-11-08T22:13:49.221Z]  fe36fc382320 Extracting [==============================>                    ]  22.81MB/37.02MB
+[2026-11-08T22:13:49.545Z]  fe36fc382320 Extracting [===============================>                   ]   23.2MB/37.02MB
+[2026-11-08T22:13:49.545Z]  2f1cd7af357c Downloading [=====================>                             ]  50.24MB/114.9MB
+[2026-11-08T22:13:49.545Z]  fe36fc382320 Extracting [===============================>                   ]   23.2MB/37.02MB
+[2026-11-08T22:13:49.545Z]  f5afcf74bc18 Extracting [==>                                                ]  7.799MB/158.4MB
+[2026-11-08T22:13:49.545Z]  fe36fc382320 Extracting [==================================>                ]  25.56MB/37.02MB
+[2026-11-08T22:13:49.545Z]  2f1cd7af357c Downloading [================================>                  ]  75.62MB/114.9MB
+[2026-11-08T22:13:49.545Z]  fe36fc382320 Extracting [==================================>                ]  25.56MB/37.02MB
+[2026-11-08T22:13:49.545Z]  f5afcf74bc18 Extracting [====>                                              ]  13.93MB/158.4MB
+[2026-11-08T22:13:49.545Z]  2da3df2b9c28 Pull complete 
+[2026-11-08T22:13:49.545Z]  969098876df7 Extracting [=========>                                         ]  32.77kB/171.2kB
+[2026-11-08T22:13:49.545Z]  969098876df7 Extracting [==================================================>]  171.2kB/171.2kB
+[2026-11-08T22:13:49.545Z]  2f1cd7af357c Downloading [============================================>      ]  101.5MB/114.9MB
+[2026-11-08T22:13:49.545Z]  fe36fc382320 Extracting [=====================================>             ]  27.53MB/37.02MB
+[2026-11-08T22:13:49.545Z]  2f1cd7af357c Verifying Checksum 
+[2026-11-08T22:13:49.545Z]  2f1cd7af357c Download complete 
+[2026-11-08T22:13:49.545Z]  fe36fc382320 Extracting [=======================================>           ]   29.1MB/37.02MB
+[2026-11-08T22:13:49.545Z]  f5afcf74bc18 Extracting [=====>                                             ]  17.83MB/158.4MB
+[2026-11-08T22:13:49.545Z]  f5afcf74bc18 Extracting [=======>                                           ]  22.28MB/158.4MB
+[2026-11-08T22:13:49.545Z]  969098876df7 Extracting [==================================================>]  171.2kB/171.2kB
+[2026-11-08T22:13:49.809Z]  fe36fc382320 Extracting [=====================================>             ]  27.53MB/37.02MB
+[2026-11-08T22:13:49.809Z]  fe36fc382320 Extracting [=======================================>           ]   29.1MB/37.02MB
+[2026-11-08T22:13:49.809Z]  f5afcf74bc18 Extracting [========>                                          ]  26.18MB/158.4MB
+[2026-11-08T22:13:49.809Z]  fe36fc382320 Extracting [=========================================>         ]  31.06MB/37.02MB
+[2026-11-08T22:13:49.809Z]  fe36fc382320 Extracting [=========================================>         ]  31.06MB/37.02MB
+[2026-11-08T22:13:49.809Z]  f5afcf74bc18 Extracting [==========>                                        ]  32.31MB/158.4MB
+[2026-11-08T22:13:50.059Z]  fe36fc382320 Extracting [===========================================>       ]  32.24MB/37.02MB
+[2026-11-08T22:13:50.059Z]  fe36fc382320 Extracting [===========================================>       ]  32.24MB/37.02MB
+[2026-11-08T22:13:50.059Z]  f5afcf74bc18 Extracting [============>                                      ]  38.44MB/158.4MB
+[2026-11-08T22:13:50.059Z]  fe36fc382320 Extracting [=============================================>     ]  33.42MB/37.02MB
+[2026-11-08T22:13:50.059Z]  fe36fc382320 Extracting [=============================================>     ]  33.42MB/37.02MB
+[2026-11-08T22:13:50.059Z]  969098876df7 Pull complete 
+[2026-11-08T22:13:50.059Z]  f5afcf74bc18 Extracting [=============>                                     ]  42.89MB/158.4MB
+[2026-11-08T22:13:50.059Z]  fe36fc382320 Extracting [=============================================>     ]  33.82MB/37.02MB
+[2026-11-08T22:13:50.059Z]  8e76de07cee7 Extracting [=>                                                 ]  32.77kB/1.003MB
+[2026-11-08T22:13:50.059Z]  8e76de07cee7 Extracting [==================================================>]  1.003MB/1.003MB
+[2026-11-08T22:13:50.059Z]  8e76de07cee7 Extracting [==================================================>]  1.003MB/1.003MB
+[2026-11-08T22:13:50.059Z]  fe36fc382320 Extracting [=============================================>     ]  33.82MB/37.02MB
+[2026-11-08T22:13:50.327Z]  8e76de07cee7 Pull complete 
+[2026-11-08T22:13:50.327Z]  1d54dcb25c1a Extracting [>                                                  ]  131.1kB/11.97MB
+[2026-11-08T22:13:50.327Z]  f5afcf74bc18 Extracting [===============>                                   ]  49.58MB/158.4MB
+[2026-11-08T22:13:50.327Z]  1d54dcb25c1a Extracting [======>                                            ]  1.442MB/11.97MB
+[2026-11-08T22:13:50.327Z]  fe36fc382320 Extracting [==============================================>    ]   34.6MB/37.02MB
+[2026-11-08T22:13:50.327Z]  fe36fc382320 Extracting [==============================================>    ]   34.6MB/37.02MB
+[2026-11-08T22:13:50.327Z]  f5afcf74bc18 Extracting [==================>                                ]   59.6MB/158.4MB
+[2026-11-08T22:13:50.327Z]  1d54dcb25c1a Extracting [=============>                                     ]  3.146MB/11.97MB
+[2026-11-08T22:13:50.327Z]  f5afcf74bc18 Extracting [=====================>                             ]  67.96MB/158.4MB
+[2026-11-08T22:13:50.327Z]  fe36fc382320 Extracting [================================================>  ]  35.78MB/37.02MB
+[2026-11-08T22:13:50.581Z]  fe36fc382320 Extracting [==================================================>]  37.02MB/37.02MB
+[2026-11-08T22:13:50.582Z]  1d54dcb25c1a Extracting [=========================>                         ]  6.029MB/11.97MB
+[2026-11-08T22:13:50.582Z]  f5afcf74bc18 Extracting [=======================>                           ]   75.2MB/158.4MB
+[2026-11-08T22:13:50.582Z]  fe36fc382320 Extracting [================================================>  ]  35.78MB/37.02MB
+[2026-11-08T22:13:50.582Z]  fe36fc382320 Extracting [==================================================>]  37.02MB/37.02MB
+[2026-11-08T22:13:50.582Z]  1d54dcb25c1a Extracting [====================================>              ]  8.651MB/11.97MB
+[2026-11-08T22:13:50.582Z]  f5afcf74bc18 Extracting [========================>                          ]  77.99MB/158.4MB
+[2026-11-08T22:13:50.903Z]  1d54dcb25c1a Extracting [=============================================>     ]  10.88MB/11.97MB
+[2026-11-08T22:13:50.904Z]  1d54dcb25c1a Extracting [==================================================>]  11.97MB/11.97MB
+[2026-11-08T22:13:50.904Z]  f5afcf74bc18 Extracting [=========================>                         ]  81.89MB/158.4MB
+[2026-11-08T22:13:50.904Z]  f5afcf74bc18 Extracting [==========================>                        ]  84.12MB/158.4MB
+[2026-11-08T22:13:51.161Z]  fe36fc382320 Pull complete 
+[2026-11-08T22:13:51.161Z]  fe36fc382320 Pull complete 
+[2026-11-08T22:13:51.161Z]  f5afcf74bc18 Extracting [===========================>                       ]  88.57MB/158.4MB
+[2026-11-08T22:13:51.161Z]  f5afcf74bc18 Extracting [=============================>                     ]  91.91MB/158.4MB
+[2026-11-08T22:13:51.161Z]  f5afcf74bc18 Extracting [==============================>                    ]  96.37MB/158.4MB
+[2026-11-08T22:13:51.480Z]  1d54dcb25c1a Pull complete 
+[2026-11-08T22:13:51.480Z]  f5afcf74bc18 Extracting [===============================>                   ]   98.6MB/158.4MB
+[2026-11-08T22:13:51.480Z]  329afa62e843 Extracting [==================================================>]     100B/100B
+[2026-11-08T22:13:51.480Z]  329afa62e843 Extracting [==================================================>]     100B/100B
+[2026-11-08T22:13:51.480Z]  4250354b4fb7 Extracting [>                                                  ]  557.1kB/254.1MB
+[2026-11-08T22:13:51.480Z]  4250354b4fb7 Extracting [>                                                  ]  557.1kB/254.1MB
+[2026-11-08T22:13:51.480Z]  f5afcf74bc18 Extracting [===============================>                   ]  100.3MB/158.4MB
+[2026-11-08T22:13:51.733Z]  4250354b4fb7 Extracting [>                                                  ]  2.228MB/254.1MB
+[2026-11-08T22:13:51.733Z]  4250354b4fb7 Extracting [>                                                  ]  2.228MB/254.1MB
+[2026-11-08T22:13:51.733Z]  4250354b4fb7 Extracting [>                                                  ]  3.342MB/254.1MB
+[2026-11-08T22:13:51.733Z]  4250354b4fb7 Extracting [>                                                  ]  3.342MB/254.1MB
+[2026-11-08T22:13:51.733Z]  f5afcf74bc18 Extracting [================================>                  ]  101.4MB/158.4MB
+[2026-11-08T22:13:51.733Z]  329afa62e843 Pull complete 
+[2026-11-08T22:13:51.985Z]  4250354b4fb7 Extracting [>                                                  ]  4.456MB/254.1MB
+[2026-11-08T22:13:51.985Z]  4250354b4fb7 Extracting [>                                                  ]  4.456MB/254.1MB
+[2026-11-08T22:13:51.985Z]  f5afcf74bc18 Extracting [================================>                  ]  101.9MB/158.4MB
+[2026-11-08T22:13:51.985Z]  4f4fb700ef54 Extracting [==================================================>]      32B/32B
+[2026-11-08T22:13:51.985Z]  4f4fb700ef54 Extracting [==================================================>]      32B/32B
+[2026-11-08T22:13:51.985Z]  4f4fb700ef54 Pull complete 
+[2026-11-08T22:13:51.985Z]  21af72ec0381 Extracting [==================================================>]     574B/574B
+[2026-11-08T22:13:51.985Z]  21af72ec0381 Extracting [==================================================>]     574B/574B
+[2026-11-08T22:13:51.985Z]  21af72ec0381 Pull complete 
+[2026-11-08T22:13:51.985Z]  4250354b4fb7 Extracting [=>                                                 ]  6.685MB/254.1MB
+[2026-11-08T22:13:51.985Z]  4250354b4fb7 Extracting [=>                                                 ]  6.685MB/254.1MB
+[2026-11-08T22:13:51.985Z]  f5afcf74bc18 Extracting [================================>                  ]  103.1MB/158.4MB
+[2026-11-08T22:13:51.985Z]  redis Pulled 
+[2026-11-08T22:13:51.985Z]  4250354b4fb7 Extracting [==>                                                ]  11.14MB/254.1MB
+[2026-11-08T22:13:51.985Z]  4250354b4fb7 Extracting [==>                                                ]  11.14MB/254.1MB
+[2026-11-08T22:13:52.249Z]  f5afcf74bc18 Extracting [=================================>                 ]  104.7MB/158.4MB
+[2026-11-08T22:13:52.249Z]  4250354b4fb7 Extracting [===>                                               ]  16.15MB/254.1MB
+[2026-11-08T22:13:52.249Z]  4250354b4fb7 Extracting [===>                                               ]  16.15MB/254.1MB
+[2026-11-08T22:13:52.249Z]  f5afcf74bc18 Extracting [==================================>                ]  108.6MB/158.4MB
+[2026-11-08T22:13:52.249Z]  4250354b4fb7 Extracting [====>                                              ]  25.07MB/254.1MB
+[2026-11-08T22:13:52.249Z]  4250354b4fb7 Extracting [====>                                              ]  25.07MB/254.1MB
+[2026-11-08T22:13:52.249Z]  f5afcf74bc18 Extracting [===================================>               ]  112.5MB/158.4MB
+[2026-11-08T22:13:52.548Z]  f5afcf74bc18 Extracting [====================================>              ]  116.4MB/158.4MB
+[2026-11-08T22:13:52.548Z]  4250354b4fb7 Extracting [=====>                                             ]  28.41MB/254.1MB
+[2026-11-08T22:13:52.548Z]  4250354b4fb7 Extracting [=====>                                             ]  28.41MB/254.1MB
+[2026-11-08T22:13:52.548Z]  f5afcf74bc18 Extracting [=====================================>             ]  118.7MB/158.4MB
+[2026-11-08T22:13:52.548Z]  4250354b4fb7 Extracting [========>                                          ]  40.67MB/254.1MB
+[2026-11-08T22:13:52.549Z]  4250354b4fb7 Extracting [========>                                          ]  40.67MB/254.1MB
+[2026-11-08T22:13:52.825Z]  f5afcf74bc18 Extracting [======================================>            ]  121.4MB/158.4MB
+[2026-11-08T22:13:52.825Z]  4250354b4fb7 Extracting [==========>                                        ]  55.71MB/254.1MB
+[2026-11-08T22:13:52.826Z]  4250354b4fb7 Extracting [==========>                                        ]  55.71MB/254.1MB
+[2026-11-08T22:13:52.826Z]  f5afcf74bc18 Extracting [=======================================>           ]  123.7MB/158.4MB
+[2026-11-08T22:13:53.076Z]  f5afcf74bc18 Extracting [=======================================>           ]  125.9MB/158.4MB
+[2026-11-08T22:13:53.076Z]  4250354b4fb7 Extracting [============>                                      ]  64.06MB/254.1MB
+[2026-11-08T22:13:53.076Z]  4250354b4fb7 Extracting [============>                                      ]  64.06MB/254.1MB
+[2026-11-08T22:13:53.076Z]  4250354b4fb7 Extracting [=============>                                     ]  68.52MB/254.1MB
+[2026-11-08T22:13:53.076Z]  4250354b4fb7 Extracting [=============>                                     ]  68.52MB/254.1MB
+[2026-11-08T22:13:53.076Z]  f5afcf74bc18 Extracting [========================================>          ]  128.1MB/158.4MB
+[2026-11-08T22:13:53.076Z]  4250354b4fb7 Extracting [==============>                                    ]   75.2MB/254.1MB
+[2026-11-08T22:13:53.076Z]  4250354b4fb7 Extracting [==============>                                    ]   75.2MB/254.1MB
+[2026-11-08T22:13:53.076Z]  f5afcf74bc18 Extracting [=========================================>         ]  131.5MB/158.4MB
+[2026-11-08T22:13:53.076Z]  4250354b4fb7 Extracting [===============>                                   ]  80.77MB/254.1MB
+[2026-11-08T22:13:53.076Z]  4250354b4fb7 Extracting [===============>                                   ]  80.77MB/254.1MB
+[2026-11-08T22:13:53.327Z]  f5afcf74bc18 Extracting [==========================================>        ]  133.7MB/158.4MB
+[2026-11-08T22:13:53.327Z]  4250354b4fb7 Extracting [=================>                                 ]   86.9MB/254.1MB
+[2026-11-08T22:13:53.327Z]  4250354b4fb7 Extracting [=================>                                 ]   86.9MB/254.1MB
+[2026-11-08T22:13:53.327Z]  f5afcf74bc18 Extracting [===========================================>       ]  136.5MB/158.4MB
+[2026-11-08T22:13:53.327Z]  4250354b4fb7 Extracting [===================>                               ]   98.6MB/254.1MB
+[2026-11-08T22:13:53.327Z]  4250354b4fb7 Extracting [===================>                               ]   98.6MB/254.1MB
+[2026-11-08T22:13:53.578Z]  f5afcf74bc18 Extracting [============================================>      ]  139.8MB/158.4MB
+[2026-11-08T22:13:53.578Z]  4250354b4fb7 Extracting [====================>                              ]  105.8MB/254.1MB
+[2026-11-08T22:13:53.578Z]  f5afcf74bc18 Extracting [============================================>      ]  141.5MB/158.4MB
+[2026-11-08T22:13:53.578Z]  4250354b4fb7 Extracting [====================>                              ]  105.8MB/254.1MB
+[2026-11-08T22:13:53.578Z]  f5afcf74bc18 Extracting [==============================================>    ]  145.9MB/158.4MB
+[2026-11-08T22:13:53.886Z]  4250354b4fb7 Extracting [=====================>                             ]  111.4MB/254.1MB
+[2026-11-08T22:13:53.887Z]  4250354b4fb7 Extracting [=====================>                             ]  111.4MB/254.1MB
+[2026-11-08T22:13:53.887Z]  f5afcf74bc18 Extracting [===============================================>   ]  151.5MB/158.4MB
+[2026-11-08T22:13:53.887Z]  4250354b4fb7 Extracting [======================>                            ]  114.2MB/254.1MB
+[2026-11-08T22:13:53.887Z]  4250354b4fb7 Extracting [======================>                            ]  114.2MB/254.1MB
+[2026-11-08T22:13:53.887Z]  f5afcf74bc18 Extracting [=================================================> ]  155.4MB/158.4MB
+[2026-11-08T22:13:53.887Z]  4250354b4fb7 Extracting [=======================>                           ]  118.1MB/254.1MB
+[2026-11-08T22:13:53.887Z]  4250354b4fb7 Extracting [=======================>                           ]  118.1MB/254.1MB
+[2026-11-08T22:13:54.171Z]  f5afcf74bc18 Extracting [==================================================>]  158.4MB/158.4MB
+[2026-11-08T22:13:54.171Z]  4250354b4fb7 Extracting [=======================>                           ]  121.4MB/254.1MB
+[2026-11-08T22:13:54.171Z]  4250354b4fb7 Extracting [=======================>                           ]  121.4MB/254.1MB
+[2026-11-08T22:13:54.171Z]  4250354b4fb7 Extracting [========================>                          ]  124.8MB/254.1MB
+[2026-11-08T22:13:54.171Z]  4250354b4fb7 Extracting [========================>                          ]  124.8MB/254.1MB
+[2026-11-08T22:13:54.465Z]  4250354b4fb7 Extracting [=========================>                         ]  127.6MB/254.1MB
+[2026-11-08T22:13:54.465Z]  4250354b4fb7 Extracting [=========================>                         ]  127.6MB/254.1MB
+[2026-11-08T22:13:54.465Z]  4250354b4fb7 Extracting [=========================>                         ]  129.2MB/254.1MB
+[2026-11-08T22:13:54.465Z]  4250354b4fb7 Extracting [=========================>                         ]  129.2MB/254.1MB
+[2026-11-08T22:13:54.465Z]  f5afcf74bc18 Pull complete 
+[2026-11-08T22:13:54.465Z]  4250354b4fb7 Extracting [=========================>                         ]    132MB/254.1MB
+[2026-11-08T22:13:54.465Z]  4250354b4fb7 Extracting [=========================>                         ]    132MB/254.1MB
+[2026-11-08T22:13:54.465Z]  5c8417247a04 Extracting [==================================================>]     129B/129B
+[2026-11-08T22:13:54.465Z]  5c8417247a04 Extracting [==================================================>]     129B/129B
+[2026-11-08T22:13:54.465Z]  5c8417247a04 Pull complete 
+[2026-11-08T22:13:54.465Z]  72bdcbad1887 Extracting [==================================================>]  10.06kB/10.06kB
+[2026-11-08T22:13:54.465Z]  72bdcbad1887 Extracting [==================================================>]  10.06kB/10.06kB
+[2026-11-08T22:13:54.465Z]  72bdcbad1887 Pull complete 
+[2026-11-08T22:13:54.727Z]  4250354b4fb7 Extracting [==========================>                        ]  135.9MB/254.1MB
+[2026-11-08T22:13:54.727Z]  4250354b4fb7 Extracting [==========================>                        ]  135.9MB/254.1MB
+[2026-11-08T22:13:54.727Z]  b09fdb4422b6 Extracting [>                                                  ]  557.1kB/163.7MB
+[2026-11-08T22:13:54.727Z]  4250354b4fb7 Extracting [===========================>                       ]  139.8MB/254.1MB
+[2026-11-08T22:13:54.727Z]  4250354b4fb7 Extracting [===========================>                       ]  139.8MB/254.1MB
+[2026-11-08T22:13:54.727Z]  b09fdb4422b6 Extracting [>                                                  ]  2.228MB/163.7MB
+[2026-11-08T22:13:54.727Z]  4250354b4fb7 Extracting [============================>                      ]  142.6MB/254.1MB
+[2026-11-08T22:13:54.727Z]  4250354b4fb7 Extracting [============================>                      ]  142.6MB/254.1MB
+[2026-11-08T22:13:54.979Z]  b09fdb4422b6 Extracting [>                                                  ]  2.785MB/163.7MB
+[2026-11-08T22:13:54.979Z]  4250354b4fb7 Extracting [============================>                      ]  146.5MB/254.1MB
+[2026-11-08T22:13:54.979Z]  4250354b4fb7 Extracting [============================>                      ]  146.5MB/254.1MB
+[2026-11-08T22:13:54.979Z]  4250354b4fb7 Extracting [=============================>                     ]  151.5MB/254.1MB
+[2026-11-08T22:13:54.979Z]  4250354b4fb7 Extracting [=============================>                     ]  151.5MB/254.1MB
+[2026-11-08T22:13:55.283Z]  4250354b4fb7 Extracting [==============================>                    ]  153.7MB/254.1MB
+[2026-11-08T22:13:55.283Z]  4250354b4fb7 Extracting [==============================>                    ]  153.7MB/254.1MB
+[2026-11-08T22:13:55.283Z]  b09fdb4422b6 Extracting [=>                                                 ]  3.899MB/163.7MB
+[2026-11-08T22:13:55.283Z]  4250354b4fb7 Extracting [==============================>                    ]  155.4MB/254.1MB
+[2026-11-08T22:13:55.283Z]  4250354b4fb7 Extracting [==============================>                    ]  155.4MB/254.1MB
+[2026-11-08T22:13:55.534Z]  4250354b4fb7 Extracting [===============================>                   ]  158.8MB/254.1MB
+[2026-11-08T22:13:55.534Z]  b09fdb4422b6 Extracting [=>                                                 ]  4.456MB/163.7MB
+[2026-11-08T22:13:55.534Z]  4250354b4fb7 Extracting [===============================>                   ]  158.8MB/254.1MB
+[2026-11-08T22:13:55.534Z]  b09fdb4422b6 Extracting [==>                                                ]  6.685MB/163.7MB
+[2026-11-08T22:13:55.534Z]  4250354b4fb7 Extracting [===============================>                   ]  162.1MB/254.1MB
+[2026-11-08T22:13:55.534Z]  4250354b4fb7 Extracting [===============================>                   ]  162.1MB/254.1MB
+[2026-11-08T22:13:55.534Z]  b09fdb4422b6 Extracting [===>                                               ]  10.03MB/163.7MB
+[2026-11-08T22:13:55.534Z]  4250354b4fb7 Extracting [=================================>                 ]  167.7MB/254.1MB
+[2026-11-08T22:13:55.534Z]  4250354b4fb7 Extracting [=================================>                 ]  167.7MB/254.1MB
+[2026-11-08T22:13:55.785Z]  b09fdb4422b6 Extracting [===>                                               ]  11.14MB/163.7MB
+[2026-11-08T22:13:55.786Z]  b09fdb4422b6 Extracting [=====>                                             ]  16.71MB/163.7MB
+[2026-11-08T22:13:55.786Z]  4250354b4fb7 Extracting [=================================>                 ]  169.3MB/254.1MB
+[2026-11-08T22:13:55.786Z]  4250354b4fb7 Extracting [=================================>                 ]  169.3MB/254.1MB
+[2026-11-08T22:13:56.038Z]  b09fdb4422b6 Extracting [=====>                                             ]   19.5MB/163.7MB
+[2026-11-08T22:13:56.038Z]  4250354b4fb7 Extracting [=================================>                 ]  169.9MB/254.1MB
+[2026-11-08T22:13:56.038Z]  4250354b4fb7 Extracting [=================================>                 ]  169.9MB/254.1MB
+[2026-11-08T22:13:56.038Z]  b09fdb4422b6 Extracting [=======>                                           ]   23.4MB/163.7MB
+[2026-11-08T22:13:56.038Z]  4250354b4fb7 Extracting [=================================>                 ]  170.5MB/254.1MB
+[2026-11-08T22:13:56.038Z]  4250354b4fb7 Extracting [=================================>                 ]  170.5MB/254.1MB
+[2026-11-08T22:13:56.289Z]  b09fdb4422b6 Extracting [=========>                                         ]   31.2MB/163.7MB
+[2026-11-08T22:13:56.289Z]  4250354b4fb7 Extracting [=================================>                 ]    171MB/254.1MB
+[2026-11-08T22:13:56.289Z]  4250354b4fb7 Extracting [=================================>                 ]    171MB/254.1MB
+[2026-11-08T22:13:56.289Z]  b09fdb4422b6 Extracting [===========>                                       ]  38.99MB/163.7MB
+[2026-11-08T22:13:56.289Z]  4250354b4fb7 Extracting [=================================>                 ]  171.6MB/254.1MB
+[2026-11-08T22:13:56.289Z]  4250354b4fb7 Extracting [=================================>                 ]  171.6MB/254.1MB
+[2026-11-08T22:13:56.289Z]  b09fdb4422b6 Extracting [=============>                                     ]  42.89MB/163.7MB
+[2026-11-08T22:13:56.540Z]  b09fdb4422b6 Extracting [==============>                                    ]  47.35MB/163.7MB
+[2026-11-08T22:13:56.540Z]  4250354b4fb7 Extracting [=================================>                 ]  172.7MB/254.1MB
+[2026-11-08T22:13:56.540Z]  4250354b4fb7 Extracting [=================================>                 ]  172.7MB/254.1MB
+[2026-11-08T22:13:56.540Z]  b09fdb4422b6 Extracting [================>                                  ]  52.92MB/163.7MB
+[2026-11-08T22:13:56.804Z]  b09fdb4422b6 Extracting [=================>                                 ]  57.38MB/163.7MB
+[2026-11-08T22:13:56.804Z]  4250354b4fb7 Extracting [==================================>                ]  173.8MB/254.1MB
+[2026-11-08T22:13:56.804Z]  4250354b4fb7 Extracting [==================================>                ]  173.8MB/254.1MB
+[2026-11-08T22:13:56.804Z]  b09fdb4422b6 Extracting [====================>                              ]  66.85MB/163.7MB
+[2026-11-08T22:13:56.804Z]  4250354b4fb7 Extracting [==================================>                ]  174.4MB/254.1MB
+[2026-11-08T22:13:56.804Z]  4250354b4fb7 Extracting [==================================>                ]  174.4MB/254.1MB
+[2026-11-08T22:13:56.804Z]  b09fdb4422b6 Extracting [========================>                          ]  80.22MB/163.7MB
+[2026-11-08T22:13:57.055Z]  4250354b4fb7 Extracting [==================================>                ]  175.5MB/254.1MB
+[2026-11-08T22:13:57.055Z]  4250354b4fb7 Extracting [==================================>                ]  175.5MB/254.1MB
+[2026-11-08T22:13:57.055Z]  b09fdb4422b6 Extracting [============================>                      ]  94.14MB/163.7MB
+[2026-11-08T22:13:57.055Z]  4250354b4fb7 Extracting [==================================>                ]  177.1MB/254.1MB
+[2026-11-08T22:13:57.055Z]  4250354b4fb7 Extracting [==================================>                ]  177.1MB/254.1MB
+[2026-11-08T22:13:57.055Z]  b09fdb4422b6 Extracting [================================>                  ]  107.5MB/163.7MB
+[2026-11-08T22:13:57.055Z]  4250354b4fb7 Extracting [===================================>               ]  179.4MB/254.1MB
+[2026-11-08T22:13:57.055Z]  4250354b4fb7 Extracting [===================================>               ]  179.4MB/254.1MB
+[2026-11-08T22:13:57.311Z]  b09fdb4422b6 Extracting [====================================>              ]  120.9MB/163.7MB
+[2026-11-08T22:13:57.311Z]  4250354b4fb7 Extracting [===================================>               ]  181.6MB/254.1MB
+[2026-11-08T22:13:57.311Z]  4250354b4fb7 Extracting [===================================>               ]  181.6MB/254.1MB
+[2026-11-08T22:13:57.311Z]  b09fdb4422b6 Extracting [=========================================>         ]  134.3MB/163.7MB
+[2026-11-08T22:13:57.311Z]  4250354b4fb7 Extracting [====================================>              ]  184.4MB/254.1MB
+[2026-11-08T22:13:57.311Z]  4250354b4fb7 Extracting [====================================>              ]  184.4MB/254.1MB
+[2026-11-08T22:13:57.311Z]  b09fdb4422b6 Extracting [============================================>      ]  146.5MB/163.7MB
+[2026-11-08T22:13:57.563Z]  b09fdb4422b6 Extracting [=================================================> ]    161MB/163.7MB
+[2026-11-08T22:13:57.563Z]  4250354b4fb7 Extracting [====================================>              ]  186.6MB/254.1MB
+[2026-11-08T22:13:57.563Z]  4250354b4fb7 Extracting [====================================>              ]  186.6MB/254.1MB
+[2026-11-08T22:13:57.563Z]  b09fdb4422b6 Extracting [==================================================>]  163.7MB/163.7MB
+[2026-11-08T22:13:57.563Z]  4250354b4fb7 Extracting [====================================>              ]  187.7MB/254.1MB
+[2026-11-08T22:13:57.563Z]  4250354b4fb7 Extracting [====================================>              ]  187.7MB/254.1MB
+[2026-11-08T22:13:57.815Z]  b09fdb4422b6 Pull complete 
+[2026-11-08T22:13:57.815Z]  4f4fb700ef54 Extracting [==================================================>]      32B/32B
+[2026-11-08T22:13:57.815Z]  4f4fb700ef54 Extracting [==================================================>]      32B/32B
+[2026-11-08T22:13:57.815Z]  4f4fb700ef54 Pull complete 
+[2026-11-08T22:13:57.815Z]  4250354b4fb7 Extracting [=====================================>             ]  188.8MB/254.1MB
+[2026-11-08T22:13:57.815Z]  4250354b4fb7 Extracting [=====================================>             ]  188.8MB/254.1MB
+[2026-11-08T22:13:57.815Z]  neo4j Pulled 
+[2026-11-08T22:13:58.066Z]  4250354b4fb7 Extracting [=====================================>             ]  189.4MB/254.1MB
+[2026-11-08T22:13:58.066Z]  4250354b4fb7 Extracting [=====================================>             ]  189.4MB/254.1MB
+[2026-11-08T22:13:58.066Z]  4250354b4fb7 Extracting [=====================================>             ]    190MB/254.1MB
+[2026-11-08T22:13:58.066Z]  4250354b4fb7 Extracting [=====================================>             ]    190MB/254.1MB
+[2026-11-08T22:13:58.317Z]  4250354b4fb7 Extracting [=====================================>             ]  190.5MB/254.1MB
+[2026-11-08T22:13:58.317Z]  4250354b4fb7 Extracting [=====================================>             ]  190.5MB/254.1MB
+[2026-11-08T22:13:58.568Z]  4250354b4fb7 Extracting [=====================================>             ]  191.6MB/254.1MB
+[2026-11-08T22:13:58.568Z]  4250354b4fb7 Extracting [=====================================>             ]  191.6MB/254.1MB
+[2026-11-08T22:13:58.818Z]  4250354b4fb7 Extracting [=====================================>             ]  192.7MB/254.1MB
+[2026-11-08T22:13:58.818Z]  4250354b4fb7 Extracting [=====================================>             ]  192.7MB/254.1MB
+[2026-11-08T22:13:59.069Z]  4250354b4fb7 Extracting [======================================>            ]  194.4MB/254.1MB
+[2026-11-08T22:13:59.069Z]  4250354b4fb7 Extracting [======================================>            ]  194.4MB/254.1MB
+[2026-11-08T22:13:59.321Z]  4250354b4fb7 Extracting [======================================>            ]  197.2MB/254.1MB
+[2026-11-08T22:13:59.321Z]  4250354b4fb7 Extracting [======================================>            ]  197.2MB/254.1MB
+[2026-11-08T22:13:59.572Z]  4250354b4fb7 Extracting [=======================================>           ]  198.9MB/254.1MB
+[2026-11-08T22:13:59.572Z]  4250354b4fb7 Extracting [=======================================>           ]  198.9MB/254.1MB
+[2026-11-08T22:13:59.572Z]  4250354b4fb7 Extracting [=======================================>           ]  199.4MB/254.1MB
+[2026-11-08T22:13:59.572Z]  4250354b4fb7 Extracting [=======================================>           ]  199.4MB/254.1MB
+[2026-11-08T22:13:59.822Z]  4250354b4fb7 Extracting [=======================================>           ]  200.5MB/254.1MB
+[2026-11-08T22:13:59.822Z]  4250354b4fb7 Extracting [=======================================>           ]  200.5MB/254.1MB
+[2026-11-08T22:13:59.822Z]  4250354b4fb7 Extracting [========================================>          ]  203.9MB/254.1MB
+[2026-11-08T22:13:59.822Z]  4250354b4fb7 Extracting [========================================>          ]  203.9MB/254.1MB
+[2026-11-08T22:14:00.073Z]  4250354b4fb7 Extracting [========================================>          ]  206.7MB/254.1MB
+[2026-11-08T22:14:00.073Z]  4250354b4fb7 Extracting [========================================>          ]  206.7MB/254.1MB
+[2026-11-08T22:14:00.344Z]  4250354b4fb7 Extracting [=========================================>         ]  209.5MB/254.1MB
+[2026-11-08T22:14:00.344Z]  4250354b4fb7 Extracting [=========================================>         ]  209.5MB/254.1MB
+[2026-11-08T22:14:00.344Z]  4250354b4fb7 Extracting [=========================================>         ]  212.2MB/254.1MB
+[2026-11-08T22:14:00.344Z]  4250354b4fb7 Extracting [=========================================>         ]  212.2MB/254.1MB
+[2026-11-08T22:14:00.598Z]  4250354b4fb7 Extracting [==========================================>        ]    215MB/254.1MB
+[2026-11-08T22:14:00.598Z]  4250354b4fb7 Extracting [==========================================>        ]    215MB/254.1MB
+[2026-11-08T22:14:00.598Z]  4250354b4fb7 Extracting [==========================================>        ]  218.4MB/254.1MB
+[2026-11-08T22:14:00.598Z]  4250354b4fb7 Extracting [==========================================>        ]  218.4MB/254.1MB
+[2026-11-08T22:14:00.598Z]  4250354b4fb7 Extracting [===========================================>       ]    220MB/254.1MB
+[2026-11-08T22:14:00.599Z]  4250354b4fb7 Extracting [===========================================>       ]    220MB/254.1MB
+[2026-11-08T22:14:00.849Z]  4250354b4fb7 Extracting [===========================================>       ]  221.7MB/254.1MB
+[2026-11-08T22:14:00.849Z]  4250354b4fb7 Extracting [===========================================>       ]  221.7MB/254.1MB
+[2026-11-08T22:14:00.849Z]  4250354b4fb7 Extracting [===========================================>       ]  222.8MB/254.1MB
+[2026-11-08T22:14:00.849Z]  4250354b4fb7 Extracting [===========================================>       ]  222.8MB/254.1MB
+[2026-11-08T22:14:01.100Z]  4250354b4fb7 Extracting [============================================>      ]  224.5MB/254.1MB
+[2026-11-08T22:14:01.100Z]  4250354b4fb7 Extracting [============================================>      ]  224.5MB/254.1MB
+[2026-11-08T22:14:01.100Z]  4250354b4fb7 Extracting [============================================>      ]  227.8MB/254.1MB
+[2026-11-08T22:14:01.100Z]  4250354b4fb7 Extracting [============================================>      ]  227.8MB/254.1MB
+[2026-11-08T22:14:01.351Z]  4250354b4fb7 Extracting [=============================================>     ]  230.6MB/254.1MB
+[2026-11-08T22:14:01.351Z]  4250354b4fb7 Extracting [=============================================>     ]  230.6MB/254.1MB
+[2026-11-08T22:14:01.351Z]  4250354b4fb7 Extracting [=============================================>     ]  233.4MB/254.1MB
+[2026-11-08T22:14:01.351Z]  4250354b4fb7 Extracting [=============================================>     ]  233.4MB/254.1MB
+[2026-11-08T22:14:01.351Z]  4250354b4fb7 Extracting [==============================================>    ]  236.7MB/254.1MB
+[2026-11-08T22:14:01.351Z]  4250354b4fb7 Extracting [==============================================>    ]  236.7MB/254.1MB
+[2026-11-08T22:14:01.921Z]  4250354b4fb7 Extracting [===============================================>   ]  241.8MB/254.1MB
+[2026-11-08T22:14:01.921Z]  4250354b4fb7 Extracting [===============================================>   ]  241.8MB/254.1MB
+[2026-11-08T22:14:01.921Z]  4250354b4fb7 Extracting [=================================================> ]    249MB/254.1MB
+[2026-11-08T22:14:01.921Z]  4250354b4fb7 Extracting [=================================================> ]    249MB/254.1MB
+[2026-11-08T22:14:01.921Z]  4250354b4fb7 Extracting [=================================================> ]  251.2MB/254.1MB
+[2026-11-08T22:14:01.921Z]  4250354b4fb7 Extracting [=================================================> ]  251.2MB/254.1MB
+[2026-11-08T22:14:02.174Z]  4250354b4fb7 Extracting [==================================================>]  254.1MB/254.1MB
+[2026-11-08T22:14:02.174Z]  4250354b4fb7 Extracting [==================================================>]  254.1MB/254.1MB
+[2026-11-08T22:14:02.767Z]  4250354b4fb7 Pull complete 
+[2026-11-08T22:14:02.767Z]  4250354b4fb7 Pull complete 
+[2026-11-08T22:14:03.018Z]  c4c5f447179d Extracting [>                                                  ]   98.3kB/7.734MB
+[2026-11-08T22:14:03.018Z]  c4c5f447179d Extracting [>                                                  ]   98.3kB/7.734MB
+[2026-11-08T22:14:03.268Z]  c4c5f447179d Extracting [==>                                                ]  393.2kB/7.734MB
+[2026-11-08T22:14:03.268Z]  c4c5f447179d Extracting [==>                                                ]  393.2kB/7.734MB
+[2026-11-08T22:14:03.268Z]  c4c5f447179d Extracting [==================================================>]  7.734MB/7.734MB
+[2026-11-08T22:14:03.268Z]  c4c5f447179d Extracting [==================================================>]  7.734MB/7.734MB
+[2026-11-08T22:14:03.268Z]  c4c5f447179d Pull complete 
+[2026-11-08T22:14:03.268Z]  c4c5f447179d Pull complete 
+[2026-11-08T22:14:03.268Z]  17fe3a92262f Extracting [==================================================>]  19.96kB/19.96kB
+[2026-11-08T22:14:03.268Z]  17fe3a92262f Extracting [==================================================>]  19.96kB/19.96kB
+[2026-11-08T22:14:03.268Z]  17fe3a92262f Extracting [==================================================>]  19.96kB/19.96kB
+[2026-11-08T22:14:03.520Z]  17fe3a92262f Pull complete 
+[2026-11-08T22:14:03.520Z]  5420596c14ab Extracting [>                                                  ]    426kB/39.51MB
+[2026-11-08T22:14:03.520Z]  17fe3a92262f Pull complete 
+[2026-11-08T22:14:03.520Z]  5420596c14ab Extracting [>                                                  ]    426kB/39.51MB
+[2026-11-08T22:14:03.520Z]  5420596c14ab Extracting [==>                                                ]  1.704MB/39.51MB
+[2026-11-08T22:14:03.520Z]  5420596c14ab Extracting [==>                                                ]  1.704MB/39.51MB
+[2026-11-08T22:14:03.520Z]  5420596c14ab Extracting [==============>                                    ]   11.5MB/39.51MB
+[2026-11-08T22:14:03.520Z]  5420596c14ab Extracting [==============>                                    ]   11.5MB/39.51MB
+[2026-11-08T22:14:03.778Z]  5420596c14ab Extracting [=============================>                     ]  23.43MB/39.51MB
+[2026-11-08T22:14:03.778Z]  5420596c14ab Extracting [=============================>                     ]  23.43MB/39.51MB
+[2026-11-08T22:14:03.778Z]  5420596c14ab Extracting [======================================>            ]  30.67MB/39.51MB
+[2026-11-08T22:14:03.778Z]  5420596c14ab Extracting [======================================>            ]  30.67MB/39.51MB
+[2026-11-08T22:14:03.778Z]  5420596c14ab Extracting [==================================================>]  39.51MB/39.51MB
+[2026-11-08T22:14:03.778Z]  5420596c14ab Extracting [==================================================>]  39.51MB/39.51MB
+[2026-11-08T22:14:04.041Z]  5420596c14ab Pull complete 
+[2026-11-08T22:14:04.041Z]  5420596c14ab Pull complete 
+[2026-11-08T22:14:04.041Z]  0e55377ebe37 Extracting [==================================================>]  1.104kB/1.104kB
+[2026-11-08T22:14:04.041Z]  0e55377ebe37 Extracting [==================================================>]  1.104kB/1.104kB
+[2026-11-08T22:14:04.041Z]  0e55377ebe37 Extracting [==================================================>]  1.104kB/1.104kB
+[2026-11-08T22:14:04.041Z]  0e55377ebe37 Extracting [==================================================>]  1.104kB/1.104kB
+[2026-11-08T22:14:04.041Z]  0e55377ebe37 Pull complete 
+[2026-11-08T22:14:04.041Z]  0e55377ebe37 Pull complete 
+[2026-11-08T22:14:04.041Z]  da7039bb2113 Extracting [==================================================>]     880B/880B
+[2026-11-08T22:14:04.041Z]  da7039bb2113 Extracting [==================================================>]     880B/880B
+[2026-11-08T22:14:04.041Z]  da7039bb2113 Extracting [==================================================>]     880B/880B
+[2026-11-08T22:14:04.041Z]  da7039bb2113 Extracting [==================================================>]     880B/880B
+[2026-11-08T22:14:04.041Z]  da7039bb2113 Pull complete 
+[2026-11-08T22:14:04.041Z]  da7039bb2113 Pull complete 
+[2026-11-08T22:14:04.041Z]  d389b3791c2e Extracting [==================================================>]     131B/131B
+[2026-11-08T22:14:04.041Z]  d389b3791c2e Extracting [==================================================>]     131B/131B
+[2026-11-08T22:14:04.041Z]  d389b3791c2e Extracting [==================================================>]     131B/131B
+[2026-11-08T22:14:04.041Z]  d389b3791c2e Pull complete 
+[2026-11-08T22:14:04.041Z]  d389b3791c2e Pull complete 
+[2026-11-08T22:14:04.041Z]  c24709eccb2a Extracting [==================================================>]     172B/172B
+[2026-11-08T22:14:04.041Z]  c24709eccb2a Extracting [==================================================>]     172B/172B
+[2026-11-08T22:14:04.041Z]  c24709eccb2a Extracting [==================================================>]     172B/172B
+[2026-11-08T22:14:04.041Z]  c24709eccb2a Extracting [==================================================>]     172B/172B
+[2026-11-08T22:14:04.041Z]  c24709eccb2a Pull complete 
+[2026-11-08T22:14:04.041Z]  c24709eccb2a Pull complete 
+[2026-11-08T22:14:04.041Z]  ad79ffd84e00 Extracting [>                                                  ]  557.1kB/114.9MB
+[2026-11-08T22:14:04.041Z]  2f1cd7af357c Extracting [>                                                  ]  557.1kB/114.9MB
+[2026-11-08T22:14:04.333Z]  ad79ffd84e00 Extracting [===>                                               ]  8.913MB/114.9MB
+[2026-11-08T22:14:04.333Z]  2f1cd7af357c Extracting [====>                                              ]  10.58MB/114.9MB
+[2026-11-08T22:14:04.333Z]  ad79ffd84e00 Extracting [=======>                                           ]  17.27MB/114.9MB
+[2026-11-08T22:14:04.333Z]  2f1cd7af357c Extracting [=========>                                         ]  21.17MB/114.9MB
+[2026-11-08T22:14:04.333Z]  ad79ffd84e00 Extracting [==========>                                        ]  24.51MB/114.9MB
+[2026-11-08T22:14:04.333Z]  2f1cd7af357c Extracting [===============>                                   ]  36.21MB/114.9MB
+[2026-11-08T22:14:04.599Z]  2f1cd7af357c Extracting [=====================>                             ]  48.46MB/114.9MB
+[2026-11-08T22:14:04.599Z]  ad79ffd84e00 Extracting [==============>                                    ]  32.87MB/114.9MB
+[2026-11-08T22:14:04.599Z]  2f1cd7af357c Extracting [=========================>                         ]  59.05MB/114.9MB
+[2026-11-08T22:14:04.599Z]  ad79ffd84e00 Extracting [===================>                               ]  45.68MB/114.9MB
+[2026-11-08T22:14:04.599Z]  2f1cd7af357c Extracting [=============================>                     ]  67.96MB/114.9MB
+[2026-11-08T22:14:04.599Z]  ad79ffd84e00 Extracting [=========================>                         ]  58.49MB/114.9MB
+[2026-11-08T22:14:04.884Z]  2f1cd7af357c Extracting [================================>                  ]   75.2MB/114.9MB
+[2026-11-08T22:14:04.884Z]  ad79ffd84e00 Extracting [===============================>                   ]  72.97MB/114.9MB
+[2026-11-08T22:14:04.884Z]  ad79ffd84e00 Extracting [=====================================>             ]  85.79MB/114.9MB
+[2026-11-08T22:14:04.884Z]  2f1cd7af357c Extracting [=====================================>             ]   86.9MB/114.9MB
+[2026-11-08T22:14:04.884Z]  2f1cd7af357c Extracting [========================================>          ]  93.03MB/114.9MB
+[2026-11-08T22:14:04.884Z]  ad79ffd84e00 Extracting [=======================================>           ]  90.24MB/114.9MB
+[2026-11-08T22:14:05.136Z]  ad79ffd84e00 Extracting [=========================================>         ]  95.81MB/114.9MB
+[2026-11-08T22:14:05.136Z]  2f1cd7af357c Extracting [==========================================>        ]   98.6MB/114.9MB
+[2026-11-08T22:14:05.136Z]  ad79ffd84e00 Extracting [==============================================>    ]  106.4MB/114.9MB
+[2026-11-08T22:14:05.137Z]  2f1cd7af357c Extracting [=============================================>     ]  105.3MB/114.9MB
+[2026-11-08T22:14:05.392Z]  2f1cd7af357c Extracting [===============================================>   ]  110.3MB/114.9MB
+[2026-11-08T22:14:05.392Z]  ad79ffd84e00 Extracting [===============================================>   ]  110.3MB/114.9MB
+[2026-11-08T22:14:05.392Z]  ad79ffd84e00 Extracting [=================================================> ]  113.1MB/114.9MB
+[2026-11-08T22:14:05.392Z]  2f1cd7af357c Extracting [=================================================> ]  114.2MB/114.9MB
+[2026-11-08T22:14:05.392Z]  2f1cd7af357c Extracting [==================================================>]  114.9MB/114.9MB
+[2026-11-08T22:14:05.392Z]  ad79ffd84e00 Extracting [==================================================>]  114.9MB/114.9MB
+[2026-11-08T22:14:05.392Z]  2f1cd7af357c Pull complete 
+[2026-11-08T22:14:05.392Z]  03b1128dd5e0 Extracting [==================================================>]  3.449kB/3.449kB
+[2026-11-08T22:14:05.645Z]  03b1128dd5e0 Extracting [==================================================>]  3.449kB/3.449kB
+[2026-11-08T22:14:05.645Z]  ad79ffd84e00 Pull complete 
+[2026-11-08T22:14:05.645Z]  218229bf30d9 Extracting [==================================================>]  3.629kB/3.629kB
+[2026-11-08T22:14:05.645Z]  218229bf30d9 Extracting [==================================================>]  3.629kB/3.629kB
+[2026-11-08T22:14:05.645Z]  03b1128dd5e0 Pull complete 
+[2026-11-08T22:14:05.645Z]  218229bf30d9 Pull complete 
+[2026-11-08T22:14:05.645Z]  zookeeper Pulled 
+[2026-11-08T22:14:05.645Z]  kafka Pulled 
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_ldap-data"  Creating
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_ldap-data"  Created
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_ldap-config"  Creating
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_ldap-config"  Created
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_kafka-data"  Creating
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_kafka-data"  Created
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_neo4j-data"  Creating
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_neo4j-data"  Created
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_zookeeper-data"  Creating
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_zookeeper-data"  Created
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_zookeeper-log"  Creating
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_zookeeper-log"  Created
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_redis-data"  Creating
+[2026-11-08T22:14:05.645Z]  Volume "circleguard-dev_redis-data"  Created
+[2026-11-08T22:14:05.645Z]  Container circleguard-dev-zookeeper-1  Creating
+[2026-11-08T22:14:05.645Z]  Container circleguard-dev-openldap-1  Creating
+[2026-11-08T22:14:05.645Z]  Container circleguard-dev-file-1  Creating
+[2026-11-08T22:14:05.645Z]  Container circleguard-dev-postgres-1  Running
+[2026-11-08T22:14:05.645Z]  Container circleguard-dev-identity-1  Creating
+[2026-11-08T22:14:05.645Z]  Container circleguard-dev-redis-1  Creating
+[2026-11-08T22:14:05.645Z]  Container circleguard-dev-dashboard-1  Creating
+[2026-11-08T22:14:05.645Z]  Container circleguard-dev-neo4j-1  Creating
+[2026-11-08T22:14:09.777Z]  Container circleguard-dev-identity-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-dashboard-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-openldap-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-auth-1  Creating
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-redis-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-gateway-1  Creating
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-zookeeper-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-kafka-1  Creating
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-file-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-neo4j-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-gateway-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-kafka-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-form-1  Creating
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-promotion-1  Creating
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-auth-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-notification-1  Creating
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-promotion-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-form-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-notification-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-web-1  Creating
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-web-1  Created
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-zookeeper-1  Starting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-postgres-1  Waiting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-neo4j-1  Starting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-postgres-1  Waiting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-openldap-1  Starting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-redis-1  Starting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-file-1  Starting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-openldap-1  Started
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-postgres-1  Waiting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-openldap-1  Waiting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-zookeeper-1  Started
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-zookeeper-1  Waiting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-postgres-1  Healthy
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-dashboard-1  Starting
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-postgres-1  Healthy
+[2026-11-08T22:14:09.778Z]  Container circleguard-dev-identity-1  Starting
+[2026-11-08T22:14:10.034Z]  Container circleguard-dev-neo4j-1  Started
+[2026-11-08T22:14:10.034Z]  Container circleguard-dev-file-1  Started
+[2026-11-08T22:14:10.034Z]  Container circleguard-dev-redis-1  Started
+[2026-11-08T22:14:10.034Z]  Container circleguard-dev-redis-1  Waiting
+[2026-11-08T22:14:10.289Z]  Container circleguard-dev-identity-1  Started
+[2026-11-08T22:14:10.289Z]  Container circleguard-dev-dashboard-1  Started
+[2026-11-08T22:14:10.289Z]  Container circleguard-dev-postgres-1  Healthy
+[2026-11-08T22:14:15.488Z]  Container circleguard-dev-redis-1  Healthy
+[2026-11-08T22:14:15.488Z]  Container circleguard-dev-gateway-1  Starting
+[2026-11-08T22:14:16.039Z]  Container circleguard-dev-gateway-1  Started
+[2026-11-08T22:14:16.289Z]  Container circleguard-dev-openldap-1  Healthy
+[2026-11-08T22:14:16.289Z]  Container circleguard-dev-auth-1  Starting
+[2026-11-08T22:14:17.216Z]  Container circleguard-dev-auth-1  Started
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-zookeeper-1  Healthy
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-kafka-1  Starting
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-kafka-1  Started
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-kafka-1  Waiting
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-auth-1  Waiting
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-postgres-1  Waiting
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-neo4j-1  Waiting
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-kafka-1  Waiting
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-redis-1  Waiting
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-kafka-1  Waiting
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-postgres-1  Waiting
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-redis-1  Healthy
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-postgres-1  Healthy
+[2026-11-08T22:15:24.734Z]  Container circleguard-dev-postgres-1  Healthy
+[2026-11-08T22:15:28.856Z]  Container circleguard-dev-auth-1  Healthy
+[2026-11-08T22:15:40.954Z]  Container circleguard-dev-kafka-1  Healthy
+[2026-11-08T22:15:40.954Z]  Container circleguard-dev-notification-1  Starting
+[2026-11-08T22:15:40.954Z]  Container circleguard-dev-kafka-1  Healthy
+[2026-11-08T22:15:40.954Z]  Container circleguard-dev-kafka-1  Healthy
+[2026-11-08T22:15:40.954Z]  Container circleguard-dev-form-1  Starting
+[2026-11-08T22:15:40.954Z]  Container circleguard-dev-form-1  Started
+[2026-11-08T22:15:40.954Z]  Container circleguard-dev-notification-1  Started
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-neo4j-1  Healthy
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-promotion-1  Starting
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-promotion-1  Started
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-promotion-1  Waiting
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-auth-1  Waiting
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-identity-1  Waiting
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-dashboard-1  Waiting
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-file-1  Waiting
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-form-1  Waiting
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-gateway-1  Waiting
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-notification-1  Waiting
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-notification-1  Healthy
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-identity-1  Healthy
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-auth-1  Healthy
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-gateway-1  Healthy
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-file-1  Healthy
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-dashboard-1  Healthy
+[2026-11-08T22:16:27.462Z]  Container circleguard-dev-form-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-promotion-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-web-1  Starting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-web-1  Started
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-redis-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-openldap-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-kafka-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-file-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-postgres-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-notification-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-zookeeper-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-promotion-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-auth-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-neo4j-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-identity-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-dashboard-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-form-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-gateway-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-web-1  Waiting
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-notification-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-dashboard-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-gateway-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-form-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-postgres-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-redis-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-neo4j-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-identity-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-auth-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-zookeeper-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-openldap-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-kafka-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-file-1  Healthy
+[2026-11-08T22:17:13.973Z]  Container circleguard-dev-promotion-1  Healthy
+[2026-11-08T22:17:14.524Z]  Container circleguard-dev-web-1  Healthy
+[2026-11-08T22:17:14.524Z] NAME                             IMAGE                                                                                                     COMMAND                  SERVICE        CREATED         STATUS                        PORTS
+[2026-11-08T22:17:14.524Z] circleguard-dev-auth-1           10.20.0.106:8082/circleguard/circleguard-auth-service:0.2.0                                               "java -jar /app/app.…"   auth           3 minutes ago   Up 2 minutes (healthy)        8180/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-dashboard-1      10.20.0.106:8082/circleguard/circleguard-dashboard-service:0.2.0                                          "java -jar /app/app.…"   dashboard      3 minutes ago   Up 3 minutes (healthy)        8084/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-file-1           10.20.0.106:8082/circleguard/circleguard-file-service:0.2.0                                               "java -jar /app/app.…"   file           3 minutes ago   Up 3 minutes (healthy)        8085/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-form-1           10.20.0.106:8082/circleguard/circleguard-form-service:0.2.0                                               "java -jar /app/app.…"   form           3 minutes ago   Up About a minute (healthy)   8086/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-gateway-1        10.20.0.106:8082/circleguard/circleguard-gateway-service:0.2.0                                            "java -jar /app/app.…"   gateway        3 minutes ago   Up 2 minutes (healthy)        8087/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-identity-1       10.20.0.106:8082/circleguard/circleguard-identity-service:0.2.0                                           "java -jar /app/app.…"   identity       3 minutes ago   Up 3 minutes (healthy)        8083/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-kafka-1          confluentinc/cp-kafka:7.6.0@sha256:24cdd3a7fa89d2bed150560ebea81ff1943badfa61e51d66bb541a6b0d7fb047       "/etc/confluent/dock…"   kafka          3 minutes ago   Up About a minute (healthy)   9092/tcp, 127.0.0.1:9092->29092/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-neo4j-1          neo4j:5.26.32-community@sha256:249a1ec6e3c52d82101a5ed33d6ed2b5ed5b0017b21a28c0bfebc335e87fb177           "tini -g -- /startup…"   neo4j          3 minutes ago   Up 3 minutes (healthy)        127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-notification-1   10.20.0.106:8082/circleguard/circleguard-notification-service:0.2.0                                       "java -jar /app/app.…"   notification   3 minutes ago   Up About a minute (healthy)   8082/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-openldap-1       osixia/openldap:1.5.0                                                                                     "/container/tool/run"    openldap       3 minutes ago   Up 3 minutes (healthy)        127.0.0.1:389->389/tcp, 127.0.0.1:636->636/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-postgres-1       postgres:16.15@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a                    "docker-entrypoint.s…"   postgres       3 minutes ago   Up 3 minutes (healthy)        127.0.0.1:5432->5432/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-promotion-1      10.20.0.106:8082/circleguard/circleguard-promotion-service:0.2.0                                          "java -jar /app/app.…"   promotion      3 minutes ago   Up 54 seconds (healthy)       8088/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-redis-1          redis:7.2.5-alpine@sha256:6aaf3f5e6bc8a592fbfe2cccf19eb36d27c39d12dab4f4b01556b7449e7b1f44                "docker-entrypoint.s…"   redis          3 minutes ago   Up 3 minutes (healthy)        127.0.0.1:6379->6379/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-web-1            10.20.0.106:8082/circleguard/circleguard-web:0.2.0                                                        "/docker-entrypoint.…"   web            3 minutes ago   Up 5 seconds (healthy)        0.0.0.0:3000->8080/tcp
+[2026-11-08T22:17:14.524Z] circleguard-dev-zookeeper-1      confluentinc/cp-zookeeper:7.6.0@sha256:9babd1c0beaf93189982bdbb9fe4bf194a2730298b640c057817746c19838866   "/etc/confluent/dock…"   zookeeper      3 minutes ago   Up 3 minutes (healthy)        2181/tcp, 2888/tcp, 3888/tcp
+[2026-11-08T22:17:14.775Z] Trazabilidad actualizada: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/deploy/releases/dev.json
+[2026-11-08T22:17:14.775Z] Copia persistente:        /var/jenkins_home/.circleguard/releases/dev.json
+[2026-11-08T22:17:14.775Z] Notificación omitida: defina DISCORD_WEBHOOK_URL o SLACK_WEBHOOK_URL.
+[2026-11-08T22:17:14.775Z] OK: dev desplegado en 0.2.0
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (E2E dev)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:17:16.021Z] + ./deploy/e2e.sh dev
+[2026-11-08T22:17:17.367Z] 
+[2026-11-08T22:17:17.367Z] added 3 packages in 1s
+[2026-11-08T22:17:19.241Z] 
+[2026-11-08T22:17:19.241Z] Running 2 tests using 1 worker
+[2026-11-08T22:17:19.241Z] 
+[2026-11-08T22:17:21.725Z]   ✓  1 [chromium] › tests/smoke.spec.ts:4:3 › CircleGuard smoke › la aplicación web responde y sirve el shell (1.5s)
+[2026-11-08T22:17:21.725Z]   ✓  2 [chromium] › tests/smoke.spec.ts:10:3 › CircleGuard smoke › el healthcheck del proxy responde (33ms)
+[2026-11-08T22:17:21.725Z] 
+[2026-11-08T22:17:21.725Z]   2 passed (2.5s)
+[2026-11-08T22:17:21.976Z] E2E OK para dev en http://dind:3000
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Stop dev)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T22:17:22.318Z] Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:17:22.674Z] + ./deploy/compose-down.sh dev
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-web-1  Stopping
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-web-1  Stopped
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-web-1  Removing
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-web-1  Removed
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-promotion-1  Stopping
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-file-1  Stopping
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-form-1  Stopping
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-identity-1  Stopping
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-dashboard-1  Stopping
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-notification-1  Stopping
+[2026-11-08T22:17:23.225Z]  Container circleguard-dev-gateway-1  Stopping
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-file-1  Stopped
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-file-1  Removing
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-file-1  Removed
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-form-1  Stopped
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-form-1  Removing
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-dashboard-1  Stopped
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-dashboard-1  Removing
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-form-1  Removed
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-dashboard-1  Removed
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-identity-1  Stopped
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-identity-1  Removing
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-gateway-1  Stopped
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-gateway-1  Removing
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-identity-1  Removed
+[2026-11-08T22:17:23.776Z]  Container circleguard-dev-gateway-1  Removed
+[2026-11-08T22:17:24.026Z]  Container circleguard-dev-promotion-1  Stopped
+[2026-11-08T22:17:24.026Z]  Container circleguard-dev-promotion-1  Removing
+[2026-11-08T22:17:24.277Z]  Container circleguard-dev-promotion-1  Removed
+[2026-11-08T22:17:24.277Z]  Container circleguard-dev-neo4j-1  Stopping
+[2026-11-08T22:17:24.277Z]  Container circleguard-dev-redis-1  Stopping
+[2026-11-08T22:17:24.277Z]  Container circleguard-dev-redis-1  Stopped
+[2026-11-08T22:17:24.277Z]  Container circleguard-dev-redis-1  Removing
+[2026-11-08T22:17:24.277Z]  Container circleguard-dev-redis-1  Removed
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-notification-1  Stopped
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-notification-1  Removing
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-notification-1  Removed
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-auth-1  Stopping
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-kafka-1  Stopping
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-auth-1  Stopped
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-auth-1  Removing
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-auth-1  Removed
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-postgres-1  Stopping
+[2026-11-08T22:17:26.138Z]  Container circleguard-dev-openldap-1  Stopping
+[2026-11-08T22:17:26.389Z]  Container circleguard-dev-openldap-1  Stopped
+[2026-11-08T22:17:26.389Z]  Container circleguard-dev-openldap-1  Removing
+[2026-11-08T22:17:26.389Z]  Container circleguard-dev-openldap-1  Removed
+[2026-11-08T22:17:26.639Z]  Container circleguard-dev-postgres-1  Stopped
+[2026-11-08T22:17:26.639Z]  Container circleguard-dev-postgres-1  Removing
+[2026-11-08T22:17:26.639Z]  Container circleguard-dev-postgres-1  Removed
+[2026-11-08T22:17:27.190Z]  Container circleguard-dev-kafka-1  Stopped
+[2026-11-08T22:17:27.190Z]  Container circleguard-dev-kafka-1  Removing
+[2026-11-08T22:17:27.190Z]  Container circleguard-dev-kafka-1  Removed
+[2026-11-08T22:17:27.190Z]  Container circleguard-dev-zookeeper-1  Stopping
+[2026-11-08T22:17:28.534Z]  Container circleguard-dev-zookeeper-1  Stopped
+[2026-11-08T22:17:28.534Z]  Container circleguard-dev-zookeeper-1  Removing
+[2026-11-08T22:17:28.534Z]  Container circleguard-dev-zookeeper-1  Removed
+[2026-11-08T22:17:29.445Z]  Container circleguard-dev-neo4j-1  Stopped
+[2026-11-08T22:17:29.445Z]  Container circleguard-dev-neo4j-1  Removing
+[2026-11-08T22:17:29.445Z]  Container circleguard-dev-neo4j-1  Removed
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_zookeeper-log  Removing
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_kafka-data  Removing
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_ldap-data  Removing
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_postgres-data  Removing
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_ldap-config  Removing
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_redis-data  Removing
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_zookeeper-data  Removing
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_neo4j-data  Removing
+[2026-11-08T22:17:29.445Z]  Network circleguard-dev_circleguard  Removing
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_zookeeper-log  Removed
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_ldap-data  Removed
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_redis-data  Removed
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_kafka-data  Removed
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_postgres-data  Removed
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_ldap-config  Removed
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_neo4j-data  Removed
+[2026-11-08T22:17:29.445Z]  Volume circleguard-dev_zookeeper-data  Removed
+[2026-11-08T22:17:29.445Z]  Network circleguard-dev_circleguard  Removed
+[2026-11-08T22:17:29.445Z] Contenedores y volúmenes del ambiente dev eliminados.
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy stage)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T22:17:29.866Z] Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:17:30.247Z] + ./deploy/deploy.sh stage 0.2.0
+[2026-11-08T22:17:30.247Z] CircleGuard deploy
+[2026-11-08T22:17:30.247Z]   environment: stage
+[2026-11-08T22:17:30.247Z]   version:     0.2.0
+[2026-11-08T22:17:30.247Z]   registry:    10.20.0.106:8082/circleguard
+[2026-11-08T22:17:30.247Z]   mode:        local
+[2026-11-08T22:17:30.247Z]  Volume "circleguard-stage_postgres-data"  Creating
+[2026-11-08T22:17:30.247Z]  Volume "circleguard-stage_postgres-data"  Created
+[2026-11-08T22:17:30.247Z]  Container circleguard-stage-postgres-1  Creating
+[2026-11-08T22:17:30.247Z]  Container circleguard-stage-postgres-1  Created
+[2026-11-08T22:17:30.247Z]  Container circleguard-stage-postgres-1  Starting
+[2026-11-08T22:17:30.500Z]  Container circleguard-stage-postgres-1  Started
+[2026-11-08T22:17:30.500Z]  Container circleguard-stage-postgres-1  Waiting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-postgres-1  Healthy
+[2026-11-08T22:17:36.982Z] CREATE DATABASE
+[2026-11-08T22:17:36.982Z] CREATE DATABASE
+[2026-11-08T22:17:36.982Z] CREATE DATABASE
+[2026-11-08T22:17:36.982Z] CREATE DATABASE
+[2026-11-08T22:17:36.982Z] CREATE DATABASE
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_zookeeper-data"  Creating
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_zookeeper-data"  Created
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_zookeeper-log"  Creating
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_zookeeper-log"  Created
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_kafka-data"  Creating
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_kafka-data"  Created
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_redis-data"  Creating
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_redis-data"  Created
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_ldap-data"  Creating
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_ldap-data"  Created
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_ldap-config"  Creating
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_ldap-config"  Created
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_neo4j-data"  Creating
+[2026-11-08T22:17:36.982Z]  Volume "circleguard-stage_neo4j-data"  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-openldap-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-neo4j-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-zookeeper-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-file-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-redis-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-postgres-1  Running
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-identity-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-dashboard-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-identity-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-dashboard-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-redis-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-file-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-gateway-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-openldap-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-auth-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-neo4j-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-zookeeper-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-kafka-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-auth-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-gateway-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-kafka-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-form-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-notification-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-promotion-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-notification-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-promotion-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-form-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-web-1  Creating
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-web-1  Created
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-file-1  Starting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-redis-1  Starting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-neo4j-1  Starting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-zookeeper-1  Starting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-postgres-1  Waiting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-postgres-1  Waiting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-openldap-1  Starting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-redis-1  Started
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-redis-1  Waiting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-neo4j-1  Started
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-openldap-1  Started
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-postgres-1  Waiting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-openldap-1  Waiting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-zookeeper-1  Started
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-zookeeper-1  Waiting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-file-1  Started
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-postgres-1  Healthy
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-identity-1  Starting
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-postgres-1  Healthy
+[2026-11-08T22:17:36.982Z]  Container circleguard-stage-dashboard-1  Starting
+[2026-11-08T22:17:37.533Z]  Container circleguard-stage-postgres-1  Healthy
+[2026-11-08T22:17:37.533Z]  Container circleguard-stage-identity-1  Started
+[2026-11-08T22:17:37.533Z]  Container circleguard-stage-dashboard-1  Started
+[2026-11-08T22:17:42.728Z]  Container circleguard-stage-redis-1  Healthy
+[2026-11-08T22:17:42.728Z]  Container circleguard-stage-gateway-1  Starting
+[2026-11-08T22:17:42.728Z]  Container circleguard-stage-openldap-1  Healthy
+[2026-11-08T22:17:42.728Z]  Container circleguard-stage-auth-1  Starting
+[2026-11-08T22:17:42.728Z]  Container circleguard-stage-gateway-1  Started
+[2026-11-08T22:17:42.728Z]  Container circleguard-stage-auth-1  Started
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-zookeeper-1  Healthy
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-kafka-1  Starting
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-kafka-1  Started
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-kafka-1  Waiting
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-postgres-1  Waiting
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-redis-1  Waiting
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-postgres-1  Waiting
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-neo4j-1  Waiting
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-kafka-1  Waiting
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-auth-1  Waiting
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-kafka-1  Waiting
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-redis-1  Healthy
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-postgres-1  Healthy
+[2026-11-08T22:18:21.283Z]  Container circleguard-stage-postgres-1  Healthy
+[2026-11-08T22:18:43.081Z]  Container circleguard-stage-auth-1  Healthy
+[2026-11-08T22:18:51.106Z]  Container circleguard-stage-kafka-1  Healthy
+[2026-11-08T22:18:51.106Z]  Container circleguard-stage-notification-1  Starting
+[2026-11-08T22:18:51.106Z]  Container circleguard-stage-kafka-1  Healthy
+[2026-11-08T22:18:51.106Z]  Container circleguard-stage-form-1  Starting
+[2026-11-08T22:18:51.106Z]  Container circleguard-stage-kafka-1  Healthy
+[2026-11-08T22:18:51.106Z]  Container circleguard-stage-notification-1  Started
+[2026-11-08T22:18:51.106Z]  Container circleguard-stage-form-1  Started
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-neo4j-1  Healthy
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-promotion-1  Starting
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-promotion-1  Started
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-dashboard-1  Waiting
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-file-1  Waiting
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-form-1  Waiting
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-gateway-1  Waiting
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-notification-1  Waiting
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-promotion-1  Waiting
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-auth-1  Waiting
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-identity-1  Waiting
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-identity-1  Healthy
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-dashboard-1  Healthy
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-gateway-1  Healthy
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-notification-1  Healthy
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-auth-1  Healthy
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-file-1  Healthy
+[2026-11-08T22:19:29.662Z]  Container circleguard-stage-form-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-promotion-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-web-1  Starting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-web-1  Started
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-auth-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-identity-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-dashboard-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-web-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-promotion-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-postgres-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-zookeeper-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-file-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-kafka-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-redis-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-neo4j-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-notification-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-form-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-openldap-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-gateway-1  Waiting
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-gateway-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-zookeeper-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-file-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-neo4j-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-postgres-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-identity-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-openldap-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-auth-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-dashboard-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-redis-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-notification-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-promotion-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-kafka-1  Healthy
+[2026-11-08T22:20:25.716Z]  Container circleguard-stage-form-1  Healthy
+[2026-11-08T22:20:26.627Z]  Container circleguard-stage-web-1  Healthy
+[2026-11-08T22:20:26.878Z] NAME                               IMAGE                                                                                                     COMMAND                  SERVICE        CREATED         STATUS                        PORTS
+[2026-11-08T22:20:26.878Z] circleguard-stage-auth-1           10.20.0.106:8082/circleguard/circleguard-auth-service:0.2.0                                               "java -jar /app/app.…"   auth           2 minutes ago   Up 2 minutes (healthy)        8180/tcp
+[2026-11-08T22:20:26.878Z] circleguard-stage-dashboard-1      10.20.0.106:8082/circleguard/circleguard-dashboard-service:0.2.0                                          "java -jar /app/app.…"   dashboard      2 minutes ago   Up 2 minutes (healthy)        8084/tcp
+[2026-11-08T22:20:26.878Z] circleguard-stage-file-1           10.20.0.106:8082/circleguard/circleguard-file-service:0.2.0                                               "java -jar /app/app.…"   file           2 minutes ago   Up 2 minutes (healthy)        8085/tcp
+[2026-11-08T22:20:26.878Z] circleguard-stage-form-1           10.20.0.106:8082/circleguard/circleguard-form-service:0.2.0                                               "java -jar /app/app.…"   form           2 minutes ago   Up About a minute (healthy)   8086/tcp
+[2026-11-08T22:20:26.878Z] circleguard-stage-gateway-1        10.20.0.106:8082/circleguard/circleguard-gateway-service:0.2.0                                            "java -jar /app/app.…"   gateway        2 minutes ago   Up 2 minutes (healthy)        8087/tcp
+[2026-11-08T22:20:26.878Z] circleguard-stage-identity-1       10.20.0.106:8082/circleguard/circleguard-identity-service:0.2.0                                           "java -jar /app/app.…"   identity       2 minutes ago   Up 2 minutes (healthy)        8083/tcp
+[2026-11-08T22:20:26.878Z] circleguard-stage-kafka-1          confluentinc/cp-kafka:7.6.0@sha256:24cdd3a7fa89d2bed150560ebea81ff1943badfa61e51d66bb541a6b0d7fb047       "/etc/confluent/dock…"   kafka          2 minutes ago   Up 2 minutes (healthy)        9092/tcp
+[2026-11-08T22:20:26.879Z] circleguard-stage-neo4j-1          neo4j:5.26.32-community@sha256:249a1ec6e3c52d82101a5ed33d6ed2b5ed5b0017b21a28c0bfebc335e87fb177           "tini -g -- /startup…"   neo4j          2 minutes ago   Up 2 minutes (healthy)        7473-7474/tcp, 7687/tcp
+[2026-11-08T22:20:26.879Z] circleguard-stage-notification-1   10.20.0.106:8082/circleguard/circleguard-notification-service:0.2.0                                       "java -jar /app/app.…"   notification   2 minutes ago   Up About a minute (healthy)   8082/tcp
+[2026-11-08T22:20:26.879Z] circleguard-stage-openldap-1       osixia/openldap:1.5.0                                                                                     "/container/tool/run"    openldap       2 minutes ago   Up 2 minutes (healthy)        389/tcp, 636/tcp
+[2026-11-08T22:20:26.879Z] circleguard-stage-postgres-1       postgres:16.15@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a                    "docker-entrypoint.s…"   postgres       2 minutes ago   Up 2 minutes (healthy)        5432/tcp
+[2026-11-08T22:20:26.879Z] circleguard-stage-promotion-1      10.20.0.106:8082/circleguard/circleguard-promotion-service:0.2.0                                          "java -jar /app/app.…"   promotion      2 minutes ago   Up 58 seconds (healthy)       8088/tcp
+[2026-11-08T22:20:26.879Z] circleguard-stage-redis-1          redis:7.2.5-alpine@sha256:6aaf3f5e6bc8a592fbfe2cccf19eb36d27c39d12dab4f4b01556b7449e7b1f44                "docker-entrypoint.s…"   redis          2 minutes ago   Up 2 minutes (healthy)        6379/tcp
+[2026-11-08T22:20:26.879Z] circleguard-stage-web-1            10.20.0.106:8082/circleguard/circleguard-web:0.2.0                                                        "/docker-entrypoint.…"   web            2 minutes ago   Up 5 seconds (healthy)        0.0.0.0:3000->8080/tcp
+[2026-11-08T22:20:26.879Z] circleguard-stage-zookeeper-1      confluentinc/cp-zookeeper:7.6.0@sha256:9babd1c0beaf93189982bdbb9fe4bf194a2730298b640c057817746c19838866   "/etc/confluent/dock…"   zookeeper      2 minutes ago   Up 2 minutes (healthy)        2181/tcp, 2888/tcp, 3888/tcp
+[2026-11-08T22:20:26.879Z] Trazabilidad actualizada: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/deploy/releases/stage.json
+[2026-11-08T22:20:26.879Z] Copia persistente:        /var/jenkins_home/.circleguard/releases/stage.json
+[2026-11-08T22:20:26.879Z] Notificación omitida: defina DISCORD_WEBHOOK_URL o SLACK_WEBHOOK_URL.
+[2026-11-08T22:20:26.879Z] OK: stage desplegado en 0.2.0
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (E2E stage)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:20:27.661Z] + ./deploy/e2e.sh stage
+[2026-11-08T22:20:29.523Z] 
+[2026-11-08T22:20:29.523Z] Running 2 tests using 1 worker
+[2026-11-08T22:20:29.523Z] 
+[2026-11-08T22:20:30.871Z]   ✓  1 [chromium] › tests/smoke.spec.ts:4:3 › CircleGuard smoke › la aplicación web responde y sirve el shell (1.0s)
+[2026-11-08T22:20:30.871Z]   ✓  2 [chromium] › tests/smoke.spec.ts:10:3 › CircleGuard smoke › el healthcheck del proxy responde (34ms)
+[2026-11-08T22:20:30.871Z] 
+[2026-11-08T22:20:30.871Z]   2 passed (1.7s)
+[2026-11-08T22:20:30.871Z] E2E OK para stage en http://dind:3000
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Stop stage)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T22:20:31.217Z] Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:20:31.587Z] + ./deploy/compose-down.sh stage
+[2026-11-08T22:20:31.587Z]  Container circleguard-stage-web-1  Stopping
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-web-1  Stopped
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-web-1  Removing
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-web-1  Removed
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-dashboard-1  Stopping
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-file-1  Stopping
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-gateway-1  Stopping
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-form-1  Stopping
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-promotion-1  Stopping
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-notification-1  Stopping
+[2026-11-08T22:20:31.838Z]  Container circleguard-stage-identity-1  Stopping
+[2026-11-08T22:20:32.088Z]  Container circleguard-stage-file-1  Stopped
+[2026-11-08T22:20:32.088Z]  Container circleguard-stage-file-1  Removing
+[2026-11-08T22:20:32.088Z]  Container circleguard-stage-file-1  Removed
+[2026-11-08T22:20:32.088Z]  Container circleguard-stage-identity-1  Stopped
+[2026-11-08T22:20:32.088Z]  Container circleguard-stage-identity-1  Removing
+[2026-11-08T22:20:32.088Z]  Container circleguard-stage-identity-1  Removed
+[2026-11-08T22:20:32.339Z]  Container circleguard-stage-form-1  Stopped
+[2026-11-08T22:20:32.339Z]  Container circleguard-stage-form-1  Removing
+[2026-11-08T22:20:32.339Z]  Container circleguard-stage-gateway-1  Stopped
+[2026-11-08T22:20:32.339Z]  Container circleguard-stage-gateway-1  Removing
+[2026-11-08T22:20:32.339Z]  Container circleguard-stage-gateway-1  Removed
+[2026-11-08T22:20:32.339Z]  Container circleguard-stage-form-1  Removed
+[2026-11-08T22:20:32.339Z]  Container circleguard-stage-dashboard-1  Stopped
+[2026-11-08T22:20:32.339Z]  Container circleguard-stage-dashboard-1  Removing
+[2026-11-08T22:20:32.339Z]  Container circleguard-stage-dashboard-1  Removed
+[2026-11-08T22:20:32.889Z]  Container circleguard-stage-promotion-1  Stopped
+[2026-11-08T22:20:32.889Z]  Container circleguard-stage-promotion-1  Removing
+[2026-11-08T22:20:32.889Z]  Container circleguard-stage-promotion-1  Removed
+[2026-11-08T22:20:32.889Z]  Container circleguard-stage-redis-1  Stopping
+[2026-11-08T22:20:32.889Z]  Container circleguard-stage-neo4j-1  Stopping
+[2026-11-08T22:20:32.889Z]  Container circleguard-stage-redis-1  Stopped
+[2026-11-08T22:20:32.889Z]  Container circleguard-stage-redis-1  Removing
+[2026-11-08T22:20:32.889Z]  Container circleguard-stage-redis-1  Removed
+[2026-11-08T22:20:34.752Z]  Container circleguard-stage-notification-1  Stopped
+[2026-11-08T22:20:34.752Z]  Container circleguard-stage-notification-1  Removing
+[2026-11-08T22:20:34.752Z]  Container circleguard-stage-notification-1  Removed
+[2026-11-08T22:20:34.752Z]  Container circleguard-stage-auth-1  Stopping
+[2026-11-08T22:20:34.752Z]  Container circleguard-stage-kafka-1  Stopping
+[2026-11-08T22:20:34.752Z]  Container circleguard-stage-auth-1  Stopped
+[2026-11-08T22:20:34.752Z]  Container circleguard-stage-auth-1  Removing
+[2026-11-08T22:20:35.003Z]  Container circleguard-stage-auth-1  Removed
+[2026-11-08T22:20:35.003Z]  Container circleguard-stage-openldap-1  Stopping
+[2026-11-08T22:20:35.003Z]  Container circleguard-stage-postgres-1  Stopping
+[2026-11-08T22:20:35.003Z]  Container circleguard-stage-openldap-1  Stopped
+[2026-11-08T22:20:35.003Z]  Container circleguard-stage-openldap-1  Removing
+[2026-11-08T22:20:35.003Z]  Container circleguard-stage-openldap-1  Removed
+[2026-11-08T22:20:35.253Z]  Container circleguard-stage-postgres-1  Stopped
+[2026-11-08T22:20:35.253Z]  Container circleguard-stage-postgres-1  Removing
+[2026-11-08T22:20:35.253Z]  Container circleguard-stage-postgres-1  Removed
+[2026-11-08T22:20:35.804Z]  Container circleguard-stage-kafka-1  Stopped
+[2026-11-08T22:20:35.804Z]  Container circleguard-stage-kafka-1  Removing
+[2026-11-08T22:20:35.804Z]  Container circleguard-stage-kafka-1  Removed
+[2026-11-08T22:20:35.804Z]  Container circleguard-stage-zookeeper-1  Stopping
+[2026-11-08T22:20:36.354Z]  Container circleguard-stage-zookeeper-1  Stopped
+[2026-11-08T22:20:36.354Z]  Container circleguard-stage-zookeeper-1  Removing
+[2026-11-08T22:20:36.354Z]  Container circleguard-stage-zookeeper-1  Removed
+[2026-11-08T22:20:38.216Z]  Container circleguard-stage-neo4j-1  Stopped
+[2026-11-08T22:20:38.216Z]  Container circleguard-stage-neo4j-1  Removing
+[2026-11-08T22:20:38.216Z]  Container circleguard-stage-neo4j-1  Removed
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_kafka-data  Removing
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_postgres-data  Removing
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_ldap-data  Removing
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_zookeeper-log  Removing
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_zookeeper-data  Removing
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_ldap-config  Removing
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_neo4j-data  Removing
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_redis-data  Removing
+[2026-11-08T22:20:38.216Z]  Network circleguard-stage_circleguard  Removing
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_postgres-data  Removed
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_kafka-data  Removed
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_redis-data  Removed
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_ldap-data  Removed
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_zookeeper-log  Removed
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_neo4j-data  Removed
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_zookeeper-data  Removed
+[2026-11-08T22:20:38.216Z]  Volume circleguard-stage_ldap-config  Removed
+[2026-11-08T22:20:38.216Z]  Network circleguard-stage_circleguard  Removed
+[2026-11-08T22:20:38.216Z] Contenedores y volúmenes del ambiente stage eliminados.
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Approve prod)
+[Pipeline] timeout
+[2026-11-08T22:20:38.562Z] Timeout set to expire in 1 day 0 hr
+[Pipeline] {
+[Pipeline] input
+[2026-11-08T22:20:38.644Z] ¿Desplegar 0.2.0 a prod?
+[2026-11-08T22:20:38.645Z] Desplegar a prod or Abort
+[2026-11-08T22:25:52.691Z] Approved by admin
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy prod)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T22:25:53.317Z] Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:25:53.775Z] + ./deploy/deploy.sh prod 0.2.0
+[2026-11-08T22:25:53.775Z] CircleGuard deploy
+[2026-11-08T22:25:53.775Z]   environment: prod
+[2026-11-08T22:25:53.775Z]   version:     0.2.0
+[2026-11-08T22:25:53.775Z]   registry:    10.20.0.106:8082/circleguard
+[2026-11-08T22:25:53.775Z]   mode:        local
+[2026-11-08T22:25:54.025Z]  Volume "circleguard-prod_postgres-data"  Creating
+[2026-11-08T22:25:54.025Z]  Volume "circleguard-prod_postgres-data"  Created
+[2026-11-08T22:25:54.025Z]  Container circleguard-prod-postgres-1  Creating
+[2026-11-08T22:25:54.025Z]  Container circleguard-prod-postgres-1  Created
+[2026-11-08T22:25:54.025Z]  Container circleguard-prod-postgres-1  Starting
+[2026-11-08T22:25:54.276Z]  Container circleguard-prod-postgres-1  Started
+[2026-11-08T22:25:54.276Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:26:00.764Z] CREATE DATABASE
+[2026-11-08T22:26:00.764Z] CREATE DATABASE
+[2026-11-08T22:26:00.764Z] CREATE DATABASE
+[2026-11-08T22:26:00.764Z] CREATE DATABASE
+[2026-11-08T22:26:00.764Z] CREATE DATABASE
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_zookeeper-data"  Creating
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_zookeeper-data"  Created
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_zookeeper-log"  Creating
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_zookeeper-log"  Created
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_ldap-data"  Creating
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_ldap-data"  Created
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_ldap-config"  Creating
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_ldap-config"  Created
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_kafka-data"  Creating
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_kafka-data"  Created
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_redis-data"  Creating
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_redis-data"  Created
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_neo4j-data"  Creating
+[2026-11-08T22:26:00.764Z]  Volume "circleguard-prod_neo4j-data"  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-zookeeper-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-file-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-redis-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-openldap-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-postgres-1  Running
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-identity-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-dashboard-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-neo4j-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-openldap-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-auth-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-identity-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-dashboard-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-file-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-zookeeper-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-kafka-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-redis-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-neo4j-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-gateway-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-auth-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-gateway-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-kafka-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-notification-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-promotion-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-form-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-promotion-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-notification-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-form-1  Created
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-web-1  Creating
+[2026-11-08T22:26:00.764Z]  Container circleguard-prod-web-1  Created
+[2026-11-08T22:26:01.015Z]  Container circleguard-prod-openldap-1  Starting
+[2026-11-08T22:26:01.015Z]  Container circleguard-prod-neo4j-1  Starting
+[2026-11-08T22:26:01.015Z]  Container circleguard-prod-zookeeper-1  Starting
+[2026-11-08T22:26:01.015Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:26:01.015Z]  Container circleguard-prod-redis-1  Starting
+[2026-11-08T22:26:01.015Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:26:01.015Z]  Container circleguard-prod-file-1  Starting
+[2026-11-08T22:26:01.275Z]  Container circleguard-prod-neo4j-1  Started
+[2026-11-08T22:26:01.275Z]  Container circleguard-prod-zookeeper-1  Started
+[2026-11-08T22:26:01.275Z]  Container circleguard-prod-zookeeper-1  Waiting
+[2026-11-08T22:26:01.275Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:26:01.275Z]  Container circleguard-prod-identity-1  Starting
+[2026-11-08T22:26:01.275Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:26:01.275Z]  Container circleguard-prod-dashboard-1  Starting
+[2026-11-08T22:26:01.527Z]  Container circleguard-prod-openldap-1  Started
+[2026-11-08T22:26:01.527Z]  Container circleguard-prod-openldap-1  Waiting
+[2026-11-08T22:26:01.527Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:26:01.527Z]  Container circleguard-prod-redis-1  Started
+[2026-11-08T22:26:01.527Z]  Container circleguard-prod-redis-1  Waiting
+[2026-11-08T22:26:01.527Z]  Container circleguard-prod-file-1  Started
+[2026-11-08T22:26:01.945Z]  Container circleguard-prod-dashboard-1  Started
+[2026-11-08T22:26:02.209Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:26:02.209Z]  Container circleguard-prod-identity-1  Started
+[2026-11-08T22:26:07.410Z]  Container circleguard-prod-openldap-1  Healthy
+[2026-11-08T22:26:07.410Z]  Container circleguard-prod-auth-1  Starting
+[2026-11-08T22:26:07.410Z]  Container circleguard-prod-redis-1  Healthy
+[2026-11-08T22:26:07.410Z]  Container circleguard-prod-gateway-1  Starting
+[2026-11-08T22:26:07.410Z]  Container circleguard-prod-auth-1  Started
+[2026-11-08T22:26:07.410Z]  Container circleguard-prod-gateway-1  Started
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-zookeeper-1  Healthy
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-kafka-1  Starting
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-kafka-1  Started
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-kafka-1  Waiting
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-auth-1  Waiting
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-kafka-1  Waiting
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-neo4j-1  Waiting
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-kafka-1  Waiting
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-redis-1  Waiting
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-redis-1  Healthy
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:27:44.021Z]  Container circleguard-prod-auth-1  Healthy
+[2026-11-08T22:28:30.671Z]  Container circleguard-prod-kafka-1  Healthy
+[2026-11-08T22:28:30.671Z]  Container circleguard-prod-kafka-1  Healthy
+[2026-11-08T22:28:30.671Z]  Container circleguard-prod-form-1  Starting
+[2026-11-08T22:28:30.671Z]  Container circleguard-prod-kafka-1  Healthy
+[2026-11-08T22:28:30.671Z]  Container circleguard-prod-notification-1  Starting
+[2026-11-08T22:28:30.671Z]  Container circleguard-prod-form-1  Started
+[2026-11-08T22:28:30.671Z]  Container circleguard-prod-notification-1  Started
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-neo4j-1  Healthy
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-promotion-1  Starting
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-promotion-1  Started
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-form-1  Waiting
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-gateway-1  Waiting
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-notification-1  Waiting
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-promotion-1  Waiting
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-auth-1  Waiting
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-identity-1  Waiting
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-dashboard-1  Waiting
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-file-1  Waiting
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-file-1  Healthy
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-notification-1  Healthy
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-form-1  Healthy
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-gateway-1  Healthy
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-identity-1  Healthy
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-dashboard-1  Healthy
+[2026-11-08T22:29:38.355Z]  Container circleguard-prod-auth-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-promotion-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-web-1  Starting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-web-1  Started
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-kafka-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-openldap-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-notification-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-promotion-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-form-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-gateway-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-zookeeper-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-dashboard-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-redis-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-web-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-postgres-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-neo4j-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-identity-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-auth-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-file-1  Waiting
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-gateway-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-identity-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-file-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-auth-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-openldap-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-redis-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-notification-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-promotion-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-postgres-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-neo4j-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-form-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-zookeeper-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-kafka-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-dashboard-1  Healthy
+[2026-11-08T22:30:45.878Z]  Container circleguard-prod-web-1  Healthy
+[2026-11-08T22:30:45.878Z] NAME                              IMAGE                                                                                                     COMMAND                  SERVICE        CREATED         STATUS                        PORTS
+[2026-11-08T22:30:45.878Z] circleguard-prod-auth-1           10.20.0.106:8082/circleguard/circleguard-auth-service:0.2.0                                               "java -jar /app/app.…"   auth           4 minutes ago   Up 4 minutes (healthy)        8180/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-dashboard-1      10.20.0.106:8082/circleguard/circleguard-dashboard-service:0.2.0                                          "java -jar /app/app.…"   dashboard      4 minutes ago   Up 4 minutes (healthy)        8084/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-file-1           10.20.0.106:8082/circleguard/circleguard-file-service:0.2.0                                               "java -jar /app/app.…"   file           4 minutes ago   Up 4 minutes (healthy)        8085/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-form-1           10.20.0.106:8082/circleguard/circleguard-form-service:0.2.0                                               "java -jar /app/app.…"   form           4 minutes ago   Up 2 minutes (healthy)        8086/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-gateway-1        10.20.0.106:8082/circleguard/circleguard-gateway-service:0.2.0                                            "java -jar /app/app.…"   gateway        4 minutes ago   Up 4 minutes (healthy)        8087/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-identity-1       10.20.0.106:8082/circleguard/circleguard-identity-service:0.2.0                                           "java -jar /app/app.…"   identity       4 minutes ago   Up 4 minutes (healthy)        8083/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-kafka-1          confluentinc/cp-kafka:7.6.0@sha256:24cdd3a7fa89d2bed150560ebea81ff1943badfa61e51d66bb541a6b0d7fb047       "/etc/confluent/dock…"   kafka          4 minutes ago   Up 3 minutes (healthy)        9092/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-neo4j-1          neo4j:5.26.32-community@sha256:249a1ec6e3c52d82101a5ed33d6ed2b5ed5b0017b21a28c0bfebc335e87fb177           "tini -g -- /startup…"   neo4j          4 minutes ago   Up 4 minutes (healthy)        7473-7474/tcp, 7687/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-notification-1   10.20.0.106:8082/circleguard/circleguard-notification-service:0.2.0                                       "java -jar /app/app.…"   notification   4 minutes ago   Up 2 minutes (healthy)        8082/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-openldap-1       osixia/openldap:1.5.0                                                                                     "/container/tool/run"    openldap       4 minutes ago   Up 4 minutes (healthy)        389/tcp, 636/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-postgres-1       postgres:16.15@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a                    "docker-entrypoint.s…"   postgres       4 minutes ago   Up 4 minutes (healthy)        5432/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-promotion-1      10.20.0.106:8082/circleguard/circleguard-promotion-service:0.2.0                                          "java -jar /app/app.…"   promotion      4 minutes ago   Up About a minute (healthy)   8088/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-redis-1          redis:7.2.5-alpine@sha256:6aaf3f5e6bc8a592fbfe2cccf19eb36d27c39d12dab4f4b01556b7449e7b1f44                "docker-entrypoint.s…"   redis          4 minutes ago   Up 4 minutes (healthy)        6379/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-web-1            10.20.0.106:8082/circleguard/circleguard-web:0.2.0                                                        "/docker-entrypoint.…"   web            4 minutes ago   Up 6 seconds (healthy)        127.0.0.1:3000->8080/tcp
+[2026-11-08T22:30:45.878Z] circleguard-prod-zookeeper-1      confluentinc/cp-zookeeper:7.6.0@sha256:9babd1c0beaf93189982bdbb9fe4bf194a2730298b640c057817746c19838866   "/etc/confluent/dock…"   zookeeper      4 minutes ago   Up 4 minutes (healthy)        2181/tcp, 2888/tcp, 3888/tcp
+[2026-11-08T22:30:45.878Z] Trazabilidad actualizada: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/deploy/releases/prod.json
+[2026-11-08T22:30:45.878Z] Copia persistente:        /var/jenkins_home/.circleguard/releases/prod.json
+[2026-11-08T22:30:45.878Z] Notificación omitida: defina DISCORD_WEBHOOK_URL o SLACK_WEBHOOK_URL.
+[2026-11-08T22:30:45.878Z] OK: prod desplegado en 0.2.0
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Tag release)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T22:30:46.842Z] Masking supported pattern matches of $GITHUB_TOKEN
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:30:47.248Z] + ./deploy/tag-release.sh 0.2.0
+[2026-11-08T22:30:47.248Z] PUSH_TAG=0: tag v0.2.0 creado localmente; no se publica en origin.
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Release notes)
+[Pipeline] sh
+[2026-11-08T22:30:48.001Z] + ./deploy/release-notes.sh 0.2.0
+[2026-11-08T22:30:48.001Z] Release notes: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/docs/release-notes/v0.2.0.md
+[2026-11-08T22:30:48.001Z] CHANGELOG actualizado: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/CHANGELOG.md
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (GitHub release)
+[Pipeline] withCredentials
+[2026-11-08T22:30:48.324Z] Masking supported pattern matches of $GITHUB_TOKEN
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:30:48.675Z] + ./deploy/github-release.sh 0.2.0
+[2026-11-08T22:30:50.542Z] GitHub release creado: https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492/releases/tag/v0.2.0
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] archiveArtifacts
+[2026-11-08T22:30:50.903Z] Archiving artifacts
+[Pipeline] script
+[Pipeline] {
+[Pipeline] catchError
+[Pipeline] {
+[Pipeline] junit
+[2026-11-08T22:30:51.115Z] Recording test results
+[2026-11-08T22:30:51.197Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // catchError
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T22:30:51.667Z] Masking supported pattern matches of $DISCORD_WEBHOOK_URL
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T22:30:52.053Z] + ./deploy/notify.sh unstable prod 0.2.0 Pipeline completado con advertencias (tests base)
+[2026-11-08T22:30:52.303Z] Notificación enviada.
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] cleanWs
+[2026-11-08T22:30:52.657Z] [WS-CLEANUP] Deleting project workspace...
+[2026-11-08T22:30:52.657Z] [WS-CLEANUP] Deferred wipeout is used...
+[2026-11-08T22:30:52.703Z] [WS-CLEANUP] done
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: UNSTABLE

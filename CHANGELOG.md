@@ -31,6 +31,12 @@ Todas las versiones notables de CircleGuard. Formato basado en
 - Los hosts de ambiente `t3.small` (2 GiB) no se usan en la demo de HU-06/HU-07; el stack corre en
   el Docker-in-Docker del host `ci`. Para un despliegue multi-host real se requieren hosts con más
   memoria y subir `QUOTA_VCPU_LIMIT`.
+- En la ejecución de HU-07 el build #18 quedó `UNSTABLE` porque el reinicio de Jenkins interrumpió
+  la tarea durable de `Unit tests and coverage` (JENKINS-48300), no por un test fallido. El build
+  #17 había pasado unit/coverage e integración; HU-04 no se modificó.
+- El tag `v0.2.0` se creó inicialmente solo local porque `tag-release.sh` no reconocía
+  `PUSH_TAG=true`; además faltaba `target_commitish` en `github-release.sh`. Se corrigió y el
+  tag/release se recreó en `59cec5c`.
 
 <!-- releases -->
 

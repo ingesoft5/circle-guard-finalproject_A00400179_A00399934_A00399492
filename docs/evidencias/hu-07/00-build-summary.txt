@@ -1,0 +1,43 @@
+# 00 · Resumen de builds de HU-07
+
+Fecha: 2026-11-08
+Job: `circleguard-hu06-v2/HU-06-run`
+URL base: `http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/`
+
+| Build | Origen | Resultado | Etapas relevantes |
+|---|---|---|---|
+| #16 | Manual | FAILURE | Build/unit/integration OK; `Package images` falló con `ENOSPC` en `npm ci` de Expo web. |
+| #17 | Manual | FAILURE | Unit/coverage e integración OK; imágenes 0.2.0 publicadas; dev y E2E dev OK; `Deploy stage` falló porque `circleguard-stage-promotion-1` quedó unhealthy (postgres/kafka sin disco). |
+| #18 | Manual | UNSTABLE | CD completo: dev, stage, aprobación, prod 0.2.0, tag local, release notes y GitHub Release. La etapa `Unit tests and coverage` quedó UNSTABLE porque el reinicio de Jenkins interrumpió la tarea durable, no por un test fallido. |
+| #19 | Manual | SUCCESS | Rollback real de dev `0.2.0 → 0.1.0`; 15 contenedores healthy. |
+| #20 | SCM change | SUCCESS | Build automático por el push del fix; no ejecutó tests ni despliegue (solo Checkout/Prepare/Post). |
+| #21 | Manual | SUCCESS | Rollback real de prod `0.2.0 → 0.1.0`; 15 contenedores healthy. |
+
+## Tests
+
+- #17: `Unit tests and coverage = SUCCESS`; `Integration tests = SUCCESS`.
+- #18: `Unit tests and coverage = UNSTABLE` por interrupción del reinicio de Jenkins
+  (`wrapper script does not seem to be touching the log file`, JENKINS-48300), no por un fallo de
+  tests. El pipeline siguió por `catchError` y completó el CD.
+- #20: no ejecutó tests (build SCM sin etapas de test).
+- HU-04 no se modificó en HU-07; los tests base siguen siendo no bloqueantes por decisión D2.
+
+## Incidencias y correcciones
+
+1. #16: disco lleno en el host de 30 GB; se limpiaron stacks/volúmenes y se reintentó con
+   `BUILD_IMAGES=false` en #17/#18.
+2. #17: stage unhealthy por falta de disco; se limpiaron stage/prod y se liberó espacio.
+3. #18: Jenkins marcó el nodo Built-In offline por el monitor de disco con un valor viejo
+   (`/var/jenkins_home` tenía 6.7 GB libres). Se reinició Jenkins y se puso el nodo online.
+4. #18: el tag `v0.2.0` quedó solo local porque `tag-release.sh` no reconocía `PUSH_TAG=true`
+   (esperaba `1`). El GitHub Release se creó inicialmente con target incorrecto. Se corrigieron
+   `tag-release.sh` y `github-release.sh` y se recreó el tag/release en `59cec5c`.
+5. Los builds de rollback registran en `commit` el checkout de Jenkins; la imagen `0.1.0`
+   corresponde al tag `v0.1.0` (`dd825e6`). Ver `01-rollback.txt` y `08-traceability.json`.
+
+## Estado final
+
+- dev: `0.1.0` (rollback verificado; stack dev eliminado después de la evidencia).
+- prod: `0.1.0` (rollback verificado; 15 contenedores healthy).
+- Release: `v0.2.0` en `59cec5c` con GitHub Release.
+- Verificación: `01-rollback.txt`, `08-traceability.json`.
