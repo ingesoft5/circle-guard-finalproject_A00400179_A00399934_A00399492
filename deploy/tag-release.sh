@@ -36,7 +36,9 @@ fi
 REMOTE=$(git remote get-url origin)
 PUSH_URL=$REMOTE
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-  if [[ "$REMOTE" == git@github.com:* ]]; then
+  if [[ -n "${CG_GITHUB_URL:-}" ]]; then
+    PUSH_URL="${CG_GITHUB_URL%.git}.git"
+  elif [[ "$REMOTE" == git@github.com:* ]]; then
     PUSH_URL="https://github.com/${REMOTE#git@github.com:}"
   fi
   # Pass the token through the environment, not through the command line.
