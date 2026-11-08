@@ -1,0 +1,128 @@
+# 01 · Rollback real dev y prod
+
+Fecha: 2026-11-08
+Historias: HU-07
+Entorno Jenkins: `ci` (Docker-in-Docker), host 30 GB
+Versión de partida: `0.2.0`
+Versión objetivo: `0.1.0`
+
+## Resumen
+
+| Ambiente | Build | Parámetros | Resultado |
+|---|---|---|---|
+| dev | #19 | `ROLLBACK_ENV=dev`, `ROLLBACK_VERSION=0.1.0`, `VERSION=0.2.0`, `PUSH_TAG=false` | SUCCESS |
+| prod | #21 | `ROLLBACK_ENV=prod`, `ROLLBACK_VERSION=0.1.0`, `VERSION=0.2.0`, `PUSH_TAG=false` | SUCCESS |
+
+- Build dev: <http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/19/>
+- Build prod: <http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/21/>
+
+## Dev · build #19
+
+Comando y salida principal:
+
+```text
++ ./deploy/rollback.sh dev 0.1.0
+Rollback de dev: 0.2.0 -> 0.1.0
+...
+Trazabilidad actualizada: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/deploy/releases/dev.json
+Copia persistente:        /var/jenkins_home/.circleguard/releases/dev.json
+OK: dev desplegado en 0.1.0
+Rollback registrado en deploy/releases/dev.json
+```
+
+Verificación de contenedores: 15 servicios `circleguard-dev-*` con imagen `0.1.0` y estado
+`healthy`. El web quedó en `0.0.0.0:3000->8080/tcp`; se detuvo el web de prod temporalmente para
+liberar el puerto.
+
+`deploy/releases/dev.json` persistente:
+
+```json
+{
+  "environment": "dev",
+  "version": "0.1.0",
+  "commit": "59cec5c",
+  "deployed_at": "2026-11-08T22:38:53Z",
+  "deployed_by": "jenkins",
+  "event": "rollback"
+}
+```
+
+Fila del historial persistente:
+
+```text
+2026-11-08T22:38:53Z	dev	0.1.0	59cec5c	jenkins	rollback
+```
+
+Después de capturar la evidencia se eliminaron los contenedores y volúmenes `circleguard-dev-*`.
+El estado persistente de dev queda en `0.1.0`.
+
+## Prod · build #21
+
+Comando y salida principal:
+
+```text
++ ./deploy/rollback.sh prod 0.1.0
+Rollback de prod: 0.2.0 -> 0.1.0
+...
+Trazabilidad actualizada: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/deploy/releases/prod.json
+Copia persistente:        /var/jenkins_home/.circleguard/releases/prod.json
+OK: prod desplegado en 0.1.0
+Rollback registrado en deploy/releases/prod.json
+```
+
+Verificación de contenedores: 15 servicios `circleguard-prod-*` con imagen `0.1.0` y estado
+`healthy`; web en `0.0.0.0:3000->8080/tcp`.
+
+`deploy/releases/prod.json` persistente:
+
+```json
+{
+  "environment": "prod",
+  "version": "0.1.0",
+  "commit": "5066733",
+  "deployed_at": "2026-11-08T22:43:09Z",
+  "deployed_by": "jenkins",
+  "event": "rollback"
+}
+```
+
+Fila del historial persistente:
+
+```text
+2026-11-08T22:43:09Z	prod	0.1.0	5066733	jenkins	rollback
+```
+
+## Nota de trazabilidad del commit
+
+El campo `commit` que escribe `record-release.sh` es el **checkout de Jenkins** usado por el build,
+no necesariamente el commit del tag de la imagen. Para este rollback:
+
+- Imagen `0.1.0` → tag `v0.1.0` → commit `dd825e6`.
+- Build dev #19 ejecutó desde `59cec5c`; build prod #21 desde `5066733` (fix de tag/release).
+- Los despliegues originales de `0.1.0` en el historial sí registran `dd825e6`:
+  `2026-11-08T17:51:03Z dev 0.1.0 dd825e6 deploy` y
+  `2026-11-08T18:07:13Z prod 0.1.0 dd825e6 deploy`.
+
+La versión desplegada y el tag de la imagen son `0.1.0`/`v0.1.0`; la diferencia de `commit` es
+del checkout del pipeline y queda documentada en `08-traceability.json`.
+
+## Historial persistente completo (extracto)
+
+```text
+timestamp	environment	version	commit	deployed_by	event
+2026-11-08T17:51:03Z	dev	0.1.0	dd825e6	jenkins	deploy
+2026-11-08T17:54:26Z	stage	0.1.0	dd825e6	jenkins	deploy
+2026-11-08T18:07:13Z	prod	0.1.0	dd825e6	jenkins	deploy
+2026-11-08T21:12:24Z	dev	0.2.0	59cec5c	jenkins	deploy
+2026-11-08T22:17:14Z	dev	0.2.0	59cec5c	jenkins	deploy
+2026-11-08T22:20:26Z	stage	0.2.0	59cec5c	jenkins	deploy
+2026-11-08T22:30:43Z	prod	0.2.0	59cec5c	jenkins	deploy
+2026-11-08T22:38:53Z	dev	0.1.0	59cec5c	jenkins	rollback
+2026-11-08T22:43:09Z	prod	0.1.0	5066733	jenkins	rollback
+```
+
+## Estado final
+
+- dev: `0.1.0`, evento `rollback`; stack eliminado tras la evidencia.
+- prod: `0.1.0`, evento `rollback`; 15 contenedores healthy.
+- El rollback se verificó en ambos ambientes con las imágenes `0.1.0` publicadas en HU-06.

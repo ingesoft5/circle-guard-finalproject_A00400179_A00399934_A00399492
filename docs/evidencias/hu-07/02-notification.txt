@@ -4,24 +4,49 @@ Fecha: 2026-11-08
 Canal: Discord
 Credencial de Jenkins: `discord-webhook` (Secret text, no versionada)
 
-Comando ejecutado:
+## Fallo real del pipeline
 
-```bash
-DISCORD_WEBHOOK_URL=*** ./deploy/notify.sh failure ci 0.2.0 \
-  "Prueba de notificacion HU-07: fallo simulado"
-```
+Build: #17 · `circleguard-hu06-v2/HU-06-run`
+Etapa que falló: `Deploy stage` (`circleguard-stage-promotion-1` unhealthy)
 
-Salida:
+Salida del `post` de Jenkins:
 
 ```text
++ ./deploy/notify.sh failure stage 0.2.0 Pipeline falló
 Notificación enviada.
 ```
 
 Mensaje enviado al canal de Discord:
 
 ```text
+[CircleGuard] failure · stage · 0.2.0 · Pipeline falló
+```
+
+## Prueba adicional de invocación manual
+
+También se verificó el script de forma manual:
+
+```bash
+DISCORD_WEBHOOK_URL=*** ./deploy/notify.sh failure ci 0.2.0 \
+  "Prueba de notificacion HU-07: fallo simulado"
+```
+
+```text
+Notificación enviada.
+```
+
+```text
 [CircleGuard] failure · ci · 0.2.0 · Prueba de notificacion HU-07: fallo simulado
 ```
 
-La captura del mensaje en Discord se guarda como `02-notification.png`. El webhook no se
-versiona ni se imprime.
+## Captura
+
+La captura del mensaje en Discord se guarda como `02-notification.png`. Debe corresponder al fallo
+real del build #17 (`failure · stage · 0.2.0 · Pipeline falló`) o, si se usa la prueba manual,
+indicarlo explícitamente. El webhook no se versiona, no se imprime y no debe aparecer en la captura.
+
+## Configuración
+
+- Jenkins inyecta `DISCORD_WEBHOOK_URL` desde la credencial `discord-webhook`.
+- `deploy/notify.sh` no falla si no hay webhook configurado: informa y termina en 0.
+- El secreto no está en el repositorio, en este archivo ni en la captura.

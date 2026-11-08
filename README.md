@@ -442,5 +442,6 @@ Evidence: [`docs/evidencias/hu-06/`](docs/evidencias/hu-06/README.md) and
 ## AI usage log
 
 Prompts, responses and decision records are kept in [`docs/iag/`](docs/iag/README.md), as required
-by the course's Level 3 AI collaboration policy. The HU-07 session is documented in
+by the course's Level 3 AI collaboration policy. The HU-07 session, including the real AWS/Jenkins
+execution, the rollback dev/prod and the tag/release correction, is documented in
 [`docs/iag/sesiones/2026-11-08-hu-07.md`](docs/iag/sesiones/2026-11-08-hu-07.md).
