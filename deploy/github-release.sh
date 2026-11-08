@@ -15,6 +15,7 @@ TAG="v$VERSION"
 NOTES="$ROOT_DIR/docs/release-notes/v$VERSION.md"
 [[ -f "$NOTES" ]] || cg_die "No existen $NOTES; ejecute deploy/release-notes.sh $VERSION."
 [[ -n "${GITHUB_TOKEN:-}" ]] || cg_die "Falta GITHUB_TOKEN (credencial github-token de Jenkins)."
+TARGET=$(git rev-parse "$TAG^{commit}")
 
 REPO=${CG_GITHUB_URL#https://github.com/}
 REPO=${REPO%.git}
@@ -26,12 +27,13 @@ PAYLOAD="$TMP_DIR/release.json"
 RESP="$TMP_DIR/response.json"
 EXISTING="$TMP_DIR/existing.json"
 
-node - "$TAG" "$NOTES" > "$PAYLOAD" <<'NODE'
+node - "$TAG" "$NOTES" "$TARGET" > "$PAYLOAD" <<'NODE'
 const fs = require('fs');
-const [tag, notesPath] = process.argv.slice(2);
+const [tag, notesPath, target] = process.argv.slice(2);
 const body = fs.readFileSync(notesPath, 'utf8');
 process.stdout.write(JSON.stringify({
   tag_name: tag,
+  target_commitish: target,
   name: `CircleGuard ${tag}`,
   body,
   draft: false,

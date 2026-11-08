@@ -34,6 +34,41 @@ Todas las versiones notables de CircleGuard. Formato basado en
 
 <!-- releases -->
 
+## [v0.2.0] - 2026-11-08
+
+- Fecha: 2026-11-08
+- Tag: `v0.2.0`
+- Commit: `59cec5c`
+- Desde: `v0.1.0`
+
+## Features
+
+- completar release notes, GitHub release y documentacion
+- semilla de change management y release notes
+
+## Fixes
+
+- publicar el tag en GitHub desde Jenkins
+- publicar artifacts con netrc y evitar falso positivo de gitleaks
+- consultar la version actual sin abortar
+- reportar la linea que falla
+- aceptar imagenes locales en despliegues locales
+
+## Otros
+
+- Merge pull request #9 from ingesoft5/HU-06-_Entrega-continua-y-promoción
+- merge(dev): integrar HU-04 (integracion y cobertura) en HU-06
+- Merge pull request #8 from ingesoft5/HU04-Pruebas-unitarias-y-integracion
+- enlazar el PR #9
+- registrar escaneo de secretos
+- evidencias reales del build #6 y rollback #13
+- Merge branch 'dev' into HU04-Pruebas-unitarias-y-integracion.
+- ci(hu-04): ejecutar pruebas de integración y cobertura en Jenkins + evidencias
+- ci(hu-04): ejecutar pruebas de integración y cobertura en Jenkins
+- pruebas de integración con Testcontainers
+
+
+
 ## [v0.1.0] - 2026-11-08
 
 - Fecha: 2026-11-08
