@@ -27,8 +27,12 @@ if [[ "$DEPLOY_MODE" == "ssh" ]]; then
 elif command -v docker >/dev/null 2>&1; then
   for name in "${CG_SERVICES[@]}" "$CG_WEB_SERVICE"; do
     image=$(cg_image_ref "$name" "$VERSION")
-    docker manifest inspect "$image" >/dev/null 2>&1 \
-      || cg_die "La imagen $image no está disponible para rollback."
+    # Local deployments may already have the image in the daemon even when the
+    # registry is not reachable from this host (or requires a separate login).
+    if ! docker manifest inspect "$image" >/dev/null 2>&1 \
+       && ! docker image inspect "$image" >/dev/null 2>&1; then
+      cg_die "La imagen $image no está disponible para rollback."
+    fi
   done
 elif command -v crane >/dev/null 2>&1; then
   for name in "${CG_SERVICES[@]}" "$CG_WEB_SERVICE"; do
