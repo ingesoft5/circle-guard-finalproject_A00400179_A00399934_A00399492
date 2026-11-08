@@ -102,8 +102,8 @@ services:
       test: ["CMD-SHELL", "zookeeper-shell localhost:2181 ls / >/dev/null 2>&1 || exit 1"]
       interval: 15s
       timeout: 10s
-      start_period: 30s
-      retries: 10
+      start_period: 180s
+      retries: 20
 
   kafka:
     <<: *infra-base
