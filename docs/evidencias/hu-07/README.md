@@ -1,14 +1,14 @@
 # Evidencias de HU-07 · Rollback, notificaciones y release notes
 
-**Estado: ejecutado en AWS/Jenkins. Pendiente únicamente la captura `02-notification.png` y la
-aprobación del PR a `dev`.**
+**Estado: ejecutado en AWS/Jenkins con evidencias completas. Pendiente la aprobación del PR a
+`dev` y el apagado de AWS.**
 
 ## Matriz de criterios
 
 | Criterio | Implementación | Evidencia | Estado |
 |---|---|---|---|
 | Rollback a una versión anterior, verificado en dev y prod | `deploy/rollback.sh <env> <version>`; valida imágenes y redespliega con `event=rollback` | [`01-rollback.txt`](01-rollback.txt) y [`08-traceability.json`](08-traceability.json) | Cumplido |
-| Notificación automática de fallos | `deploy/notify.sh` (Discord/Slack) en el `post` de Jenkins | [`02-notification.txt`](02-notification.txt) + captura `02-notification.png` | Texto cumple; captura pendiente |
+| Notificación automática de fallos | `deploy/notify.sh` (Discord/Slack) en el `post` de Jenkins | [`02-notification.txt`](02-notification.txt) + [`02-notification.png`](02-notification.png) | Cumplido |
 | Plantilla de solicitud de cambio | `docs/operaciones/solicitud-cambio.md` | [`05-politica.md`](05-politica.md) | Cumplido |
 | Política de aprobación por tipo | `docs/operaciones/politica-aprobacion.md` | [`05-politica.md`](05-politica.md) | Cumplido |
 | Release notes desde commits/PR | `deploy/release-notes.sh` + `CHANGELOG.md` | [`03-release-notes.md`](03-release-notes.md) | Cumplido |
@@ -65,7 +65,7 @@ Detalle completo en [`00-build-summary.txt`](00-build-summary.txt).
 |---|---|
 | [`00-build-summary.txt`](00-build-summary.txt) | Resumen de #16–#21 y estado de tests |
 | [`01-rollback.txt`](01-rollback.txt) | Rollback dev/prod, JSON e historial |
-| [`02-notification.txt`](02-notification.txt) | Fallo real #17 y prueba manual |
+| [`02-notification.txt`](02-notification.txt) / [`02-notification.png`](02-notification.png) | Fallo real #16 (captura), #17 y prueba manual |
 | [`03-release-notes.md`](03-release-notes.md) | Notas v0.2.0, CHANGELOG y GitHub Release |
 | [`04-tag.txt`](04-tag.txt) | Tags v0.1.0/v0.2.0 y corrección |
 | [`05-politica.md`](05-politica.md) | Política, RFC y PR template |
@@ -77,6 +77,5 @@ Detalle completo en [`00-build-summary.txt`](00-build-summary.txt).
 
 ## Pendiente para cerrar
 
-1. Guardar `02-notification.png` con la captura real del mensaje de Discord.
-2. Aprobar y mergear el PR de HU-07 a `dev` (el autor no puede autoaprobar).
-3. Detener `ci`/`nexus` si no se necesita la infraestructura.
+1. Aprobar y mergear el PR de HU-07 a `dev` (el autor no puede autoaprobar).
+2. Detener `ci`/`nexus` si no se necesita la infraestructura.
