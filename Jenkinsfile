@@ -464,7 +464,7 @@ def deployEnv(String envName) {
  */
 def stopEnv(String envName) {
   withCredentials([file(credentialsId: "circleguard-env-${envName}", variable: 'CG_ENV_FILE')]) {
-    withEnv(["CG_APP_ENV_FILE=deploy/compose/ci.env"]) {
+    withEnv(["CG_APP_ENV_FILE=deploy/compose/ci.env", "CG_DOWN_VOLUMES=1"]) {
       sh "./deploy/compose-down.sh '${envName}'"
     }
   }
