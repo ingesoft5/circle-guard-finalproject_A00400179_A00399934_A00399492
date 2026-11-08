@@ -5,6 +5,7 @@
 # The target version must be different from the current one and its images must
 # exist in the registry (or locally for local deployments).
 set -Eeuo pipefail
+trap 'printf "rollback.sh: fallo en la línea %s\n" "$LINENO" >&2' ERR
 
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$ROOT_DIR"
