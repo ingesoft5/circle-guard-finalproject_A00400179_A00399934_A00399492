@@ -1,0 +1,38 @@
+# 11 · Apagado de AWS
+
+Fecha: 2026-11-08
+Comando: `infra/teardown.sh --stop --apply --yes`
+Identidad usada: rol `circleguard-hu01-reader` (cuenta omitida)
+
+## Instancias
+
+| Instancia | ID | Estado anterior | Estado final |
+|---|---|---|---|
+| `circleguard-ci` | `i-0802315f63ba2f6cc` | running | stopped |
+| `circleguard-nexus` | `i-04404084d9394ef13` | running | stopped |
+| `circleguard-env-dev` | `i-09dd58896a6e461a7` | stopped | stopped |
+| `circleguard-env-stage` | `i-007d7c86d6848eaf6` | stopped | stopped |
+| `circleguard-env-prod` | `i-01a3fdafe5d4b27d5` | stopped | stopped |
+
+Salida principal:
+
+```text
+UPDATED   instancias detenidas: i-0802315f63ba2f6cc  i-04404084d9394ef13
+          (los volúmenes EBS se conservan y se siguen cobrando)
+SUMMARY   teardown-stop created=0 updated=1 unchanged=0 planned=0
+```
+
+La instancia `ci` era la que servía el túnel de Jenkins; al detenerse, el túnel cerró.
+
+## Recursos conservados
+
+- Volúmenes EBS de `ci`, `nexus`, `dev`, `stage` y `prod` (se conservan para no perder datos).
+- VPC, subredes, security groups, route table, internet gateway y key pairs.
+- Secretos de SSM bajo `/circleguard` (no se imprimen valores).
+
+No se destruyó nada: `--stop` solo detiene instancias. Para eliminar recursos se usaría
+`--destroy` desde AWS CloudShell, con confirmación explícita.
+
+## Nota de seguridad
+
+No se incluye el Account ID, credenciales, MFA, webhook ni valores de SSM en esta evidencia.
