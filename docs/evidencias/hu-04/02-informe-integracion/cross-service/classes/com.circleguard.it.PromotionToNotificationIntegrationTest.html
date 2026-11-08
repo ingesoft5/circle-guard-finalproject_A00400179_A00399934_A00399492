@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - PromotionToNotificationIntegrationTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>PromotionToNotificationIntegrationTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/com.circleguard.it.html">com.circleguard.it</a> &gt; PromotionToNotificationIntegrationTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">2</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">1.550s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="tab-container">
+<ul class="tabLinks">
+<li>
+<a href="#">Tests</a>
+</li>
+<li>
+<a href="#">Standard output</a>
+</li>
+</ul>
+<div class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Method name</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">IT-3: a status change published by promotion is notified by SMS and push</td>
+<td class="success">statusChange_IsDispatchedByTheNotificationService()</td>
+<td class="success">1.281s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">IT-4: survey (form) -&gt; SUSPECT (promotion) -&gt; notification of the user</td>
+<td class="success">surveyWithSymptoms_EndsInANotification()</td>
+<td class="success">0.269s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>	acks = -1
+	auto.include.jmx.reporter = true
+	batch.size = 16384
+	bootstrap.servers = [PLAINTEXT://dind:32776]
+	buffer.memory = 33554432
+	client.dns.lookup = use_all_dns_ips
+	client.id = producer-3
+	compression.type = none
+	connections.max.idle.ms = 540000
+	delivery.timeout.ms = 120000
+	enable.idempotence = true
+	interceptor.classes = []
+	key.serializer = class org.apache.kafka.common.serialization.StringSerializer
+	linger.ms = 0
+	max.block.ms = 60000
+	max.in.flight.requests.per.connection = 5
+	max.request.size = 1048576
+	metadata.max.age.ms = 300000
+	metadata.max.idle.ms = 300000
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partitioner.adaptive.partitioning.enable = true
+	partitioner.availability.timeout.ms = 0
+	partitioner.class = null
+	partitioner.ignore.keys = false
+	receive.buffer.bytes = 32768
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retries = 2147483647
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	transaction.timeout.ms = 60000
+	transactional.id = null
+	value.serializer = class org.springframework.kafka.support.serializer.JsonSerializer
+
+2026-11-08T04:55:48.007Z  INFO 3289 --- [circleguard-promotion-service] [         task-2] o.a.k.clients.producer.KafkaProducer     : [Producer clientId=producer-3] Instantiated an idempotent producer.
+2026-11-08T04:55:48.011Z  INFO 3289 --- [circleguard-promotion-service] [         task-2] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.6.1
+2026-11-08T04:55:48.011Z  INFO 3289 --- [circleguard-promotion-service] [         task-2] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 5e3c2b738d253ff5
+2026-11-08T04:55:48.011Z  INFO 3289 --- [circleguard-promotion-service] [         task-2] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1794113748011
+2026-11-08T04:55:48.024Z  INFO 3289 --- [circleguard-promotion-service] [ad | producer-3] org.apache.kafka.clients.Metadata        : [Producer clientId=producer-3] Cluster ID: UouJfbhCSGqRYhnIF0yViA
+2026-11-08T04:55:48.025Z  INFO 3289 --- [circleguard-promotion-service] [ad | producer-3] o.a.k.c.p.internals.TransactionManager   : [Producer clientId=producer-3] ProducerId set to 2 with epoch 0
+2026-11-08T04:55:48.045Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.clients.consumer.ConsumerConfig    : ConsumerConfig values: 
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [PLAINTEXT://dind:32776]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = probe-61537339-77e9-4e7e-9ef4-bf61814c9098
+	group.instance.id = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+
+2026-11-08T04:55:48.056Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#0-0-C-1] c.c.promotion.listener.SurveyListener    : Received survey submission event: {timestamp=1794113748034, anonymousId=343bb4fc-888c-4f5b-ab30-d959a3009954, hasSymptoms=true}
+2026-11-08T04:55:48.062Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#0-0-C-1] c.c.promotion.listener.SurveyListener    : Promoting user 343bb4fc-888c-4f5b-ab30-d959a3009954 to SUSPECT due to symptoms
+2026-11-08T04:55:48.062Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#0-0-C-1] c.c.p.service.HealthStatusService        : Updating status: 343bb4fc-888c-4f5b-ab30-d959a3009954 -&gt; SUSPECT (Admin Override: false)
+2026-11-08T04:55:48.061Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.6.1
+2026-11-08T04:55:48.063Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 5e3c2b738d253ff5
+2026-11-08T04:55:48.063Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1794113748061
+2026-11-08T04:55:48.064Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.clients.consumer.KafkaConsumer     : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Subscribed to topic(s): notification.audit
+2026-11-08T04:55:48.100Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Cluster ID: UouJfbhCSGqRYhnIF0yViA
+2026-11-08T04:55:48.100Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Discovered group coordinator dind:32776 (id: 2147483646 rack: null)
+2026-11-08T04:55:48.101Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#0-0-C-1] c.c.p.service.HealthStatusService        : Batch updating 2 Redis entries based on consolidated propagation
+2026-11-08T04:55:48.104Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] (Re-)joining group
+2026-11-08T04:55:48.110Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Request joining group due to: need to re-join with the given member-id: consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6-261d2249-04ed-4b7c-8ac6-daa9aa8a895e
+2026-11-08T04:55:48.110Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Request joining group due to: rebalance failed due to 'The group member needs to have a valid member id before actually entering a consumer group.' (MemberIdRequiredException)
+2026-11-08T04:55:48.110Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] (Re-)joining group
+2026-11-08T04:55:48.116Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Successfully joined group with generation Generation{generationId=1, memberId='consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6-261d2249-04ed-4b7c-8ac6-daa9aa8a895e', protocol='range'}
+2026-11-08T04:55:48.119Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Finished assignment for group at generation 1: {consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6-261d2249-04ed-4b7c-8ac6-daa9aa8a895e=Assignment(partitions=[notification.audit-0])}
+2026-11-08T04:55:48.124Z  INFO 3289 --- [circleguard-promotion-service] [f4-bf61814c9098] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Successfully synced group in generation Generation{generationId=1, memberId='consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6-261d2249-04ed-4b7c-8ac6-daa9aa8a895e', protocol='range'}
+2026-11-08T04:55:48.125Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#2-0-C-1] c.c.n.s.ExposureNotificationListener     : Received health status change event: {&quot;anonymousId&quot;:&quot;343bb4fc-888c-4f5b-ab30-d959a3009954&quot;,&quot;status&quot;:&quot;SUSPECT&quot;,&quot;timestamp&quot;:1794113748103}
+2026-11-08T04:55:48.125Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#2-0-C-1] c.c.n.service.NotificationDispatcher     : Dispatching contextual multi-channel notifications for user: 343bb4fc-888c-4f5b-ab30-d959a3009954 with status: SUSPECT
+2026-11-08T04:55:48.125Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Notifying assignor about the new Assignment(partitions=[notification.audit-0])
+2026-11-08T04:55:48.126Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Adding newly assigned partitions: notification.audit-0
+2026-11-08T04:55:48.127Z  INFO 3289 --- [circleguard-promotion-service] [         task-8] c.c.notification.service.SmsServiceImpl  : [MOCK SMS] To: 343bb4fc-888c-4f5b-ab30-d959a3009954, Content: CircleGuard Alert: Your health status is now SUSPECT. Please check your email for details and guidelines.
+2026-11-08T04:55:48.127Z  INFO 3289 --- [circleguard-promotion-service] [         task-8] c.c.n.service.AuditLogService            : Logging notification audit: User=343bb4fc-888c-4f5b-ab30-d959a3009954, Channel=SMS, Status=SUCCESS, CorrelationId=ff26881f-0f51-48e9-a071-c0c90c84d667
+2026-11-08T04:55:48.128Z  INFO 3289 --- [circleguard-promotion-service] [         task-8] c.c.n.service.PushServiceImpl            : [MOCK PUSH] To: 343bb4fc-888c-4f5b-ab30-d959a3009954, Content: Health Alert: Your status is SUSPECT. Tap for isolation steps., Metadata: {url=circleguard://guidelines}
+2026-11-08T04:55:48.128Z  INFO 3289 --- [circleguard-promotion-service] [         task-8] c.c.n.service.AuditLogService            : Logging notification audit: User=343bb4fc-888c-4f5b-ab30-d959a3009954, Channel=PUSH, Status=SUCCESS, CorrelationId=1ee02da5-99d2-4401-8238-8afdf81129c0
+2026-11-08T04:55:48.128Z  INFO 3289 --- [circleguard-promotion-service] [         task-8] c.c.notification.service.LmsServiceImpl  : LMS Sync: Resolving real identity for anonymousId: 343bb4fc-888c-4f5b-ab30-d959a3009954 via Identity Vault (http://circleguard-identity-service:8081)
+2026-11-08T04:55:48.128Z  INFO 3289 --- [circleguard-promotion-service] [         task-8] c.c.notification.service.LmsServiceImpl  : LMS Sync: Marking student 343bb4fc-888c-4f5b-ab30-d959a3009954 (Real ID: student@343bb4fc.university.edu) for Remote Attendance in LMS (https://lms.university.edu/api/v1) based on status: SUSPECT
+2026-11-08T04:55:48.133Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Found no committed offset for partition notification.audit-0
+2026-11-08T04:55:48.143Z  WARN 3289 --- [circleguard-promotion-service] [ntainer#0-0-C-1] o.s.data.neo4j.cypher.unrecognized       : Neo.ClientNotification.Statement.UnknownPropertyKeyWarning: The provided property key is not in the database
+	MATCH (u:User {anonymousId: $aid})-[:MEMBER_OF]-&gt;(c:Circle) WHERE coalesce(c.isAutoGenerated, false) = false MATCH (c)&lt;-[:MEMBER_OF]-(m:User) WITH c, collect(m.status) as statuses WHERE all(s in statuses WHERE s IN ['SUSPECT', 'PROBABLE', 'CONFIRMED']) RETURN c
+	                                                                             ^
+One of the property names in your query is not available in the database, make sure you didn't misspell it or that the label is available when you run this statement in your application (the missing property name is: isAutoGenerated)
+2026-11-08T04:55:48.151Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Resetting offset for partition notification.audit-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[dind:32776 (id: 1 rack: null)], epoch=0}}.
+2026-11-08T04:55:48.175Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Revoke previously assigned partitions notification.audit-0
+2026-11-08T04:55:48.175Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Member consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6-261d2249-04ed-4b7c-8ac6-daa9aa8a895e sending LeaveGroup request to coordinator dind:32776 (id: 2147483646 rack: null) due to the consumer is being closed
+2026-11-08T04:55:48.179Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-11-08T04:55:48.179Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Request joining group due to: consumer pro-actively leaving the group
+2026-11-08T04:55:48.235Z  WARN 3289 --- [circleguard-promotion-service] [         task-4] c.c.n.service.EmailServiceImpl           : Failed to send email to user 343bb4fc-888c-4f5b-ab30-d959a3009954 (correlationId: f91a2e03-679e-4a0e-85fe-373f70b30ac4): Mail server connection failed. Failed messages: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 25; timeout -1;
+  nested exception is:
+	java.net.ConnectException: Connection refused
+2026-11-08T04:55:48.236Z  INFO 3289 --- [circleguard-promotion-service] [         task-4] c.c.n.service.AuditLogService            : Logging notification audit: User=343bb4fc-888c-4f5b-ab30-d959a3009954, Channel=EMAIL, Status=RETRY, CorrelationId=f91a2e03-679e-4a0e-85fe-373f70b30ac4
+2026-11-08T04:55:48.236Z  WARN 3289 --- [circleguard-promotion-service] [         task-1] c.c.n.service.EmailServiceImpl           : Failed to send email to user f70a0991-a1ed-4192-9c1a-60161be6de58 (correlationId: f4a2aa63-ffb5-4467-9680-f6283e5c9592): Mail server connection failed. Failed messages: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 25; timeout -1;
+  nested exception is:
+	java.net.ConnectException: Connection refused
+2026-11-08T04:55:48.237Z  INFO 3289 --- [circleguard-promotion-service] [         task-1] c.c.n.service.AuditLogService            : Logging notification audit: User=f70a0991-a1ed-4192-9c1a-60161be6de58, Channel=EMAIL, Status=RETRY, CorrelationId=f4a2aa63-ffb5-4467-9680-f6283e5c9592
+2026-11-08T04:55:48.238Z  WARN 3289 --- [circleguard-promotion-service] [         task-5] c.c.n.service.EmailServiceImpl           : Failed to send email to user 5cd14046-f635-41a5-8491-77713cd6f554 (correlationId: 508194dd-6bce-4357-b8c6-05fb4b218e18): Mail server connection failed. Failed messages: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 25; timeout -1;
+  nested exception is:
+	java.net.ConnectException: Connection refused
+2026-11-08T04:55:48.238Z  INFO 3289 --- [circleguard-promotion-service] [         task-5] c.c.n.service.AuditLogService            : Logging notification audit: User=5cd14046-f635-41a5-8491-77713cd6f554, Channel=EMAIL, Status=RETRY, CorrelationId=508194dd-6bce-4357-b8c6-05fb4b218e18
+2026-11-08T04:55:48.250Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.clients.FetchSessionHandler    : [Consumer clientId=consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6, groupId=probe-61537339-77e9-4e7e-9ef4-bf61814c9098] Node 1 sent an invalid full fetch response with extraIds=(6owyVK_LT_aFpsKy94WMqQ), response=()
+2026-11-08T04:55:48.251Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-11-08T04:55:48.251Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-11-08T04:55:48.251Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-11-08T04:55:48.257Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-probe-61537339-77e9-4e7e-9ef4-bf61814c9098-6 unregistered
+2026-11-08T04:55:48.292Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] c.c.p.service.HealthStatusService        : Updating status: d84f492f-c1e0-470c-856e-d1ed17019b17 -&gt; CONFIRMED (Admin Override: false)
+2026-11-08T04:55:48.323Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] c.c.p.service.HealthStatusService        : Batch updating 2 Redis entries based on consolidated propagation
+2026-11-08T04:55:48.340Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#2-0-C-1] c.c.n.s.ExposureNotificationListener     : Received health status change event: {&quot;anonymousId&quot;:&quot;d84f492f-c1e0-470c-856e-d1ed17019b17&quot;,&quot;status&quot;:&quot;CONFIRMED&quot;,&quot;timestamp&quot;:1794113748324}
+2026-11-08T04:55:48.341Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#2-0-C-1] c.c.n.service.NotificationDispatcher     : Dispatching contextual multi-channel notifications for user: d84f492f-c1e0-470c-856e-d1ed17019b17 with status: CONFIRMED
+2026-11-08T04:55:48.348Z  INFO 3289 --- [circleguard-promotion-service] [         task-2] c.c.notification.service.SmsServiceImpl  : [MOCK SMS] To: d84f492f-c1e0-470c-856e-d1ed17019b17, Content: CircleGuard Alert: Your health status is now CONFIRMED. Please check your email for details and guidelines.
+2026-11-08T04:55:48.349Z  INFO 3289 --- [circleguard-promotion-service] [         task-2] c.c.n.service.AuditLogService            : Logging notification audit: User=d84f492f-c1e0-470c-856e-d1ed17019b17, Channel=SMS, Status=SUCCESS, CorrelationId=25b34bac-91d5-4b40-923b-d6e79a6d5b36
+2026-11-08T04:55:48.350Z  WARN 3289 --- [circleguard-promotion-service] [         task-7] c.c.n.service.EmailServiceImpl           : Failed to send email to user d84f492f-c1e0-470c-856e-d1ed17019b17 (correlationId: a4482b8e-1ac4-48b9-877a-4cacb30790dd): Mail server connection failed. Failed messages: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 25; timeout -1;
+  nested exception is:
+	java.net.ConnectException: Connection refused
+2026-11-08T04:55:48.353Z  INFO 3289 --- [circleguard-promotion-service] [         task-7] c.c.n.service.AuditLogService            : Logging notification audit: User=d84f492f-c1e0-470c-856e-d1ed17019b17, Channel=EMAIL, Status=RETRY, CorrelationId=a4482b8e-1ac4-48b9-877a-4cacb30790dd
+2026-11-08T04:55:48.351Z  INFO 3289 --- [circleguard-promotion-service] [         task-8] c.c.n.service.PushServiceImpl            : [MOCK PUSH] To: d84f492f-c1e0-470c-856e-d1ed17019b17, Content: CircleGuard: Your health status has been updated to CONFIRMED, Metadata: {}
+2026-11-08T04:55:48.356Z  INFO 3289 --- [circleguard-promotion-service] [         task-8] c.c.n.service.AuditLogService            : Logging notification audit: User=d84f492f-c1e0-470c-856e-d1ed17019b17, Channel=PUSH, Status=SUCCESS, CorrelationId=22a2f43b-fc84-4cd9-8192-935e97511730
+2026-11-08T04:55:48.351Z  INFO 3289 --- [circleguard-promotion-service] [         task-3] c.c.notification.service.LmsServiceImpl  : LMS Sync: Resolving real identity for anonymousId: d84f492f-c1e0-470c-856e-d1ed17019b17 via Identity Vault (http://circleguard-identity-service:8081)
+2026-11-08T04:55:48.356Z  INFO 3289 --- [circleguard-promotion-service] [         task-3] c.c.notification.service.LmsServiceImpl  : LMS Sync: Marking student d84f492f-c1e0-470c-856e-d1ed17019b17 (Real ID: student@d84f492f.university.edu) for Remote Attendance in LMS (https://lms.university.edu/api/v1) based on status: CONFIRMED
+2026-11-08T04:55:48.351Z  WARN 3289 --- [circleguard-promotion-service] [    Test worker] o.s.data.neo4j.cypher.unrecognized       : Neo.ClientNotification.Statement.UnknownPropertyKeyWarning: The provided property key is not in the database
+	MATCH (u:User {anonymousId: $aid})-[:MEMBER_OF]-&gt;(c:Circle) WHERE coalesce(c.isAutoGenerated, false) = false MATCH (c)&lt;-[:MEMBER_OF]-(m:User) WITH c, collect(m.status) as statuses WHERE all(s in statuses WHERE s IN ['SUSPECT', 'PROBABLE', 'CONFIRMED']) RETURN c
+	                                                                             ^
+One of the property names in your query is not available in the database, make sure you didn't misspell it or that the label is available when you run this statement in your application (the missing property name is: isAutoGenerated)
+2026-11-08T04:55:48.365Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] c.c.p.service.HealthStatusService        : Priority Alert triggered. Status: CONFIRMED, Affected Count: 1
+2026-11-08T04:55:48.374Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.clients.consumer.ConsumerConfig    : ConsumerConfig values: 
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [PLAINTEXT://dind:32776]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = probe-295519c7-42f1-4922-9491-91a8a7abee2b
+	group.instance.id = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+
+2026-11-08T04:55:48.382Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.6.1
+2026-11-08T04:55:48.382Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 5e3c2b738d253ff5
+2026-11-08T04:55:48.383Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1794113748382
+2026-11-08T04:55:48.384Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.clients.consumer.KafkaConsumer     : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Subscribed to topic(s): notification.audit
+2026-11-08T04:55:48.399Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#1-0-C-1] c.c.n.service.PriorityAlertListener      : Received alert.priority event: {&quot;anonymousId&quot;:&quot;d84f492f-c1e0-470c-856e-d1ed17019b17&quot;,&quot;affectedCount&quot;:1,&quot;eventType&quot;:&quot;CONFIRMED_CASE&quot;,&quot;status&quot;:&quot;CONFIRMED&quot;,&quot;timestamp&quot;:1794113748365}
+2026-11-08T04:55:48.400Z  INFO 3289 --- [circleguard-promotion-service] [ntainer#1-0-C-1] c.c.n.service.PriorityAlertListener      : Processing CONFIRMED_CASE Priority Alert. Affected: 1
+2026-11-08T04:55:48.435Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Cluster ID: UouJfbhCSGqRYhnIF0yViA
+2026-11-08T04:55:48.436Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Discovered group coordinator dind:32776 (id: 2147483646 rack: null)
+2026-11-08T04:55:48.439Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] (Re-)joining group
+2026-11-08T04:55:48.446Z ERROR 3289 --- [circleguard-promotion-service] [ntainer#1-0-C-1] c.c.n.service.PriorityAlertListener      : Failed to process alert.priority event: I/O error on GET request for &quot;http://localhost:8180/api/v1/users/permissions/alert:receive_priority&quot;: Connection refused
+
+org.springframework.web.client.ResourceAccessException: I/O error on GET request for &quot;http://localhost:8180/api/v1/users/permissions/alert:receive_priority&quot;: Connection refused
+	at org.springframework.web.client.RestTemplate.createResourceAccessException(RestTemplate.java:915) ~[spring-web-6.1.5.jar:6.1.5]
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:895) ~[spring-web-6.1.5.jar:6.1.5]
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:790) ~[spring-web-6.1.5.jar:6.1.5]
+	at org.springframework.web.client.RestTemplate.getForObject(RestTemplate.java:404) ~[spring-web-6.1.5.jar:6.1.5]
+	at com.circleguard.notification.service.PriorityAlertListener.handlePriorityAlert(PriorityAlertListener.java:40) ~[circleguard-notification-service-1.0.0-SNAPSHOT-plain.jar:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(Unknown Source) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source) ~[na:na]
+	at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:169) ~[spring-messaging-6.1.5.jar:6.1.5]
+	at org.springframework.messaging.handler.invocation.InvocableHandlerMethod.invoke(InvocableHandlerMethod.java:119) ~[spring-messaging-6.1.5.jar:6.1.5]
+	at org.springframework.kafka.listener.adapter.HandlerAdapter.invoke(HandlerAdapter.java:56) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.adapter.MessagingMessageListenerAdapter.invokeHandler(MessagingMessageListenerAdapter.java:376) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapter.onMessage(RecordMessagingMessageListenerAdapter.java:92) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapter.onMessage(RecordMessagingMessageListenerAdapter.java:53) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeOnMessage(KafkaMessageListenerContainer.java:2881) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeOnMessage(KafkaMessageListenerContainer.java:2859) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.lambda$doInvokeRecordListener$55(KafkaMessageListenerContainer.java:2777) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at io.micrometer.observation.Observation.observe(Observation.java:499) ~[micrometer-observation-1.12.4.jar:1.12.4]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeRecordListener(KafkaMessageListenerContainer.java:2776) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doInvokeWithRecords(KafkaMessageListenerContainer.java:2625) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeRecordListener(KafkaMessageListenerContainer.java:2511) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeListener(KafkaMessageListenerContainer.java:2153) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.invokeIfHaveRecords(KafkaMessageListenerContainer.java:1493) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.pollAndInvoke(KafkaMessageListenerContainer.java:1458) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.run(KafkaMessageListenerContainer.java:1328) ~[spring-kafka-3.1.3.jar:3.1.3]
+	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(Unknown Source) ~[na:na]
+	at java.base/java.lang.Thread.run(Unknown Source) ~[na:na]
+Caused by: java.net.ConnectException: Connection refused
+	at java.base/sun.nio.ch.Net.connect0(Native Method) ~[na:na]
+	at java.base/sun.nio.ch.Net.connect(Unknown Source) ~[na:na]
+	at java.base/sun.nio.ch.Net.connect(Unknown Source) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.connect(Unknown Source) ~[na:na]
+	at java.base/java.net.Socket.connect(Unknown Source) ~[na:na]
+	at java.base/java.net.Socket.connect(Unknown Source) ~[na:na]
+	at java.base/sun.net.NetworkClient.doConnect(Unknown Source) ~[na:na]
+	at java.base/sun.net.www.http.HttpClient.openServer(Unknown Source) ~[na:na]
+	at java.base/sun.net.www.http.HttpClient.openServer(Unknown Source) ~[na:na]
+	at java.base/sun.net.www.http.HttpClient.&lt;init&gt;(Unknown Source) ~[na:na]
+	at java.base/sun.net.www.http.HttpClient.New(Unknown Source) ~[na:na]
+	at java.base/sun.net.www.http.HttpClient.New(Unknown Source) ~[na:na]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(Unknown Source) ~[na:na]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect0(Unknown Source) ~[na:na]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.plainConnect(Unknown Source) ~[na:na]
+	at java.base/sun.net.www.protocol.http.HttpURLConnection.connect(Unknown Source) ~[na:na]
+	at org.springframework.http.client.SimpleClientHttpRequest.executeInternal(SimpleClientHttpRequest.java:79) ~[spring-web-6.1.5.jar:6.1.5]
+	at org.springframework.http.client.AbstractStreamingClientHttpRequest.executeInternal(AbstractStreamingClientHttpRequest.java:70) ~[spring-web-6.1.5.jar:6.1.5]
+	at org.springframework.http.client.AbstractClientHttpRequest.execute(AbstractClientHttpRequest.java:66) ~[spring-web-6.1.5.jar:6.1.5]
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:889) ~[spring-web-6.1.5.jar:6.1.5]
+	... 24 common frames omitted
+
+2026-11-08T04:55:48.462Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Request joining group due to: need to re-join with the given member-id: consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7-420515d8-86ff-47e8-88d0-601ddb1311ea
+2026-11-08T04:55:48.462Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Request joining group due to: rebalance failed due to 'The group member needs to have a valid member id before actually entering a consumer group.' (MemberIdRequiredException)
+2026-11-08T04:55:48.462Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] (Re-)joining group
+2026-11-08T04:55:48.468Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Successfully joined group with generation Generation{generationId=1, memberId='consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7-420515d8-86ff-47e8-88d0-601ddb1311ea', protocol='range'}
+2026-11-08T04:55:48.468Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Finished assignment for group at generation 1: {consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7-420515d8-86ff-47e8-88d0-601ddb1311ea=Assignment(partitions=[notification.audit-0])}
+2026-11-08T04:55:48.472Z  INFO 3289 --- [circleguard-promotion-service] [91-91a8a7abee2b] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Successfully synced group in generation Generation{generationId=1, memberId='consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7-420515d8-86ff-47e8-88d0-601ddb1311ea', protocol='range'}
+2026-11-08T04:55:48.472Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Notifying assignor about the new Assignment(partitions=[notification.audit-0])
+2026-11-08T04:55:48.473Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Adding newly assigned partitions: notification.audit-0
+2026-11-08T04:55:48.475Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Found no committed offset for partition notification.audit-0
+2026-11-08T04:55:48.481Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Resetting offset for partition notification.audit-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[dind:32776 (id: 1 rack: null)], epoch=0}}.
+2026-11-08T04:55:48.492Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Revoke previously assigned partitions notification.audit-0
+2026-11-08T04:55:48.492Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Member consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7-420515d8-86ff-47e8-88d0-601ddb1311ea sending LeaveGroup request to coordinator dind:32776 (id: 2147483646 rack: null) due to the consumer is being closed
+2026-11-08T04:55:48.497Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-11-08T04:55:48.498Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7, groupId=probe-295519c7-42f1-4922-9491-91a8a7abee2b] Request joining group due to: consumer pro-actively leaving the group
+2026-11-08T04:55:48.994Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-11-08T04:55:48.994Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-11-08T04:55:48.994Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-11-08T04:55:48.998Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-probe-295519c7-42f1-4922-9491-91a8a7abee2b-7 unregistered
+2026-11-08T04:55:48.999Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.clients.consumer.ConsumerConfig    : ConsumerConfig values: 
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [PLAINTEXT://dind:32776]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = probe-6ee5792c-0237-456e-a237-1bd3afa30dee
+	group.instance.id = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+
+2026-11-08T04:55:49.005Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.6.1
+2026-11-08T04:55:49.005Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: 5e3c2b738d253ff5
+2026-11-08T04:55:49.005Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1794113749005
+2026-11-08T04:55:49.005Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.clients.consumer.KafkaConsumer     : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Subscribed to topic(s): notification.audit
+2026-11-08T04:55:49.013Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Cluster ID: UouJfbhCSGqRYhnIF0yViA
+2026-11-08T04:55:49.014Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Discovered group coordinator dind:32776 (id: 2147483646 rack: null)
+2026-11-08T04:55:49.016Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] (Re-)joining group
+2026-11-08T04:55:49.021Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Request joining group due to: need to re-join with the given member-id: consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8-7e7dedc5-cf8f-41c4-8aac-0242146cb79b
+2026-11-08T04:55:49.021Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Request joining group due to: rebalance failed due to 'The group member needs to have a valid member id before actually entering a consumer group.' (MemberIdRequiredException)
+2026-11-08T04:55:49.021Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] (Re-)joining group
+2026-11-08T04:55:49.026Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Successfully joined group with generation Generation{generationId=1, memberId='consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8-7e7dedc5-cf8f-41c4-8aac-0242146cb79b', protocol='range'}
+2026-11-08T04:55:49.026Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Finished assignment for group at generation 1: {consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8-7e7dedc5-cf8f-41c4-8aac-0242146cb79b=Assignment(partitions=[notification.audit-0])}
+2026-11-08T04:55:49.030Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Successfully synced group in generation Generation{generationId=1, memberId='consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8-7e7dedc5-cf8f-41c4-8aac-0242146cb79b', protocol='range'}
+2026-11-08T04:55:49.031Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Notifying assignor about the new Assignment(partitions=[notification.audit-0])
+2026-11-08T04:55:49.031Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Adding newly assigned partitions: notification.audit-0
+2026-11-08T04:55:49.034Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Found no committed offset for partition notification.audit-0
+2026-11-08T04:55:49.039Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Resetting offset for partition notification.audit-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[dind:32776 (id: 1 rack: null)], epoch=0}}.
+2026-11-08T04:55:49.052Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Revoke previously assigned partitions notification.audit-0
+2026-11-08T04:55:49.052Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Member consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8-7e7dedc5-cf8f-41c4-8aac-0242146cb79b sending LeaveGroup request to coordinator dind:32776 (id: 2147483646 rack: null) due to the consumer is being closed
+2026-11-08T04:55:49.055Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Resetting generation and member id due to: consumer pro-actively leaving the group
+2026-11-08T04:55:49.055Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8, groupId=probe-6ee5792c-0237-456e-a237-1bd3afa30dee] Request joining group due to: consumer pro-actively leaving the group
+2026-11-08T04:55:49.548Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.apache.kafka.common.metrics.Metrics    : Metrics scheduler closed
+2026-11-08T04:55:49.548Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.apache.kafka.common.metrics.Metrics    : Closing reporter org.apache.kafka.common.metrics.JmxReporter
+2026-11-08T04:55:49.549Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.apache.kafka.common.metrics.Metrics    : Metrics reporters closed
+2026-11-08T04:55:49.550Z  INFO 3289 --- [circleguard-promotion-service] [    Test worker] o.a.kafka.common.utils.AppInfoParser     : App info kafka.consumer for consumer-probe-6ee5792c-0237-456e-a237-1bd3afa30dee-8 unregistered
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="https://www.gradle.org">Gradle 8.14</a> at Nov 8, 2026, 4:56:22 AM</p>
+</div>
+</div>
+</body>
+</html>

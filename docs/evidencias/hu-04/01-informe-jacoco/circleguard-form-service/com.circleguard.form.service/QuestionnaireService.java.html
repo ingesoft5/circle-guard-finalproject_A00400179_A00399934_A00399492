@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuestionnaireService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-form-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.form.service</a> &gt; <span class="el_source">QuestionnaireService.java</span></div><h1>QuestionnaireService.java</h1><pre class="source lang-java linenums">package com.circleguard.form.service;
+
+import com.circleguard.form.model.Questionnaire;
+import com.circleguard.form.repository.QuestionnaireRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class QuestionnaireService {
+    private final QuestionnaireRepository repository;
+
+    public List&lt;Questionnaire&gt; getAllQuestionnaires() {
+<span class="fc" id="L19">        return repository.findAll();</span>
+    }
+
+    public Optional&lt;Questionnaire&gt; getActiveQuestionnaire() {
+<span class="fc" id="L23">        return repository.findFirstByIsActiveTrueOrderByVersionDesc();</span>
+    }
+
+    @Transactional
+    public Questionnaire saveQuestionnaire(Questionnaire questionnaire) {
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (questionnaire.getQuestions() != null) {</span>
+<span class="fc" id="L29">            questionnaire.getQuestions().forEach(q -&gt; q.setQuestionnaire(questionnaire));</span>
+        }
+<span class="fc" id="L31">        return repository.save(questionnaire);</span>
+    }
+
+    @Transactional
+    public void activateQuestionnaire(UUID id) {
+        // Deactivate all others
+<span class="fc" id="L37">        repository.findAll().forEach(q -&gt; {</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">            if (q.getIsActive()) {</span>
+<span class="fc" id="L39">                q.setIsActive(false);</span>
+<span class="fc" id="L40">                repository.save(q);</span>
+            }
+<span class="fc" id="L42">        });</span>
+        
+        // Activate target
+<span class="fc" id="L45">        repository.findById(id).ifPresent(q -&gt; {</span>
+<span class="fc" id="L46">            q.setIsActive(true);</span>
+<span class="fc" id="L47">            repository.save(q);</span>
+<span class="fc" id="L48">        });</span>
+<span class="fc" id="L49">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
