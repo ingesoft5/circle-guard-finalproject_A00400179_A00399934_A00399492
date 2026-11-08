@@ -7,6 +7,10 @@
 # The tag 'latest' and non-semver tags are rejected before Docker runs.
 set -Eeuo pipefail
 
+# The service Dockerfiles use BuildKit cache mounts (RUN --mount=type=cache).
+export DOCKER_BUILDKIT=1
+export BUILDKIT_PROGRESS=plain
+
 ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$ROOT_DIR"
 # shellcheck source=deploy/lib.sh

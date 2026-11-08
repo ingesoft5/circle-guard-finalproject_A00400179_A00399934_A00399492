@@ -39,7 +39,7 @@ pipeline {
     choice(name: 'SERVICES_MODE', choices: ['changed', 'all'], description: 'changed = solo servicios modificados; all = los 8 servicios')
     string(name: 'NEXUS_URL', defaultValue: '', description: 'URL base de Nexus. Vacío omite la publicación de JAR.')
     string(name: 'NEXUS_REPOSITORY', defaultValue: 'circleguard-artifacts', description: 'Repositorio raw de Nexus')
-    booleanParam(name: 'RUN_SONAR', defaultValue: true, description: 'Ejecutar SonarQube con quality gate bloqueante')
+    booleanParam(name: 'RUN_SONAR', defaultValue: false, description: 'Ejecutar SonarQube con quality gate bloqueante (HU-03/HU-04; desactivado en HU-06)')
     booleanParam(name: 'RUN_INTEGRATION', defaultValue: false, description: 'Ejecutar integrationTest (HU-04). Se omite hasta integrar esa historia.')
 
     // HU-06: entrega continua y promoción.
@@ -189,6 +189,7 @@ pipeline {
         allOf {
           expression { params.BUILD_IMAGES }
           expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
         }
       }
       steps {
@@ -201,6 +202,7 @@ pipeline {
         allOf {
           expression { params.PUBLISH_IMAGES }
           expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
         }
       }
       steps {
