@@ -1,0 +1,86 @@
+# 11 · Parada secuencial de dev/stage
+
+Build: http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/6/
+Commit: dd825e6
+Fecha: 2026-11-08
+Etapa: Stop dev / Stop stage
+Estado: SUCCESS
+
+Con SEQUENTIAL_ENVS=true cada ambiente se baja y se eliminan sus volúmenes antes de desplegar el siguiente. Esto evita el conflicto de puerto 3000 y el disco lleno en el host de 30 GB.
+
+
+## Stop dev
+
+[Pipeline] { (Stop dev)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+
+... (fragmento; log completo en console-build-6.txt) ...
+
+ Volume circleguard-dev_redis-data  Removing
+ Volume circleguard-dev_ldap-data  Removing
+ Volume circleguard-dev_ldap-config  Removing
+ Volume circleguard-dev_neo4j-data  Removing
+ Volume circleguard-dev_kafka-data  Removing
+ Network circleguard-dev_circleguard  Removing
+ Volume circleguard-dev_zookeeper-log  Removed
+ Volume circleguard-dev_zookeeper-data  Removed
+ Volume circleguard-dev_kafka-data  Removed
+ Volume circleguard-dev_ldap-data  Removed
+ Volume circleguard-dev_postgres-data  Removed
+ Volume circleguard-dev_redis-data  Removed
+ Volume circleguard-dev_ldap-config  Removed
+ Volume circleguard-dev_neo4j-data  Removed
+ Network circleguard-dev_circleguard  Removed
+Contenedores y volúmenes del ambiente dev eliminados.
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+
+## Stop stage
+
+[Pipeline] { (Stop stage)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+
+... (fragmento; log completo en console-build-6.txt) ...
+
+ Volume circleguard-stage_postgres-data  Removing
+ Volume circleguard-stage_zookeeper-log  Removing
+ Volume circleguard-stage_kafka-data  Removing
+ Volume circleguard-stage_neo4j-data  Removing
+ Volume circleguard-stage_redis-data  Removing
+ Volume circleguard-stage_ldap-config  Removing
+ Volume circleguard-stage_zookeeper-data  Removed
+ Volume circleguard-stage_ldap-data  Removed
+ Volume circleguard-stage_postgres-data  Removed
+ Volume circleguard-stage_ldap-config  Removed
+ Volume circleguard-stage_zookeeper-log  Removed
+ Volume circleguard-stage_kafka-data  Removed
+ Volume circleguard-stage_redis-data  Removed
+ Volume circleguard-stage_neo4j-data  Removed
+ Network circleguard-stage_circleguard  Removed
+Contenedores y volúmenes del ambiente stage eliminados.
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
