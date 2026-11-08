@@ -163,7 +163,7 @@ services:
     mem_limit: ${LDAP_MEM_LIMIT:-256m}
     cpus: ${LDAP_CPUS:-0.5}
     healthcheck:
-      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost:389 -b dc=circleguard,dc=edu -s base '(objectclass=*)' >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost:389 -b dc=circleguard,dc=edu -D cn=admin,dc=circleguard,dc=edu -w \"$$LDAP_ADMIN_PASSWORD\" -s base '(objectclass=*)' >/dev/null 2>&1 || exit 1"]
       interval: 15s
       timeout: 10s
       start_period: 30s
