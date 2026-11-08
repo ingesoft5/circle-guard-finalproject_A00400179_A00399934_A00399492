@@ -17,9 +17,10 @@ RUN curl -fsSLo /tmp/crane.tgz "https://github.com/google/go-containerregistry/r
   && rm -f /tmp/crane.tgz \
   && crane version
 
-# Docker CLI + Compose plugin for the DinD daemon (HU-06 pipeline and HU-04 Testcontainers).
+# Docker CLI + Compose/buildx plugins for the DinD daemon (HU-06 pipeline and HU-04 Testcontainers).
 ARG DOCKER_VERSION=27.5.1
 ARG COMPOSE_VERSION=v2.32.4
+ARG BUILDX_VERSION=v0.20.1
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
   && curl -fsSLo /tmp/docker.tgz "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz" \
@@ -27,7 +28,8 @@ RUN apt-get update \
   && install -m 0755 /tmp/docker/docker /usr/local/bin/docker \
   && mkdir -p /usr/local/lib/docker/cli-plugins \
   && curl -fsSLo /usr/local/lib/docker/cli-plugins/docker-compose "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-linux-x86_64" \
-  && chmod +x /usr/local/lib/docker/cli-plugins/docker-compose \
+  && curl -fsSLo /usr/local/lib/docker/cli-plugins/docker-buildx "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-amd64" \
+  && chmod +x /usr/local/lib/docker/cli-plugins/docker-compose /usr/local/lib/docker/cli-plugins/docker-buildx \
   && rm -rf /tmp/docker /tmp/docker.tgz
 
 # Node 22 + Playwright OS dependencies for the E2E gate (HU-06). The browser itself is downloaded
