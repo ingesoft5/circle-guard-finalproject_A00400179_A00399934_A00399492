@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-auth-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.auth.controller</a> &gt; <span class="el_source">LoginController.java</span></div><h1>LoginController.java</h1><pre class="source lang-java linenums">package com.circleguard.auth.controller;
+
+import com.circleguard.auth.service.JwtTokenService;
+import com.circleguard.auth.client.IdentityClient;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+
+@RestController
+@RequestMapping(&quot;/api/v1/auth&quot;)
+@RequiredArgsConstructor
+public class LoginController {
+
+    private final AuthenticationManager authManager;
+    private final JwtTokenService jwtService;
+    private final IdentityClient identityClient;
+
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; login(@RequestBody Map&lt;String, String&gt; request) {
+<span class="fc" id="L23">        String username = request.get(&quot;username&quot;);</span>
+<span class="fc" id="L24">        String password = request.get(&quot;password&quot;);</span>
+        
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        System.out.println(&quot;Login attempt for user: &quot; + username + &quot; (pass length: &quot; + (password != null ? password.length() : 0) + &quot;)&quot;);</span>
+
+        try {
+            // 1. Authenticate (Dual-Chain)
+<span class="fc" id="L30">            Authentication auth = authManager.authenticate(</span>
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
+<span class="fc" id="L33">            System.out.println(&quot;Authentication successful for: &quot; + username);</span>
+
+            // 2. Anonymize (Fetch/Create Anonymous ID from Identity Service)
+<span class="fc" id="L36">            UUID anonymousId = identityClient.getAnonymousId(username);</span>
+<span class="fc" id="L37">            System.out.println(&quot;Anonymous ID retrieved: &quot; + anonymousId);</span>
+
+            // 3. Issue Token
+<span class="fc" id="L40">            String token = jwtService.generateToken(anonymousId, auth);</span>
+
+<span class="fc" id="L42">            return ResponseEntity.ok(Map.of(</span>
+                    &quot;token&quot;, token,
+                    &quot;type&quot;, &quot;Bearer&quot;,
+<span class="fc" id="L45">                    &quot;anonymousId&quot;, anonymousId.toString()</span>
+            ));
+<span class="fc" id="L47">        } catch (org.springframework.security.core.AuthenticationException e) {</span>
+<span class="fc" id="L48">            System.err.println(&quot;Authentication failed for &quot; + username + &quot;: &quot; + e.getMessage());</span>
+<span class="fc" id="L49">            return ResponseEntity.status(401).body(Map.of(&quot;message&quot;, &quot;Invalid username or password&quot;));</span>
+<span class="fc" id="L50">        } catch (Exception e) {</span>
+<span class="fc" id="L51">            System.err.println(&quot;Unexpected error during login for &quot; + username + &quot;:&quot;);</span>
+<span class="fc" id="L52">            e.printStackTrace();</span>
+<span class="fc" id="L53">            return ResponseEntity.status(500).body(Map.of(&quot;message&quot;, &quot;Internal server error: &quot; + e.getMessage()));</span>
+        }
+    }
+
+    @PostMapping(&quot;/visitor/handoff&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; generateVisitorHandoff(@RequestBody Map&lt;String, String&gt; request) {
+<span class="fc" id="L59">        String anonymousIdStr = request.get(&quot;anonymousId&quot;);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (anonymousIdStr == null) {</span>
+<span class="fc" id="L61">            return ResponseEntity.badRequest().build();</span>
+        }
+        
+<span class="fc" id="L64">        UUID anonymousId = UUID.fromString(anonymousIdStr);</span>
+        
+        // Create a dummy authentication for the visitor
+<span class="fc" id="L67">        Authentication visitorAuth = new UsernamePasswordAuthenticationToken(</span>
+                anonymousIdStr, 
+                null, 
+<span class="fc" id="L70">                List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(&quot;VISITOR&quot;))</span>
+        );
+        
+<span class="fc" id="L73">        String token = jwtService.generateToken(anonymousId, visitorAuth);</span>
+        
+<span class="fc" id="L75">        return ResponseEntity.ok(Map.of(</span>
+                &quot;token&quot;, token,
+<span class="fc" id="L77">                &quot;handoffPayload&quot;, &quot;HANDOFF_TOKEN:&quot; + anonymousId.toString() + &quot;:&quot; + token</span>
+        ));
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

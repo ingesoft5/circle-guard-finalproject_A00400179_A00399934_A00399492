@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BuildingController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-promotion-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.promotion.controller</a> &gt; <span class="el_source">BuildingController.java</span></div><h1>BuildingController.java</h1><pre class="source lang-java linenums">package com.circleguard.promotion.controller;
+
+import com.circleguard.promotion.dto.BuildingDTO;
+import com.circleguard.promotion.dto.FloorDTO;
+import com.circleguard.promotion.model.Building;
+import com.circleguard.promotion.model.Floor;
+import com.circleguard.promotion.service.BuildingService;
+import com.circleguard.promotion.service.FloorService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping(&quot;/api/v1/buildings&quot;)
+@RequiredArgsConstructor
+public class BuildingController {
+    private final BuildingService buildingService;
+    private final FloorService floorService;
+
+    @PostMapping
+    @PreAuthorize(&quot;hasAuthority('ADMIN')&quot;)
+    public ResponseEntity&lt;BuildingDTO&gt; createBuilding(@RequestBody BuildingDTO request) {
+<span class="fc" id="L27">        Building building = buildingService.createBuilding(</span>
+<span class="fc" id="L28">                request.getName(),</span>
+<span class="fc" id="L29">                request.getCode(),</span>
+<span class="fc" id="L30">                request.getDescription(),</span>
+<span class="fc" id="L31">                request.getLatitude(),</span>
+<span class="fc" id="L32">                request.getLongitude(),</span>
+<span class="fc" id="L33">                request.getAddress()</span>
+        );
+<span class="fc" id="L35">        return ResponseEntity.ok(convertToDTO(building));</span>
+    }
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;BuildingDTO&gt;&gt; listBuildings() {
+<span class="fc" id="L40">        List&lt;BuildingDTO&gt; dtos = buildingService.getAllBuildings().stream()</span>
+<span class="fc" id="L41">                .map(this::convertToDTO)</span>
+<span class="fc" id="L42">                .collect(Collectors.toList());</span>
+<span class="fc" id="L43">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    @GetMapping(&quot;/{id}/floors&quot;)
+    public ResponseEntity&lt;List&lt;FloorDTO&gt;&gt; getFloors(@PathVariable UUID id) {
+<span class="fc" id="L48">        List&lt;FloorDTO&gt; dtos = floorService.getFloorsByBuilding(id).stream()</span>
+<span class="fc" id="L49">                .map(this::convertFloorToDTO)</span>
+<span class="fc" id="L50">                .collect(Collectors.toList());</span>
+<span class="fc" id="L51">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    @PostMapping(&quot;/{id}/floors&quot;)
+    @PreAuthorize(&quot;hasAuthority('ADMIN')&quot;)
+    public ResponseEntity&lt;FloorDTO&gt; addFloor(@PathVariable UUID id, @RequestBody FloorDTO request) {
+<span class="fc" id="L57">        Floor floor = floorService.addFloor(</span>
+                id,
+<span class="fc" id="L59">                request.getFloorNumber(),</span>
+<span class="fc" id="L60">                request.getName()</span>
+        );
+<span class="fc" id="L62">        return ResponseEntity.ok(convertFloorToDTO(floor));</span>
+    }
+
+    @PutMapping(&quot;/{id}&quot;)
+    @PreAuthorize(&quot;hasAuthority('ADMIN')&quot;)
+    public ResponseEntity&lt;BuildingDTO&gt; updateBuilding(@PathVariable UUID id, @RequestBody BuildingDTO request) {
+<span class="fc" id="L68">        Building building = buildingService.updateBuilding(</span>
+                id,
+<span class="fc" id="L70">                request.getName(),</span>
+<span class="fc" id="L71">                request.getCode(),</span>
+<span class="fc" id="L72">                request.getDescription(),</span>
+<span class="fc" id="L73">                request.getLatitude(),</span>
+<span class="fc" id="L74">                request.getLongitude(),</span>
+<span class="fc" id="L75">                request.getAddress()</span>
+        );
+<span class="fc" id="L77">        return ResponseEntity.ok(convertToDTO(building));</span>
+    }
+
+    private BuildingDTO convertToDTO(Building building) {
+<span class="fc" id="L81">        return BuildingDTO.builder()</span>
+<span class="fc" id="L82">                .id(building.getId())</span>
+<span class="fc" id="L83">                .name(building.getName())</span>
+<span class="fc" id="L84">                .code(building.getCode())</span>
+<span class="fc" id="L85">                .description(building.getDescription())</span>
+<span class="fc" id="L86">                .latitude(building.getLatitude())</span>
+<span class="fc" id="L87">                .longitude(building.getLongitude())</span>
+<span class="fc" id="L88">                .address(building.getAddress())</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">                .floors(building.getFloors() != null ? </span>
+<span class="fc" id="L90">                    building.getFloors().stream().map(this::convertFloorToDTO).collect(Collectors.toList()) : null)</span>
+<span class="fc" id="L91">                .build();</span>
+    }
+
+    private FloorDTO convertFloorToDTO(Floor floor) {
+<span class="fc" id="L95">        return FloorDTO.builder()</span>
+<span class="fc" id="L96">                .id(floor.getId())</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">                .buildingId(floor.getBuilding() != null ? floor.getBuilding().getId() : null)</span>
+<span class="fc" id="L98">                .floorNumber(floor.getFloorNumber())</span>
+<span class="fc" id="L99">                .name(floor.getName())</span>
+<span class="fc" id="L100">                .floorPlanUrl(floor.getFloorPlanUrl())</span>
+<span class="fc" id="L101">                .build();</span>
+    }
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteBuilding(@PathVariable UUID id) {
+<span class="fc" id="L106">        buildingService.deleteBuilding(id);</span>
+<span class="fc" id="L107">        return ResponseEntity.ok().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

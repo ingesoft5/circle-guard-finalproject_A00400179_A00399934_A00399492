@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-promotion-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.promotion.controller</a> &gt; <span class="el_source">AdminController.java</span></div><h1>AdminController.java</h1><pre class="source lang-java linenums">package com.circleguard.promotion.controller;
+
+import com.circleguard.promotion.model.jpa.SystemSettings;
+import com.circleguard.promotion.repository.jpa.SystemSettingsRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/api/v1/admin/settings&quot;)
+@RequiredArgsConstructor
+<span class="fc" id="L13">@Slf4j</span>
+public class AdminController {
+
+    private final SystemSettingsRepository settingsRepository;
+
+    @GetMapping
+    @org.springframework.cache.annotation.Cacheable(value = &quot;systemSettings&quot;)
+    public ResponseEntity&lt;SystemSettings&gt; getSettings() {
+<span class="fc" id="L21">        SystemSettings settings = settingsRepository.getSettings()</span>
+<span class="fc" id="L22">            .orElseGet(this::initializeDefaultSettings);</span>
+<span class="fc" id="L23">        return ResponseEntity.ok(settings);</span>
+    }
+
+    @PostMapping
+    @org.springframework.cache.annotation.CacheEvict(value = &quot;systemSettings&quot;, allEntries = true)
+    public ResponseEntity&lt;SystemSettings&gt; updateSettings(@RequestBody SystemSettings newSettings) {
+<span class="fc" id="L29">        log.info(&quot;Updating system settings: {}&quot;, newSettings);</span>
+        
+<span class="fc" id="L31">        SystemSettings settings = settingsRepository.getSettings()</span>
+<span class="fc" id="L32">            .orElseGet(this::initializeDefaultSettings);</span>
+            
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (newSettings.getUnconfirmedFencingEnabled() != null) {</span>
+<span class="fc" id="L35">            settings.setUnconfirmedFencingEnabled(newSettings.getUnconfirmedFencingEnabled());</span>
+        }
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (newSettings.getAutoThresholdSeconds() != null) {</span>
+<span class="fc" id="L38">            settings.setAutoThresholdSeconds(newSettings.getAutoThresholdSeconds());</span>
+        }
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (newSettings.getMandatoryFenceDays() != null) {</span>
+<span class="fc" id="L41">            settings.setMandatoryFenceDays(newSettings.getMandatoryFenceDays());</span>
+        }
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (newSettings.getEncounterWindowDays() != null) {</span>
+<span class="fc" id="L44">            settings.setEncounterWindowDays(newSettings.getEncounterWindowDays());</span>
+        }
+        
+<span class="fc" id="L47">        settingsRepository.save(settings);</span>
+<span class="fc" id="L48">        return ResponseEntity.ok(settings);</span>
+    }
+
+    @PostMapping(&quot;/toggle-unconfirmed-fencing&quot;)
+    @org.springframework.cache.annotation.CacheEvict(value = &quot;systemSettings&quot;, allEntries = true)
+    public ResponseEntity&lt;SystemSettings&gt; toggleUnconfirmedFencing(@RequestParam boolean enabled) {
+<span class="fc" id="L54">        log.info(&quot;Health Authority toggle: Unconfirmed Fencing -&gt; {}&quot;, enabled);</span>
+        
+<span class="fc" id="L56">        SystemSettings settings = settingsRepository.getSettings()</span>
+<span class="fc" id="L57">            .orElseGet(this::initializeDefaultSettings);</span>
+            
+<span class="fc" id="L59">        settings.setUnconfirmedFencingEnabled(enabled);</span>
+<span class="fc" id="L60">        settingsRepository.save(settings);</span>
+        
+<span class="fc" id="L62">        return ResponseEntity.ok(settings);</span>
+    }
+
+    private SystemSettings initializeDefaultSettings() {
+<span class="fc" id="L66">        log.info(&quot;Initializing default system settings...&quot;);</span>
+<span class="fc" id="L67">        SystemSettings defaults = SystemSettings.builder()</span>
+<span class="fc" id="L68">            .unconfirmedFencingEnabled(true)</span>
+<span class="fc" id="L69">            .autoThresholdSeconds(3600L) // 1 Hour</span>
+<span class="fc" id="L70">            .mandatoryFenceDays(14)</span>
+<span class="fc" id="L71">            .encounterWindowDays(14)</span>
+<span class="fc" id="L72">            .build();</span>
+<span class="fc" id="L73">        return settingsRepository.save(defaults);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

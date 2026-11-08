@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CertificateValidationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-form-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.form.controller</a> &gt; <span class="el_source">CertificateValidationController.java</span></div><h1>CertificateValidationController.java</h1><pre class="source lang-java linenums">package com.circleguard.form.controller;
+
+import com.circleguard.form.model.ValidationStatus;
+import com.circleguard.form.service.HealthSurveyService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping(&quot;/api/v1/certificates&quot;)
+@RequiredArgsConstructor
+@CrossOrigin(origins = &quot;*&quot;)
+public class CertificateValidationController {
+
+    private final HealthSurveyService surveyService;
+
+    @GetMapping(&quot;/pending&quot;)
+    public ResponseEntity&lt;?&gt; getPending() {
+<span class="fc" id="L21">        return ResponseEntity.ok(surveyService.getPendingSurveys());</span>
+    }
+
+    @PostMapping(&quot;/{id}/validate&quot;)
+    public ResponseEntity&lt;?&gt; validate(
+            @PathVariable UUID id,
+            @RequestParam ValidationStatus status,
+            @RequestParam UUID adminId) {
+<span class="fc" id="L29">        surveyService.validateSurvey(id, status, adminId);</span>
+<span class="fc" id="L30">        return ResponseEntity.ok().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
