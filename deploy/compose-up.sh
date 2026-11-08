@@ -23,5 +23,9 @@ if [[ -n "$TAG" ]]; then
   cg_validate_semver "$TAG"
 fi
 
+# PostgreSQL creates only the default database. The service databases are created explicitly
+# because a bind mount of init-db.sql from the Jenkins workspace is not visible to the DinD daemon.
+"${CG_COMPOSE[@]}" up -d --wait postgres
+"${CG_COMPOSE[@]}" exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d postgres' < "$ROOT_DIR/init-db.sql"
 "${CG_COMPOSE[@]}" up -d --wait --wait-timeout "${CG_WAIT_TIMEOUT:-600}"
 "${CG_COMPOSE[@]}" ps

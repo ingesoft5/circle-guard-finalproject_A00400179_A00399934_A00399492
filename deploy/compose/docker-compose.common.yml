@@ -56,7 +56,6 @@ services:
       POSTGRES_DB: circleguard
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ../../init-db.sql:/docker-entrypoint-initdb.d/00-init-db.sql:ro
     mem_limit: ${POSTGRES_MEM_LIMIT:-512m}
     cpus: ${POSTGRES_CPUS:-1.0}
     healthcheck:
@@ -102,8 +101,8 @@ services:
       test: ["CMD-SHELL", "zookeeper-shell localhost:2181 ls / >/dev/null 2>&1 || exit 1"]
       interval: 15s
       timeout: 10s
-      start_period: 30s
-      retries: 10
+      start_period: 180s
+      retries: 20
 
   kafka:
     <<: *infra-base
@@ -163,7 +162,7 @@ services:
     mem_limit: ${LDAP_MEM_LIMIT:-256m}
     cpus: ${LDAP_CPUS:-0.5}
     healthcheck:
-      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost:389 -b dc=circleguard,dc=edu -s base '(objectclass=*)' >/dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "ldapsearch -x -H ldap://localhost:389 -b dc=circleguard,dc=edu -D cn=admin,dc=circleguard,dc=edu -w \"$$LDAP_ADMIN_PASSWORD\" -s base '(objectclass=*)' >/dev/null 2>&1 || exit 1"]
       interval: 15s
       timeout: 10s
       start_period: 30s

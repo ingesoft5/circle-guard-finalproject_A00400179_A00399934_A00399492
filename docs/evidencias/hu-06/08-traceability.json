@@ -1,0 +1,121 @@
+{
+  "build_cd": "http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/6/",
+  "build_rollback": "http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/13/",
+  "commit_cd": "dd825e6",
+  "commit_rollback": "3a8b347",
+  "generated_at": "2026-11-08T18:29:15Z",
+  "releases": {
+    "stage": {
+      "environment": "stage",
+      "version": "0.1.0",
+      "commit": "dd825e6",
+      "deployed_at": "2026-11-08T17:54:26Z",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    "prod": {
+      "environment": "prod",
+      "version": "0.1.0",
+      "commit": "dd825e6",
+      "deployed_at": "2026-11-08T18:07:13Z",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    "dev": {
+      "environment": "dev",
+      "version": "0.1.0",
+      "commit": "3a8b347",
+      "deployed_at": "2026-11-08T18:26:44Z",
+      "deployed_by": "jenkins",
+      "event": "rollback"
+    },
+    "dev_previous": {
+      "environment": "dev",
+      "version": "0.1.0",
+      "commit": "dd825e6",
+      "deployed_at": "2026-11-08T17:51:03Z",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    }
+  },
+  "history": [
+    {
+      "timestamp": "2026-11-08T04:20:20Z",
+      "environment": "dev",
+      "version": "0.1.0",
+      "commit": "6cf4663",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    {
+      "timestamp": "2026-11-08T04:29:37Z",
+      "environment": "dev",
+      "version": "0.1.0",
+      "commit": "6cf4663",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    {
+      "timestamp": "2026-11-08T04:33:09Z",
+      "environment": "stage",
+      "version": "0.1.0",
+      "commit": "6cf4663",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    {
+      "timestamp": "2026-11-08T16:55:47Z",
+      "environment": "dev",
+      "version": "0.1.0",
+      "commit": "426c641",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    {
+      "timestamp": "2026-11-08T17:00:38Z",
+      "environment": "prod",
+      "version": "0.1.0",
+      "commit": "6cf4663",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    {
+      "timestamp": "2026-11-08T17:51:03Z",
+      "environment": "dev",
+      "version": "0.1.0",
+      "commit": "dd825e6",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    {
+      "timestamp": "2026-11-08T17:54:26Z",
+      "environment": "stage",
+      "version": "0.1.0",
+      "commit": "dd825e6",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    {
+      "timestamp": "2026-11-08T18:07:13Z",
+      "environment": "prod",
+      "version": "0.1.0",
+      "commit": "dd825e6",
+      "deployed_by": "jenkins",
+      "event": "deploy"
+    },
+    {
+      "timestamp": "2026-11-08T18:26:44Z",
+      "environment": "dev",
+      "version": "0.1.0",
+      "commit": "3a8b347",
+      "deployed_by": "jenkins",
+      "event": "rollback"
+    }
+  ],
+  "rollback": {
+    "environment": "dev",
+    "version": "0.1.0",
+    "event": "rollback",
+    "note": "Solo existe 0.1.0 publicada; se validó el mecanismo con la misma versión. Para un downgrade real se debe publicar una versión anterior (p. ej. 0.2.0 -> 0.1.0)."
+  }
+}

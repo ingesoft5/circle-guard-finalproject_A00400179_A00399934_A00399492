@@ -1,0 +1,35 @@
+# 00 · Resumen del build y etapas
+
+Build: http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/6/
+Commit: dd825e6
+Fecha: 2026-11-08
+Etapa: Pipeline
+Estado: UNSTABLE
+
+El build termina UNSTABLE porque la etapa 'Unit tests and coverage' publica fallos de tests base que pertenecen a HU-04; las etapas de despliegue, E2E, aprobación, prod y tag terminaron SUCCESS. No se modificaron tests de HU-04.
+
+
+Declarative: Checkout SCM: SUCCESS
+Checkout: SUCCESS
+Prepare: SUCCESS
+Build: SUCCESS
+Unit tests and coverage: UNSTABLE
+SonarQube quality gate: NOT_EXECUTED
+Integration tests: NOT_EXECUTED
+Package: SUCCESS
+Package images: NOT_EXECUTED
+Publish images: NOT_EXECUTED
+Publish artifacts: NOT_EXECUTED
+Rollback: NOT_EXECUTED
+Deploy dev: SUCCESS
+E2E dev: SUCCESS
+Stop dev: SUCCESS
+Deploy stage: SUCCESS
+E2E stage: SUCCESS
+Stop stage: SUCCESS
+Approve prod: SUCCESS
+Deploy prod: SUCCESS
+Tag release: SUCCESS
+Declarative: Post Actions: SUCCESS
+
+Nota: 'SonarQube quality gate', 'Integration tests', 'Package images', 'Publish images', 'Publish artifacts' y 'Rollback' no se ejecutaron en este build porque los parámetros RUN_SONAR=false, RUN_INTEGRATION=false, BUILD_IMAGES=false, PUBLISH_IMAGES=false y ROLLBACK_VERSION vacío.

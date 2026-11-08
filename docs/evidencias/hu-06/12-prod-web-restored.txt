@@ -1,0 +1,16 @@
+# 12 · Restauración del web de prod tras el rollback
+
+El web de prod se detuvo temporalmente para liberar 127.0.0.1:3000 durante el rollback de dev.
+Después del rollback se eliminó el stack dev y se reinició el web de prod:
+
+```text
+$ docker exec cg-jenkins-dind docker start circleguard-prod-web-1
+circleguard-prod-web-1
+
+$ docker ps --filter name=circleguard-prod-web-1
+CONTAINER ID   IMAGE                                                COMMAND                  CREATED          STATUS                  PORTS                      NAMES
+5fd54db0f900   10.20.0.106:8082/circleguard/circleguard-web:0.1.0   "/docker-entrypoint.…"   24 minutes ago   Up 8 seconds (healthy)   127.0.0.1:3000->8080/tcp   circleguard-prod-web-1
+
+$ docker inspect --format '{{.State.Status}} health={{.State.Health.Status}}' circleguard-prod-web-1
+running health=healthy
+```

@@ -9,3 +9,6 @@ docker-compose*.yml text eol=lf
 **/.dockerignore    text eol=lf
 mobile/*.conf       text eol=lf
 mobile/*.inc        text eol=lf
+gradlew             text eol=lf
+Jenkinsfile         text eol=lf
+jenkins/**          text eol=lf

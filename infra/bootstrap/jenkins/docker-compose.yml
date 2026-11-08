@@ -2,17 +2,17 @@
 # no setup wizard and no manual steps. Variables come from the .env that
 # infra/bootstrap-jenkins.sh writes next to this file (mode 0600, never versioned).
 #
-# HU-04: the integration tests use Testcontainers, which needs a Docker daemon. Jenkins never gets
-# the host's Docker socket: a separate Docker-in-Docker daemon (service "dind") is reachable only
-# on the internal Compose network (no published port, TLS off because nothing else can reach it),
-# and its containers disappear with its volume.
+# HU-04: the integration tests use Testcontainers, and the HU-06 pipeline needs a Docker daemon.
+# Jenkins never gets the host's Docker socket: a separate Docker-in-Docker daemon (service "dind")
+# is reachable only on the internal Compose network (no published port, TLS off because nothing
+# else can reach it), and its containers disappear with its volume.
 name: circleguard-jenkins
 
 services:
   jenkins:
     build:
       context: .
-    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1-ci2
+    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1-ci3
     container_name: cg-jenkins
     restart: ${RESTART_POLICY:-unless-stopped}
     depends_on:
@@ -29,7 +29,8 @@ services:
       REGISTRY_ADDRESS: ${REGISTRY_ADDRESS:-}
       REGISTRY_CI_USER: ${REGISTRY_CI_USER:?Defina REGISTRY_CI_USER}
       REGISTRY_CI_PASSWORD: ${REGISTRY_CI_PASSWORD:?Defina REGISTRY_CI_PASSWORD}
-      # Testcontainers talks to the dind daemon; the containers it starts publish their ports there.
+      # HU-04 Testcontainers and the HU-06 pipeline talk to the dind daemon; the containers it
+      # starts publish their ports there.
       DOCKER_HOST: tcp://dind:2375
       TESTCONTAINERS_HOST_OVERRIDE: dind
     networks:
@@ -58,7 +59,15 @@ services:
     privileged: true
     environment:
       DOCKER_TLS_CERTDIR: ""
-    command: ["--storage-driver=overlay2", "--log-opt", "max-size=10m", "--log-opt", "max-file=2"]
+    dns:
+      - "${DIND_DNS:-8.8.8.8}"
+    command:
+      - "--storage-driver=overlay2"
+      - "--insecure-registry=${REGISTRY_ADDRESS:-127.0.0.1:5000}"
+      - "--log-opt"
+      - "max-size=10m"
+      - "--log-opt"
+      - "max-file=2"
     volumes:
       - dind_data:/var/lib/docker
     healthcheck:

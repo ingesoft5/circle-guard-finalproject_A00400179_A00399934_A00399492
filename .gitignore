@@ -7,6 +7,7 @@ build/
 # Java
 *.class
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.ear
 *.zip
@@ -69,6 +70,10 @@ infra/logs/
 
 # Image build logs (HU-02). Sanitized summaries kept as evidence are versioned.
 deploy/logs/
+
+# Runtime traceability (HU-06). The evidence copies live under docs/evidencias/hu-06/.
+deploy/releases/*.json
+deploy/releases/history.tsv
 
 # Temporary files
 *.tmp
