@@ -86,5 +86,7 @@ completos `console-build-6.txt` y `console-build-13.txt`.
 
 ## Siguiente paso
 
-Abrir el PR de `HU-06-_Entrega-continua-y-promoción` a `dev`. Después del merge, crear la rama de
-HU-07 desde el nuevo `dev` y aplicar el contenido preservado en `hu07-seed` / `75791ad`.
+El PR **#9** quedó abierto contra `dev`:
+<https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492/pull/9>.
+Después del merge, crear la rama de HU-07 desde el nuevo `dev` y aplicar el contenido preservado en
+`hu07-seed` / `75791ad`.
