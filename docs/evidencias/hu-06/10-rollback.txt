@@ -1,0 +1,155 @@
+# 10 · Rollback a una versión anterior
+
+Build: http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/13/
+Commit: 3a8b347
+Fecha: 2026-11-08
+Etapa: Rollback
+Estado: SUCCESS
+
+## Resultado
+
+El pipeline ejecutó `./deploy/rollback.sh dev 0.1.0` y registró el evento `rollback` en
+`deploy/releases/dev.json` y en el historial persistente. La etapa terminó SUCCESS.
+
+**Limitación del entorno:** el registry solo tiene publicada la versión `0.1.0`; no existe una
+versión anterior real. Para validar el mecanismo se ejecutó el rollback a `0.1.0` (misma versión)
+en dev. En un entorno con una versión previa (por ejemplo 0.2.0 → 0.1.0) el mismo script hace el
+downgrade real. El registro previo de dev (deploy de `dd825e6`) se conserva en
+`dev.json.pre-rollback` y se incluye abajo.
+
+Además, como dev y prod comparten el mismo DinD, el web de prod ocupaba `127.0.0.1:3000`. Se detuvo
+temporalmente, se ejecutó el rollback de dev y se reinició; el estado final de prod web es
+`Up (healthy)` (ver `12-prod-web-restored.txt`).
+
+## Salida de la etapa Rollback
+
+```
+[Pipeline] { (Rollback)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-08T18:26:29.456Z] Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
+[2026-11-08T18:26:29.898Z] + ./deploy/rollback.sh dev 0.1.0
+[2026-11-08T18:26:30.812Z] Rollback de dev: sin versión -> 0.1.0
+[2026-11-08T18:26:30.812Z] CircleGuard deploy
+
+... (fragmento; log completo en console-build-13.txt) ...
+
+[2026-11-08T18:26:36.923Z]  Container circleguard-dev-auth-1  Healthy
+[2026-11-08T18:26:36.923Z]  Container circleguard-dev-identity-1  Healthy
+[2026-11-08T18:26:36.923Z]  Container circleguard-dev-promotion-1  Healthy
+[2026-11-08T18:26:38.093Z]  Container circleguard-dev-dashboard-1  Healthy
+[2026-11-08T18:26:38.093Z]  Container circleguard-dev-web-1  Starting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-web-1  Started
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-identity-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-redis-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-openldap-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-postgres-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-gateway-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-neo4j-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-dashboard-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-auth-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-file-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-zookeeper-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-promotion-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-kafka-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-web-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-notification-1  Waiting
+[2026-11-08T18:26:38.345Z]  Container circleguard-dev-form-1  Waiting
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-notification-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-form-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-redis-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-identity-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-openldap-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-postgres-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-gateway-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-neo4j-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-file-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-zookeeper-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-promotion-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-kafka-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-auth-1  Healthy
+[2026-11-08T18:26:38.995Z]  Container circleguard-dev-dashboard-1  Healthy
+[2026-11-08T18:26:44.426Z]  Container circleguard-dev-web-1  Healthy
+[2026-11-08T18:26:44.426Z] NAME                             IMAGE                                                                                                     COMMAND                  SERVICE        CREATED         STATUS                   PORTS
+[2026-11-08T18:26:44.426Z] circleguard-dev-auth-1           10.20.0.106:8082/circleguard/circleguard-auth-service:0.1.0                                               "java -jar /app/app.…"   auth           6 minutes ago   Up 6 minutes (healthy)   8180/tcp
+[2026-11-08T18:26:44.426Z] circleguard-dev-dashboard-1      10.20.0.106:8082/circleguard/circleguard-dashboard-service:0.1.0                                          "java -jar /app/app.…"   dashboard      6 minutes ago   Up 6 minutes (healthy)   8084/tcp
+[2026-11-08T18:26:44.426Z] circleguard-dev-file-1           10.20.0.106:8082/circleguard/circleguard-file-service:0.1.0                                               "java -jar /app/app.…"   file           6 minutes ago   Up 6 minutes (healthy)   8085/tcp
+[2026-11-08T18:26:44.427Z] circleguard-dev-form-1           10.20.0.106:8082/circleguard/circleguard-form-service:0.1.0                                               "java -jar /app/app.…"   form           6 minutes ago   Up 4 minutes (healthy)   8086/tcp
+[2026-11-08T18:26:44.427Z] circleguard-dev-gateway-1        10.20.0.106:8082/circleguard/circleguard-gateway-service:0.1.0                                            "java -jar /app/app.…"   gateway        6 minutes ago   Up 6 minutes (healthy)   8087/tcp
+[2026-11-08T18:26:44.427Z] circleguard-dev-identity-1       10.20.0.106:8082/circleguard/circleguard-identity-service:0.1.0                                           "java -jar /app/app.…"   identity       6 minutes ago   Up 6 minutes (healthy)   8083/tcp
+[2026-11-08T18:26:44.427Z] circleguard-dev-kafka-1          confluentinc/cp-kafka:7.6.0@sha256:24cdd3a7fa89d2bed150560ebea81ff1943badfa61e51d66bb541a6b0d7fb047       "/etc/confluent/dock…"   kafka          6 minutes ago   Up 5 minutes (healthy)   9092/tcp, 127.0.0.1:9092->29092/tcp
+[2026-11-08T18:26:44.427Z] circleguard-dev-neo4j-1          neo4j:5.26.32-community@sha256:249a1ec6e3c52d82101a5ed33d6ed2b5ed5b0017b21a28c0bfebc335e87fb177           "tini -g -- /startup…"   neo4j          6 minutes ago   Up 6 minutes (healthy)   127.0.0.1:7474->7474/tcp, 7473/tcp, 127.0.0.1:7687->7687/tcp
+[2026-11-08T18:26:44.427Z] circleguard-dev-notification-1   10.20.0.106:8082/circleguard/circleguard-notification-service:0.1.0                                       "java -jar /app/app.…"   notification   6 minutes ago   Up 4 minutes (healthy)   8082/tcp
+[2026-11-08T18:26:44.427Z] circleguard-dev-openldap-1       osixia/openldap:1.5.0                                                                                     "/container/tool/run"    openldap       6 minutes ago   Up 6 minutes (healthy)   127.0.0.1:389->389/tcp, 127.0.0.1:636->636/tcp
+[2026-11-08T18:26:44.427Z] circleguard-dev-postgres-1       postgres:16.15@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a                    "docker-entrypoint.s…"   postgres       6 minutes ago   Up 6 minutes (healthy)   127.0.0.1:5432->5432/tcp
+[2026-11-08T18:26:44.428Z] circleguard-dev-promotion-1      10.20.0.106:8082/circleguard/circleguard-promotion-service:0.1.0                                          "java -jar /app/app.…"   promotion      6 minutes ago   Up 3 minutes (healthy)   8088/tcp
+[2026-11-08T18:26:44.428Z] circleguard-dev-redis-1          redis:7.2.5-alpine@sha256:6aaf3f5e6bc8a592fbfe2cccf19eb36d27c39d12dab4f4b01556b7449e7b1f44                "docker-entrypoint.s…"   redis          6 minutes ago   Up 6 minutes (healthy)   127.0.0.1:6379->6379/tcp
+[2026-11-08T18:26:44.428Z] circleguard-dev-web-1            10.20.0.106:8082/circleguard/circleguard-web:0.1.0                                                        "/docker-entrypoint.…"   web            6 minutes ago   Up 6 seconds (healthy)   0.0.0.0:3000->8080/tcp
+[2026-11-08T18:26:44.428Z] circleguard-dev-zookeeper-1      confluentinc/cp-zookeeper:7.6.0@sha256:9babd1c0beaf93189982bdbb9fe4bf194a2730298b640c057817746c19838866   "/etc/confluent/dock…"   zookeeper      6 minutes ago   Up 6 minutes (healthy)   2181/tcp, 2888/tcp, 3888/tcp
+[2026-11-08T18:26:44.428Z] Trazabilidad actualizada: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/deploy/releases/dev.json
+[2026-11-08T18:26:44.428Z] Copia persistente:        /var/jenkins_home/.circleguard/releases/dev.json
+[2026-11-08T18:26:44.761Z] Notificación omitida: defina DISCORD_WEBHOOK_URL o SLACK_WEBHOOK_URL.
+[2026-11-08T18:26:44.761Z] OK: dev desplegado en 0.1.0
+[2026-11-08T18:26:44.761Z] Rollback registrado en deploy/releases/dev.json
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+```
+
+## Release registrado (rollback)
+
+```json
+{
+  "environment": "dev",
+  "version": "0.1.0",
+  "commit": "3a8b347",
+  "deployed_at": "2026-11-08T18:26:44Z",
+  "deployed_by": "jenkins",
+  "event": "rollback"
+}
+```
+
+## Historial del build
+
+```text
+timestamp	environment	version	commit	deployed_by	event
+2026-11-08T18:26:44Z	dev	0.1.0	3a8b347	jenkins	rollback
+```
+
+## Historial persistente (incluye el rollback)
+
+```text
+timestamp	environment	version	commit	deployed_by	event
+2026-11-08T04:20:20Z	dev	0.1.0	6cf4663	jenkins	deploy
+2026-11-08T04:29:37Z	dev	0.1.0	6cf4663	jenkins	deploy
+2026-11-08T04:33:09Z	stage	0.1.0	6cf4663	jenkins	deploy
+2026-11-08T16:55:47Z	dev	0.1.0	426c641	jenkins	deploy
+2026-11-08T17:00:38Z	prod	0.1.0	6cf4663	jenkins	deploy
+2026-11-08T17:51:03Z	dev	0.1.0	dd825e6	jenkins	deploy
+2026-11-08T17:54:26Z	stage	0.1.0	dd825e6	jenkins	deploy
+2026-11-08T18:07:13Z	prod	0.1.0	dd825e6	jenkins	deploy
+2026-11-08T18:26:44Z	dev	0.1.0	3a8b347	jenkins	rollback
+```
+
+## Registro previo de dev (deploy)
+
+```json
+{
+  "environment": "dev",
+  "version": "0.1.0",
+  "commit": "dd825e6",
+  "deployed_at": "2026-11-08T17:51:03Z",
+  "deployed_by": "jenkins",
+  "event": "deploy"
+}
+```

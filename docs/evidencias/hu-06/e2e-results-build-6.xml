@@ -1,0 +1,8 @@
+<testsuites id="" name="" tests="2" failures="0" skipped="0" errors="0" time="3.9789920000000003">
+<testsuite name="smoke.spec.ts" timestamp="2026-11-08T17:54:37.000Z" hostname="chromium" tests="2" failures="0" skipped="0" time="2.355" errors="0">
+<testcase name="CircleGuard smoke › la aplicación web responde y sirve el shell" classname="smoke.spec.ts" time="2.221">
+</testcase>
+<testcase name="CircleGuard smoke › el healthcheck del proxy responde" classname="smoke.spec.ts" time="0.134">
+</testcase>
+</testsuite>
+</testsuites>

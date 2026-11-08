@@ -1,0 +1,21 @@
+# 09 · Notificación de fallos
+
+Build: http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/6/
+Commit: dd825e6
+Fecha: 2026-11-08
+Etapa: post / deploy
+Estado: LIMITACIÓN
+
+El código de notificación está en deploy/notify.sh y el pipeline lo llama sin bloquear. En este entorno no hay webhook de Discord/Slack configurado, por eso el mensaje se omite. La captura de pantalla de la consola está en 09-notification.png.
+
+
+## Líneas reales del log
+
+Notificación omitida: defina DISCORD_WEBHOOK_URL o SLACK_WEBHOOK_URL.
+Notificación omitida: defina DISCORD_WEBHOOK_URL o SLACK_WEBHOOK_URL.
+Notificación omitida: defina DISCORD_WEBHOOK_URL o SLACK_WEBHOOK_URL.
+Notificación omitida: Could not find credentials entry with ID 'discord-webhook'
+
+## Alcance
+
+La notificación no se envió porque no se configuró un webhook (no se manejan secretos externos en esta entrega). El pipeline continúa y no falla si la credencial no existe. Para activarla basta definir DISCORD_WEBHOOK_URL/SLACK_WEBHOOK_URL o crear la credencial 'discord-webhook'.

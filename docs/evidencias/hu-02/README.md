@@ -1,10 +1,11 @@
 # Evidencias de HU-02 · Imágenes Docker inmutables
 
 **Estado: implementación lista, evidencias pendientes de Docker.**
-El equipo de desarrollo aún no tiene Docker instalado (ni en Windows ni en WSL) y el EULA de
-Nexus sigue pendiente. Por eso las salidas reales de `docker build`, `docker inspect`, el listado
-del registro y los healthchecks se generarán cuando Docker esté disponible; este documento deja
-los comandos exactos y el estado de cada criterio.
+El equipo de desarrollo aún no tiene Docker instalado (ni en Windows ni en WSL). El registro
+oficial ya no depende del EULA de Nexus: HU-01 decidió usar **CNCF Distribution 3.0** en el host
+`nexus` (`REGISTRY_BACKEND=distribution`). Las salidas reales de `docker build`, `docker inspect`,
+el listado del registro y los healthchecks se generarán cuando Docker esté disponible; este
+documento deja los comandos exactos y el estado de cada criterio.
 
 ## Matriz de criterios
 
@@ -13,7 +14,7 @@ los comandos exactos y el estado de cada criterio.
 | Dockerfile multi-stage para los 8 servicios y el cliente web | `services/*/Dockerfile` (8) y `mobile/Dockerfile` | `04-build.txt`, `deploy/logs/*.log` |
 | Ejecución con usuario no root | UID/GID 10001 en servicios; UID 101 en web | `02-docker-inspect.txt` (`user=10001:10001`, `user=101`) |
 | Tags semánticos; prohibido `latest` | `deploy/lib.sh` valida semver y rechaza `latest`; Compose exige `IMAGE_TAG` | `04-build.txt`, `01-compose-config-*.txt` |
-| Imágenes publicadas en Nexus o registro equivalente | `deploy/registry/` (`registry:2`) mientras el EULA de Nexus está pendiente; `deploy/publish-images.sh` | `05-registry.txt` |
+| Imágenes publicadas en Nexus o registro equivalente | `deploy/registry/` local y `deploy/publish-images.sh`; el registro oficial es CNCF Distribution en `nexus:8082` | `05-registry.txt` |
 | Un Compose por ambiente con healthchecks | `deploy/compose/docker-compose.{common,dev,stage,prod}.yml` | `01-compose-config-*.txt`, `03-compose-health.txt` |
 | Un archivo Compose para dev, stage y prod | `deploy/compose/docker-compose.{dev,stage,prod}.yml` | Los tres `config` |
 | Evidencias de build, inspect y registro | Scripts + este documento | Archivos de esta carpeta |
@@ -72,7 +73,7 @@ El script falla si alguna imagen corre como root o si la etiqueta de versión no
 ## 4. Publicación en el registro
 
 ```bash
-# Registro equivalente local (Nexus con EULA pendiente)
+# Registro equivalente local (el registro oficial es Distribution en AWS)
 docker compose -f deploy/registry/docker-compose.yml up -d
 ./deploy/publish-images.sh 1.0.0 | tee docs/evidencias/hu-02/05-registry.txt
 
@@ -81,10 +82,10 @@ curl -fsS http://localhost:5000/v2/_catalog | tee -a docs/evidencias/hu-02/05-re
 curl -fsS http://localhost:5000/v2/circleguard/circleguard-auth-service/tags/list | tee -a docs/evidencias/hu-02/05-registry.txt
 ```
 
-Cuando el equipo acepte el EULA de Nexus:
+Cuando el host `nexus` esté en ejecución y el cliente confíe en su TLS:
 
 ```bash
-IMAGE_REGISTRY=<host-nexus>:8082 REGISTRY_USER=<usuario-push> REGISTRY_PASSWORD=... \
+IMAGE_REGISTRY=<ip-privada-nexus>:8082 REGISTRY_USER=ci REGISTRY_PASSWORD=... \
   ./deploy/publish-images.sh 1.0.0
 ```
 
@@ -118,5 +119,5 @@ sensibles. Los logs de `deploy/logs/` no se versionan.
 | Bloqueo | Impacto | Resolución |
 |---|---|---|
 | Docker no instalado | No se pueden generar las evidencias 1–5 | Instalar Docker Engine/Desktop |
-| EULA de Nexus pendiente | No se puede publicar en Nexus | Decisión del equipo; mientras tanto, `registry:2` |
+| Registro Distribution en AWS | No se puede publicar en AWS desde este equipo | Usar `registry:2` local para la evidencia; el registro real es `<ip-privada-nexus>:8082` |
 | Servidores AWS no creados | No hay host de `dev/stage/prod` | HU-01 Fase 5 / HU-06 |
