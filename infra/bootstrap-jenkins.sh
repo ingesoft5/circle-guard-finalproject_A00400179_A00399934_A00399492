@@ -61,6 +61,10 @@ TOOL_ENV=(
   "REGISTRY_ADDRESS=$REGISTRY_ADDRESS"
   "REGISTRY_CI_USER=ci"
 )
+# Optional: where the shared pipeline library is fetched from (default in docker-compose.yml: the GitHub
+# repository). Setting CG_LIBRARY_REMOTE lets a branch that is not pushed yet be validated with a
+# repository inside the controller (see docs/evidencias/hu-04).
+if [[ -n "${CG_LIBRARY_REMOTE:-}" ]]; then TOOL_ENV+=("CG_LIBRARY_REMOTE=$CG_LIBRARY_REMOTE"); fi
 
 cg_tool_bootstrap jenkins
 cg_summary bootstrap-jenkins

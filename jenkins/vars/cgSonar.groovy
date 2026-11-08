@@ -5,7 +5,8 @@ def call(Map cfg = [:]) {
     if (!services) {
         return
     }
-    String targets = services.collect { ":services:${it}:sonar" }.join(' ')
+    // The Sonar plugin registers its task on the parent project, which analyses every service below it.
+    String targets = ':services:sonar'
     withSonarQubeEnv(installation) {
         sh "chmod +x ./gradlew && ./gradlew ${targets} -Dsonar.projectKey=circleguard -Dsonar.projectName=CircleGuard --no-daemon --console=plain"
     }
