@@ -20,7 +20,7 @@ export IMAGE_REGISTRY=${IMAGE_REGISTRY:-localhost:5000}
 export IMAGE_NAMESPACE=${IMAGE_NAMESPACE:-circleguard}
 DEPLOY_MODE=${DEPLOY_MODE:-local}
 
-CURRENT=$(cg_current_version "$ENV_NAME" 2>/dev/null || true)
+CURRENT=$(cg_current_version_optional "$ENV_NAME" 2>/dev/null || true)
 [[ "$VERSION" != "$CURRENT" ]] || cg_die "La versión $VERSION ya está desplegada en $ENV_NAME."
 
 if [[ "$DEPLOY_MODE" == "ssh" ]]; then
