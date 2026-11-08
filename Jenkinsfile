@@ -293,7 +293,7 @@ pipeline {
         }
       }
       steps {
-        sh 'docker compose -p circleguard-dev down || true'
+        script { stopEnv('dev') }
       }
     }
 
@@ -341,7 +341,7 @@ pipeline {
         }
       }
       steps {
-        sh 'docker compose -p circleguard-stage down || true'
+        script { stopEnv('stage') }
       }
     }
 
@@ -453,6 +453,19 @@ def deployEnv(String envName) {
       } else {
         sh "./deploy/deploy.sh '${envName}' '${env.VERSION}'"
       }
+    }
+  }
+}
+
+/**
+ * Stops one environment before promoting to the next (SEQUENTIAL_ENVS).
+ * Uses the same credentials and Compose files as deployEnv, otherwise the
+ * project is not found and the previous web keeps port 3000 busy.
+ */
+def stopEnv(String envName) {
+  withCredentials([file(credentialsId: "circleguard-env-${envName}", variable: 'CG_ENV_FILE')]) {
+    withEnv(["CG_APP_ENV_FILE=deploy/compose/ci.env"]) {
+      sh "./deploy/compose-down.sh '${envName}'"
     }
   }
 }
