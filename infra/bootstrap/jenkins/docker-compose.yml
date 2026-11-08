@@ -2,10 +2,10 @@
 # no setup wizard and no manual steps. Variables come from the .env that
 # infra/bootstrap-jenkins.sh writes next to this file (mode 0600, never versioned).
 #
-# The integration tests and the HU-06 pipeline need a Docker daemon. Jenkins never gets the
-# host's Docker socket: a separate Docker-in-Docker daemon (service "dind") is reachable only
-# on the internal Compose network (no published port, TLS off because nothing else can reach
-# it), and its containers disappear with its volume.
+# HU-04: the integration tests use Testcontainers, and the HU-06 pipeline needs a Docker daemon.
+# Jenkins never gets the host's Docker socket: a separate Docker-in-Docker daemon (service "dind")
+# is reachable only on the internal Compose network (no published port, TLS off because nothing
+# else can reach it), and its containers disappear with its volume.
 name: circleguard-jenkins
 
 services:
@@ -29,10 +29,17 @@ services:
       REGISTRY_ADDRESS: ${REGISTRY_ADDRESS:-}
       REGISTRY_CI_USER: ${REGISTRY_CI_USER:?Defina REGISTRY_CI_USER}
       REGISTRY_CI_PASSWORD: ${REGISTRY_CI_PASSWORD:?Defina REGISTRY_CI_PASSWORD}
-      # Testcontainers and the HU-06 pipeline talk to the dind daemon; the containers it starts
-      # publish their ports there.
+      # HU-04 Testcontainers and the HU-06 pipeline talk to the dind daemon; the containers it
+      # starts publish their ports there.
       DOCKER_HOST: tcp://dind:2375
       TESTCONTAINERS_HOST_OVERRIDE: dind
+    networks:
+      # "default" (internal to this Compose project) is where dind lives; "ci" is the network shared
+      # with SonarQube. dind is deliberately NOT attached to "ci": it is a privileged daemon without TLS.
+      default: {}
+      ci:
+        aliases:
+          - jenkins
     ports:
       - "${BIND_ADDRESS:?Defina BIND_ADDRESS}:${JENKINS_HTTP_PORT:-8080}:8080"
     volumes:
@@ -69,6 +76,11 @@ services:
       timeout: 10s
       retries: 12
       start_period: 20s
+
+networks:
+  ci:
+    name: cg-ci
+    external: true
 
 volumes:
   jenkins_home:

@@ -1,4 +1,4 @@
-# Plugins of HU-01 (Configuration as Code), HU-03 (pipeline) and HU-04 (coverage reports).
+# Plugins of HU-01 (Configuration as Code), HU-03/HU-04 (pipeline, coverage) and HU-06 (CD).
 configuration-as-code:2144.ve8c697101488
 workflow-aggregator
 workflow-multibranch
