@@ -1,4 +1,4 @@
-# Pipeline de entrega continua (HU-06)
+# Pipeline de entrega continua (HU-06/HU-07)
 
 Diseño del pipeline de Jenkins que construye, publica, despliega y promueve CircleGuard. La
 implementación está en `Jenkinsfile` y en los scripts de `deploy/`.
@@ -16,13 +16,15 @@ flowchart LR
     e2e2 --> approve{"Aprobación manual<br/>input"}
     approve --> prod["Deploy prod"]
     prod --> tag["Tag semver<br/>vX.Y.Z"]
+    tag --> notes["Release notes<br/>CHANGELOG.md"]
+    notes --> release["GitHub Release"]
     test -.-> notify["Discord / Slack<br/>fallos y estados"]
     prod -.-> trace[("deploy/releases/&lt;env&gt;.json")]
 ```
 
 ## Ramas y etapas
 
-| Rama | Build/tests | dev | E2E dev | stage | E2E stage | prod | tag |
+| Rama | Build/tests | dev | E2E dev | stage | E2E stage | prod | tag + notas |
 |---|---|---|---|---|---|---|---|
 | `dev` | Sí | Automático | Sí | Automático | Sí | No | No |
 | `main` | Sí | Automático | Sí | Automático | Sí | **Aprobación manual** | Sí |
@@ -53,6 +55,8 @@ flowchart LR
 | Approve prod | `input` con `submitter: admin`, timeout 24 h | Jenkinsfile |
 | Deploy prod | Despliega prod | `deploy/deploy.sh prod` |
 | Tag release | Crea y publica `vX.Y.Z` | `deploy/tag-release.sh` |
+| Release notes | Genera notas y actualiza `CHANGELOG.md` | `deploy/release-notes.sh` |
+| GitHub release | Publica las notas como GitHub Release | `deploy/github-release.sh` |
 
 ## Versionado
 
@@ -66,6 +70,10 @@ flowchart LR
 El tag es `vMAJOR.MINOR.PATCH` (anotado) y la imagen de release usa `MAJOR.MINOR.PATCH` (Docker no
 admite `+` ni `latest`). En `dev` y otras ramas, el pipeline añade `-<sha>` (por ejemplo
 `0.2.0-a1b2c3d`) para que cada commit tenga una imagen única; el tag estable se crea en `main`.
+
+`PUSH_TAG` acepta `1`/`true` para publicar el tag; `0`/`false` solo lo crea localmente.
+`github-release.sh` fija `target_commitish` al commit del tag para que el GitHub Release no apunte
+al branch por defecto cuando el tag aún no existe en el remoto.
 
 ## Trazabilidad
 
@@ -144,4 +152,5 @@ El pipeline está escrito, pero para ejecutarlo en Jenkins faltan:
 
 ## Evidencias
 
-Ver [`docs/evidencias/hu-06/`](../evidencias/hu-06/README.md).
+Ver [`docs/evidencias/hu-06/`](../evidencias/hu-06/README.md) y
+[`docs/evidencias/hu-07/`](../evidencias/hu-07/README.md).

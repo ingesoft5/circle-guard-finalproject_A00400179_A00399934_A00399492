@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-11-08T22:50:00Z",
+  "history": "HU-07",
+  "source": "Jenkins /var/jenkins_home/.circleguard/releases y builds #19/#21",
+  "current": {
+    "dev": {
+      "environment": "dev",
+      "version": "0.1.0",
+      "commit": "59cec5c",
+      "deployed_at": "2026-11-08T22:38:53Z",
+      "deployed_by": "jenkins",
+      "event": "rollback",
+      "stack": "removed_after_evidence"
+    },
+    "prod": {
+      "environment": "prod",
+      "version": "0.1.0",
+      "commit": "5066733",
+      "deployed_at": "2026-11-08T22:43:09Z",
+      "deployed_by": "jenkins",
+      "event": "rollback",
+      "stack": "running",
+      "health": "15 healthy"
+    }
+  },
+  "stage": {
+    "environment": "stage",
+    "version": "0.2.0",
+    "commit": "59cec5c",
+    "deployed_at": "2026-11-08T22:20:26Z",
+    "event": "deploy",
+    "stack": "stopped_after_build_18"
+  },
+  "release": {
+    "version": "0.2.0",
+    "tag": "v0.2.0",
+    "commit": "59cec5cac1456cb3da1f205cde39ba97a6bc3b1c",
+    "github_release": "https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492/releases/tag/v0.2.0",
+    "previous_tag": "v0.1.0",
+    "previous_commit": "dd825e6ccf567e64fe6d724b82b66521b12261d7"
+  },
+  "rollback": {
+    "dev": {
+      "build": 19,
+      "from": "0.2.0",
+      "to": "0.1.0",
+      "result": "SUCCESS",
+      "event": "rollback"
+    },
+    "prod": {
+      "build": 21,
+      "from": "0.2.0",
+      "to": "0.1.0",
+      "result": "SUCCESS",
+      "event": "rollback"
+    }
+  },
+  "image_tags": {
+    "0.1.0": "dd825e6ccf567e64fe6d724b82b66521b12261d7",
+    "0.2.0": "59cec5cac1456cb3da1f205cde39ba97a6bc3b1c"
+  },
+  "builds": {
+    "16": "FAILURE - ENOSPC en Package images",
+    "17": "FAILURE - Deploy stage unhealthy; unit/integration OK; notificacion failure enviada",
+    "18": "UNSTABLE - Unit tests interrumpidos por reinicio de Jenkins; CD completo; prod 0.2.0",
+    "19": "SUCCESS - rollback dev 0.1.0",
+    "20": "SUCCESS - build SCM sin tests ni despliegue",
+    "21": "SUCCESS - rollback prod 0.1.0"
+  },
+  "note": "El campo commit de los rollbacks es el checkout usado por Jenkins. La imagen 0.1.0 corresponde al tag v0.1.0 (dd825e6); los despliegues originales de 0.1.0 en el historial registran ese commit.",
+  "history_rows": [
+    {"timestamp": "2026-11-08T04:20:20Z", "environment": "dev", "version": "0.1.0", "commit": "6cf4663", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T04:29:37Z", "environment": "dev", "version": "0.1.0", "commit": "6cf4663", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T04:33:09Z", "environment": "stage", "version": "0.1.0", "commit": "6cf4663", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T16:55:47Z", "environment": "dev", "version": "0.1.0", "commit": "426c641", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T17:00:38Z", "environment": "prod", "version": "0.1.0", "commit": "6cf4663", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T17:51:03Z", "environment": "dev", "version": "0.1.0", "commit": "dd825e6", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T17:54:26Z", "environment": "stage", "version": "0.1.0", "commit": "dd825e6", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T18:07:13Z", "environment": "prod", "version": "0.1.0", "commit": "dd825e6", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T18:26:44Z", "environment": "dev", "version": "0.1.0", "commit": "3a8b347", "deployed_by": "jenkins", "event": "rollback"},
+    {"timestamp": "2026-11-08T21:12:24Z", "environment": "dev", "version": "0.2.0", "commit": "59cec5c", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T22:17:14Z", "environment": "dev", "version": "0.2.0", "commit": "59cec5c", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T22:20:26Z", "environment": "stage", "version": "0.2.0", "commit": "59cec5c", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T22:30:43Z", "environment": "prod", "version": "0.2.0", "commit": "59cec5c", "deployed_by": "jenkins", "event": "deploy"},
+    {"timestamp": "2026-11-08T22:38:53Z", "environment": "dev", "version": "0.1.0", "commit": "59cec5c", "deployed_by": "jenkins", "event": "rollback"},
+    {"timestamp": "2026-11-08T22:43:09Z", "environment": "prod", "version": "0.1.0", "commit": "5066733", "deployed_by": "jenkins", "event": "rollback"}
+  ]
+}
