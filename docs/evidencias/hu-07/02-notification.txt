@@ -1,0 +1,27 @@
+# 02 · Notificación real de fallo
+
+Fecha: 2026-11-08
+Canal: Discord
+Credencial de Jenkins: `discord-webhook` (Secret text, no versionada)
+
+Comando ejecutado:
+
+```bash
+DISCORD_WEBHOOK_URL=*** ./deploy/notify.sh failure ci 0.2.0 \
+  "Prueba de notificacion HU-07: fallo simulado"
+```
+
+Salida:
+
+```text
+Notificación enviada.
+```
+
+Mensaje enviado al canal de Discord:
+
+```text
+[CircleGuard] failure · ci · 0.2.0 · Prueba de notificacion HU-07: fallo simulado
+```
+
+La captura del mensaje en Discord se guarda como `02-notification.png`. El webhook no se
+versiona ni se imprime.
