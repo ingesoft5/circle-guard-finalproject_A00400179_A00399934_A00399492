@@ -55,6 +55,7 @@ pipeline {
     string(name: 'E2E_URL_STAGE', defaultValue: 'http://localhost:3000', description: 'URL del cliente web de stage para Playwright.')
     booleanParam(name: 'BUILD_IMAGES', defaultValue: true, description: 'Construir las 9 imágenes en este pipeline.')
     booleanParam(name: 'PUBLISH_IMAGES', defaultValue: true, description: 'Publicar las imágenes en el registro.')
+    booleanParam(name: 'RUN_E2E_LOCAL', defaultValue: true, description: 'HU-05: construir el cliente web y ejecutar los flujos Playwright en este agente (sin Docker).')
     booleanParam(name: 'SKIP_E2E', defaultValue: false, description: 'Omitir E2E (solo para diagnóstico; no sirve como evidencia).')
     booleanParam(name: 'FORCE_PROD', defaultValue: false, description: 'Permitir el flujo completo desde una rama que no sea main (validación).')
     booleanParam(name: 'SEQUENTIAL_ENVS', defaultValue: false, description: 'Bajar dev antes de stage (útil cuando todos corren en el mismo host/DinD).')
@@ -181,6 +182,18 @@ pipeline {
       }
       steps {
         script { cgPackage(env.SELECTED_SERVICES.split(',') as List) }
+      }
+    }
+
+    stage('E2E Playwright') {
+      when {
+        allOf {
+          expression { params.RUN_E2E_LOCAL }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+        }
+      }
+      steps {
+        sh './deploy/e2e-local.sh'
       }
     }
 
