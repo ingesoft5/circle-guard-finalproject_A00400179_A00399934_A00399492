@@ -66,6 +66,7 @@ contexto), y así se indica en su archivo.
 | Error | Cómo se detectó |
 |---|---|
 | Sugirió un comando que no existe (`bootstrap-all.sh --plan --target local`) para una demostración | Al leer el script: solo aplica a AWS. Se corrigió antes de entregarlo |
+| Documentó en el README `./gradlew test coverageSummary` sin haber ejecutado `test` desde la raíz; fallaba en `:tests:integration:test` («No tests found») porque ese módulo solo tiene clases `*IntegrationTest`, que `test` excluye | La persona ejecutó el comando del README y lo pegó con el error. Se corrigió en `build.gradle.kts` (`isFailOnNoMatchingTests = false`) y se comprobó la tarea |
 | Mantuvo un vigilante que dejó de informar al caducar el rol de AWS (1 h) | La persona preguntó por el estado del build; se reabrió la sesión |
 | Dio por hecho que `ci` seguía encendida cuando la parada automática de 4 h ya la había apagado | Falló el SSH; se consultó el estado real de la instancia |
 | Capturas tomadas en el Jenkins equivocado (el puerto 8080 de la PC lo ocupaba Docker Desktop) | Los números de build no coincidían; se usó el túnel en el puerto 8090 |
