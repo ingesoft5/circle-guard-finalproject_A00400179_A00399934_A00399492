@@ -71,7 +71,12 @@ subprojects {
     }
 
     tasks.named<Test>("test") {
-        filter { excludeTestsMatching("*IntegrationTest") }
+        filter {
+            excludeTestsMatching("*IntegrationTest")
+            // tests:integration only holds *IntegrationTest classes: with `gradle test` from the root it
+            // would be left with zero tests, which Gradle reports as a failure by default.
+            isFailOnNoMatchingTests = false
+        }
         finalizedBy("jacocoTestReport")
     }
 

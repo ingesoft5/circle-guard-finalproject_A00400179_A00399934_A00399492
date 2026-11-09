@@ -22,6 +22,12 @@ trabajo, pero el equipo revisa, entiende y puede explicar cada resultado.
 | 2026-11-05 | HU-06 · Entrega continua y promoción | [Sesión](sesiones/2026-11-05-hu-06.md) | [D-12 a D-25](decisiones.md) (D-21/D-22 en HU-07) |
 | 2026-11-08 | HU-06 · Ejecución real en AWS | [Sesión](sesiones/2026-11-08-hu-06-ejecucion.md) | Evidencias de build #6 y rollback #13 |
 | 2026-11-08 | HU-07 · Rollback, notificaciones y release notes | [Sesión](sesiones/2026-11-08-hu-07.md) | D-21, D-22 y ejecución real #17–#21 |
+| 2026-11-07/08 | HU-04 · Pruebas unitarias y de integración | [Sesión](sesiones/2026-11-08-hu-04.md) | Cobertura ≥ 60 %, integración con Testcontainers, build #10 |
+| 2026-11-08 | HU-08 · Documentación y bitácora de IAG | [Sesión](sesiones/2026-11-08-hu-08.md) | README general, diagramas y anexo |
+
+El **anexo consolidado**, con el método de verificación y la reflexión crítica, está en
+[`../../IAG_REGISTRO.md`](../../IAG_REGISTRO.md). Allí también se declaran las historias sin sesión
+registrada (HU-01, HU-03 y HU-09).
 
 ## Plantilla
 
