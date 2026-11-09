@@ -449,6 +449,16 @@ pipeline {
         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
           junit allowEmptyResults: true, testResults: 'tests/e2e-playwright/results.xml'
         }
+        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+          publishHTML(target: [
+            reportName: 'Playwright E2E',
+            reportDir: 'tests/e2e-playwright/playwright-report',
+            reportFiles: 'index.html',
+            keepAll: true,
+            alwaysLinkToLastBuild: true,
+            allowMissing: true
+          ])
+        }
       }
     }
     success {

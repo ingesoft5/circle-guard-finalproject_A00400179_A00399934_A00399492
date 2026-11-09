@@ -1,7 +1,17 @@
 # Pruebas E2E · Playwright
 
-Suite mínima de humo para el gate de promoción de HU-06. Verifica que el cliente web
-responde y que el healthcheck del proxy (`/healthz`) está en `200`.
+Suite del gate de promoción de HU-06 y de HU-05.
+
+| Archivo | Flujo |
+| --- | --- |
+| `smoke.spec.ts` | El cliente responde y `/healthz` da `200`. |
+| `login.spec.ts` | Flujo 1: inicio de sesión válido e inválido. |
+| `questionnaire.spec.ts` | Flujo 2: cuestionario de salud. |
+| `access.spec.ts` | Flujo 3: QR de acceso y escáner de la puerta. |
+
+Los flujos interceptan las llamadas a `/api/v1/**` con `page.route`. Así son
+deterministas y no dependen de usuarios LDAP ni de datos sembrados. Corren contra
+cualquier URL de ambiente (`E2E_BASE_URL`).
 
 ## Ejecutar
 
@@ -28,6 +38,6 @@ imagen `mcr.microsoft.com/playwright`. Si el agente ya tiene los navegadores ins
 
 - `results.xml` (JUnit, para Jenkins).
 - `playwright-report/` (HTML).
-- `test-results/` (trazas y capturas de fallos).
+- `test-results/` (capturas de cada prueba, trazas y videos de fallos).
 
 No se versionan; el pipeline los archiva.
