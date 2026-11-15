@@ -20,6 +20,8 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
     implementation("org.flywaydb:flyway-core")
     runtimeOnly("org.postgresql:postgresql")
+    // HU-12: Circuit Breaker around the call to identity-service. Core module only (no AOP, no Actuator).
+    implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.2.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
 }
