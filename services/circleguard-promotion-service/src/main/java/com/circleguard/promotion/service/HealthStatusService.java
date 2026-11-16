@@ -2,6 +2,8 @@ package com.circleguard.promotion.service;
 
 import com.circleguard.promotion.exception.FenceException;
 import com.circleguard.promotion.repository.graph.UserNodeRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -23,6 +25,8 @@ public class HealthStatusService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final com.circleguard.promotion.repository.jpa.SystemSettingsRepository systemSettingsRepository;
     private final com.circleguard.promotion.repository.graph.CircleNodeRepository circleNodeRepository;
+    /** HU-13: technical and business metrics for the promotion engine. */
+    private final MeterRegistry meterRegistry;
 
     private static final String STATUS_KEY_PREFIX = "user:status:";
     private static final String TOPIC_STATUS_CHANGED = "promotion.status.changed";
@@ -39,6 +43,7 @@ public class HealthStatusService {
     @CacheEvict(cacheNames = "userStatus", allEntries = true)
     public void updateStatus(String anonymousId, String status, boolean adminOverride) {
         log.info("Updating status: {} -> {} (Admin Override: {})", anonymousId, status, adminOverride);
+        Timer.Sample containmentSample = Timer.start(meterRegistry);
 
         if ("ACTIVE".equals(status) && !adminOverride) {
             checkFenceWindow(anonymousId);
@@ -134,6 +139,15 @@ public class HealthStatusService {
                 
                 kafkaTemplate.send("alert.priority", anonymousId, priorityPayload);
             }
+
+            // HU-13: one promotion per successful state update, tagged by destination state.
+            meterRegistry.counter("circleguard.promotions",
+                    "to", status,
+                    "admin_override", String.valueOf(adminOverride)).increment();
+            containmentSample.stop(Timer.builder("circleguard.containment.time")
+                    .tag("result", "success")
+                    .publishPercentileHistogram()
+                    .register(meterRegistry));
         }
     }
 
