@@ -365,7 +365,7 @@ cada merge genera un release con tag semántico. Detalle: [`docs/estrategia-bran
 | Historia | Qué entrega | Documento principal |
 |---|---|---|
 | **HU-12 (S2)** Patrones de diseño | Circuit Breaker, External Configuration y Dead Letter Topic | [`docs/arquitectura/patrones-diseno.md`](docs/arquitectura/patrones-diseno.md) · [`revisión`](docs/revisiones/hu-12-revision.md) |
-| **HU-13 (S2)** Observabilidad | Prometheus, Grafana, Alertmanager, Jaeger y Loki | [`docs/operacion/observabilidad.md`](docs/operacion/observabilidad.md) |
+| **HU-13 (S2)** Observabilidad | Prometheus, Grafana, Alertmanager, Jaeger y Loki | [`docs/operacion/observabilidad.md`](docs/operacion/observabilidad.md) · [`evidencias`](docs/evidencias/hu-13/README.md) |
 | **HU-16 (S2)** Cambios y versiones | Release notes, registro por ambiente y rollback en K8s | [`docs/operaciones/gestion-cambios.md`](docs/operaciones/gestion-cambios.md) |
 | **HU-17 (S2)** Documentación | Arquitectura, manual de operaciones, costos y resumen en inglés | [`docs/arquitectura/arquitectura-general.md`](docs/arquitectura/arquitectura-general.md) · [`docs/operacion/manual-operaciones.md`](docs/operacion/manual-operaciones.md) · [`docs/operacion/analisis-costos.md`](docs/operacion/analisis-costos.md) · [`resumen ejecutivo`](docs/sustentacion/resumen-ejecutivo-en.md) |
 | **HU-09/10/11 (S2)** Terraform y Kubernetes | Diseño y contrato de IaC y clúster | [`docs/arquitectura/terraform.md`](docs/arquitectura/terraform.md) · [`docs/arquitectura/kubernetes.md`](docs/arquitectura/kubernetes.md) |
