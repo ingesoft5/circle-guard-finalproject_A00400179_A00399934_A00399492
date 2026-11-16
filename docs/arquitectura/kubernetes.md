@@ -76,6 +76,8 @@ templating.
 | `CIRCLEGUARD_IDENTITYSERVICE_URL` | `http://identity:8083` | idem | idem |
 | `CIRCLEGUARD_PROMOTIONSERVICE_URL` | `http://promotion:8088` | idem | idem |
 | `MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE` | `health,prometheus` | idem | idem |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://otel-collector.observability:4318/v1/traces` | idem | idem |
+| `ENVIRONMENT` | `dev` | `stage` | `prod` |
 
 > **Obligatorio por HU-12:** sin `CIRCLEGUARD_IDENTITYSERVICE_URL` el login de `auth` llama a
 > `localhost:8083` dentro de su propio pod y falla. Ver

@@ -15,7 +15,7 @@ Punto de entrada a todo lo que no es código. El README general del proyecto est
 | C5 · CI/CD avanzado (E2.3) | [`arquitectura/pipeline-cd.md`](arquitectura/pipeline-cd.md) | Jenkinsfile, builds | Parcial (falta K8s/Trivy) |
 | C6 · Pruebas avanzadas (E2.7) | [`operacion/pruebas-avanzadas.md`](operacion/pruebas-avanzadas.md) | Locust, ZAP, informe | Pendiente (HU-15 S2) |
 | C7 · Change management y rollback (E2.8) | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) | Release notes, registro, rollback | Parcial (Compose sí; K8s pendiente) |
-| C8 · Observabilidad (E2.5) | [`operacion/observabilidad.md`](operacion/observabilidad.md) | Dashboards, alertas, trazas, logs | Pendiente (HU-13 S2) |
+| C8 · Observabilidad (E2.5) | [`operacion/observabilidad.md`](operacion/observabilidad.md) | Dashboards, alertas, trazas, logs | Parcial (código y stack local; falta evidencia K8s) |
 | C9 · Seguridad (E2.6) | [`operacion/seguridad.md`](operacion/seguridad.md) | Trivy, RBAC, TLS, secretos | Parcial (HU-14 S2) |
 | C10 · Documentación completa (E2.9) | Este índice + [`operacion/manual-operaciones.md`](operacion/manual-operaciones.md) + [`operacion/analisis-costos.md`](operacion/analisis-costos.md) + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) | Documentos + evidencias | En curso |
 | C11 · Presentación (E2.10) | [`sustentacion/guion-sprint-2.md`](sustentacion/guion-sprint-2.md) | Demo y falla provocada | Listo para ensayo |
@@ -73,7 +73,7 @@ Punto de entrada a todo lo que no es código. El README general del proyecto est
 | HU-07 (S1) · Rollback, notificaciones y release notes | [`evidencias/hu-07/`](evidencias/hu-07/README.md) | Completa |
 | HU-08 (S1) · Documentación y bitácora de IAG | [`evidencias/hu-08/`](evidencias/hu-08/README.md) | Completa |
 | HU-12 (S2) · Patrones de diseño | [`arquitectura/patrones-diseno.md`](arquitectura/patrones-diseno.md) + [`revisiones/hu-12-revision.md`](revisiones/hu-12-revision.md) | Implementada; cierre pendiente O1/O2/O3 |
-| HU-13 (S2) · Observabilidad | `evidencias/hu-13/` (por crear) | Pendiente |
+| HU-13 (S2) · Observabilidad | [`evidencias/hu-13/`](evidencias/hu-13/README.md) | Parcial; implementación en curso |
 | HU-16 (S2) · Change management | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) + `evidencias/hu-16/` (por crear) | Pendiente K8s |
 | HU-17 (S2) · Documentación | este índice + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) | En curso |
 

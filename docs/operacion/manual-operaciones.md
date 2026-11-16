@@ -158,7 +158,9 @@ aws ec2 describe-instances --region us-east-2 \
 
 - Healthchecks HTTP en Compose (`/` con 2xx–4xx aceptados).
 - Jenkins conserva logs, reportes JUnit, JaCoCo y artefactos.
-- No hay métricas, trazas ni logs centralizados (eso es HU-13).
+- **HU-13 en curso:** los servicios ya exponen `/actuator/health/*` y `/actuator/prometheus`, y el
+  stack de observabilidad está en `deploy/observability/`. La evidencia K8s queda pendiente de
+  HU-10/HU-11. Ver [`observabilidad.md`](observabilidad.md).
 
 ### 5.2 Estado objetivo **[S2]**
 
