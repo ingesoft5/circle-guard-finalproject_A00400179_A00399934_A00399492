@@ -1,0 +1,26 @@
+# HU-13 - Actuator y Prometheus (evidencia real)
+
+Fecha: 2026-11-16 14:45 (America/Bogota)
+Servicio: circleguard-file-service (sin base de datos, contexto limpio)
+Java: 21.0.13 (Eclipse Adoptium)
+
+## Endpoints
+GET /actuator -> HTTP 200
+{"_links":{"self":{"href":"http://localhost:8085/actuator","templated":false},"health":{"href":"http://localhost:8085/actuator/health","templated":false},"health-path":{"href":"http://localhost:8085/actuator/health/{*path}","templated":true},"info":{"href":"http://localhost:8085/actuator/info","templated":false},"prometheus":{"href":"http://localhost:8085/actuator/prometheus","templated":false}}}
+
+GET /actuator/health/liveness -> HTTP 200
+{"status":"UP"}
+
+GET /actuator/health/readiness -> HTTP 200
+{"status":"UP"}
+
+GET /actuator/prometheus -> HTTP 200
+Metricas de muestra:
+jvm_memory_used_bytes{application="circleguard-file-service",area="nonheap",environment="dev",id="Metaspace",} 4.1562168E7
+jvm_memory_used_bytes{application="circleguard-file-service",area="nonheap",environment="dev",id="CodeCache",} 9189504.0
+jvm_memory_used_bytes{application="circleguard-file-service",area="heap",environment="dev",id="G1 Old Gen",} 1.1805952E7
+jvm_memory_used_bytes{application="circleguard-file-service",area="nonheap",environment="dev",id="Compressed Class Space",} 5628328.0
+jvm_memory_used_bytes{application="circleguard-file-service",area="heap",environment="dev",id="G1 Survivor Space",} 9598856.0
+jvm_memory_used_bytes{application="circleguard-file-service",area="heap",environment="dev",id="G1 Eden Space",} 2.9360128E7
+jvm_threads_live_threads{application="circleguard-file-service",environment="dev",} 25.0
+process_uptime_seconds{application="circleguard-file-service",environment="dev",} 44.274
