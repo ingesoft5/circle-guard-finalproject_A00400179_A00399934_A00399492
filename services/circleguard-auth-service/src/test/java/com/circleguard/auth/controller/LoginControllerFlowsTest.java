@@ -70,6 +70,19 @@ class LoginControllerFlowsTest {
     }
 
     @Test
+    void login_WhenTheIdentityServiceIsUnavailable_Returns503AndNoToken() throws Exception {
+        // HU-12: open circuit / timeout / 5xx are reported as 503 (retry later), not as a generic 500.
+        when(authManager.authenticate(any())).thenReturn(mock(Authentication.class));
+        when(identityClient.getAnonymousId("alice")).thenThrow(
+                new IdentityClient.IdentityServiceUnavailableException("identity-service circuit is open", null));
+
+        mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON).content(LOGIN))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.message").value("Identity service unavailable, please retry shortly"))
+                .andExpect(jsonPath("$.token").doesNotExist());
+    }
+
+    @Test
     void visitorHandoff_IssuesATokenWithTheVisitorAuthority() throws Exception {
         UUID anonymousId = UUID.randomUUID();
         when(jwtService.generateToken(any(), any())).thenReturn("visitor-jwt");
