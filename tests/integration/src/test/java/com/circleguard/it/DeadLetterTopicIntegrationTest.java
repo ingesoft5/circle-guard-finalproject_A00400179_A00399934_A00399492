@@ -64,8 +64,42 @@ class DeadLetterTopicIntegrationTest {
         publishJson("survey.submitted", poisonId, malformed);
 
         assertDeadLettered("survey.submitted" + KafkaErrorHandlingConfig.DEAD_LETTER_SUFFIX, poisonId);
+        assertPromotionKeepsConsuming();
+    }
 
-        // The consumer was not blocked by the bad record: a valid survey sent afterwards is processed.
+    @Test
+    @DisplayName("HU-12: bytes that are not JSON are dead-lettered unchanged by the real promotion consumer, which keeps working")
+    void undeserializableSurveyEvent_IsDeadLetteredAsRawBytes_AndConsumptionContinues() {
+        // Not JSON at all: without ErrorHandlingDeserializer, poll() would throw forever on these same bytes
+        // and the partition would stay blocked.
+        String garbage = "{this is not json " + UUID.randomUUID();
+        publishString("survey.submitted", garbage);
+
+        assertDeadLettered("survey.submitted" + KafkaErrorHandlingConfig.DEAD_LETTER_SUFFIX, garbage);
+        assertPromotionKeepsConsuming();
+    }
+
+    @Test
+    @DisplayName("HU-12: malformed events in every notification topic are dead-lettered, and notification keeps working")
+    void malformedNotificationEvents_AreDeadLettered_AndNotificationKeepsWorking() {
+        for (String topic : new String[]{"promotion.status.changed", "alert.priority", "circle.fenced"}) {
+            String payload = "{malformed-" + UUID.randomUUID();
+            publishString(topic, payload);
+            assertDeadLettered(topic + ".DLT", payload);
+        }
+
+        // The notification consumers were not blocked: a real status change is still notified.
+        UUID user = UUID.randomUUID();
+        IntegrationEnvironment.createUser(user.toString(), "ACTIVE", null);
+        IntegrationEnvironment.promotion().getBean(com.circleguard.promotion.service.HealthStatusService.class)
+                .updateStatus(user.toString(), "CONFIRMED");
+        assertThat(KafkaProbe.read("notification.audit",
+                json -> json.contains(user.toString()) && json.contains("\"channel\":\"SMS\"") && json.contains("\"status\":\"SUCCESS\""),
+                Duration.ofSeconds(60))).as("SMS audit event after the poison records").isNotEmpty();
+    }
+
+    /** A valid survey sent after a bad record is still processed: the bad record did not block the partition. */
+    private static void assertPromotionKeepsConsuming() {
         UUID healthy = UUID.randomUUID();
         IntegrationEnvironment.createUser(healthy.toString(), "ACTIVE", null);
         IntegrationEnvironment.submitSurvey(healthy, true);
