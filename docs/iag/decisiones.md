@@ -464,3 +464,204 @@ equivalente local de evidencias.
 
 **Consecuencias.** La publicación ya no depende del EULA. Jenkins usa `crane` para publicar y
 descargar sin el socket de Docker.
+
+---
+
+# Sprint 2
+
+Las entradas D-26 a D-35 se abren al iniciar el Sprint 2 (2026-11-16). Las marcadas como
+**Propuesta** todavía no están acordadas con todo el equipo: se registran para que la decisión
+quede trazable y para que la sustentación explique el criterio, no solo el resultado.
+
+## D-26 · Observabilidad: stack Prometheus + Grafana + Alertmanager + Jaeger + Loki
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-13 (Sprint 2 · E2.5)
+- **Estado:** Propuesta (pendiente de validar con el equipo)
+
+**Contexto.** El proyecto no tiene Actuator, Micrometer ni ningún backend de métricas. El criterio
+E2.5 pide métricas técnicas y de negocio, al menos tres alertas probadas, trazas distribuidas por
+`form → Kafka → promotion → notification` y logs centralizados.
+
+**Decisión.** Un único namespace `observability` con Prometheus (scrape por anotaciones),
+Alertmanager, Grafana (dashboards por servicio y de negocio), Jaeger (colector + UI, OTLP) y Loki +
+Promtail para logs. Se descarta ELK porque Elasticsearch pide ≈ 1 GiB de heap y el clúster de
+trabajo es pequeño (2 vCPU / 8 GiB); Loki indexa etiquetas, no el texto completo, y cubre el
+criterio con mucha menos memoria.
+
+**Alternativas.**
+- ELK: cumple, pero la huella de memoria y la operación (JVM, disco, `vm.max_map_count`) no caben
+  con holgura en el presupuesto del curso.
+- Solo Prometheus + Grafana: no cumple trazas ni logs.
+- SaaS (Grafana Cloud): excelente, pero introduce una cuenta y una dependencia externa que el
+  curso no evalúa.
+
+**Consecuencias.** El stack se prueba primero con Compose y luego se porta a Kubernetes. La
+evidencia debe incluir dashboards, alerta disparada, traza E2E y consulta de logs. Si el clúster no
+tiene recursos, Loki y Jaeger comparten nodo y se documenta la limitación.
+
+## D-27 · Instrumentación común: Actuator + Micrometer + OpenTelemetry
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-13 (Sprint 2 · E2.5)
+- **Estado:** Propuesta
+
+**Contexto.** Los healthchecks actuales son sondas HTTP a `/` porque la decisión D-04 (HU-02) no
+permitía tocar el código base. Esa restricción ya no aplica: HU-10 necesita sondas de Actuator y
+HU-13 necesita métricas.
+
+**Decisión.** Añadir a los ocho servicios `spring-boot-starter-actuator`,
+`micrometer-registry-prometheus` y el starter de OpenTelemetry. Exponer
+`/actuator/health/liveness`, `/actuator/health/readiness` y `/actuator/prometheus`. Activar la
+observación de Spring Kafka (`spring.kafka.template.observation-enabled` y
+`listener.observation-enabled`) para que el `traceId` viaje en las cabeceras del mensaje.
+
+**Alternativas.** Instrumentar solo promotion y notification (menos cobertura, no permite comparar
+servicios); usar el agente Java de OpenTelemetry sin starter (válido, pero más difícil de explicar y
+de versionar con Gradle).
+
+**Consecuencias.** Aumenta el tamaño de las imágenes y el consumo de memoria; se mitiga con
+`JAVA_TOOL_OPTIONS` y límites de recursos. Los endpoints de Actuator deben quedar protegidos o
+expuestos solo dentro del clúster.
+
+## D-28 · Logs centralizados con Loki en lugar de ELK
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-13 (Sprint 2 · E2.5)
+- **Estado:** Propuesta
+
+**Contexto.** El criterio admite ELK o una alternativa compatible.
+
+**Decisión.** Loki + Promtail, con retención de 7 días y etiquetas `service`, `level` y `traceId`.
+Los servicios escriben logs JSON a stdout; Promtail los recolecta del nodo.
+
+**Consecuencias.** Las consultas son por etiquetas y búsqueda de texto, no SQL. La retención corta
+obliga a exportar la evidencia el mismo día de la demostración.
+
+## D-29 · Despliegue: Blue-Green en producción y RollingUpdate en dev/stage
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-16 (Sprint 2 · E2.8), con impacto en HU-10/HU-11
+- **Estado:** Propuesta (recomendación de Sebastian Cosme, pendiente de validar)
+
+**Contexto.** El criterio E2.8 pide un rollback real en Kubernetes. El proyecto tiene ocho
+servicios, un clúster pequeño y un pipeline con aprobación manual. El bonus de la rúbrica menciona
+*canary* con service mesh, pero no es obligatorio.
+
+**Decisión.** `dev` y `stage` usan `RollingUpdate` (el valor por defecto de Kubernetes, con
+`maxUnavailable: 0`). `prod` usa **Blue-Green**: se despliega la versión nueva con un Deployment
+`<servicio>-green`, se valida con probes y un smoke test, y se conmuta el `Service` de `blue` a
+`green`; el Deployment anterior se conserva para volver con un solo cambio de selector.
+
+**Alternativas.**
+- **Canary** con NGINX Ingress (`canary-by-header`/`canary-weight`) o Istio/Flagger: es la opción
+  más fina, pero exige dividir tráfico, medir tasas de error por versión y automatizar el análisis.
+  Con un equipo de tres personas y un clúster de 2 vCPU es fácil que la demostración falle por
+  infraestructura y no por el producto. Istio además duplica la complejidad operativa.
+- **Solo RollingUpdate:** cumple disponibilidad, pero el rollback es menos evidente y no permite
+  comparar dos versiones al mismo tiempo.
+- **Recreate:** produce caída; no sirve para la demo.
+
+**Consecuencias.** Blue-Green duplica solo el servicio que se está desplegando, no todo el stack.
+La base de datos debe ser compatible hacia atrás (expand-contract) porque ambas versiones conviven
+unos minutos. Kafka y Redis también deben tolerar los dos contratos. La evidencia de rollback es
+`kubectl rollout undo` o el cambio de selector, con logs y captura del estado `Ready`.
+
+## D-30 · Registro de cambios por ambiente con digest y aprobación
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-16 (Sprint 2 · E2.8)
+- **Estado:** Propuesta
+
+**Contexto.** HU-06/HU-07 ya dejaron `deploy/releases/<env>.json` y `history.tsv` con versión,
+commit, fecha, actor y evento. E2.8 pide además identificar la aprobación y el resultado.
+
+**Decisión.** Extender el registro con `image_digest`, `approved_by`, `approval_ref` (URL o captura
+de Jenkins), `result` y `rollback_of`. Mantener un archivo por ambiente y un historial
+append-only. Los tags semánticos siguen creándose en `main`.
+
+**Consecuencias.** El registro deja de ser solo un puntero de versión y se convierte en la
+evidencia de auditoría. Si Jenkins no puede escribir en Git, se archiva como artefacto del build y
+se copia al repositorio al cerrar la historia.
+
+## D-31 · Documentación por criterio de rúbrica, con evidencia enlazada
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-17 (Sprint 2 · E2.9)
+- **Estado:** Aceptada (consolida la práctica de HU-08)
+
+**Contexto.** La rúbrica asigna 2 % a documentación completa y exige que sea coherente con lo
+desplegado, no una carpeta de capturas sin índice.
+
+**Decisión.** Cada criterio de la rúbrica tiene un documento dueño en `docs/`, un estado
+(`Implementado`, `Parcial`, `Pendiente`) y un enlace a la evidencia. `docs/README.md` es el índice
+único. Los documentos no prometen lo que no existe: lo pendiente se marca con su HU y su bloqueo.
+
+**Consecuencias.** La documentación se puede auditar en cinco minutos. El costo es mantener el
+estado actualizado; por eso la columna de estado se revisa al cerrar cada HU.
+
+## D-32 · Nomenclatura Sprint 2 para evitar la colisión de HU-09
+
+- **Fecha:** 2026-11-16
+- **Historia:** Transversal
+- **Estado:** Aceptada
+
+**Contexto.** El Sprint 1 tuvo una HU-09 (branching y Conventional Commits) y el Sprint 2 también
+tiene una HU-09 (Terraform, PDDZ-64). Dos historias distintas con el mismo número confunden el
+tablero, los commits y la sustentación.
+
+**Decisión.** En documentos y exposición se usa `HU-09 (S1)` para branching y `HU-09 (S2)` para
+Terraform; para el resto, `HU-13 (S2)`, `HU-16 (S2)`, etc. Los mensajes de commit conservan el
+prefijo `hu-13`, `hu-16`, `hu-17` y el ID de Jira (`PDDZ-68`, `PDDZ-71`, `PDDZ-72`).
+
+**Consecuencias.** Se elimina la ambigüedad sin renombrar ramas ni romper el historial.
+
+## D-33 · Presupuesto del Sprint 2 sin gasto nuevo no aprobado
+
+- **Fecha:** 2026-11-16
+- **Historia:** Transversal
+- **Estado:** Aceptada (hereda D-24)
+
+**Contexto.** El presupuesto absoluto del proyecto es 15 USD y el acumulado estimado ronda 3 USD.
+Terraform, Kubernetes y observabilidad pueden crear recursos facturables.
+
+**Decisión.** Todo recurso nuevo se crea con `terraform plan` revisado y aprobación explícita; el
+clúster de trabajo se apaga al terminar cada sesión. La observabilidad se ejecuta primero en local
+y luego en el clúster, nunca en un recurso dedicado sin aprobación.
+
+**Consecuencias.** La demostración puede requerir encender el clúster 30–60 minutos antes. El
+costo real se contrasta en Billing y se registra en `docs/operacion/analisis-costos.md`.
+
+## D-34 · DLT con deserialización tolerante queda como mejora posterior
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-12 (Sprint 2 · E2.4)
+- **Estado:** Aceptada (limitación documentada)
+
+**Contexto.** La revisión de HU-12 encontró que un mensaje cuyo JSON no se puede deserializar sigue
+bloqueando la partición porque el consumidor usa `JsonDeserializer` directamente.
+
+**Decisión.** No se amplía HU-12: el criterio pide un tercer patrón probado, no un framework de
+mensajería completo. Se documenta la limitación y se propone `ErrorHandlingDeserializer` como
+mejora de una historia posterior.
+
+**Consecuencias.** Los mensajes malformados en el sentido de tipos (`ClassCastException`) sí van al
+DLT; los JSON inválidos, no. La sustentación debe distinguir ambos casos.
+
+## D-35 · Revisión de HU-12: se acepta con observaciones de integración
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-12 (Sprint 2 · E2.4)
+- **Estado:** Aceptada
+
+**Contexto.** El PR #14 integró HU-12 en `dev` con el inventario de patrones, Circuit Breaker,
+External Configuration y Dead Letter Topic.
+
+**Decisión.** Se acepta el cumplimiento de los nueve criterios con tres observaciones: (1) Compose
+y Kubernetes deben definir `CIRCLEGUARD_IDENTITYSERVICE_URL=http://identity:8083` o el login falla
+dentro del contenedor; (2) falta la entrada en `application.yml` que haga visible la configuración;
+(3) la suite no se pudo re-ejecutar en esta revisión por falta del toolchain JDK 21, así que se
+toma como evidencia la ejecución reportada en el documento y se recomienda repetirla en Jenkins.
+
+**Consecuencias.** Las observaciones se asignan a HU-10/HU-11 (variables de despliegue) y a la
+revisión de cierre de HU-12. No bloquean el merge ya hecho, pero sí el cierre formal de la HU.
