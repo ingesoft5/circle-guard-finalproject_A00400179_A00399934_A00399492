@@ -1,13 +1,4 @@
-#!/usr/bin/env bash
-# Runs on the Nexus host (or locally with --target local), streamed by
-# infra/bootstrap-nexus.sh. Configures Nexus through its REST API, idempotently:
-#   managed admin password, EULA (team decision), anonymous access off, Docker Bearer Token
-#   realm and the Docker hosted repository circleguard-docker.
-# The team decided not to accept the Community Edition EULA (NEXUS_ACCEPT_EULA=false): the run
-# stops after the admin password and reports that state as UNCHANGED. Nexus does not let anyone
-# fetch or upload components without it, so no repository, realm or anonymous-access change is
-# made; CNCF Distribution is the registry (infra/bootstrap-registry.sh).
-#   usage: configure.sh <stack dir> <plan|apply>
+
 set -Eeuo pipefail
 
 DIR=${1:?directorio del stack}
