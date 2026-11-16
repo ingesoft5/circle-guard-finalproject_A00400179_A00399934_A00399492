@@ -26,5 +26,20 @@ qr:
   secret: "${CG_QR_SECRET}"
   expiration: 300
 
+# HU-12: identity-service client (circuit breaker + external configuration). These are the defaults for
+# local development; a container or cluster must override the URL, for example with
+# CIRCLEGUARD_IDENTITYSERVICE_URL=http://identity:8083. No credentials here.
+circleguard:
+  identity-service:
+    url: http://localhost:8083
+    connect-timeout: 2s
+    read-timeout: 3s
+    circuit-breaker:
+      failure-rate-threshold: 50
+      sliding-window-size: 10
+      minimum-number-of-calls: 5
+      wait-duration-in-open-state: 10s
+      permitted-calls-in-half-open-state: 3
+
 server:
   port: 8180
