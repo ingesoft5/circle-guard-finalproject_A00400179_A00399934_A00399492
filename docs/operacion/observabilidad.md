@@ -2,9 +2,11 @@
 
 **Documento:** HU-13 (Sprint 2 · E2.5) y consolidación para HU-17 (E2.9)
 **Última actualización:** 2026-11-16
-**Estado:** **Pendiente de implementación.** Hoy no hay Actuator, Micrometer, OpenTelemetry ni
-backend de métricas en el repositorio. Este documento es el contrato de lo que se va a implementar
-y la guía de evidencia; se actualiza con capturas y resultados al cerrar la historia.
+**Estado:** **Implementación en curso (rama HU-13).** Ya existen las dependencias de Actuator,
+Micrometer y OpenTelemetry en los ocho servicios, la configuración común, los contadores de negocio
+y el stack local/K8s. Falta ejecutar la evidencia completa (dashboards, alerta, traza E2E y logs)
+y portar el stack al clúster cuando HU-10/HU-11 estén disponibles. La matriz de evidencias está en
+[`../evidencias/hu-13/README.md`](../evidencias/hu-13/README.md).
 
 > Decisión de stack: [`../iag/decisiones.md`](../iag/decisiones.md) D-26, D-27 y D-28.
 
@@ -55,9 +57,22 @@ flowchart LR
 | Loki | `grafana/loki` | 3100 | `observability` |
 | Promtail | `grafana/promtail` | — | `observability` |
 
-En local se levanta con un `docker-compose.observability.yml`; en Kubernetes, con
+En local se levanta con `deploy/observability/docker-compose.yml`; en Kubernetes, con
 `deploy/k8s/observability/`. El mismo `prometheus.yml` y los mismos dashboards se reutilizan para
 no mantener dos verdades.
+
+**Implementación actual (rama HU-13).**
+
+| Pieza | Archivo |
+|---|---|
+| Stack local | `deploy/observability/docker-compose.yml` |
+| Scrape local / Compose | `deploy/observability/prometheus/prometheus.local.yml` y `prometheus.compose.yml` |
+| Reglas de alerta | `deploy/observability/prometheus/rules/circleguard-alerts.yml` |
+| Dashboards | `deploy/observability/grafana/dashboards/service-overview.json` y `business.json` |
+| Loki / Promtail | `deploy/observability/loki/loki-config.yml` y `promtail/promtail-config.yml` |
+| Stack K8s | `deploy/k8s/observability/all-in-one.yaml` + `kustomization.yaml` |
+| Verificación de endpoints | `deploy/observability/check-metrics.sh` |
+| Matriz de evidencias | [`../evidencias/hu-13/README.md`](../evidencias/hu-13/README.md) |
 
 ## 3. Instrumentación de los servicios
 

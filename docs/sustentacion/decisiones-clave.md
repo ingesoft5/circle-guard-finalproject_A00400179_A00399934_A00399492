@@ -55,7 +55,8 @@
 
 ### 3.3 Recomendación
 
-**Blue-Green en producción y RollingUpdate en dev/stage.**
+**Blue-Green en producción y RollingUpdate en dev/stage.** Decisión aceptada por el equipo el
+2026-11-16 (D-29).
 
 Razones:
 

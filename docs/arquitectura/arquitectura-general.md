@@ -152,7 +152,7 @@ flowchart TB
 | Jenkins gobernando el despliegue K8s | HU-11 (S2) | Pendiente |
 | Observabilidad (Prometheus/Grafana/Jaeger/Loki) | HU-13 (S2) | Pendiente |
 | Seguridad (Trivy, RBAC, TLS, secretos) | HU-14 (S2) | Pendiente |
-| Blue-Green en prod + RollingUpdate en dev/stage | HU-16 (S2) | Propuesto (D-29) |
+| Blue-Green en prod + RollingUpdate en dev/stage | HU-16 (S2) | Aceptado (D-29, 2026-11-16) |
 
 Los detalles de cada pieza están en [`kubernetes.md`](kubernetes.md),
 [`terraform.md`](terraform.md) y [`../operacion/observabilidad.md`](../operacion/observabilidad.md).

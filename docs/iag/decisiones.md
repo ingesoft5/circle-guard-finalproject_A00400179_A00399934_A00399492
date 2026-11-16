@@ -469,15 +469,17 @@ descargar sin el socket de Docker.
 
 # Sprint 2
 
-Las entradas D-26 a D-35 se abren al iniciar el Sprint 2 (2026-11-16). Las marcadas como
-**Propuesta** todavía no están acordadas con todo el equipo: se registran para que la decisión
-quede trazable y para que la sustentación explique el criterio, no solo el resultado.
+Las entradas D-26 a D-35 se abren al iniciar el Sprint 2 (2026-11-16). **D-29 (Blue-Green) fue
+aceptada por el equipo el 2026-11-16.** D-26, D-27 y D-28 están en implementación dentro de HU-13.
+D-30 sigue como propuesta hasta que HU-16 despliegue el rollback en Kubernetes. Cada decisión
+incluye una sección **Evidencia en código** con `archivo:línea`; si la implementación aún no
+existe, se indica la ruta planificada y se reemplaza por la línea real al mergear.
 
 ## D-26 · Observabilidad: stack Prometheus + Grafana + Alertmanager + Jaeger + Loki
 
 - **Fecha:** 2026-11-16
 - **Historia:** HU-13 (Sprint 2 · E2.5)
-- **Estado:** Propuesta (pendiente de validar con el equipo)
+- **Estado:** Aceptada (implementación en curso, HU-13)
 
 **Contexto.** El proyecto no tiene Actuator, Micrometer ni ningún backend de métricas. El criterio
 E2.5 pide métricas técnicas y de negocio, al menos tres alertas probadas, trazas distribuidas por
@@ -500,11 +502,20 @@ criterio con mucha menos memoria.
 evidencia debe incluir dashboards, alerta disparada, traza E2E y consulta de logs. Si el clúster no
 tiene recursos, Loki y Jaeger comparten nodo y se documenta la limitación.
 
+**Evidencia en código.**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Stack local | `deploy/observability/docker-compose.yml:16` | Servicio Prometheus y dependencias |
+| Scrape Compose | `deploy/observability/prometheus/prometheus.compose.yml:1` | Targets por DNS de servicio |
+| Stack K8s | `deploy/k8s/observability/all-in-one.yaml:46` | ConfigMap de Prometheus |
+| Dashboard de negocio | `deploy/observability/grafana/dashboards/business.json:1` | Promociones, check-ins y contención |
+
 ## D-27 · Instrumentación común: Actuator + Micrometer + OpenTelemetry
 
 - **Fecha:** 2026-11-16
 - **Historia:** HU-13 (Sprint 2 · E2.5)
-- **Estado:** Propuesta
+- **Estado:** Aceptada (implementación en curso, HU-13)
 
 **Contexto.** Los healthchecks actuales son sondas HTTP a `/` porque la decisión D-04 (HU-02) no
 permitía tocar el código base. Esa restricción ya no aplica: HU-10 necesita sondas de Actuator y
@@ -524,11 +535,25 @@ de versionar con Gradle).
 `JAVA_TOOL_OPTIONS` y límites de recursos. Los endpoints de Actuator deben quedar protegidos o
 expuestos solo dentro del clúster.
 
+**Evidencia en código.**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Dependencias (8 servicios) | `services/circleguard-auth-service/build.gradle.kts:15` | Actuator, Micrometer y OTel |
+| Circuit Breaker a Micrometer | `services/circleguard-auth-service/build.gradle.kts:31` | `resilience4j-micrometer` |
+| Configuración común | `services/circleguard-promotion-service/src/main/resources/application.yml:46` | `management`, trazas y logs |
+| Promociones | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/service/HealthStatusService.java:144` | Contador `circleguard.promotions` |
+| Check-ins | `services/circleguard-gateway-service/src/main/java/com/circleguard/gateway/service/QrValidationService.java:55` | Contador `circleguard.checkins` |
+| Notificaciones | `services/circleguard-notification-service/src/main/java/com/circleguard/notification/service/NotificationDispatcher.java:47` | Contador `circleguard.notifications` |
+| Circuit Breaker a Micrometer | `services/circleguard-auth-service/src/main/java/com/circleguard/auth/config/ObservabilityConfig.java:4` | `TaggedCircuitBreakerMetrics` sobre el registry |
+| Registry compartido | `services/circleguard-auth-service/src/main/java/com/circleguard/auth/client/IdentityClient.java:79` | El breaker real se registra para métricas |
+| Endpoint OTLP en Compose | `deploy/compose/docker-compose.common.yml:49` | Trazas al collector |
+
 ## D-28 · Logs centralizados con Loki en lugar de ELK
 
 - **Fecha:** 2026-11-16
 - **Historia:** HU-13 (Sprint 2 · E2.5)
-- **Estado:** Propuesta
+- **Estado:** Aceptada (implementación en curso, HU-13)
 
 **Contexto.** El criterio admite ELK o una alternativa compatible.
 
@@ -538,11 +563,20 @@ Los servicios escriben logs JSON a stdout; Promtail los recolecta del nodo.
 **Consecuencias.** Las consultas son por etiquetas y búsqueda de texto, no SQL. La retención corta
 obliga a exportar la evidencia el mismo día de la demostración.
 
+**Evidencia en código.**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Loki local | `deploy/observability/loki/loki-config.yml:1` | Retención 168 h y schema v13 |
+| Promtail local | `deploy/observability/promtail/promtail-config.yml:1` | Recolección por socket Docker |
+| Loki K8s | `deploy/k8s/observability/all-in-one.yaml:513` | ConfigMap de Loki |
+| Promtail K8s | `deploy/k8s/observability/all-in-one.yaml:641` | ConfigMap de Promtail |
+
 ## D-29 · Despliegue: Blue-Green en producción y RollingUpdate en dev/stage
 
 - **Fecha:** 2026-11-16
 - **Historia:** HU-16 (Sprint 2 · E2.8), con impacto en HU-10/HU-11
-- **Estado:** Propuesta (recomendación de Sebastian Cosme, pendiente de validar)
+- **Estado:** Aceptada (decisión del equipo, 2026-11-16)
 
 **Contexto.** El criterio E2.8 pide un rollback real en Kubernetes. El proyecto tiene ocho
 servicios, un clúster pequeño y un pipeline con aprobación manual. El bonus de la rúbrica menciona
@@ -567,11 +601,32 @@ La base de datos debe ser compatible hacia atrás (expand-contract) porque ambas
 unos minutos. Kafka y Redis también deben tolerar los dos contratos. La evidencia de rollback es
 `kubectl rollout undo` o el cambio de selector, con logs y captura del estado `Ready`.
 
+**Evidencia en código (implementación actual).**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Aprobación manual de prod | `Jenkinsfile:361` | El stage `Approve prod` exige input humano |
+| Despliegue a prod | `Jenkinsfile:379` | `Deploy prod` ocurre después de la aprobación |
+| Registro de la versión | `deploy/deploy.sh:62` | Llama a `record-release.sh` tras desplegar |
+| Registro JSON | `deploy/record-release.sh:33` | Ambiente, versión, commit, fecha, actor y evento |
+| Historial append-only | `deploy/record-release.sh:45` | Historial TSV de deploys y rollbacks |
+| Rollback | `deploy/rollback.sh:49` | Redespliega con `EVENT=rollback` |
+| Notificación | `deploy/deploy.sh:64` | Avisa éxito o rollback |
+
+**Evidencia planificada (HU-16; se completan las líneas al implementar).**
+
+| Artefacto | Ruta planificada | Qué demostrará |
+|---|---|---|
+| Deployment azul/verde | `deploy/k8s/base/<svc>/deployment.yaml` | Dos colores por servicio |
+| Selector del Service | `deploy/k8s/base/<svc>/service.yaml` | El selector apunta a `version: blue` o `green` |
+| Conmutación | `deploy/k8s/scripts/switch-color.sh` | Cambia el selector y valida endpoints |
+| Stage de Jenkins | `Jenkinsfile` (nuevo stage) | Despliega el color inactivo y conmuta tras el smoke test |
+
 ## D-30 · Registro de cambios por ambiente con digest y aprobación
 
 - **Fecha:** 2026-11-16
 - **Historia:** HU-16 (Sprint 2 · E2.8)
-- **Estado:** Propuesta
+- **Estado:** Propuesta (implementación parcial en HU-16)
 
 **Contexto.** HU-06/HU-07 ya dejaron `deploy/releases/<env>.json` y `history.tsv` con versión,
 commit, fecha, actor y evento. E2.8 pide además identificar la aprobación y el resultado.
@@ -583,6 +638,18 @@ append-only. Los tags semánticos siguen creándose en `main`.
 **Consecuencias.** El registro deja de ser solo un puntero de versión y se convierte en la
 evidencia de auditoría. Si Jenkins no puede escribir en Git, se archiva como artefacto del build y
 se copia al repositorio al cerrar la historia.
+
+**Evidencia en código (campos actuales).**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| JSON por ambiente | `deploy/record-release.sh:33` | Bloque `environment/version/commit/deployed_at/deployed_by/event` |
+| Historial | `deploy/record-release.sh:45` | Encabezado TSV y append por evento |
+| Consulta de versión | `deploy/lib.sh:34` | Lee primero la copia persistente y luego el repo |
+| Rollback registrado | `deploy/rollback.sh:49` | Redespliegue con `EVENT=rollback` |
+
+Los campos nuevos (`image_digest`, `approved_by`, `approval_ref`, `result`, `rollback_of`) se
+agregan en HU-16; la línea exacta se actualizará en ese PR.
 
 ## D-31 · Documentación por criterio de rúbrica, con evidencia enlazada
 
@@ -647,6 +714,14 @@ mejora de una historia posterior.
 
 **Consecuencias.** Los mensajes malformados en el sentido de tipos (`ClassCastException`) sí van al
 DLT; los JSON inválidos, no. La sustentación debe distinguir ambos casos.
+
+**Evidencia en código.**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Manejador con DLT | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/config/KafkaErrorHandlingConfig.java:54` | `DeadLetterPublishingRecoverer` y reintentos |
+| Excepciones no reintentables | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/config/KafkaErrorHandlingConfig.java:58` | Datos y reglas de negocio van directo al DLT |
+| Listener sin `catch` | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/listener/SurveyListener.java:23` | La excepción llega al manejador |
 
 ## D-35 · Revisión de HU-12: se acepta con observaciones de integración
 
