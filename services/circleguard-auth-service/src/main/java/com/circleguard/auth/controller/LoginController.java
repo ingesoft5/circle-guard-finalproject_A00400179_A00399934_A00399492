@@ -47,6 +47,10 @@ public class LoginController {
         } catch (org.springframework.security.core.AuthenticationException e) {
             System.err.println("Authentication failed for " + username + ": " + e.getMessage());
             return ResponseEntity.status(401).body(Map.of("message", "Invalid username or password"));
+        } catch (IdentityClient.IdentityServiceUnavailableException e) {
+            // HU-12: fail fast and say so; the circuit breaker already protects the thread pool.
+            System.err.println("Identity service unavailable during login for " + username + ": " + e.getMessage());
+            return ResponseEntity.status(503).body(Map.of("message", "Identity service unavailable, please retry shortly"));
         } catch (Exception e) {
             System.err.println("Unexpected error during login for " + username + ":");
             e.printStackTrace();
