@@ -10,7 +10,7 @@
 #
 # Ports: Prometheus 9090 · Alertmanager 9093 · Grafana 3000 · Jaeger 16686
 #         OTLP 4317/4318 · Loki 3100
-name: ${COMPOSE_PROJECT_NAME:-circleguard-observability}
+name: ${OBS_COMPOSE_PROJECT_NAME:-circleguard-observability}
 
 services:
   prometheus:
