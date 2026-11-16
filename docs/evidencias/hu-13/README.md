@@ -7,7 +7,7 @@ se marca `Cumplido` sin evidencia ejecutada.
 
 | # | Criterio | Implementación | Evidencia | Estado |
 |---|---|---|---|---|
-| 1 | Métricas con Micrometer y endpoints Prometheus | Actuator + `micrometer-registry-prometheus` en los 8 servicios | `01-prometheus-targets.png`, `check-metrics.sh` | Parcial |
+| 1 | Métricas con Micrometer y endpoints Prometheus | Actuator + `micrometer-registry-prometheus` en los 8 servicios | [`01-actuator-prometheus.txt`](01-actuator-prometheus.txt), `check-metrics.sh` | Cumplido en `file`; faltan los otros 7 en ejecución |
 | 2 | Prometheus recopila periódicamente | `deploy/observability/prometheus/*.yml` | Targets `UP` | Parcial |
 | 3 | Dashboards por servicio y de negocio | `grafana/dashboards/service-overview.json` y `business.json` | `02-grafana-servicio.png`, `03-grafana-negocio.png` | Parcial |
 | 4 | Métricas técnicas y de negocio | HTTP/JVM + `circleguard.promotions`, `checkins`, `containment.time`, `notifications` | Paneles de negocio | Parcial |
@@ -19,6 +19,18 @@ se marca `Cumplido` sin evidencia ejecutada.
 | 10 | Logs centralizados | Loki + Promtail | `07-loki-consulta.png` | Parcial |
 | 11 | Logs con servicio, severidad y contexto | Patrón `%X{traceId}` y logs JSON | Consulta por `traceId` | Pendiente |
 | 12 | Consultar métricas, trazas y logs ante un incidente | Runbook §9 | `08-incidente.md` | Pendiente |
+
+## Evidencia ejecutada
+
+El 2026-11-16 se levantó `circleguard-file-service` con JDK 21 y se verificó en vivo:
+
+- `GET /actuator` → 200, con enlaces a `health` y `prometheus`.
+- `GET /actuator/health/liveness` → 200 `{"status":"UP"}`.
+- `GET /actuator/health/readiness` → 200 `{"status":"UP"}`.
+- `GET /actuator/prometheus` → 200 con `jvm_memory_used_bytes` y las etiquetas
+  `application="circleguard-file-service"` y `environment="dev"`.
+
+Salida completa: [`01-actuator-prometheus.txt`](01-actuator-prometheus.txt).
 
 ## Cómo generar la evidencia
 
