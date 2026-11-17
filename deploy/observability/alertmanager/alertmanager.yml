@@ -1,0 +1,19 @@
+# Local Alertmanager. It shows alerts in the UI (http://localhost:9093) without
+# sending them anywhere. To send to Discord, replace the receiver with:
+#
+#   receivers:
+#     - name: default
+#       webhook_configs:
+#         - url: https://discord.com/api/webhooks/...
+#           send_resolved: true
+#
+# Do not commit the real webhook URL.
+route:
+  receiver: default
+  group_by: [alertname, application]
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 4h
+
+receivers:
+  - name: default

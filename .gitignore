@@ -64,6 +64,9 @@ services/*/bin/
 # Secret scanning reports (no values, but they reveal locations)
 infra/security/reports/
 
+# Image scan reports of HU-14 (JSON/SARIF are large and regenerable; evidence copies live under docs/evidencias/hu-14/).
+security/reports/
+
 # Infrastructure run logs (HU-01). Sanitized copies kept as evidence are versioned.
 infra/logs/
 !docs/evidencias/hu-01/local/*.log

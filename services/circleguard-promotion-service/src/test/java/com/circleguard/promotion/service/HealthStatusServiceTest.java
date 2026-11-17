@@ -1,6 +1,7 @@
 package com.circleguard.promotion.service;
 
 import com.circleguard.promotion.repository.graph.UserNodeRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -49,6 +50,9 @@ class HealthStatusServiceTest {
 
     @Autowired
     private HealthStatusService healthStatusService;
+
+    @Autowired
+    private MeterRegistry meterRegistry;
 
     @MockBean
     private UserNodeRepository userNodeRepository;
@@ -100,6 +104,19 @@ class HealthStatusServiceTest {
         
 
         Mockito.verify(kafkaTemplate).send(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any());
+
+        // HU-13: the promotion and containment metrics are recorded on a successful update.
+        var promotionCounter = meterRegistry.find("circleguard.promotions")
+                .tag("to", status)
+                .tag("admin_override", "false")
+                .counter();
+        org.junit.jupiter.api.Assertions.assertNotNull(promotionCounter);
+        org.junit.jupiter.api.Assertions.assertTrue(promotionCounter.count() >= 1.0);
+        var containmentTimer = meterRegistry.find("circleguard.containment.time")
+                .tag("result", "success")
+                .timer();
+        org.junit.jupiter.api.Assertions.assertNotNull(containmentTimer);
+        org.junit.jupiter.api.Assertions.assertTrue(containmentTimer.count() >= 1);
     }
 
     @Test
