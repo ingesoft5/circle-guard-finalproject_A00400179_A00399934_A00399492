@@ -1,0 +1,27 @@
+# Full-stack mode: joins the application Compose network so Prometheus and the
+# OTel Collector can resolve auth, identity, form, promotion, notification, etc.
+#
+# Usage:
+#   CG_APP_NETWORK=circleguard-dev_circleguard \
+#   docker compose -f deploy/observability/docker-compose.yml \
+#                  -f deploy/observability/docker-compose.compose.yml up -d
+services:
+  prometheus:
+    command:
+      - --config.file=/etc/prometheus/prometheus.compose.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+    networks:
+      - default
+      - circleguard
+
+  otel-collector:
+    networks:
+      - default
+      - circleguard
+
+networks:
+  circleguard:
+    external: true
+    name: ${CG_APP_NETWORK:-circleguard-dev_circleguard}

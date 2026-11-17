@@ -1,0 +1,10 @@
+# HU-14 image scan · 20261117T021653Z · threshold: CRITICAL,HIGH
+FAIL  own  localhost:5000/circleguard/circleguard-auth-service:1.0.0-hu14scan          16  82   102  67  0
+FAIL  own  localhost:5000/circleguard/circleguard-identity-service:1.0.0-hu14scan      16  87   110  68  0
+FAIL  own  localhost:5000/circleguard/circleguard-dashboard-service:1.0.0-hu14scan     14  80   99   67  0
+FAIL  own  localhost:5000/circleguard/circleguard-file-service:1.0.0-hu14scan          14  79   97   67  0
+FAIL  own  localhost:5000/circleguard/circleguard-form-service:1.0.0-hu14scan          14  86   108  68  0
+FAIL  own  localhost:5000/circleguard/circleguard-gateway-service:1.0.0-hu14scan       15  85   104  67  0
+FAIL  own  localhost:5000/circleguard/circleguard-notification-service:1.0.0-hu14scan  17  108  140  72  0
+FAIL  own  localhost:5000/circleguard/circleguard-promotion-service:1.0.0-hu14scan     17  93   115  68  0
+FAIL  own  localhost:5000/circleguard/circleguard-web:1.0.0-hu14scan                   3   65   103  46  0

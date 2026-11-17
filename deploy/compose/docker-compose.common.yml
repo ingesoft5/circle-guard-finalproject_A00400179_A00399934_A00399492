@@ -44,6 +44,9 @@ x-infra-base: &infra-base
 x-app-environment: &app-environment
   TZ: ${TZ:-America/Bogota}
   JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError}
+  # HU-13: metrics tag and OTLP traces. The observability stack is optional for the app.
+  ENVIRONMENT: ${ENVIRONMENT:-dev}
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://otel-collector:4318/v1/traces}
 
 services:
   # ---------------------------------------------------------------- middleware
@@ -181,6 +184,8 @@ services:
       CG_QR_SECRET: ${CG_QR_SECRET:?Defina CG_QR_SECRET}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/circleguard_auth
       SPRING_LDAP_URLS: ldap://openldap:389
+      # HU-12/HU-13: identity is resolved by service name inside the Compose network.
+      CIRCLEGUARD_IDENTITYSERVICE_URL: http://identity:8083
     depends_on:
       postgres:
         condition: service_healthy
@@ -217,6 +222,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/circleguard_dashboard
+      CIRCLEGUARD_PROMOTIONSERVICE_URL: http://promotion:8088
     depends_on:
       postgres:
         condition: service_healthy

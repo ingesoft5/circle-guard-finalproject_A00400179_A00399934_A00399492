@@ -3,6 +3,7 @@ package com.circleguard.auth.client;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -46,8 +47,18 @@ public class IdentityClient {
         this(new IdentityClientProperties());
     }
 
-    @Autowired
+    /** Local/test constructor: owns a private registry so each instance is isolated. */
     public IdentityClient(IdentityClientProperties properties) {
+        this(properties, CircuitBreakerRegistry.ofDefaults());
+    }
+
+    @Autowired
+    public IdentityClient(IdentityClientProperties properties,
+                          org.springframework.beans.factory.ObjectProvider<CircuitBreakerRegistry> registryProvider) {
+        this(properties, registryProvider.getIfAvailable(CircuitBreakerRegistry::ofDefaults));
+    }
+
+    public IdentityClient(IdentityClientProperties properties, CircuitBreakerRegistry circuitBreakerRegistry) {
         this.mapUrl = properties.getUrl().replaceAll("/+$", "") + MAP_PATH;
         this.restTemplate = new RestTemplateBuilder()
                 .setConnectTimeout(properties.getConnectTimeout())
@@ -64,7 +75,8 @@ public class IdentityClient {
                 .recordException(IdentityClient::isDependencyFailure)
                 .ignoreExceptions(HttpClientErrorException.class)
                 .build();
-        this.circuitBreaker = CircuitBreaker.of("identity-service", config);
+        // HU-13: the shared registry lets TaggedCircuitBreakerMetrics publish the same breaker.
+        this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("identity-service", config);
         this.circuitBreaker.getEventPublisher().onStateTransition(event ->
                 log.warn("Circuit breaker '{}' changed state: {}", event.getCircuitBreakerName(), event.getStateTransition()));
     }
