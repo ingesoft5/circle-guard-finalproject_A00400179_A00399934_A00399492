@@ -6,6 +6,7 @@
 #   security/scan-images.sh --third-party        the images of security/images.catalog (reported, they do not block by default)
 #   security/scan-images.sh --image <ref> [--class own|third-party]
 #   security/scan-images.sh --evaluate <report.json> [--class own|third-party]   gate an existing report (no Docker, no network)
+#   security/scan-images.sh --sbom <sbom.cdx.json>=<label> [--class ...]   dependencies of a service (CycloneDX); see scan-dependencies.sh
 #   Options can be combined: --own 1.0.0 --third-party
 #
 # What it does for every image:
@@ -44,7 +45,7 @@ SUMMARY_TSV="$REPORT_DIR/summary-$STAMP.tsv"
 FAILED=0
 ERRORS=0
 
-usage() { sed -n '2,23p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,24p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 log() { printf '%s\n' "$*" >&2; }
 # Configuration errors exit 2, never 1 (1 means "an image is blocked").
 die2() { printf 'ERROR: %s\n' "$*" >&2; exit 2; }
@@ -132,6 +133,31 @@ scan_one() { # scan_one <image ref> <class>
   record "$rc"
 }
 
+scan_sbom() { # scan_sbom <sbom.cdx.json> <label> <class>: vulnerabilities of the dependencies listed in an SBOM
+  local sbom=$1 label=$2 class=$3 name json sarif extra=() rc=0
+  [[ -s "$sbom" ]] || { log "    SBOM no encontrado o vacío: $sbom"; ERRORS=$((ERRORS + 1)); printf 'ERROR\t%s\t%s\t-\t-\t-\t-\t-\n' "$class" "$label" >>"$SUMMARY_TSV"; return 0; }
+  name="deps_${label//[^A-Za-z0-9._-]/_}"
+  json="$REPORT_DIR/$name.json"
+  sarif="$REPORT_DIR/$name.sarif"
+  [[ "$TRIVY_IGNORE_UNFIXED" == "true" ]] && extra+=(--ignore-unfixed)
+  [[ "${TRIVY_SKIP_DB_UPDATE:-false}" == "true" ]] && extra+=(--skip-db-update)
+
+  log "==> scanning dependencies of $label ($class)"
+  if ! trivy_run -v "$(dirname "$sbom")":/sbom:ro -- \
+      sbom --quiet --no-progress --scanners vuln --format json "${extra[@]}" "/sbom/$(basename "$sbom")" >"$json" 2>"$json.err"; then
+    log "    trivy failed for $label: $(tail -n 3 "$json.err" | tr '\n' ' ')"
+    rm -f "$json"
+    ERRORS=$((ERRORS + 1))
+    printf 'ERROR\t%s\t%s\t-\t-\t-\t-\t-\n' "$class" "$label" >>"$SUMMARY_TSV"
+    return 0
+  fi
+  rm -f "$json.err"
+  trivy_run -v "$REPORT_DIR":/reports:ro -- \
+    convert --format sarif "/reports/$name.json" >"$sarif" 2>/dev/null || log "    (no se pudo generar el SARIF de $label)"
+  evaluate "$json" "$class" "deps:$label" || rc=$?
+  record "$rc"
+}
+
 scan_own() {
   local version=$1 service
   cg_validate_semver "$version"
@@ -153,18 +179,20 @@ scan_third_party() {
 
 # ---------------------------------------------------------------------------------------------- arguments
 OWN_VERSION="" DO_THIRD=0 SINGLE_IMAGE="" EVAL_REPORT="" CLASS=""
+SBOMS=()
 while (($#)); do
   case "$1" in
     --own) OWN_VERSION=${2:?Falta la versión de --own}; shift 2 ;;
     --third-party) DO_THIRD=1; shift ;;
     --image) SINGLE_IMAGE=${2:?Falta la imagen de --image}; shift 2 ;;
     --evaluate) EVAL_REPORT=${2:?Falta el informe de --evaluate}; shift 2 ;;
+    --sbom) SBOMS+=("${2:?Falta el SBOM de --sbom (ruta=etiqueta)}"); shift 2 ;;
     --class) CLASS=${2:?Falta la clase}; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) usage >&2; die2 "Opción desconocida: $1" ;;
   esac
 done
-[[ -n "$OWN_VERSION$SINGLE_IMAGE$EVAL_REPORT" || "$DO_THIRD" == 1 ]] || { usage >&2; exit 2; }
+[[ -n "$OWN_VERSION$SINGLE_IMAGE$EVAL_REPORT" || "$DO_THIRD" == 1 || ${#SBOMS[@]} -gt 0 ]] || { usage >&2; exit 2; }
 case "${CLASS:-own}" in own|third-party) ;; *) die2 "--class debe ser own o third-party." ;; esac
 
 validate_policy
@@ -182,6 +210,9 @@ else
   [[ -n "$OWN_VERSION" ]] && scan_own "$OWN_VERSION"
   [[ -n "$SINGLE_IMAGE" ]] && scan_one "$SINGLE_IMAGE" "${CLASS:-own}"
   ((DO_THIRD)) && scan_third_party
+  for entry in "${SBOMS[@]}"; do
+    scan_sbom "${entry%%=*}" "${entry#*=}" "${CLASS:-own}"
+  done
 fi
 
 {
