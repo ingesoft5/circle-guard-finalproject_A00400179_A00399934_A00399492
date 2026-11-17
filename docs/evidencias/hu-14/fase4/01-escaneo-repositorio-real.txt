@@ -1,0 +1,20 @@
+# Escaneo del repositorio real con la regla nueva (HU-14): security/scan-secrets-ci.sh
+# HU-14 secret scan · 20261117T170449Z · values redacted
+== total: ACTIVO=1 PRUEBA=12 RESIDUAL=2
+ACTIVO    deploy/observability/docker-compose.yml:48  [circleguard-env-default-credential]
+PRUEBA    docs/evidencias/hu-04/02-informe-integracion/cross-service/classes/com.circleguard.it.FormToPromotionIntegrationTest.html:273  [generic-api-key]
+PRUEBA    services/circleguard-auth-service/src/test/resources/application.yml:12  [circleguard-yaml-literal-credential]
+PRUEBA    services/circleguard-auth-service/src/test/resources/application.yml:2  [circleguard-yaml-literal-credential]
+PRUEBA    services/circleguard-identity-service/src/test/java/com/circleguard/identity/util/IdentityEncryptionConverterTest.java:10  [generic-api-key]
+PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:11  [circleguard-yaml-literal-credential]
+PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:18  [circleguard-yaml-literal-credential]
+PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:18  [circleguard-yaml-literal-credential]
+PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:19  [circleguard-yaml-literal-credential]
+PRUEBA    services/circleguard-identity-service/src/test/resources/application.yml:20  [circleguard-yaml-literal-credential]
+PRUEBA    services/circleguard-promotion-service/src/test/java/com/circleguard/promotion/support/PromotionContainersSupport.java:15  [circleguard-env-literal-credential]
+PRUEBA    services/circleguard-promotion-service/src/test/resources/application-test.yml:14  [circleguard-yaml-literal-credential]
+PRUEBA    tests/integration/src/test/java/com/circleguard/it/IntegrationEnvironment.java:47  [circleguard-env-literal-credential]
+RESIDUAL  services/circleguard-auth-service/src/main/resources/db/migration/V2__seed_test_users.sql:2  [circleguard-sql-plaintext-password]
+RESIDUAL  services/circleguard-auth-service/src/main/resources/db/migration/V3__fix_user_passwords.sql:2  [circleguard-sql-plaintext-password]
+RESULT: FAIL · 1 secreto(s) ACTIVO(S) en archivos que se versionarían. Rótelos y retírelos antes de continuar. Informe: (ruta local)
+exit=1
