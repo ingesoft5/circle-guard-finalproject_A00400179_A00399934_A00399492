@@ -1,0 +1,60 @@
+# HU-14 · Automatic certificates and renewal with cert-manager. PREPARED, NOT APPLIED: needs the cluster of HU-10, cert-manager
+# installed in it, a real DNS name and a reachable endpoint for the ACME challenge. Not tested against any CA.
+#
+# cert-manager renews a Certificate by itself when less than `renewBefore` of its life remains, and writes the new key pair into the same
+# Secret (circleguard-tls / grafana-tls), which the Ingress picks up without a restart. That is the renewal procedure for the cluster;
+# for the Compose overlay see docs/seguridad/hu-14.md.
+#
+# Start with the Let's Encrypt STAGING issuer (untrusted certificates, generous rate limits) and switch to production only once it works.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: security-contact@example.invalid     # replace with the team's mailbox
+    privateKeySecretRef:
+      name: letsencrypt-staging-account-key
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: nginx
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: circleguard-web
+  namespace: circleguard
+spec:
+  secretName: circleguard-tls
+  duration: 2160h        # 90 days, the Let's Encrypt lifetime
+  renewBefore: 720h      # renew when 30 days remain
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  dnsNames:
+    - circleguard.example.invalid
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana
+  namespace: observability
+spec:
+  secretName: grafana-tls
+  duration: 2160h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  dnsNames:
+    - grafana.example.invalid
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
