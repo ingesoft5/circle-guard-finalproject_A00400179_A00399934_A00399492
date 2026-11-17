@@ -1,0 +1,16 @@
+# Archivos sensibles versionados (.env, claves, certificados, kubeconfig):
+(ninguno si la lista termina aquí)
+
+# .gitignore (reglas de secretos y entorno local):
+52:.env
+53:.env.*
+55:*.local.env
+56:*.pem
+57:*.key
+58:*.p12
+59:*.pfx
+64:# Secret scanning reports (no values, but they reveal locations)
+65:infra/security/reports/
+67:# Image scan reports of HU-14 (JSON/SARIF are large and regenerable; evidence copies live under docs/evidencias/hu-14/).
+68:security/reports/
+70:# HU-14 development TLS material (private keys of a throw-away CA). *.pem and *.key are already ignored; this keeps the folder out too.

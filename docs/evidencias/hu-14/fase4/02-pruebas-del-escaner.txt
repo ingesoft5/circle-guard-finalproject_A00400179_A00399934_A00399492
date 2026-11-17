@@ -1,0 +1,13 @@
+# security/tests/test-secret-scan.sh (repositorios Git temporales, valores ficticios)
+PASS  a repository without secrets passes (exit 0)
+PASS  a literal password in a YAML file fails the gate (exit 1)
+PASS  a literal credential variable in an env-style file fails the gate (exit 1)
+PASS  the same value under src/test is classified PRUEBA and does not fail (exit 0)
+PASS  a reference to an environment variable is not a secret (exit 0)
+PASS  a credential variable with a default value inside ${VAR:-...} fails the gate (exit 1)
+PASS  a required variable without default (${VAR:?...}) passes (exit 0)
+PASS  a git-ignored local .env file is out of scope (exit 0)
+PASS  an immutable V2/V3 migration is classified RESIDUAL (exit 0)
+
+9 passed, 0 failed
+exit=0
