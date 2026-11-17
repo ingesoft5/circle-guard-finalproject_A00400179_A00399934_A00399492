@@ -67,6 +67,9 @@ infra/security/reports/
 # Image scan reports of HU-14 (JSON/SARIF are large and regenerable; evidence copies live under docs/evidencias/hu-14/).
 security/reports/
 
+# HU-14 development TLS material (private keys of a throw-away CA). *.pem and *.key are already ignored; this keeps the folder out too.
+security/tls/dev/
+
 # Infrastructure run logs (HU-01). Sanitized copies kept as evidence are versioned.
 infra/logs/
 !docs/evidencias/hu-01/local/*.log
