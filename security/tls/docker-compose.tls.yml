@@ -1,0 +1,42 @@
+# HU-14 · Compose overlay that puts the TLS terminator in front of the web client. PREPARED: it is a separate file, the Compose files
+# of HU-02 are not modified. Use it together with the environment files, for example:
+#
+#   CG_TLS_DIR=/opt/circleguard/prod/tls ./deploy/compose-up.sh prod        (after adding -f security/tls/docker-compose.tls.yml)
+#   docker compose --env-file deploy/compose/prod.env --env-file <secrets> \
+#     -f deploy/compose/docker-compose.common.yml -f deploy/compose/docker-compose.prod.yml -f security/tls/docker-compose.tls.yml up -d
+#
+# CG_TLS_DIR must hold fullchain.pem and server.key (mode 600), outside the repository. For a real environment they come from a real
+# CA; for local tests generate a DEVELOPMENT pair with security/tls/gen-dev-cert.sh. The overlay publishes 443 and 80 on
+# BIND_ADDRESS (127.0.0.1 in prod until the TLS ingress is the public entry point, as deploy/README.md states).
+# The web image keeps its own port 8080 inside the network; with this overlay nothing else publishes it.
+services:
+  tls-proxy:
+    # Same pinned base image that HU-02 uses for the web client (tag and digest).
+    image: nginxinc/nginx-unprivileged:1.27-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0
+    restart: ${RESTART_POLICY:-unless-stopped}
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - ${CG_TLS_DIR:?Defina CG_TLS_DIR con fullchain.pem y server.key (fuera del repositorio)}/fullchain.pem:/etc/nginx/tls/fullchain.pem:ro
+      - ${CG_TLS_DIR}/server.key:/etc/nginx/tls/server.key:ro
+      - ./security/tls/nginx-tls.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${TLS_PORT:-443}:8443"
+      - "${BIND_ADDRESS:-127.0.0.1}:${TLS_HTTP_PORT:-80}:8080"
+    networks:
+      - circleguard
+    depends_on:
+      web:
+        condition: service_healthy
+    mem_limit: 64m
+    cpus: 0.25
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
