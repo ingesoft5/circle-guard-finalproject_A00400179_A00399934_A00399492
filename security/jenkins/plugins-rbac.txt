@@ -1,0 +1,5 @@
+# HU-14 · Extra Jenkins plugin needed by security/jenkins/casc-rbac.yaml. PREPARED, NOT APPLIED.
+# To apply: add this line to infra/bootstrap/jenkins/plugins.txt (HU-01) and rebuild the Jenkins image.
+# This exact version was validated on 2026-11-17 with security/jenkins/validate-rbac-live.sh (Jenkins 2.580.2 LTS and
+# configuration-as-code 2147.v8a_8d38668c72): 17 of 17 permission checks passed.
+role-strategy:928.vc60b_edb_fea_e1
