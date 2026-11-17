@@ -1,0 +1,50 @@
+# HU-14 · Who gets which role. PREPARED, NOT APPLIED (HU-10). Bindings go to GROUPS (people) and to one ServiceAccount (Jenkins),
+# never to individual users. How a group maps to a person is decided by the cluster authentication that HU-09/HU-10 set up
+# (for EKS, access entries or aws-auth map IAM roles to these group names).
+#   circleguard-viewers          read-only access for the team
+#   circleguard-platform-admins  secret management (and nothing else in this namespace)
+#   system:serviceaccount:circleguard:jenkins-deployer   the pipeline's deploy identity
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jenkins-deployer
+  namespace: circleguard
+  labels: { app.kubernetes.io/part-of: circleguard }
+subjects:
+  - kind: ServiceAccount
+    name: jenkins-deployer
+    namespace: circleguard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-deployer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: circleguard-viewers
+  namespace: circleguard
+  labels: { app.kubernetes.io/part-of: circleguard }
+subjects:
+  - kind: Group
+    name: circleguard-viewers
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-readonly
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: circleguard-platform-admins
+  namespace: circleguard
+  labels: { app.kubernetes.io/part-of: circleguard }
+subjects:
+  - kind: Group
+    name: circleguard-platform-admins
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: circleguard-secret-manager
