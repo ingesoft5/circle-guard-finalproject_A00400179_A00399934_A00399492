@@ -107,6 +107,12 @@ trivy_run() { # trivy_run <extra docker args...> -- <trivy args...>; stdout = re
   docker run --rm -v "$TRIVY_CACHE_VOLUME":/root/.cache "${docker_args[@]}" "$TRIVY_IMAGE" "${trivy_args[@]}"
 }
 
+# TRIVY_IMAGE_SOURCE=socket|archive|auto (default auto): archive when DOCKER_HOST is a remote daemon (tcp://), socket otherwise.
+use_archive_mode() {
+  local mode=${TRIVY_IMAGE_SOURCE:-auto}
+  [[ "$mode" == archive || ( "$mode" == auto && "${DOCKER_HOST:-}" == tcp://* ) ]]
+}
+
 scan_one() { # scan_one <image ref> <class>
   local ref=$1 class=$2 name json sarif extra=()
   name="${class}_${ref//[^A-Za-z0-9._-]/_}"
@@ -117,8 +123,21 @@ scan_one() { # scan_one <image ref> <class>
   [[ "${TRIVY_SKIP_DB_UPDATE:-false}" == "true" ]] && extra+=(--skip-db-update)
 
   log "==> scanning $ref ($class)"
-  if ! trivy_run -v /var/run/docker.sock:/var/run/docker.sock -- \
-      image --quiet --no-progress --scanners vuln --format json "${extra[@]}" "$ref" >"$json" 2>"$json.err"; then
+  local scan_rc=0 volume=""
+  if use_archive_mode && docker image inspect "$ref" >/dev/null 2>&1; then
+    # Remote Docker daemon (Jenkins with DinD): the daemon's socket is not available to a container and a bind mount cannot see the
+    # agent's files. Stream the image into a Docker VOLUME (volumes live in the daemon) and let Trivy read the archive from there.
+    volume="hu14-scan-$$-$RANDOM"
+    docker volume create "$volume" >/dev/null
+    if docker save "$ref" | docker run --rm -i -v "$volume":/data --entrypoint sh "$TRIVY_IMAGE" -c 'cat > /data/image.tar' &&
+       trivy_run -v "$volume":/data -- image --quiet --no-progress --scanners vuln --format json "${extra[@]}" \
+         --input /data/image.tar >"$json" 2>"$json.err"; then scan_rc=0; else scan_rc=1; fi
+    docker volume rm -f "$volume" >/dev/null 2>&1 || true
+  else
+    trivy_run -v /var/run/docker.sock:/var/run/docker.sock -- \
+      image --quiet --no-progress --scanners vuln --format json "${extra[@]}" "$ref" >"$json" 2>"$json.err" || scan_rc=1
+  fi
+  if ((scan_rc != 0)); then
     log "    trivy failed for $ref: $(tail -n 3 "$json.err" | tr '\n' ' ')"
     rm -f "$json"
     ERRORS=$((ERRORS + 1))
