@@ -1,0 +1,57 @@
+# HU-14 · Jenkins role-based access control, as a Configuration as Code (JCasC) fragment. PREPARED, NOT APPLIED.
+#
+# Today infra/bootstrap/jenkins/casc/jenkins.yaml (HU-01) uses `loggedInUsersCanDoAnything`: any user who logs in is an
+# administrator. This fragment replaces `securityRealm` + `authorizationStrategy` of that file with three roles:
+#   admin      Overall/Administer: manage Jenkins, credentials, plugins and the production approval step.
+#   developer  read and run jobs (build, cancel, replay), look at the workspace. Cannot administer, cannot see or change credentials.
+#   viewer     read-only.
+# Anonymous users keep NO access (as today).
+#
+# Passwords are never in this file: JCasC resolves ${...} from the container environment, which infra/bootstrap-jenkins.sh fills
+# from the secret manager. NOTE: that script and infra/config/secrets.catalog (HU-01) only know JENKINS_ADMIN_USER/PASSWORD today;
+# JENKINS_DEV_* and JENKINS_VIEWER_* must be added there (and generated in SSM) before this can be applied. Needs the
+# `role-strategy` plugin (security/jenkins/plugins-rbac.txt).
+#
+# The Jenkinsfile asks for the production approval with `input ... submitter: 'admin'`: that user must be in the admin role.
+# Validated in a throwaway Jenkins controller with security/jenkins/validate-rbac-live.sh (see docs/seguridad/hu-14.md).
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_USER}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+        - id: "${JENKINS_DEV_USER}"
+          password: "${JENKINS_DEV_PASSWORD}"
+        - id: "${JENKINS_VIEWER_USER}"
+          password: "${JENKINS_VIEWER_PASSWORD}"
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            description: "Administrators: manage Jenkins and its credentials"
+            permissions:
+              - "Overall/Administer"
+            entries:
+              - user: "${JENKINS_ADMIN_USER}"
+          - name: "developer"
+            description: "Run and inspect jobs; no administration, no credentials"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+              - "Job/Build"
+              - "Job/Cancel"
+              - "Job/Workspace"
+              - "Run/Replay"
+              - "View/Read"
+            entries:
+              - user: "${JENKINS_DEV_USER}"
+          - name: "viewer"
+            description: "Read-only"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+              - "View/Read"
+            entries:
+              - user: "${JENKINS_VIEWER_USER}"
