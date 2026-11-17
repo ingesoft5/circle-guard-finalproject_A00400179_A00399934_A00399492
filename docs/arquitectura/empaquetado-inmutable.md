@@ -49,7 +49,7 @@ flowchart LR
 - **Runtime**: `eclipse-temurin:21.0.13_9-jre-alpine-3.22` fijado por digest (HU-14: base actualizada dentro de la misma serie Alpine 3.22).
 - Se crea el usuario/grupo `circleguard` con UID/GID **10001**; `USER 10001:10001`.
 - El cliente web usa `node:22.22-bookworm-slim` para el build y
-  `nginxinc/nginx-unprivileged:1.27-alpine` para el runtime; corre como UID **101**.
+  `nginxinc/nginx-unprivileged:1.30.6-alpine` (rama estable de nginx, fijada por digest) para el runtime; corre como UID **101**.
 - Etiquetas OCI: `title`, `description`, `version`, `revision`, `created`, `source` y
   `base.name`.
 
