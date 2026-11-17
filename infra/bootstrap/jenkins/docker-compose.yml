@@ -12,7 +12,7 @@ services:
   jenkins:
     build:
       context: .
-    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1-ci3
+    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1-ci4
     container_name: cg-jenkins
     restart: ${RESTART_POLICY:-unless-stopped}
     depends_on:
@@ -23,6 +23,11 @@ services:
       CASC_JENKINS_CONFIG: /usr/share/jenkins/casc/jenkins.yaml
       JENKINS_ADMIN_USER: ${JENKINS_ADMIN_USER:?Defina JENKINS_ADMIN_USER}
       JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:?Defina JENKINS_ADMIN_PASSWORD}
+      # HU-14: role-based access (casc/jenkins.yaml): a developer (runs jobs) and a viewer (read only).
+      JENKINS_DEV_USER: ${JENKINS_DEV_USER:?Defina JENKINS_DEV_USER}
+      JENKINS_DEV_PASSWORD: ${JENKINS_DEV_PASSWORD:?Defina JENKINS_DEV_PASSWORD}
+      JENKINS_VIEWER_USER: ${JENKINS_VIEWER_USER:?Defina JENKINS_VIEWER_USER}
+      JENKINS_VIEWER_PASSWORD: ${JENKINS_VIEWER_PASSWORD:?Defina JENKINS_VIEWER_PASSWORD}
       CG_JENKINS_URL: ${CG_JENKINS_URL:?Defina CG_JENKINS_URL}
       CG_LIBRARY_REMOTE: ${CG_LIBRARY_REMOTE:-https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git}
       # Registry (CNCF Distribution on the nexus server): address and the "ci" user, for crane.

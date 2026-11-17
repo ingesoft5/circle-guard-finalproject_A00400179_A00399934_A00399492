@@ -1,4 +1,4 @@
-# security/jenkins/validate-rbac-live.sh: controlador Jenkins REAL y desechable (2.580.2 LTS, role-strategy 928.vc60b_edb_fea_e1), 2026-11-17
+# Primera ejecución de security/jenkins/validate-rbac-live.sh, con un FRAGMENTO de configuración (anterior a aplicar los cambios en HU-01). La validación vigente, con los archivos reales de HU-01, está en ../hu01-hu02/01-jenkins-rbac-archivos-reales.txt
 ==> building the throwaway Jenkins image (downloads the plugins)
 ==> waiting for Jenkins to start
 ==> checks

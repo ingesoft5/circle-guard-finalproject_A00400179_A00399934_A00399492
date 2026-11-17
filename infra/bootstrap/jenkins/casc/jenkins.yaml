@@ -9,9 +9,45 @@ jenkins:
       users:
         - id: "${JENKINS_ADMIN_USER}"
           password: "${JENKINS_ADMIN_PASSWORD}"
+        - id: "${JENKINS_DEV_USER}"
+          password: "${JENKINS_DEV_PASSWORD}"
+        - id: "${JENKINS_VIEWER_USER}"
+          password: "${JENKINS_VIEWER_PASSWORD}"
+  # HU-14: role-based access (plugin role-strategy). Anonymous users have no access at all.
+  #   admin     Overall/Administer: Jenkins, credentials, plugins and the production approval (input submitter 'admin').
+  #   developer read and run jobs (build, cancel, replay), look at the workspace; no administration, no credentials.
+  #   viewer    read only.
+  # Validated on a throwaway controller by security/jenkins/validate-rbac-live.sh.
   authorizationStrategy:
-    loggedInUsersCanDoAnything:
-      allowAnonymousRead: false
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            description: "Administrators: manage Jenkins and its credentials"
+            permissions:
+              - "Overall/Administer"
+            entries:
+              - user: "${JENKINS_ADMIN_USER}"
+          - name: "developer"
+            description: "Run and inspect jobs; no administration, no credentials"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+              - "Job/Build"
+              - "Job/Cancel"
+              - "Job/Workspace"
+              - "Run/Replay"
+              - "View/Read"
+            entries:
+              - user: "${JENKINS_DEV_USER}"
+          - name: "viewer"
+            description: "Read only"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+              - "View/Read"
+            entries:
+              - user: "${JENKINS_VIEWER_USER}"
 unclassified:
   location:
     url: "${CG_JENKINS_URL}"

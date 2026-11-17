@@ -1,0 +1,18 @@
+# Verificación estática de los cambios de HU-01 (shellcheck con infra/.shellcheckrc, docker compose config con valores ficticios)
+== shellcheck (config de HU-01: infra/.shellcheckrc)
+shellcheck: sin hallazgos
+== docker compose config con variables ficticias (no se imprimen)
+    image: docker:27.5.1-dind
+      JENKINS_DEV_USER: d
+      JENKINS_VIEWER_USER: v
+    image: circleguard-jenkins:2.580.2-lts-jdk21-casc2144-crane0.22.1-ci4
+== falta una variable nueva -> debe fallar
+Defina JENKINS_VIEWER_PASSWORD
+== catálogo de secretos
+12:tools/jenkins    JENKINS_ADMIN_PASSWORD  password
+13:tools/jenkins    JENKINS_DEV_PASSWORD    password
+14:tools/jenkins    JENKINS_VIEWER_PASSWORD password
+== el cargador del catálogo reconoce los 3 nombres de tools/jenkins
+JENKINS_ADMIN_PASSWORD password
+JENKINS_DEV_PASSWORD password
+JENKINS_VIEWER_PASSWORD password

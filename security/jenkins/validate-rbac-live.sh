@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# HU-14 · Validates security/jenkins/casc-rbac.yaml against a REAL Jenkins controller, started for the test and destroyed
-# afterwards (a container on 127.0.0.1 with random passwords that are never printed). It does not touch the Jenkins of HU-01.
+# HU-14 · Validates the role-based access of the Jenkins of HU-01 against a REAL controller built from the project's OWN files
+# (infra/bootstrap/jenkins/plugins.txt and casc/jenkins.yaml), started for the test and destroyed afterwards (a container on
+# 127.0.0.1 with random passwords that are never printed). It does not touch the Jenkins that bootstrap-jenkins.sh deploys.
 #
 #   security/jenkins/validate-rbac-live.sh [--keep]     (--keep leaves the container and image for inspection)
 #
-# It builds a throwaway image (base: the Jenkins LTS used by HU-01, plus configuration-as-code and role-strategy), starts it with the
-# RBAC fragment, and checks with HTTP requests what each user (anonymous, viewer, developer, admin) can and cannot do.
+# It builds a throwaway image (base: the Jenkins LTS used by HU-01, plus ALL the plugins of plugins.txt), starts it with the real
+# casc/jenkins.yaml, and checks with HTTP requests what each user (anonymous, viewer, developer, admin) can and cannot do.
 # Requires Docker and network access to download the plugins. Exit code: 0 = every check as expected; 1 = a mismatch; 2 = could not run.
 set -Eeuo pipefail
 
@@ -34,10 +35,12 @@ for u in ADMIN DEV VIEWER; do
   printf 'user = "%s:%s"\n' "${!user_var}" "${!pw_var}" >"$WORK/auth-$u.cfg"
 done
 
-cp "$ROOT_DIR/security/jenkins/casc-rbac.yaml" "$WORK/jenkins.yaml"
+cp "$ROOT_DIR/infra/bootstrap/jenkins/casc/jenkins.yaml" "$WORK/jenkins.yaml"
+cp "$ROOT_DIR/infra/bootstrap/jenkins/plugins.txt" "$WORK/plugins.txt"
 cat >"$WORK/Dockerfile" <<EOF
 FROM $BASE_IMAGE
-RUN jenkins-plugin-cli --plugins configuration-as-code role-strategy
+COPY --chmod=644 plugins.txt /tmp/plugins.txt
+RUN jenkins-plugin-cli --plugin-file /tmp/plugins.txt
 USER root
 RUN mkdir -p /casc && chmod 755 /casc
 COPY --chown=jenkins:jenkins --chmod=644 jenkins.yaml /casc/jenkins.yaml
@@ -48,7 +51,7 @@ docker build -q -t "$IMAGE" "$WORK" >/dev/null || die "No se pudo construir la i
 
 docker rm -f "$NAME" >/dev/null 2>&1 || true
 docker run -d --name "$NAME" -p "127.0.0.1:$PORT:8080" \
-  -e CASC_JENKINS_CONFIG=/casc/jenkins.yaml -e JAVA_OPTS="-Djenkins.install.runSetupWizard=false" \
+  -e CASC_JENKINS_CONFIG=/casc/jenkins.yaml -e JAVA_OPTS="-Djenkins.install.runSetupWizard=false" -e CG_JENKINS_URL="http://localhost:$PORT/" \
   -e JENKINS_ADMIN_USER="$ADMIN_USER" -e JENKINS_ADMIN_PASSWORD="$ADMIN_PW" \
   -e JENKINS_DEV_USER="$DEV_USER" -e JENKINS_DEV_PASSWORD="$DEV_PW" \
   -e JENKINS_VIEWER_USER="$VIEWER_USER" -e JENKINS_VIEWER_PASSWORD="$VIEWER_PW" \

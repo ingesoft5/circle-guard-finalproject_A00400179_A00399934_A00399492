@@ -539,6 +539,18 @@ Credenciales (Manage Jenkins → Credentials → Global). Los valores se toman d
 | `nexus-credentials` | Usuario y contraseña | Publicar artefactos (opcional: sin `NEXUS_URL` se omite) |
 | `discord-webhook` | Secret text | Notificación de fallos (opcional) |
 
+Accesos a Jenkins por rol (HU-14). El controlador ya no trata a todo usuario autenticado como administrador: `casc/jenkins.yaml` define
+tres roles con el plugin `role-strategy`, y cada usuario recibe su contraseña del gestor de secretos
+(`/circleguard/tools/jenkins/JENKINS_{ADMIN,DEV,VIEWER}_PASSWORD`, creadas por `bootstrap-secrets.sh` si faltan):
+
+| Usuario | Rol | Puede | No puede |
+|:---|:---|:---|:---|
+| `admin` | admin | Administrar Jenkins, credenciales y plugins; aprobar el paso a producción (`input submitter: 'admin'`) | — |
+| `ci-developer` | developer | Leer, ejecutar, cancelar y repetir trabajos; ver el espacio de trabajo | Entrar en la administración, ver o cambiar credenciales, crear o borrar trabajos |
+| `ci-viewer` | viewer | Leer trabajos y vistas | Ejecutar, cancelar o administrar |
+
+El acceso anónimo sigue denegado. `configure.sh` comprueba estos permisos al arrancar. Al cambiar los plugins se subió el tag de la imagen a `-ci4`.
+
 Job: New Item → Multibranch Pipeline → Branch Sources: GitHub, repositorio del proyecto, credencial `github-token`,
 Build Configuration: by Jenkinsfile. El disparo `githubPush()` requiere que GitHub alcance a Jenkins; como la
 interfaz no se expone a Internet (ver `tunnel.sh`), el webhook llega por un relé o por una regla temporal del

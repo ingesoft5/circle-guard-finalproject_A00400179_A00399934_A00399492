@@ -50,6 +50,28 @@ else
   exit 1
 fi
 
+# HU-14: role-based access. Each managed user logs in; the developer and the viewer are denied the administration.
+user_auth() { printf 'user = "%s:%s"\n' "$1" "$2"; }
+for role in DEV VIEWER; do
+  user_var="JENKINS_${role}_USER"; pw_var="JENKINS_${role}_PASSWORD"
+  who=$(user_auth "${!user_var}" "${!pw_var}" | curl -s -K - "$URL/whoAmI/api/json" || true)
+  if [[ "$who" != *'"authenticated":true'* ]]; then
+    echo "ERROR: el usuario ${!user_var} (rol ${role,,}) no pudo autenticarse"
+    exit 1
+  fi
+  manage=$(user_auth "${!user_var}" "${!pw_var}" | http_code -K - "$URL/manage/")
+  if [[ "$manage" != 403 ]]; then
+    echo "ERROR: el usuario ${!user_var} (rol ${role,,}) llegó a la administración (HTTP $manage, se esperaba 403)"
+    exit 1
+  fi
+done
+admin_manage=$(admin_auth | http_code -K - "$URL/manage/")
+if [[ "$admin_manage" != 200 ]]; then
+  echo "ERROR: el administrador no puede abrir la administración (HTTP $admin_manage)"
+  exit 1
+fi
+result UNCHANGED "acceso por roles: el administrador administra; el desarrollador y el lector no (HTTP 403)"
+
 casc=$(admin_auth | http_code -K - "$URL/manage/configuration-as-code/")
 if [[ "$casc" == 200 ]]; then
   result UNCHANGED "plugin Configuration as Code activo"
