@@ -1,0 +1,31 @@
+# Alternativa A validada en el repositorio real (copia sincronizada) — 2026-11-17T05:27Z
+synced to /home/matth/cg-real
+=== [altA] unit tests (8 services, JaCoCo gate on)
+gradle rc=0
+BUILD SUCCESSFUL in 5m 49s
+auth          tests=58 failures=0 errors=0 skipped=0
+identity      tests=25 failures=0 errors=0 skipped=0
+promotion     tests=125 failures=0 errors=0 skipped=0
+notification  tests=20 failures=0 errors=0 skipped=0
+form          tests=40 failures=0 errors=0 skipped=0
+file          tests=3 failures=0 errors=0 skipped=0
+gateway       tests=11 failures=0 errors=0 skipped=0
+dashboard     tests=2 failures=0 errors=0 skipped=0
+TOTAL unit: tests=284 failures=0 errors=0
+auth LINE missed=3 covered=205
+promotion LINE missed=62 covered=663
+=== [altA] dependency scan
+FAIL        own           C=2    H=17   M=27   L=8    U=0     deps:circleguard-auth-service
+FAIL        own           C=2    H=20   M=34   L=9    U=0     deps:circleguard-identity-service
+FAIL        own           C=1    H=15   M=25   L=8    U=0     deps:circleguard-dashboard-service
+FAIL        own           C=1    H=14   M=23   L=8    U=0     deps:circleguard-file-service
+FAIL        own           C=1    H=19   M=33   L=9    U=0     deps:circleguard-form-service
+FAIL        own           C=1    H=14   M=26   L=8    U=0     deps:circleguard-gateway-service
+FAIL        own           C=2    H=20   M=41   L=11   U=0     deps:circleguard-notification-service
+FAIL        own           C=2    H=20   M=35   L=9    U=0     deps:circleguard-promotion-service
+RESULT: FAIL · 8 image(s) exceed the threshold (CRITICAL,HIGH). Promotion must stop. Summary: (ruta local)
+=== [altA] integration tests
+gradle rc=0
+BUILD SUCCESSFUL in 5m 5s
+tests:integration       tests=11 failures=0 errors=0 skipped=0
+promotion integrationTest tests=6 failures=0 errors=0 skipped=0
