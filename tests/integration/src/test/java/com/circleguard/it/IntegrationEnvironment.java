@@ -98,7 +98,11 @@ public final class IntegrationEnvironment {
                         "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration",
                         "org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration",
                         "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration",
-                        "org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration")));
+                        "org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration",
+                        // HU-13 added Actuator. Its default management security chain needs an HttpSecurity bean, which only
+                        // exists when Spring Security is enabled, and it is excluded just above. notification-service has no
+                        // Spring Security in production (see its build.gradle.kts), so this only affects this test context.
+                        "org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration")));
 
         buildFormSide();
         waitForPartitions(promotionContext);
