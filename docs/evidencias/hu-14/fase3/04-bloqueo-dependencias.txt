@@ -1,0 +1,16 @@
+# Compuerta de dependencias: bloqueo real (auth-service, SBOM ya generado)
+# Comando: CG_SKIP_GRADLE=true security/scan-dependencies.sh circleguard-auth-service
+Trivy: aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+Umbral que bloquea: CRITICAL,HIGH · sin arreglo ignoradas: false · terceros bloquean: false
+==> scanning dependencies of circleguard-auth-service (own)
+FAIL        own           C=11   H=38   M=39   L=14   U=0     deps:circleguard-auth-service
+RESULT: FAIL · 1 image(s) exceed the threshold (CRITICAL,HIGH). Promotion must stop. Summary: (ruta local)
+exit=1
+
+# Con umbral CRITICAL solamente (auth-service tiene 11 CRITICAL)
+Trivy: aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+Umbral que bloquea: CRITICAL · sin arreglo ignoradas: false · terceros bloquean: false
+==> scanning dependencies of circleguard-auth-service (own)
+FAIL        own           C=11   H=38   M=39   L=14   U=0     deps:circleguard-auth-service
+RESULT: FAIL · 1 image(s) exceed the threshold (CRITICAL). Promotion must stop. Summary: (ruta local)
+exit=1
