@@ -14,3 +14,11 @@ variable "vpc_cidr" {
 variable "public_subnet_cidr" {
   type = string
 }
+
+variable "instance_type" {
+  type = string
+}
+
+variable "admin_cidr" {
+  type = string
+}

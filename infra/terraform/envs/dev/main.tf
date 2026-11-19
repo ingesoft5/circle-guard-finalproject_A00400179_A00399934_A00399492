@@ -36,3 +36,14 @@ module "network" {
   public_subnet_cidr = var.public_subnet_cidr
   az                 = "${var.region}a"
 }
+
+module "compute" {
+  source        = "../../modules/compute"
+  name          = "circleguard-${var.environment}"
+  environment   = var.environment
+  region        = var.region
+  vpc_id        = module.network.vpc_id
+  subnet_id     = module.network.public_subnet_id
+  instance_type = var.instance_type
+  admin_cidr    = var.admin_cidr
+}
