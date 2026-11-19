@@ -1,0 +1,456 @@
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile" instead.
+[33m╵[0m[0m
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create[0m
+
+Terraform will perform the following actions:
+
+[1m  # module.registry.aws_ecr_lifecycle_policy.this["circleguard-auth-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_lifecycle_policy" "this" {
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m policy      = jsonencode(
+            {
+              [32m+[0m[0m rules = [
+                  [32m+[0m[0m {
+                      [32m+[0m[0m action       = {
+                          [32m+[0m[0m type = "expire"
+                        }
+                      [32m+[0m[0m description  = "Keep last 20 images"
+                      [32m+[0m[0m rulePriority = 1
+                      [32m+[0m[0m selection    = {
+                          [32m+[0m[0m countNumber = 20
+                          [32m+[0m[0m countType   = "imageCountMoreThan"
+                          [32m+[0m[0m tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      [32m+[0m[0m region      = "us-east-2"
+      [32m+[0m[0m registry_id = (known after apply)
+      [32m+[0m[0m repository  = "circleguard-auth-service"
+    }
+
+[1m  # module.registry.aws_ecr_lifecycle_policy.this["circleguard-dashboard-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_lifecycle_policy" "this" {
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m policy      = jsonencode(
+            {
+              [32m+[0m[0m rules = [
+                  [32m+[0m[0m {
+                      [32m+[0m[0m action       = {
+                          [32m+[0m[0m type = "expire"
+                        }
+                      [32m+[0m[0m description  = "Keep last 20 images"
+                      [32m+[0m[0m rulePriority = 1
+                      [32m+[0m[0m selection    = {
+                          [32m+[0m[0m countNumber = 20
+                          [32m+[0m[0m countType   = "imageCountMoreThan"
+                          [32m+[0m[0m tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      [32m+[0m[0m region      = "us-east-2"
+      [32m+[0m[0m registry_id = (known after apply)
+      [32m+[0m[0m repository  = "circleguard-dashboard-service"
+    }
+
+[1m  # module.registry.aws_ecr_lifecycle_policy.this["circleguard-file-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_lifecycle_policy" "this" {
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m policy      = jsonencode(
+            {
+              [32m+[0m[0m rules = [
+                  [32m+[0m[0m {
+                      [32m+[0m[0m action       = {
+                          [32m+[0m[0m type = "expire"
+                        }
+                      [32m+[0m[0m description  = "Keep last 20 images"
+                      [32m+[0m[0m rulePriority = 1
+                      [32m+[0m[0m selection    = {
+                          [32m+[0m[0m countNumber = 20
+                          [32m+[0m[0m countType   = "imageCountMoreThan"
+                          [32m+[0m[0m tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      [32m+[0m[0m region      = "us-east-2"
+      [32m+[0m[0m registry_id = (known after apply)
+      [32m+[0m[0m repository  = "circleguard-file-service"
+    }
+
+[1m  # module.registry.aws_ecr_lifecycle_policy.this["circleguard-form-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_lifecycle_policy" "this" {
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m policy      = jsonencode(
+            {
+              [32m+[0m[0m rules = [
+                  [32m+[0m[0m {
+                      [32m+[0m[0m action       = {
+                          [32m+[0m[0m type = "expire"
+                        }
+                      [32m+[0m[0m description  = "Keep last 20 images"
+                      [32m+[0m[0m rulePriority = 1
+                      [32m+[0m[0m selection    = {
+                          [32m+[0m[0m countNumber = 20
+                          [32m+[0m[0m countType   = "imageCountMoreThan"
+                          [32m+[0m[0m tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      [32m+[0m[0m region      = "us-east-2"
+      [32m+[0m[0m registry_id = (known after apply)
+      [32m+[0m[0m repository  = "circleguard-form-service"
+    }
+
+[1m  # module.registry.aws_ecr_lifecycle_policy.this["circleguard-gateway-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_lifecycle_policy" "this" {
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m policy      = jsonencode(
+            {
+              [32m+[0m[0m rules = [
+                  [32m+[0m[0m {
+                      [32m+[0m[0m action       = {
+                          [32m+[0m[0m type = "expire"
+                        }
+                      [32m+[0m[0m description  = "Keep last 20 images"
+                      [32m+[0m[0m rulePriority = 1
+                      [32m+[0m[0m selection    = {
+                          [32m+[0m[0m countNumber = 20
+                          [32m+[0m[0m countType   = "imageCountMoreThan"
+                          [32m+[0m[0m tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      [32m+[0m[0m region      = "us-east-2"
+      [32m+[0m[0m registry_id = (known after apply)
+      [32m+[0m[0m repository  = "circleguard-gateway-service"
+    }
+
+[1m  # module.registry.aws_ecr_lifecycle_policy.this["circleguard-identity-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_lifecycle_policy" "this" {
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m policy      = jsonencode(
+            {
+              [32m+[0m[0m rules = [
+                  [32m+[0m[0m {
+                      [32m+[0m[0m action       = {
+                          [32m+[0m[0m type = "expire"
+                        }
+                      [32m+[0m[0m description  = "Keep last 20 images"
+                      [32m+[0m[0m rulePriority = 1
+                      [32m+[0m[0m selection    = {
+                          [32m+[0m[0m countNumber = 20
+                          [32m+[0m[0m countType   = "imageCountMoreThan"
+                          [32m+[0m[0m tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      [32m+[0m[0m region      = "us-east-2"
+      [32m+[0m[0m registry_id = (known after apply)
+      [32m+[0m[0m repository  = "circleguard-identity-service"
+    }
+
+[1m  # module.registry.aws_ecr_lifecycle_policy.this["circleguard-notification-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_lifecycle_policy" "this" {
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m policy      = jsonencode(
+            {
+              [32m+[0m[0m rules = [
+                  [32m+[0m[0m {
+                      [32m+[0m[0m action       = {
+                          [32m+[0m[0m type = "expire"
+                        }
+                      [32m+[0m[0m description  = "Keep last 20 images"
+                      [32m+[0m[0m rulePriority = 1
+                      [32m+[0m[0m selection    = {
+                          [32m+[0m[0m countNumber = 20
+                          [32m+[0m[0m countType   = "imageCountMoreThan"
+                          [32m+[0m[0m tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      [32m+[0m[0m region      = "us-east-2"
+      [32m+[0m[0m registry_id = (known after apply)
+      [32m+[0m[0m repository  = "circleguard-notification-service"
+    }
+
+[1m  # module.registry.aws_ecr_lifecycle_policy.this["circleguard-promotion-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_lifecycle_policy" "this" {
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m policy      = jsonencode(
+            {
+              [32m+[0m[0m rules = [
+                  [32m+[0m[0m {
+                      [32m+[0m[0m action       = {
+                          [32m+[0m[0m type = "expire"
+                        }
+                      [32m+[0m[0m description  = "Keep last 20 images"
+                      [32m+[0m[0m rulePriority = 1
+                      [32m+[0m[0m selection    = {
+                          [32m+[0m[0m countNumber = 20
+                          [32m+[0m[0m countType   = "imageCountMoreThan"
+                          [32m+[0m[0m tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      [32m+[0m[0m region      = "us-east-2"
+      [32m+[0m[0m registry_id = (known after apply)
+      [32m+[0m[0m repository  = "circleguard-promotion-service"
+    }
+
+[1m  # module.registry.aws_ecr_lifecycle_policy.this["circleguard-web"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_lifecycle_policy" "this" {
+      [32m+[0m[0m id          = (known after apply)
+      [32m+[0m[0m policy      = jsonencode(
+            {
+              [32m+[0m[0m rules = [
+                  [32m+[0m[0m {
+                      [32m+[0m[0m action       = {
+                          [32m+[0m[0m type = "expire"
+                        }
+                      [32m+[0m[0m description  = "Keep last 20 images"
+                      [32m+[0m[0m rulePriority = 1
+                      [32m+[0m[0m selection    = {
+                          [32m+[0m[0m countNumber = 20
+                          [32m+[0m[0m countType   = "imageCountMoreThan"
+                          [32m+[0m[0m tagStatus   = "any"
+                        }
+                    },
+                ]
+            }
+        )
+      [32m+[0m[0m region      = "us-east-2"
+      [32m+[0m[0m registry_id = (known after apply)
+      [32m+[0m[0m repository  = "circleguard-web"
+    }
+
+[1m  # module.registry.aws_ecr_repository.this["circleguard-auth-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_repository" "this" {
+      [32m+[0m[0m arn                  = (known after apply)
+      [32m+[0m[0m force_delete         = true
+      [32m+[0m[0m id                   = (known after apply)
+      [32m+[0m[0m image_tag_mutability = "IMMUTABLE"
+      [32m+[0m[0m name                 = "circleguard-auth-service"
+      [32m+[0m[0m region               = "us-east-2"
+      [32m+[0m[0m registry_id          = (known after apply)
+      [32m+[0m[0m repository_url       = (known after apply)
+      [32m+[0m[0m tags_all             = {
+          [32m+[0m[0m "Environment" = "tools"
+          [32m+[0m[0m "ManagedBy"   = "terraform"
+          [32m+[0m[0m "Project"     = "circleguard"
+        }
+
+      [32m+[0m[0m image_scanning_configuration {
+          [32m+[0m[0m scan_on_push = true
+        }
+    }
+
+[1m  # module.registry.aws_ecr_repository.this["circleguard-dashboard-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_repository" "this" {
+      [32m+[0m[0m arn                  = (known after apply)
+      [32m+[0m[0m force_delete         = true
+      [32m+[0m[0m id                   = (known after apply)
+      [32m+[0m[0m image_tag_mutability = "IMMUTABLE"
+      [32m+[0m[0m name                 = "circleguard-dashboard-service"
+      [32m+[0m[0m region               = "us-east-2"
+      [32m+[0m[0m registry_id          = (known after apply)
+      [32m+[0m[0m repository_url       = (known after apply)
+      [32m+[0m[0m tags_all             = {
+          [32m+[0m[0m "Environment" = "tools"
+          [32m+[0m[0m "ManagedBy"   = "terraform"
+          [32m+[0m[0m "Project"     = "circleguard"
+        }
+
+      [32m+[0m[0m image_scanning_configuration {
+          [32m+[0m[0m scan_on_push = true
+        }
+    }
+
+[1m  # module.registry.aws_ecr_repository.this["circleguard-file-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_repository" "this" {
+      [32m+[0m[0m arn                  = (known after apply)
+      [32m+[0m[0m force_delete         = true
+      [32m+[0m[0m id                   = (known after apply)
+      [32m+[0m[0m image_tag_mutability = "IMMUTABLE"
+      [32m+[0m[0m name                 = "circleguard-file-service"
+      [32m+[0m[0m region               = "us-east-2"
+      [32m+[0m[0m registry_id          = (known after apply)
+      [32m+[0m[0m repository_url       = (known after apply)
+      [32m+[0m[0m tags_all             = {
+          [32m+[0m[0m "Environment" = "tools"
+          [32m+[0m[0m "ManagedBy"   = "terraform"
+          [32m+[0m[0m "Project"     = "circleguard"
+        }
+
+      [32m+[0m[0m image_scanning_configuration {
+          [32m+[0m[0m scan_on_push = true
+        }
+    }
+
+[1m  # module.registry.aws_ecr_repository.this["circleguard-form-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_repository" "this" {
+      [32m+[0m[0m arn                  = (known after apply)
+      [32m+[0m[0m force_delete         = true
+      [32m+[0m[0m id                   = (known after apply)
+      [32m+[0m[0m image_tag_mutability = "IMMUTABLE"
+      [32m+[0m[0m name                 = "circleguard-form-service"
+      [32m+[0m[0m region               = "us-east-2"
+      [32m+[0m[0m registry_id          = (known after apply)
+      [32m+[0m[0m repository_url       = (known after apply)
+      [32m+[0m[0m tags_all             = {
+          [32m+[0m[0m "Environment" = "tools"
+          [32m+[0m[0m "ManagedBy"   = "terraform"
+          [32m+[0m[0m "Project"     = "circleguard"
+        }
+
+      [32m+[0m[0m image_scanning_configuration {
+          [32m+[0m[0m scan_on_push = true
+        }
+    }
+
+[1m  # module.registry.aws_ecr_repository.this["circleguard-gateway-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_repository" "this" {
+      [32m+[0m[0m arn                  = (known after apply)
+      [32m+[0m[0m force_delete         = true
+      [32m+[0m[0m id                   = (known after apply)
+      [32m+[0m[0m image_tag_mutability = "IMMUTABLE"
+      [32m+[0m[0m name                 = "circleguard-gateway-service"
+      [32m+[0m[0m region               = "us-east-2"
+      [32m+[0m[0m registry_id          = (known after apply)
+      [32m+[0m[0m repository_url       = (known after apply)
+      [32m+[0m[0m tags_all             = {
+          [32m+[0m[0m "Environment" = "tools"
+          [32m+[0m[0m "ManagedBy"   = "terraform"
+          [32m+[0m[0m "Project"     = "circleguard"
+        }
+
+      [32m+[0m[0m image_scanning_configuration {
+          [32m+[0m[0m scan_on_push = true
+        }
+    }
+
+[1m  # module.registry.aws_ecr_repository.this["circleguard-identity-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_repository" "this" {
+      [32m+[0m[0m arn                  = (known after apply)
+      [32m+[0m[0m force_delete         = true
+      [32m+[0m[0m id                   = (known after apply)
+      [32m+[0m[0m image_tag_mutability = "IMMUTABLE"
+      [32m+[0m[0m name                 = "circleguard-identity-service"
+      [32m+[0m[0m region               = "us-east-2"
+      [32m+[0m[0m registry_id          = (known after apply)
+      [32m+[0m[0m repository_url       = (known after apply)
+      [32m+[0m[0m tags_all             = {
+          [32m+[0m[0m "Environment" = "tools"
+          [32m+[0m[0m "ManagedBy"   = "terraform"
+          [32m+[0m[0m "Project"     = "circleguard"
+        }
+
+      [32m+[0m[0m image_scanning_configuration {
+          [32m+[0m[0m scan_on_push = true
+        }
+    }
+
+[1m  # module.registry.aws_ecr_repository.this["circleguard-notification-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_repository" "this" {
+      [32m+[0m[0m arn                  = (known after apply)
+      [32m+[0m[0m force_delete         = true
+      [32m+[0m[0m id                   = (known after apply)
+      [32m+[0m[0m image_tag_mutability = "IMMUTABLE"
+      [32m+[0m[0m name                 = "circleguard-notification-service"
+      [32m+[0m[0m region               = "us-east-2"
+      [32m+[0m[0m registry_id          = (known after apply)
+      [32m+[0m[0m repository_url       = (known after apply)
+      [32m+[0m[0m tags_all             = {
+          [32m+[0m[0m "Environment" = "tools"
+          [32m+[0m[0m "ManagedBy"   = "terraform"
+          [32m+[0m[0m "Project"     = "circleguard"
+        }
+
+      [32m+[0m[0m image_scanning_configuration {
+          [32m+[0m[0m scan_on_push = true
+        }
+    }
+
+[1m  # module.registry.aws_ecr_repository.this["circleguard-promotion-service"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_repository" "this" {
+      [32m+[0m[0m arn                  = (known after apply)
+      [32m+[0m[0m force_delete         = true
+      [32m+[0m[0m id                   = (known after apply)
+      [32m+[0m[0m image_tag_mutability = "IMMUTABLE"
+      [32m+[0m[0m name                 = "circleguard-promotion-service"
+      [32m+[0m[0m region               = "us-east-2"
+      [32m+[0m[0m registry_id          = (known after apply)
+      [32m+[0m[0m repository_url       = (known after apply)
+      [32m+[0m[0m tags_all             = {
+          [32m+[0m[0m "Environment" = "tools"
+          [32m+[0m[0m "ManagedBy"   = "terraform"
+          [32m+[0m[0m "Project"     = "circleguard"
+        }
+
+      [32m+[0m[0m image_scanning_configuration {
+          [32m+[0m[0m scan_on_push = true
+        }
+    }
+
+[1m  # module.registry.aws_ecr_repository.this["circleguard-web"][0m will be created
+[0m  [32m+[0m[0m resource "aws_ecr_repository" "this" {
+      [32m+[0m[0m arn                  = (known after apply)
+      [32m+[0m[0m force_delete         = true
+      [32m+[0m[0m id                   = (known after apply)
+      [32m+[0m[0m image_tag_mutability = "IMMUTABLE"
+      [32m+[0m[0m name                 = "circleguard-web"
+      [32m+[0m[0m region               = "us-east-2"
+      [32m+[0m[0m registry_id          = (known after apply)
+      [32m+[0m[0m repository_url       = (known after apply)
+      [32m+[0m[0m tags_all             = {
+          [32m+[0m[0m "Environment" = "tools"
+          [32m+[0m[0m "ManagedBy"   = "terraform"
+          [32m+[0m[0m "Project"     = "circleguard"
+        }
+
+      [32m+[0m[0m image_scanning_configuration {
+          [32m+[0m[0m scan_on_push = true
+        }
+    }
+
+[1mPlan:[0m [0m18 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  [32m+[0m[0m repository_urls = {
+      [32m+[0m[0m circleguard-auth-service         = (known after apply)
+      [32m+[0m[0m circleguard-dashboard-service    = (known after apply)
+      [32m+[0m[0m circleguard-file-service         = (known after apply)
+      [32m+[0m[0m circleguard-form-service         = (known after apply)
+      [32m+[0m[0m circleguard-gateway-service      = (known after apply)
+      [32m+[0m[0m circleguard-identity-service     = (known after apply)
+      [32m+[0m[0m circleguard-notification-service = (known after apply)
+      [32m+[0m[0m circleguard-promotion-service    = (known after apply)
+      [32m+[0m[0m circleguard-web                  = (known after apply)
+    }
+[90m
+─────────────────────────────────────────────────────────────────────────────[0m
+
+Saved the plan to: tools-registry.tfplan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "tools-registry.tfplan"
