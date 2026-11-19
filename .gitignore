@@ -80,3 +80,10 @@ deploy/releases/history.tsv
 *.swp
 *~
 !gradle/wrapper/gradle-wrapper.jar
+
+#Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfplan
