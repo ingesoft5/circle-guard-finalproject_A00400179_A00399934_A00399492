@@ -1,0 +1,58 @@
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile" instead.
+[33m╵[0m[0m
+Acquiring state lock. This may take a few moments...
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-identity-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-file-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-gateway-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-dashboard-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-notification-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-form-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-auth-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-promotion-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-web"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-promotion-service"]: Creation complete after 1s [id=circleguard-promotion-service][0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-identity-service"]: Creation complete after 1s [id=circleguard-identity-service][0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-file-service"]: Creation complete after 1s [id=circleguard-file-service][0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-dashboard-service"]: Creation complete after 1s [id=circleguard-dashboard-service][0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-web"]: Creation complete after 1s [id=circleguard-web][0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-form-service"]: Creation complete after 1s [id=circleguard-form-service][0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-notification-service"]: Creation complete after 1s [id=circleguard-notification-service][0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-auth-service"]: Creation complete after 1s [id=circleguard-auth-service][0m
+[0m[1mmodule.registry.aws_ecr_repository.this["circleguard-gateway-service"]: Creation complete after 1s [id=circleguard-gateway-service][0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-file-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-dashboard-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-auth-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-gateway-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-promotion-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-notification-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-web"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-form-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-identity-service"]: Creating...[0m[0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-web"]: Creation complete after 0s [id=circleguard-web][0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-form-service"]: Creation complete after 0s [id=circleguard-form-service][0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-gateway-service"]: Creation complete after 0s [id=circleguard-gateway-service][0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-dashboard-service"]: Creation complete after 0s [id=circleguard-dashboard-service][0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-promotion-service"]: Creation complete after 0s [id=circleguard-promotion-service][0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-file-service"]: Creation complete after 0s [id=circleguard-file-service][0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-identity-service"]: Creation complete after 0s [id=circleguard-identity-service][0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-auth-service"]: Creation complete after 0s [id=circleguard-auth-service][0m
+[0m[1mmodule.registry.aws_ecr_lifecycle_policy.this["circleguard-notification-service"]: Creation complete after 0s [id=circleguard-notification-service][0m
+[0m[1m[32m
+Apply complete! Resources: 18 added, 0 changed, 0 destroyed.[0m
+[0m[1m[32m
+Outputs:
+
+[0mrepository_urls = {
+  "circleguard-auth-service" = "<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-auth-service"
+  "circleguard-dashboard-service" = "<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-dashboard-service"
+  "circleguard-file-service" = "<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-file-service"
+  "circleguard-form-service" = "<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-form-service"
+  "circleguard-gateway-service" = "<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-gateway-service"
+  "circleguard-identity-service" = "<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-identity-service"
+  "circleguard-notification-service" = "<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-notification-service"
+  "circleguard-promotion-service" = "<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-promotion-service"
+  "circleguard-web" = "<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-web"
+}
