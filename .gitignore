@@ -87,3 +87,5 @@ deploy/releases/history.tsv
 *.tfstate.*
 crash.log
 *.tfplan
+
+!docs/evidencias/**/*.log
