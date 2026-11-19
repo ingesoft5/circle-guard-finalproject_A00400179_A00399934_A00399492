@@ -51,6 +51,24 @@
       "Resource": "*"
     },
     {
+      "Sid": "EcrRepositories",
+      "Effect": "Allow",
+      "Action": "ecr:*",
+      "Resource": "arn:aws:ecr:us-east-2:*:repository/circleguard-*"
+    },
+    {
+      "Sid": "EcrAuth",
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*"
+    },
+    {
+      "Sid": "QuotaRead",
+      "Effect": "Allow",
+      "Action": ["servicequotas:GetServiceQuota", "servicequotas:ListServiceQuotas"],
+      "Resource": "*"
+    },
+    {
       "Sid": "InstanceRolesOnly",
       "Effect": "Allow",
       "Action": [
