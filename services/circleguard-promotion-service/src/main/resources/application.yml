@@ -40,3 +40,14 @@ server:
 jwt:
   secret: "${CG_JWT_SECRET}"
   expiration: 3600000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
