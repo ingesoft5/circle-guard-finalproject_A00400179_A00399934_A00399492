@@ -98,6 +98,14 @@ resource "aws_iam_instance_profile" "node" {
   role = aws_iam_role.node.name
 }
 
+resource "aws_eip" "node" {
+  domain = "vpc"
+
+  tags = {
+    Name = "${var.name}-eip"
+  }
+}
+
 resource "aws_instance" "node" {
   ami                         = data.aws_ssm_parameter.ami.value
   instance_type               = var.instance_type
@@ -111,6 +119,7 @@ resource "aws_instance" "node" {
   user_data = templatefile("${path.module}/user_data.sh.tftpl", {
     environment = var.environment
     region      = var.region
+    public_ip   = aws_eip.node.public_ip
   })
 
   metadata_options {
@@ -131,4 +140,9 @@ resource "aws_instance" "node" {
   tags = {
     Name = "${var.name}-k3s"
   }
+}
+
+resource "aws_eip_association" "node" {
+  instance_id   = aws_instance.node.id
+  allocation_id = aws_eip.node.id
 }

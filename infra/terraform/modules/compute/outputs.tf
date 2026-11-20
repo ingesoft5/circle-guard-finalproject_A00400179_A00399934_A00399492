@@ -3,7 +3,7 @@ output "instance_id" {
 }
 
 output "public_ip" {
-  value = aws_instance.node.public_ip
+  value = aws_eip.node.public_ip
 }
 
 output "security_group_id" {
