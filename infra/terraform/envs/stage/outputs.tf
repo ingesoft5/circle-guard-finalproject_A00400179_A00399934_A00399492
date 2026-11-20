@@ -13,3 +13,11 @@ output "node_public_ip" {
 output "kubeconfig_parameter" {
   value = module.compute.kubeconfig_parameter
 }
+
+output "data_bucket" {
+  value = module.storage.bucket_name
+}
+
+output "log_group" {
+  value = module.observability.log_group_name
+}

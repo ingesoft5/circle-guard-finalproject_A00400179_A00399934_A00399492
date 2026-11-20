@@ -69,6 +69,36 @@
       "Resource": "*"
     },
     {
+      "Sid": "LogGroups",
+      "Effect": "Allow",
+      "Action": "logs:*",
+      "Resource": "arn:aws:logs:us-east-2:*:log-group:/circleguard/*"
+    },
+    {
+      "Sid": "LogsDiscovery",
+      "Effect": "Allow",
+      "Action": "logs:DescribeLogGroups",
+      "Resource": "*"
+    },
+    {
+      "Sid": "Alarms",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:DeleteAlarms",
+        "cloudwatch:TagResource",
+        "cloudwatch:UntagResource",
+        "cloudwatch:ListTagsForResource"
+      ],
+      "Resource": "arn:aws:cloudwatch:us-east-2:*:alarm:circleguard-*"
+    },
+    {
+      "Sid": "AlarmsDiscovery",
+      "Effect": "Allow",
+      "Action": "cloudwatch:DescribeAlarms",
+      "Resource": "*"
+    },
+    {
       "Sid": "InstanceRolesOnly",
       "Effect": "Allow",
       "Action": [

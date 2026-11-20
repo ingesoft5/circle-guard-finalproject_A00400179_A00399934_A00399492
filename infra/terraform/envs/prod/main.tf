@@ -47,3 +47,15 @@ module "compute" {
   instance_type = var.instance_type
   admin_cidr    = var.admin_cidr
 }
+
+module "storage" {
+  source = "../../modules/storage"
+  name   = "circleguard-${var.environment}"
+}
+
+module "observability" {
+  source      = "../../modules/observability"
+  name        = "circleguard-${var.environment}"
+  environment = var.environment
+  instance_id = module.compute.instance_id
+}
