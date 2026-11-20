@@ -1,0 +1,3 @@
+# HU-14 · Active vulnerability exceptions (TSV, tab separated). Rules: security/lib/exceptions.sh and docs/seguridad/hu-14.md.
+# Empty on purpose: there is no approved exception yet. Candidates wait in exceptions.pending.tsv until an owner and a justification exist.
+id	package	scope	severity	owner	justification	approved	last_review	expires
