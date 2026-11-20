@@ -30,6 +30,8 @@ cd "$ROOT_DIR"
 source "$ROOT_DIR/security/policy.env"
 # shellcheck source=deploy/lib.sh
 source "$ROOT_DIR/deploy/lib.sh"
+# shellcheck source=security/lib/exceptions.sh
+source "$ROOT_DIR/security/lib/exceptions.sh"
 
 : "${IMAGE_REGISTRY:=localhost:5000}"
 : "${IMAGE_NAMESPACE:=circleguard}"
@@ -66,7 +68,7 @@ validate_policy() {
 
 # evaluate <report.json> <class> <label>: prints one line, records it in the summary, returns 0 / 1 / 2.
 evaluate() {
-  local report=$1 class=$2 label=$3 sev blocked=0 status counts=()
+  local report=$1 class=$2 label=$3 sev blocked=0 status counts=() excepted=0 matched="" scope
   if [[ ! -s "$report" ]] || ! grep -q '"SchemaVersion"' "$report"; then
     printf '%-11s %-13s %s\n' "ERROR" "$class" "$label (el informe no es un JSON de Trivy válido: $report)" >&2
     printf 'ERROR\t%s\t%s\t-\t-\t-\t-\t-\n' "$class" "$label" >>"$SUMMARY_TSV"
@@ -79,6 +81,21 @@ evaluate() {
       [[ "${SEVERITIES[$i]}" == "$sev" ]] && blocked=$((blocked + counts[i]))
     done
   done
+  # Vulnerabilities covered by a VALID exception stop blocking; they stay in the report and in the counts above.
+  if ((blocked > 0)); then
+    scope=${EXCEPTION_SCOPE:-$(exc_scope "$label")}
+    matched=$(exc_matches "$report" "$scope" "${TRIVY_SEVERITY_BLOCK//,/ }")
+    [[ -z "$matched" ]] || excepted=$(printf '%s
+' "$matched" | wc -l | tr -d ' ')
+    blocked=$((blocked - excepted))
+    if ((excepted > 0)); then
+      label="$label [excepciones vigentes: $excepted]"
+      while IFS=$'	' read -r e_id e_pkg e_sev e_owner e_exp; do
+        log "    excepción vigente: $e_id $e_pkg ($e_sev) responsable $e_owner, caduca $e_exp"
+      done < <(printf '%s
+' "$matched" | sort -u)
+    fi
+  fi
   if ((blocked == 0)); then
     status=PASS
   elif [[ "$class" == "own" || "$TRIVY_BLOCK_THIRD_PARTY" == "true" ]]; then
@@ -207,6 +224,7 @@ while (($#)); do
     --evaluate) EVAL_REPORT=${2:?Falta el informe de --evaluate}; shift 2 ;;
     --sbom) SBOMS+=("${2:?Falta el SBOM de --sbom (ruta=etiqueta)}"); shift 2 ;;
     --class) CLASS=${2:?Falta la clase}; shift 2 ;;
+    --scope) EXCEPTION_SCOPE=${2:?Falta el ámbito de --scope}; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) usage >&2; die2 "Opción desconocida: $1" ;;
   esac
@@ -215,6 +233,7 @@ done
 case "${CLASS:-own}" in own|third-party) ;; *) die2 "--class debe ser own o third-party." ;; esac
 
 validate_policy
+exc_prepare
 mkdir -p "$REPORT_DIR"
 : >"$SUMMARY_TSV"
 
