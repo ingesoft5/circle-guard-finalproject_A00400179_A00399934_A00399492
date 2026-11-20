@@ -1,0 +1,29 @@
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile" instead.
+[33m╵[0m[0m
+Acquiring state lock. This may take a few moments...
+[0m[1mmodule.compute.aws_instance.node: Destroying... [id=i-059d70cf56a1d6948][0m[0m
+[0m[1mmodule.compute.aws_instance.node: Still destroying... [id=i-059d70cf56a1d6948, 00m10s elapsed][0m[0m
+[0m[1mmodule.compute.aws_instance.node: Destruction complete after 12s[0m
+[0m[1mmodule.compute.aws_eip.node: Creating...[0m[0m
+[0m[1mmodule.compute.aws_eip.node: Creation complete after 1s [id=eipalloc-0e19d25418ec1dfb4][0m
+[0m[1mmodule.compute.aws_instance.node: Creating...[0m[0m
+[0m[1mmodule.compute.aws_instance.node: Still creating... [00m10s elapsed][0m[0m
+[0m[1mmodule.compute.aws_instance.node: Creation complete after 14s [id=i-0b856f4b79ed6ff12][0m
+[0m[1mmodule.compute.aws_eip_association.node: Creating...[0m[0m
+[0m[1mmodule.observability.aws_cloudwatch_metric_alarm.cpu_high: Modifying... [id=circleguard-dev-cpu-high][0m[0m
+[0m[1mmodule.observability.aws_cloudwatch_metric_alarm.cpu_high: Modifications complete after 1s [id=circleguard-dev-cpu-high][0m
+[0m[1mmodule.compute.aws_eip_association.node: Creation complete after 1s [id=eipassoc-0b9b7c98646910ee6][0m
+[0m[1m[32m
+Apply complete! Resources: 3 added, 1 changed, 1 destroyed.[0m
+[0m[1m[32m
+Outputs:
+
+[0mdata_bucket = "circleguard-dev-data-a00400179"
+kubeconfig_parameter = "/circleguard/dev/kubeconfig"
+log_group = "/circleguard/dev/k3s"
+node_public_ip = "18.224.41.57"
+public_subnet_id = "subnet-075f493d9f66171d2"
+vpc_id = "vpc-0cac5978ecfd91ca9"
