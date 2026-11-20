@@ -124,6 +124,10 @@ resource "aws_instance" "node" {
     encrypted   = true
   }
 
+  lifecycle {
+    ignore_changes = [associate_public_ip_address]
+  }
+
   tags = {
     Name = "${var.name}-k3s"
   }
