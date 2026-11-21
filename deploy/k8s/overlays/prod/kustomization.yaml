@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: circleguard-prod
+resources:
+- ../../base
+labels:
+- pairs:
+    environment: prod
+  includeSelectors: false
+patches:
+- target:
+    kind: ConfigMap
+    name: circleguard-config
+  patch: |-
+    - op: replace
+      path: /data/CG_ENVIRONMENT
+      value: prod
+- target:
+    kind: HorizontalPodAutoscaler
+    name: gateway
+  patch: |-
+    - op: replace
+      path: /spec/minReplicas
+      value: 2

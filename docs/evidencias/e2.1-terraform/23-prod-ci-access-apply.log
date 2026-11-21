@@ -1,0 +1,23 @@
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile" instead.
+[33m╵[0m[0m
+Acquiring state lock. This may take a few moments...
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.ssh: Modifying... [id=sgr-07212ac75b7c51630][0m[0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.kube_api: Modifying... [id=sgr-0211cc321bea3992a][0m[0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.kube_api_ci[0]: Creating...[0m[0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.kube_api: Modifications complete after 1s [id=sgr-0211cc321bea3992a][0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.kube_api_ci[0]: Creation complete after 1s [id=sgr-05b3458b65ac0e62f][0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.ssh: Modifications complete after 1s [id=sgr-07212ac75b7c51630][0m
+[0m[1m[32m
+Apply complete! Resources: 1 added, 2 changed, 0 destroyed.[0m
+[0m[1m[32m
+Outputs:
+
+[0mdata_bucket = "circleguard-prod-data-a00400179"
+kubeconfig_parameter = "/circleguard/prod/kubeconfig"
+log_group = "/circleguard/prod/k3s"
+node_public_ip = "18.190.106.207"
+public_subnet_id = "subnet-0c9c622ca847c182b"
+vpc_id = "vpc-0765396747d01e8b4"
