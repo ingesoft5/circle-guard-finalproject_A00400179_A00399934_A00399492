@@ -12,7 +12,7 @@ set -uo pipefail
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 DOCKER=0; [[ "${1:-}" == --docker ]] && DOCKER=1
 
-suites=(test-gate.sh test-exceptions.shtest-jenkins-audit.sh test-create-secrets.sh test-rbac.sh)
+suites=(test-gate.sh test-exceptions.sh test-zap-gate.sh test-performance-eval.sh test-jenkins-audit.sh test-create-secrets.sh test-rbac.sh)
 ((DOCKER)) && suites+=(test-secret-scan.sh test-tls.sh)
 
 failed=0

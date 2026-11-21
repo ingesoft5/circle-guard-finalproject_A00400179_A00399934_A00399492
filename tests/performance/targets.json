@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "declared_in": "docs/operacion/pruebas-avanzadas.md (sección 1, objetivos declarados el 2026-11-16 y congelados antes de la primera medición)",
+  "rule": "Si un objetivo no se cumple se reporta el valor real y la causa; el objetivo no se cambia después de medir.",
+  "reference_users": 100,
+  "targets": {
+    "POST /gateway/gate/validate": {
+      "flow": "Validación de acceso",
+      "scenario": "access",
+      "p95_ms": 300,
+      "min_rps": 200,
+      "max_error_pct": 1.0
+    },
+    "POST /form/surveys": {
+      "flow": "Envío de cuestionario",
+      "scenario": "survey",
+      "p95_ms": 800,
+      "min_rps": 50,
+      "max_error_pct": 2.0
+    }
+  },
+  "informative": [
+    "GET /auth/qr/generate",
+    "GET /form/questionnaires/active"
+  ]
+}
