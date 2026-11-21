@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: circleguard-config
+  labels:
+    app.kubernetes.io/part-of: circleguard
+data:
+  TZ: America/Bogota
+  JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=60 -XX:MaxMetaspaceSize=128m -XX:+ExitOnOutOfMemoryError
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  SPRING_DATA_REDIS_HOST: redis
+  SPRING_DATA_REDIS_PORT: "6379"
+  SPRING_NEO4J_URI: bolt://neo4j:7687
+  SPRING_LDAP_URLS: ldap://openldap:389
+  AUTH_API_URL: http://auth:8180
+  SPRING_MAIL_HOST: localhost
+  SPRING_MAIL_PORT: "25"
+  CG_ENVIRONMENT: base
