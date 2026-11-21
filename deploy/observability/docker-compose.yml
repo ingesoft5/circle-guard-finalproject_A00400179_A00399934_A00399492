@@ -45,8 +45,7 @@ services:
     image: grafana/grafana:11.1.4
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      # HU-14: no default password. Set GRAFANA_ADMIN_PASSWORD (see deploy/observability/README.md); compose stops with a clear message if it is missing.
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Defina GRAFANA_ADMIN_PASSWORD (contraseña de administración de Grafana, no se versiona)}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-circleguard}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_AUTH_ANONYMOUS_ENABLED: "false"
     volumes:

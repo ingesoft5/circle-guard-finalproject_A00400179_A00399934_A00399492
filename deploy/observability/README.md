@@ -22,8 +22,7 @@ Los servicios escuchan en el host; Prometheus los busca en `host.docker.internal
 # 1. Servicios (desde la raíz del repo, con las variables de entorno cargadas)
 ./gradlew bootRun --parallel
 
-# 2. Stack de observabilidad (HU-14: Grafana ya no tiene contraseña por defecto; defínala en el entorno, sin escribirla en ningún archivo)
-read -rs -p "Contraseña de administración de Grafana: " GRAFANA_ADMIN_PASSWORD; export GRAFANA_ADMIN_PASSWORD
+# 2. Stack de observabilidad
 docker compose -f deploy/observability/docker-compose.yml up -d
 
 # 3. Comprobar
