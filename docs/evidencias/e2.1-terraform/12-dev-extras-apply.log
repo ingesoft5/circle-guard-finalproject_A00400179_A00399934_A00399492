@@ -1,0 +1,29 @@
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile" instead.
+[33m╵[0m[0m
+Acquiring state lock. This may take a few moments...
+[0m[1mmodule.observability.aws_cloudwatch_log_group.node: Creating...[0m[0m
+[0m[1mmodule.storage.aws_s3_bucket.this: Creating...[0m[0m
+[0m[1mmodule.observability.aws_cloudwatch_metric_alarm.cpu_high: Creating...[0m[0m
+[0m[1mmodule.observability.aws_cloudwatch_metric_alarm.cpu_high: Creation complete after 1s [id=circleguard-dev-cpu-high][0m
+[0m[1mmodule.observability.aws_cloudwatch_log_group.node: Creation complete after 1s [id=/circleguard/dev/k3s][0m
+[0m[1mmodule.storage.aws_s3_bucket.this: Creation complete after 3s [id=circleguard-dev-data-a00400179][0m
+[0m[1mmodule.storage.aws_s3_bucket_versioning.this: Creating...[0m[0m
+[0m[1mmodule.storage.aws_s3_bucket_server_side_encryption_configuration.this: Creating...[0m[0m
+[0m[1mmodule.storage.aws_s3_bucket_public_access_block.this: Creating...[0m[0m
+[0m[1mmodule.storage.aws_s3_bucket_public_access_block.this: Creation complete after 1s [id=circleguard-dev-data-a00400179][0m
+[0m[1mmodule.storage.aws_s3_bucket_server_side_encryption_configuration.this: Creation complete after 1s [id=circleguard-dev-data-a00400179][0m
+[0m[1mmodule.storage.aws_s3_bucket_versioning.this: Creation complete after 2s [id=circleguard-dev-data-a00400179][0m
+[0m[1m[32m
+Apply complete! Resources: 6 added, 0 changed, 0 destroyed.[0m
+[0m[1m[32m
+Outputs:
+
+[0mdata_bucket = "circleguard-dev-data-a00400179"
+kubeconfig_parameter = "/circleguard/dev/kubeconfig"
+log_group = "/circleguard/dev/k3s"
+node_public_ip = ""
+public_subnet_id = "subnet-075f493d9f66171d2"
+vpc_id = "vpc-0cac5978ecfd91ca9"
