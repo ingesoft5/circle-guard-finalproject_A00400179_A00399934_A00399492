@@ -14,6 +14,18 @@ Stack local y de Kubernetes para métricas, trazas y logs. Diseño completo y ru
 | OTLP (collector) | `localhost:4320` | `otel-collector.observability:4318` |
 | Loki | `localhost:3100` | `loki.observability:3100` |
 
+## Credenciales
+
+Grafana **no tiene contraseña por defecto**. Antes de levantar el stack:
+
+```bash
+export GRAFANA_ADMIN_USER=admin
+export GRAFANA_ADMIN_PASSWORD="$(openssl rand -base64 24)"
+```
+
+Sin `GRAFANA_ADMIN_PASSWORD`, Compose detiene el arranque con un mensaje explícito. La contraseña
+no se escribe en ningún archivo versionado.
+
 ## Modo 1 · servicios con `bootRun` (local)
 
 Los servicios escuchan en el host; Prometheus los busca en `host.docker.internal`.
