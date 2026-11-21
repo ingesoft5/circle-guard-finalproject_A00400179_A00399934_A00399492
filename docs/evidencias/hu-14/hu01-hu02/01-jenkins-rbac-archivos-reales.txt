@@ -1,0 +1,22 @@
+# security/jenkins/validate-rbac-live.sh con los archivos REALES de HU-01 (plugins.txt completo y casc/jenkins.yaml modificado), controlador desechable 2.580.2 LTS, 2026-11-17
+==> building the throwaway Jenkins image (downloads the plugins)
+==> waiting for Jenkins to start
+==> checks
+PASS  anonymous cannot read the API -> 403
+PASS  viewer can read the API -> 200
+PASS  developer can read the API -> 200
+PASS  admin can read the API -> 200
+PASS  admin can open the management page -> 200
+PASS  developer cannot open the management page -> 403
+PASS  viewer cannot open the management page -> 403
+PASS  developer cannot open the plugin manager -> 403
+PASS  developer cannot open the script console -> 403
+PASS  developer cannot create jobs -> 403
+PASS  admin can create a job -> 200
+PASS  viewer cannot build the job -> 403
+PASS  anonymous cannot build the job -> 403
+PASS  developer can build the job -> 201
+PASS  developer cannot delete the job -> 403
+PASS  viewer cannot delete the job -> 403
+PASS  admin can delete the job -> 302
+17 passed, 0 failed

@@ -1,0 +1,35 @@
+{
+  "SchemaVersion": 2,
+  "ArtifactName": "synthetic-fixture",
+  "Results": [
+    {
+      "Target": "synthetic",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "SYNTHETIC-0001",
+          "Severity": "CRITICAL"
+        },
+        {
+          "VulnerabilityID": "SYNTHETIC-0002",
+          "Severity": "HIGH"
+        },
+        {
+          "VulnerabilityID": "SYNTHETIC-0003",
+          "Severity": "HIGH"
+        },
+        {
+          "VulnerabilityID": "SYNTHETIC-0004",
+          "Severity": "MEDIUM"
+        },
+        {
+          "VulnerabilityID": "SYNTHETIC-0005",
+          "Severity": "LOW"
+        },
+        {
+          "VulnerabilityID": "SYNTHETIC-0006",
+          "Severity": "UNKNOWN"
+        }
+      ]
+    }
+  ]
+}

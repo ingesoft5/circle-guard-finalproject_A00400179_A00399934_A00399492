@@ -1,0 +1,12 @@
+== IMAGES (own): before = 1.0.0-hu14scan, after = 1.0.0-hu14fix
+servicio          antes C/H/M/L   despues C/H/M/L   corregidas  NUEVAS(C/H)  NUEVAS(total)
+auth               16/82/102/67         2/16/28/8          80            0              0
+identity           16/87/110/68         2/19/35/9          82            0              0
+dashboard           14/80/99/67         1/14/26/8          79            0              0
+file                14/79/97/67         1/13/24/8          79            0              0
+form               14/86/108/68         1/18/34/9          81            0              0
+gateway            15/85/104/67         1/13/27/8          86            0              0
+notification      17/108/140/72        2/19/43/11         104            0              0
+promotion          17/93/115/68         2/19/36/9          89            0              0
+web                 3/65/103/46       3/65/103/46           0            0              0
+TOTAL          126/765/978/   590 -> 15/196/356/116   vulnerabilidades NUEVAS en total: 0

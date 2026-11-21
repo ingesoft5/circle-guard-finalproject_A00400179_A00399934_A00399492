@@ -3,7 +3,7 @@
 # Build from the repository root:
 #   docker build -f services/circleguard-gateway-service/Dockerfile -t <registry>/circleguard/circleguard-gateway-service:<semver> .
 ARG GRADLE_IMAGE=gradle:8.14-jdk21@sha256:aa72246029828dd4b4ddb5d4aba31f72ee070cafe52dc85ad5cc3296007ace6f
-ARG RUNTIME_IMAGE=eclipse-temurin:21.0.9_10-jre-alpine@sha256:08eecc477dbe3f2e33daac27f36e41daf7f4ec51d2f3396006e54fa41832c74c
+ARG RUNTIME_IMAGE=eclipse-temurin:21.0.13_9-jre-alpine-3.22@sha256:f816ce16bcad97d2e68420362bf37edd914a2a986b2b5aa4a7b3e7492128a0e8
 
 FROM ${GRADLE_IMAGE} AS build
 USER root
@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="CircleGuard gateway service" \
       org.opencontainers.image.revision="${REVISION}" \
       org.opencontainers.image.created="${CREATED}" \
       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
-      org.opencontainers.image.base.name="eclipse-temurin:21.0.9_10-jre-alpine"
+      org.opencontainers.image.base.name="eclipse-temurin:21.0.13_9-jre-alpine-3.22"
 RUN addgroup -S -g 10001 circleguard \
     && adduser -S -u 10001 -G circleguard -h /app -s /sbin/nologin circleguard \
     && apk add --no-cache curl

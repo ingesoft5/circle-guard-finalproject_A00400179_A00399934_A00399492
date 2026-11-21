@@ -1,0 +1,27 @@
+# security/audit-jenkins-credentials.sh sobre el Jenkinsfile y jenkins/vars (auditoría estática; no contacta con Jenkins)
+== Credenciales usadas (ID  tipo  archivo:linea)
+   circleguard-deploy                 sshUserPrivateKey  Jenkinsfile:505
+   circleguard-env-${envName}         file               Jenkinsfile:258
+   circleguard-env-${envName}         file               Jenkinsfile:497
+   circleguard-env-${envName}         file               Jenkinsfile:523
+   circleguard-registry               usernamePassword   Jenkinsfile:223
+   credentialsId                      usernamePassword   jenkins/vars/cgPublish.groovy:14
+   discord-webhook                    string             Jenkinsfile:536
+   discord-webhook                    string             jenkins/vars/cgNotify.groovy:3
+   github-token                       string             Jenkinsfile:412
+   github-token                       string             Jenkinsfile:451
+
+== Comprobaciones
+
+RESULT: PASS · 0 violaciones, 0 aviso(s). Archivos auditados: Jenkinsfile jenkins/vars/cgDetectChanges.groovy jenkins/vars/cgGradle.groovy jenkins/vars/cgIntegrationTests.groovy jenkins/vars/cgNotify.groovy jenkins/vars/cgPackage.groovy jenkins/vars/cgPublish.groovy jenkins/vars/cgSecurityScan.groovy jenkins/vars/cgSonar.groovy jenkins/vars/cgUnitTests.groovy
+
+# security/tests/test-jenkins-audit.sh
+PASS  a pipeline that only uses withCredentials and shell expansion passes (exit 0)
+PASS  a literal password in the pipeline is a violation (exit 1)
+PASS  Groovy interpolation of a secret in a double-quoted sh is a violation (exit 1)
+PASS  a credential inside a URL is a violation (exit 1)
+PASS  printing a secret variable is only a warning (exit 0)
+PASS  credentials() in environment{} is only a warning (exit 0)
+PASS  a commented-out example is ignored (exit 0)
+
+7 passed, 0 failed

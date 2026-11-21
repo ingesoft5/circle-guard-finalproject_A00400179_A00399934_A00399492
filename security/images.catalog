@@ -1,0 +1,19 @@
+# HU-14 · Third-party images that CircleGuard deploys, scanned by security/scan-images.sh --third-party.
+# Format:  <class>|<image reference as pinned in the repository>
+#   runtime        images of deploy/compose/docker-compose.common.yml
+#   observability  images of deploy/observability/ (HU-13)
+# The nine CircleGuard images (own) are not listed: they come from deploy/lib.sh.
+# Tooling images of the pipeline (Jenkins, SonarQube, registry, Nexus; HU-01) are out of scope here.
+runtime|postgres:16.15@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a
+runtime|neo4j:5.26.32-community@sha256:249a1ec6e3c52d82101a5ed33d6ed2b5ed5b0017b21a28c0bfebc335e87fb177
+runtime|confluentinc/cp-zookeeper:7.6.0@sha256:9babd1c0beaf93189982bdbb9fe4bf194a2730298b640c057817746c19838866
+runtime|confluentinc/cp-kafka:7.6.0@sha256:24cdd3a7fa89d2bed150560ebea81ff1943badfa61e51d66bb541a6b0d7fb047
+runtime|redis:7.2.5-alpine@sha256:6aaf3f5e6bc8a592fbfe2cccf19eb36d27c39d12dab4f4b01556b7449e7b1f44
+runtime|osixia/openldap:1.5.0
+observability|prom/prometheus:v2.54.1
+observability|prom/alertmanager:v0.27.0
+observability|grafana/grafana:11.1.4
+observability|grafana/loki:3.1.1
+observability|grafana/promtail:3.1.1
+observability|jaegertracing/all-in-one:1.60
+observability|otel/opentelemetry-collector-contrib:0.108.0

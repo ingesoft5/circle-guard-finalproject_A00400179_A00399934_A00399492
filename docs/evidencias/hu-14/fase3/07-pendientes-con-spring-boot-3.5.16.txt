@@ -1,0 +1,28 @@
+CRITICAL CVE-2026-75595   netty-handler              4.1.135.Final  -> 4.2.17.Final, 4.1.137.Final
+CRITICAL CVE-2026-55276   tomcat-embed-core          10.1.55        -> 11.0.23, 10.1.56, 9.0.119
+CRITICAL CVE-2026-65182   tomcat-embed-core          10.1.55        -> 11.0.25, 10.1.58, 9.0.121
+CRITICAL CVE-2026-65637   tomcat-embed-core          10.1.55        -> 11.0.25, 10.1.59, 9.0.121
+CRITICAL CVE-2026-65905   tomcat-embed-core          10.1.55        -> 11.0.25, 10.1.58, 9.0.121
+CRITICAL CVE-2026-68525   tomcat-embed-core          10.1.55        -> 11.0.25, 10.1.58, 9.0.121
+CRITICAL CVE-2026-84939   freemarker                 2.3.34         -> 2.3.35
+CRITICAL CVE-2026-47890   spring-webflux             6.2.19         -> 7.0.9
+CRITICAL CVE-2026-47892   spring-webflux             6.2.19         -> 7.0.9
+CRITICAL CVE-2026-47884   spring-webmvc              6.2.19         -> 7.0.9
+CRITICAL CVE-2026-47890   spring-webmvc              6.2.19         -> 7.0.9
+HIGH     CVE-2026-106451  lz4-java                   1.10.1         -> 1.11.4
+HIGH     CVE-2026-89407   jackson-core               2.21.4         -> 2.18.11, 2.21.7, 2.22.3
+HIGH     CVE-2026-89425   jackson-core               2.21.4         -> 2.21.7, 2.22.3, 2.18.11
+HIGH     CVE-2026-68497   jackson-databind           2.21.4         -> 2.18.10, 2.21.6, 2.22.2
+HIGH     CVE-2026-91776   jackson-databind           2.21.4         -> 2.18.11, 2.21.7, 2.22.3
+HIGH     CVE-2026-91777   jackson-databind           2.21.4         -> 2.21.7, 2.18.11, 2.22.3
+HIGH     CVE-2024-47554   commons-io                 2.7            -> 2.14.0
+HIGH     CVE-2026-59901   netty-codec                4.1.135.Final  -> 4.1.136.Final
+HIGH     CVE-2026-55831   netty-codec-http           4.1.135.Final  -> 4.2.16.Final, 4.1.136.Final
+HIGH     CVE-2026-55833   netty-codec-http           4.1.135.Final  -> 4.2.16.Final, 4.1.136.Final
+HIGH     CVE-2026-56745   netty-codec-http           4.1.135.Final  -> 4.2.16.Final, 4.1.136.Final
+HIGH     CVE-2026-56819   netty-codec-http2          4.1.135.Final  -> 4.2.16.Final, 4.1.136.Final
+HIGH     CVE-2026-53404   tomcat-embed-core          10.1.55        -> 11.0.23, 10.1.56, 9.0.119
+HIGH     CVE-2026-54291   postgresql                 42.7.11        -> 42.7.12
+HIGH     CVE-2026-108106  snappy-java                1.1.10.5       -> 1.1.10.9
+HIGH     CVE-2026-93451   snappy-java                1.1.10.5       -> 1.1.10.9
+27 CVE distintos

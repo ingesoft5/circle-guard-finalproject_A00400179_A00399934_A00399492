@@ -1,0 +1,27 @@
+package	installed	critical	high	fix_same_line	cves_without_fix_in_line	services	scope	detail_without_fix
+org.apache.tomcat.embed:tomcat-embed-core	10.1.19	8	18	10.1.58	0	auth,dashboard,file,form,gateway,identity,notification,promotion	transitive	
+org.springframework.security:spring-security-web	6.2.3	2	0	6.2.7	1	auth,identity,promotion	transitive	CVE-2026-22732(CRITICAL) fixed in 6.5.9, 7.0.4
+io.netty:netty-handler	4.1.107.Final	1	4	4.1.137.Final	0	gateway,notification,promotion	transitive	
+org.springframework:spring-webmvc	6.1.5	1	4	6.1.14	3	auth,dashboard,file,form,gateway,identity,notification,promotion	transitive	CVE-2026-47884(CRITICAL) fixed in 7.0.9; CVE-2026-41842(HIGH) fixed in 7.0.8, 6.2.19; CVE-2026-41845(HIGH) fixed in 7.0.8, 6.2.19
+org.springframework:spring-webflux	6.1.5	1	3	6.1.14	2	notification	transitive	CVE-2026-47892(CRITICAL) fixed in 7.0.9; CVE-2026-41842(HIGH) fixed in 7.0.8, 6.2.19
+org.freemarker:freemarker	2.3.32	1	0	2.3.35	0	notification	transitive	
+io.netty:netty-codec-http	4.1.107.Final	0	6	4.1.136.Final	0	notification	transitive	
+com.fasterxml.jackson.core:jackson-databind	2.15.4	0	5	-	5	auth,dashboard,file,form,gateway,identity,notification,promotion	transitive	CVE-2026-54512(HIGH) fixed in 2.18.8, 3.1.4, 2.21.4; CVE-2026-54513(HIGH) fixed in 2.18.8, 2.21.4, 3.1.4; CVE-2026-68497(HIGH) fixed in 2.18.10, 2.21.6, 2.22.2
+io.netty:netty-codec-http2	4.1.107.Final	0	4	4.1.136.Final	0	notification	transitive	
+org.lz4:lz4-java	1.8.0	0	3	1.8.1	2	form,identity,notification,promotion	transitive	CVE-2025-66566(HIGH) fixed in sin arreglo; CVE-2026-106451(HIGH) fixed in sin arreglo
+com.fasterxml.jackson.core:jackson-core	2.15.4	0	2	-	2	auth,dashboard,file,form,gateway,identity,notification,promotion	transitive	CVE-2026-68494(HIGH) fixed in 2.18.8, 2.21.4; CVE-2026-89425(HIGH) fixed in 2.21.7, 2.22.3, 2.18.11
+io.netty:netty-codec	4.1.107.Final	0	2	4.1.136.Final	0	gateway,notification,promotion	transitive	
+io.netty:netty-resolver-dns	4.1.107.Final	0	2	4.1.135.Final	0	notification	transitive	
+org.xerial.snappy:snappy-java	1.1.10.5	0	2	1.1.10.9	0	form,identity,notification,promotion	transitive	
+commons-io:commons-io	2.7	0	1	-	1	notification	transitive	CVE-2024-47554(HIGH) fixed in 2.14.0
+io.micrometer:micrometer-core	1.12.4	0	1	-	1	auth,dashboard,file,form,gateway,identity,notification,promotion	transitive	CVE-2026-40984(HIGH) fixed in 1.16.6, 1.15.12
+io.netty:netty-codec-dns	4.1.107.Final	0	1	4.1.133.Final	0	notification	transitive	
+org.apache.kafka:kafka-clients	3.6.1	0	1	-	1	form,identity,notification,promotion	transitive	CVE-2026-35554(HIGH) fixed in 3.9.2, 4.0.2, 4.1.2
+org.postgresql:postgresql	42.6.2	0	1	-	1	auth,dashboard,form,identity,promotion	direct	CVE-2026-42198(HIGH) fixed in 42.7.11
+org.springframework.boot:spring-boot	3.2.4	0	1	-	1	auth,dashboard,file,form,gateway,identity,notification,promotion	transitive	CVE-2025-22235(HIGH) fixed in 3.3.11, 3.4.5
+org.springframework.boot:spring-boot-starter-actuator	3.2.4	0	1	-	1	auth,dashboard,file,form,gateway,identity,notification,promotion	direct	CVE-2026-22733(HIGH) fixed in 4.0.4, 3.5.12
+org.springframework.ldap:spring-ldap-core	3.2.2	0	1	-	1	auth	transitive	CVE-2026-41720(HIGH) fixed in 4.0.4, 3.3.8
+org.springframework.security:spring-security-crypto	6.2.3	0	1	6.2.10	0	auth,identity,promotion	transitive	
+org.springframework:spring-core	6.1.5	0	1	-	1	auth,dashboard,file,form,gateway,identity,notification,promotion	transitive	CVE-2025-41249(HIGH) fixed in 6.2.11
+org.springframework:spring-expression	6.1.5	0	1	-	1	auth,dashboard,file,form,gateway,identity,notification,promotion	transitive	CVE-2026-41850(HIGH) fixed in 7.0.8, 6.2.19
+org.springframework:spring-web	6.1.5	0	1	6.1.6	0	auth,dashboard,file,form,gateway,identity,notification,promotion	transitive	

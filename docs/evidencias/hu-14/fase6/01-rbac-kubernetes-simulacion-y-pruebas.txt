@@ -1,0 +1,55 @@
+# security/k8s/rbac-check.py: SIMULACIÓN OFFLINE de los manifiestos (no demuestra RBAC aplicado en un clúster)
+Manifests: 17 objects in /mnt/c/Users/matth/OneDrive/Escritorio/IngesofV/ProyectoFinal/circle-guard-finalproject_A00400179_A00399934_A00399492/security/k8s/rbac
+Lint: no findings
+  PASS  sa:circleguard:jenkins-deployer get deployments in circleguard: expected yes, got yes
+  PASS  sa:circleguard:jenkins-deployer patch deployments in circleguard: expected yes, got yes
+  PASS  sa:circleguard:jenkins-deployer create deployments in circleguard: expected yes, got yes
+  PASS  sa:circleguard:jenkins-deployer update services in circleguard: expected yes, got yes
+  PASS  sa:circleguard:jenkins-deployer patch configmaps in circleguard: expected yes, got yes
+  PASS  sa:circleguard:jenkins-deployer get pods/log in circleguard: expected yes, got yes
+  PASS  sa:circleguard:jenkins-deployer delete deployments in circleguard: expected no, got no
+  PASS  sa:circleguard:jenkins-deployer get secrets in circleguard: expected no, got no
+  PASS  sa:circleguard:jenkins-deployer create secrets in circleguard: expected no, got no
+  PASS  sa:circleguard:jenkins-deployer create pods/exec in circleguard: expected no, got no
+  PASS  sa:circleguard:jenkins-deployer delete pods in circleguard: expected no, got no
+  PASS  sa:circleguard:jenkins-deployer get deployments in observability: expected no, got no
+  PASS  sa:circleguard:jenkins-deployer get deployments in kube-system: expected no, got no
+  PASS  sa:circleguard:jenkins-deployer create rolebindings in circleguard: expected no, got no
+  PASS  group:circleguard-viewers get pods in circleguard: expected yes, got yes
+  PASS  group:circleguard-viewers list deployments in circleguard: expected yes, got yes
+  PASS  group:circleguard-viewers get pods/log in circleguard: expected yes, got yes
+  PASS  group:circleguard-viewers get secrets in circleguard: expected no, got no
+  PASS  group:circleguard-viewers list secrets in circleguard: expected no, got no
+  PASS  group:circleguard-viewers create deployments in circleguard: expected no, got no
+  PASS  group:circleguard-viewers update configmaps in circleguard: expected no, got no
+  PASS  group:circleguard-viewers create pods/exec in circleguard: expected no, got no
+  PASS  group:circleguard-viewers get pods in observability: expected no, got no
+  PASS  group:circleguard-platform-admins get secrets in circleguard: expected yes, got yes
+  PASS  group:circleguard-platform-admins create secrets in circleguard: expected yes, got yes
+  PASS  group:circleguard-platform-admins update secrets in circleguard: expected yes, got yes
+  PASS  group:circleguard-platform-admins list secrets in circleguard: expected no, got no
+  PASS  group:circleguard-platform-admins delete secrets in circleguard: expected no, got no
+  PASS  group:circleguard-platform-admins get deployments in circleguard: expected no, got no
+  PASS  group:circleguard-platform-admins get secrets in observability: expected no, got no
+  PASS  sa:circleguard:auth-service get pods in circleguard: expected no, got no
+  PASS  sa:circleguard:auth-service get secrets in circleguard: expected no, got no
+  PASS  sa:circleguard:auth-service get configmaps in circleguard: expected no, got no
+  PASS  sa:circleguard:promotion-service list services in circleguard: expected no, got no
+  PASS  sa:circleguard:web get secrets in circleguard: expected no, got no
+
+Matrix: 35 of 35 rows as expected
+RESULT: PASS
+
+# security/tests/test-rbac.sh
+PASS  the real manifests pass the lint and the whole matrix
+PASS  a wildcard verb is detected
+PASS  list/delete on secrets is detected
+PASS  giving the deployer access to secrets breaks the matrix
+PASS  binding a broad built-in role (cluster-admin) is detected
+PASS  a ServiceAccount that mounts its token is detected
+PASS  the live script fails when the cluster allows what the matrix denies
+PASS  it impersonates ServiceAccounts and groups and passes group and subresource correctly
+PASS  the live script fails when the cluster denies what the matrix allows
+PASS  without kubectl or a cluster it reports an error (exit 2), never a pass
+
+10 passed, 0 failed

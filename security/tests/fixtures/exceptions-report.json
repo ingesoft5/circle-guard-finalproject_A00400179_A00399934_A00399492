@@ -1,0 +1,21 @@
+{
+  "SchemaVersion": 2,
+  "ArtifactName": "synthetic-fixture",
+  "Results": [
+    {
+      "Target": "synthetic",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "SYNTHETIC-0101",
+          "PkgName": "example.org:lib-a",
+          "Severity": "CRITICAL"
+        },
+        {
+          "VulnerabilityID": "SYNTHETIC-0102",
+          "PkgName": "example.org:lib-b",
+          "Severity": "HIGH"
+        }
+      ]
+    }
+  ]
+}

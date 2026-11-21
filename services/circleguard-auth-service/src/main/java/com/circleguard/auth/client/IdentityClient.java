@@ -91,7 +91,24 @@ public class IdentityClient {
         } catch (ResourceAccessException | HttpServerErrorException e) {
             throw new IdentityServiceUnavailableException("identity-service call failed: " + e.getMessage(), e);
         }
-        return UUID.fromString(response.get("anonymousId").toString());
+        return parseAnonymousId(response);
+    }
+
+    /**
+     * A 2xx answer without a usable anonymousId is an identity-service failure, not a bug of the caller:
+     * report it as "unavailable" (503) instead of letting a NullPointerException or an
+     * IllegalArgumentException surface as a generic 500.
+     */
+    private static UUID parseAnonymousId(Map<?, ?> response) {
+        Object value = response == null ? null : response.get("anonymousId");
+        if (value == null) {
+            throw new IdentityServiceUnavailableException("identity-service answered without an anonymousId", null);
+        }
+        try {
+            return UUID.fromString(value.toString());
+        } catch (IllegalArgumentException e) {
+            throw new IdentityServiceUnavailableException("identity-service answered an invalid anonymousId", e);
+        }
     }
 
     /** The circuit of this client, for metrics (HU-13) and tests. */

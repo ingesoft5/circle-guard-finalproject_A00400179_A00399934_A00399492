@@ -38,7 +38,7 @@ Este documento hace tres cosas, todas verificables contra el código:
 - **Tópicos.** `survey.submitted` y `certificate.validated` (form → promotion); `promotion.status.changed`, `circle.fenced`, `alert.priority` y `proximity.detected` (promotion); `notification.audit` (notification); `audit.identity.accessed` (identity).
 - **Cómo funciona.** form publica con `KafkaTemplate`; promotion y notification consumen con `@KafkaListener`. Un fallo de notification no detiene a promotion.
 - **Evidencia.** Las pruebas de integración de HU-04 recorren el flujo form → Kafka → promotion → notification con un broker real (`tests/integration`).
-- **Carencia que HU-12 corrige en promotion.** Los listeners capturaban toda excepción y solo la registraban, así que un evento que fallaba se perdía (ver §C.3). **Sigue pendiente en notification**: `CircleFencedListener.java:33`, `ExposureNotificationListener.java:34` y `PriorityAlertListener.java:55` mantienen el `catch (Exception)` que descarta el evento.
+- **Carencia que HU-12 corrige en promotion y en notification.** Los listeners capturaban toda excepción y solo la registraban, así que un evento que fallaba se perdía (ver §C.3). Ya no: `SurveyListener`, `CircleFencedListener`, `ExposureNotificationListener` y `PriorityAlertListener` dejan que el fallo llegue al manejador de errores, que reintenta o lo manda al `.DLT`.
 
 ### B.3 API Gateway — ⚠️ parcial
 
@@ -215,13 +215,19 @@ Antes: la excepción moría en el `catch` del listener y el evento se perdía. D
 
 | Componente | Archivo |
 |---|---|
-| Manejador con reintento acotado y publicación al DLT | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/config/KafkaErrorHandlingConfig.java` (`addNotRetryableExceptions`, línea 58) |
-| Listeners que dejan de tragar la excepción | `.../promotion/listener/SurveyListener.java` |
+| Manejador con reintento acotado y publicación al DLT (promotion) | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/config/KafkaErrorHandlingConfig.java` |
+| Listeners de promotion que dejan de tragar la excepción | `.../promotion/listener/SurveyListener.java` |
+| `ErrorHandlingDeserializer` para registros ilegibles | `services/circleguard-promotion-service/src/main/resources/application.yml` (`spring.kafka.consumer.value-deserializer`) |
+| Manejador equivalente en notification | `services/circleguard-notification-service/src/main/java/com/circleguard/notification/config/KafkaErrorHandlingConfig.java` |
+| Listeners de notification que dejan de tragar la excepción | `.../notification/service/CircleFencedListener.java`, `ExposureNotificationListener.java`, `PriorityAlertListener.java` |
 
-Spring Boot aplica el bean `CommonErrorHandler` a todos los contenedores de `@KafkaListener`; no hizo falta otra configuración.
+Spring Boot aplica el bean `CommonErrorHandler` a todos los contenedores de `@KafkaListener`; no hizo falta otra configuración. La clase se repite en notification porque cada servicio se despliega por separado y no hay un módulo compartido.
 
 **Decisiones técnicas.**
 - **Qué se reintenta y qué no.** Transitorios (p. ej. Neo4j o Redis caídos un momento): hasta 2 reintentos, 3 entregas en total. Directo al DLT, sin reintento: `ClassCastException` e `IllegalArgumentException` (datos malformados) y `FenceException` (regla de negocio: aprobar un certificado dentro de la ventana de cerco; reintentar no cambia el resultado).
+- **Qué se reintenta en notification.** Transitorios (p. ej. el auth-service sin responder al resolver una alerta): hasta 2 reintentos. Directo al DLT: `JsonProcessingException`, `ClassCastException` e `IllegalArgumentException` (carga mal formada). El envío por correo, SMS y push es asíncrono y cada canal tiene su propio reintento, así que sus fallos no llegan a este manejador: lo que se reintenta aquí es lo que ocurre antes de despachar.
+- **Registros que no se pueden deserializar (promotion).** El consumidor usa `ErrorHandlingDeserializer` con `JsonDeserializer` como delegado. Un registro ilegible deja de lanzar una excepción desde `poll()` (que repetiría los mismos bytes para siempre) y llega al manejador, que lo publica en el DLT **tal cual**. Para eso hace falta un segundo productor con `ByteArraySerializer` para los valores y `StringSerializer` para la clave: el productor de la aplicación serializa a JSON y alteraría los bytes. El recuperador elige la plantilla según el tipo del valor (`byte[]` antes que `Object`).
+- **Valor del DLT en notification.** Sus consumidores leen texto plano, así que el DLT se escribe con un productor `StringSerializer`. Con el productor de la aplicación (JSON) el texto original quedaría entre comillas.
 - **Partición del DLT.** Se deja que el productor la elija (partición -1) para no exigir que el DLT tenga tantas particiones como el tópico origen.
 - **Nombre del tópico.** `<tópico original>.DLT`.
 
@@ -243,7 +249,10 @@ Spring Boot aplica el bean `CommonErrorHandler` a todos los contenedores de `@Ka
 | No añade dependencias | Alguien debe vigilar los `.DLT` y reprocesarlos: un DLT que nadie mira equivale a perder el mensaje |
 | Distingue errores transitorios de errores de datos | Los `.DLT` deben existir (o auto-crearse) en el broker; las cabeceras de la excepción pueden incluir texto del error |
 
-**Limitación conocida.** Un mensaje cuyo JSON **no se puede deserializar** sigue bloqueando la partición, porque el consumidor usa `JsonDeserializer` directamente. Resolverlo exige cambiar el deserializador en `application.yml` (`ErrorHandlingDeserializer`) y un segundo `KafkaTemplate` para valores binarios; quedó fuera para respetar el alcance de HU-12. Y los consumidores de **notification** conservan su `catch` (§B.2).
+**Limitaciones conocidas.**
+- Los consumidores de notification leen texto plano y no pueden fallar al deserializar, pero un fallo a mitad de un listener puede procesar el mismo evento dos veces (p. ej. repetir el aviso a algunos administradores en `PriorityAlertListener`). Es el coste de la entrega al menos una vez.
+- Los `.DLT` no tienen consumidor: alguien debe revisarlos y reprocesarlos. No hay alerta ni panel (observabilidad corresponde a HU-13).
+- Los cinco `@KafkaListener` del repositorio quedan cubiertos (`survey.submitted`, `certificate.validated`, `circle.fenced`, `promotion.status.changed`, `alert.priority`). `proximity.detected` y `notification.audit` solo se publican; ningún servicio los consume.
 
 ---
 
@@ -254,7 +263,9 @@ Spring Boot aplica el bean `CommonErrorHandler` a todos los contenedores de `@Ka
 | Circuit Breaker | `IdentityClientTest$CircuitBreakerWithInjectedFaults` (6 pruebas) | Servidor HTTP real que responde 500, se cuelga más que el timeout o responde 400 | CLOSED con servidor sano; apertura al llegar al umbral; rechazo sin llamar al servidor; HALF_OPEN y vuelta a CLOSED; reapertura si las pruebas fallan; un timeout cuenta como fallo; los 4xx no abren el circuito |
 | Circuit Breaker | `LoginControllerFlowsTest` | Cliente que lanza `IdentityServiceUnavailableException` | El login devuelve 503 sin token; un error genérico sigue siendo 500 |
 | External Configuration | `IdentityClientTest$ExternalConfiguration` (4 pruebas) | Propiedades y variables de entorno distintas | Valores por defecto seguros; enlace tipado desde propiedades; sobrescritura por variable de entorno; solo cambiar la configuración cambia cuándo abre el circuito |
-| Dead Letter Topic | `DeadLetterTopicIntegrationTest` (4 pruebas, Kafka real) | Evento malformado; listener que falla de forma transitoria o permanente | El evento malformado llega a `survey.submitted.DLT` y el consumo continúa; un fallo transitorio se reintenta 3 veces y se recupera sin pasar por el DLT; uno permanente se entrega 1 + 2 veces y va al DLT; los errores de datos y de negocio no se reintentan |
+| Dead Letter Topic | `DeadLetterTopicIntegrationTest` (6 pruebas, Kafka real) | Evento malformado y bytes que no son JSON en promotion; eventos malformados en los tres tópicos de notification; listener que falla de forma transitoria o permanente | El evento malformado llega a `survey.submitted.DLT` y el consumo continúa; los bytes ilegibles llegan al DLT sin alterarse y el consumo continúa (`ErrorHandlingDeserializer`); los tres tópicos de notification van a su `.DLT` y un cambio de estado posterior se sigue notificando; un fallo transitorio se reintenta 3 veces y se recupera sin pasar por el DLT; uno permanente se entrega 1 + 2 veces y va al DLT; los errores de datos y de negocio no se reintentan |
+| Dead Letter Topic | `DeadLetterHandlingTest` en notification (9 pruebas) | Eventos malformados y un auth-service que no responde | Los tres listeners ya no tragan la excepción; un error de datos se manda al `.DLT` sin reintento y uno transitorio se reintenta |
+| Validación de la respuesta de identity | `IdentityClientTest` (3 pruebas nuevas) | Respuesta vacía, sin `anonymousId` o con un UUID mal formado | Se informa como identity-service no disponible (503) en vez de un 500 por `NullPointerException` |
 
 ## E. Evidencias y cómo reproducirlas
 
@@ -272,8 +283,8 @@ Los resultados de esta sección son de ejecuciones reales en WSL (Gradle 8.14, J
 
 | Comando | Resultado verificado |
 |---|---|
-| `./gradlew :services:circleguard-auth-service:test :services:circleguard-promotion-service:test :services:circleguard-notification-service:test` | `BUILD SUCCESSFUL`. auth 54 pruebas, promotion 125, notification 11: **0 fallos**. Cobertura de líneas: auth 98,4 % (línea base 98,0 %), promotion 91,5 % (línea base 90,9 %), ambas por encima del mínimo de 60 % |
-| `./gradlew :tests:integration:integrationTest :services:circleguard-promotion-service:integrationTest` (Docker) | `BUILD SUCCESSFUL`. `tests:integration`: 9 pruebas (4 de DLT, IT-1/1b/2, IT-3/4) y promotion: 6 pruebas: **0 fallos** |
+| `./gradlew :services:circleguard-auth-service:test :services:circleguard-promotion-service:test :services:circleguard-notification-service:test` | `BUILD SUCCESSFUL`. auth 57 pruebas, promotion 125, notification 20: **0 fallos**. Cobertura de líneas: auth 98,5 % (línea base 98,0 %), promotion 91,4 % (línea base 90,9 %), ambas por encima del mínimo de 60 % |
+| `./gradlew :tests:integration:integrationTest :services:circleguard-promotion-service:integrationTest` (Docker) | `BUILD SUCCESSFUL`. `tests:integration`: 11 pruebas (6 de DLT, IT-1/1b/2, IT-3/4) y promotion: 6 pruebas: **0 fallos** |
 
 **Una primera ejecución falló en IT-2 (de HU-04) y se corrigió.** La causa no estaba en los patrones: mi prueba de DLT corría antes de que se sembrara `SystemSettings` y dejó cacheado el resultado vacío (ver §F.7). Se corrigió sembrando la configuración al inicio de la prueba nueva y se repitió la suite completa.
 
@@ -281,8 +292,8 @@ Los resultados de esta sección son de ejecuciones reales en WSL (Gradle 8.14, J
 
 1. **El gateway no bloquea los estados reales** (`QrValidationService.java:37`; ver §B.3). Afecta al control de acceso.
 2. **Compose no pasa la URL de `identity` a `auth`** ni la de `promotion` a `dashboard` (HU-10/HU-11).
-3. **Los consumidores de notification siguen descartando eventos fallidos** (§B.2).
+3. ~~Los consumidores de notification siguen descartando eventos fallidos~~: **resuelto** en la ampliación de HU-12 (§C.3).
 4. **`getCachedStatus` y tres cachés declarados no se usan** (§B.4).
-5. **`LoginController` imprime con `System.out`** (incluida la longitud de la contraseña) y vuelca trazas con `printStackTrace`.
+5. ~~`LoginController` imprimía con `System.out` (incluida la longitud de la contraseña) y volcaba trazas con `printStackTrace`~~: **resuelto** en la ampliación de HU-12; ahora usa SLF4J y no registra nada derivado de la contraseña.
 6. **`LmsServiceImpl` apunta por defecto al puerto 8081 de identity** (el real es el 8083).
 7. **`SystemSettingsRepository.getSettings()` cachea también el resultado vacío** (`@Cacheable("systemSettings")` con Caffeine, que admite valores nulos, 5 minutos). Si se consulta antes de que exista la fila, `checkFenceWindow` falla con «System Settings not initialized» hasta que expira el caché. Lo descubrió el orden de ejecución de las pruebas de integración: la prueba de DLT corría antes de que otra sembrara la configuración. En producción Flyway inserta la fila, así que la gravedad es baja, pero el comportamiento existe. La prueba nueva ahora siembra la configuración primero.
