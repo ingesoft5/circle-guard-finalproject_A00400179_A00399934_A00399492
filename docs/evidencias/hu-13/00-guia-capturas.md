@@ -96,22 +96,20 @@ aws ssm get-parameter --region "$AWS_REGION" --name /circleguard/dev/kubeconfig 
 ### B.2 Desplegar el stack
 
 ```bash
-kubectl apply -k deploy/k8s/observability
+export GRAFANA_ADMIN_PASSWORD="$(openssl rand -base64 24)"
+echo "Grafana: admin / $GRAFANA_ADMIN_PASSWORD"
 
-kubectl -n observability create secret generic grafana-admin \
-  --from-literal=admin-user=admin \
-  --from-literal=admin-password="$(openssl rand -base64 24)" \
-  --dry-run=client -o yaml | kubectl apply -f -
-
-kubectl -n observability get pods,svc
+KUBECONFIG=~/.kube/config ./deploy/observability/k8s-evidence.sh
 ```
 
-> El secreto debe existir **antes** de que Grafana arranque; si ya estaba corriendo, reinicia el
-> deployment: `kubectl -n observability rollout restart deployment/grafana`.
+El script aplica los manifiestos, crea el secreto de Grafana, espera los deployments y escribe
+`10-k8s-observability.txt`. El Prometheus del clúster ya tiene targets estáticos para
+`circleguard-dev`, así que las métricas funcionan sin redesplegar la aplicación.
 
-### B.3 Redesplegar la app con las anotaciones de Prometheus
+### B.3 Redesplegar la app (opcional)
 
-Los manifiestos de `deploy/k8s/base/apps/` ya incluyen `prometheus.io/scrape`. Para aplicarlos:
+Los manifiestos de `deploy/k8s/base/apps/` también llevan anotaciones `prometheus.io/*`. Si quieres
+que Prometheus descubra los pods por anotación (además de los targets estáticos):
 
 ```bash
 export AWS_REGION=us-east-2
