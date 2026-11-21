@@ -24,7 +24,9 @@ jwt:
 
 qr:
   secret: "${CG_QR_SECRET}"
-  expiration: 300
+  # HU-15 fix: this value is in MILLISECONDS (QrTokenService adds it to System.currentTimeMillis()). It used to say 300, so a QR
+  # lived 300 ms and the gate rejected it under load. 60000 = 60 s, what the API reports ("expiresIn") and the web client expects.
+  expiration: 60000
 
 # HU-12: identity-service client (circuit breaker + external configuration). These are the defaults for
 # local development; a container or cluster must override the URL, for example with

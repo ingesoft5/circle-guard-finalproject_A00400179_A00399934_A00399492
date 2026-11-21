@@ -1,7 +1,7 @@
 # Informe consolidado de rendimiento, seguridad dinámica, cobertura y calidad (HU-15 · E2.7)
 
 **Fecha de las mediciones:** 2026-11-20 (UTC) · **Estado:** ejecutado en un ambiente **local aislado**; **no** en Jenkins ni en dev de AWS.
-**Veredicto de rendimiento:** **ningún objetivo declarado se cumple a 100 usuarios** (causa y acciones en la sección 7). **Veredicto de ZAP:** 0 alertas High: la compuerta pasa con el umbral acordado (High) y bloquearía con umbral Medium.
+**Veredicto de rendimiento:** **ningún objetivo declarado se cumple a 100 usuarios** (causa y acciones en la sección 7). **Correcciones aplicadas después de medir (2026-11-21):** caducidad del QR, cabeceras de seguridad del cliente web, pruebas de `dashboard` y `file`, y contraseña de Grafana; ver la sección 8 (se numera 8 por orden de lectura; las limitaciones pasan a la 9). **Veredicto de ZAP:** 0 alertas High: la compuerta pasa con el umbral acordado (High) y bloquearía con umbral Medium.
 
 ## 1. Alcance y objetivos
 
@@ -23,7 +23,7 @@ Los objetivos se declararon antes de medir ([targets.json](../../../tests/perfor
 | Límites por contenedor | 0,5 CPU en `auth`, `gateway`, `form`, `identity`, `file`, `notification`, `promotion`; memoria 384 MiB (`auth`, `gateway`) a 512 MiB (`form`, `promotion`); 1 CPU para Kafka, Neo4j y Postgres |
 | Herramientas | Locust 2.32.5 y OWASP ZAP `stable`, ambos fijados por digest ([policy.env](../../../security/policy.env), [run-perf.sh](../../../tests/performance/run-perf.sh)) |
 | Carga | 10, 50 y 100 usuarios, 5 min cada escalón, 10 usuarios/s, 20 s de calentamiento no evaluado; acceso a 2 iteraciones/s por usuario y cuestionario a 0,5/s |
-| **Desviación del ambiente** | `QR_EXPIRATION=60000` en el contenedor `auth` (override de entorno local, fuera del repositorio). Sin él el QR dura 300 ms y la validación falla (hallazgo H1); el valor usado es el que el código toma por defecto y el que el cliente espera (60 s) |
+| **Desviación del ambiente** | `QR_EXPIRATION=60000` en el contenedor `auth` (override de entorno local, fuera del repositorio), porque las imágenes de la medición se construyeron **antes** de corregir el valor en el repositorio. Sin él el QR dura 300 ms (hallazgo H1). El override equivale exactamente a la corrección aplicada después (`qr.expiration: 60000`), así que la medición representa la configuración corregida |
 
 ## 3. Resultados de rendimiento
 
@@ -103,19 +103,36 @@ Las pruebas de extremo a extremo con Playwright forman parte del pipeline y no s
 
 Los objetivos no se modificaron. La corrida es **de un ambiente pequeño y compartido** (ver limitaciones): demuestra que con esta configuración el sistema no alcanza los objetivos y por qué, no que no los alcanzaría con los recursos previstos para dev/stage.
 
-## 7. Hallazgos, causas y acciones propuestas (ninguna aplicada al código del producto)
+## 7. Hallazgos, causas y acciones propuestas (al momento de medir; las aplicadas después están en la sección 8)
 
 | # | Hallazgo | Evidencia | Causa | Acción propuesta |
 |---|---|---|---|---|
-| H1 | **El QR caduca a los 300 ms.** Con la configuración del repositorio la validación de acceso falló el 80,3 % (10 usuarios) y 26 de 40 tokens en una prueba secuencial | [hallazgo-qr/](hallazgo-qr/) | `qr.expiration: 300` en el `application.yml` de auth se interpreta en milisegundos (el valor por defecto del código es 60000 y el cliente espera 60 s) | Corregir el valor/unidad en auth (responsable de HU-04/auth); añadir una prueba que fije la expiración. Con `QR_EXPIRATION=60000` la validación acertó 40/40 y 0 % de errores en todos los escalones |
+| H1 | **[Corregido, sección 8]** **El QR caduca a los 300 ms.** Con la configuración del repositorio la validación de acceso falló el 80,3 % (10 usuarios) y 26 de 40 tokens en una prueba secuencial | [hallazgo-qr/](hallazgo-qr/) | `qr.expiration: 300` en el `application.yml` de auth se interpreta en milisegundos (el valor por defecto del código es 60000 y el cliente espera 60 s) | Corregir el valor/unidad en auth (responsable de HU-04/auth); añadir una prueba que fije la expiración. Con `QR_EXPIRATION=60000` la validación acertó 40/40 y 0 % de errores en todos los escalones |
 | H2 | **Acceso: p95 460 ms y 86,8 req/s a 100 usuarios.** La solicitud más lenta del flujo es la generación del QR (p95 2 500 ms), no la validación | tabla de la sección 3; [diagnóstico](rendimiento/diagnostico/stats-access.txt) | Durante la carga `auth` llegó al 68 % de CPU frente a un límite de 0,5 CPU y usó 362 de 384 MiB (94 %); `gateway` trabajó en el límite de CPU (50 %) | Subir CPU y memoria de `auth` y `gateway` en los ambientes reales, o escalar réplicas; perfilar la generación del QR (no se perfiló aquí) |
 | H3 | **Cuestionario: p95 2 700 ms y 40,6 req/s.** Degrada desde 50 usuarios (p95 1 100 ms) | tabla de la sección 3; [diagnóstico](rendimiento/diagnostico/stats-survey.txt) | `form` al 60 % de CPU con un límite de 0,5. `GET /questionnaires/active` degrada igual (2 700 ms): la saturación es del servicio, no solo de la escritura | Subir recursos de `form`; revisar la carga del cuestionario activo y el pool de conexiones; repetir la medición |
 | H4 | **El login no soporta una avalancha.** 55 de 100 logins simultáneos fallaron con 503 (p95 47 s) | [primera ejecución](rendimiento/primera-ejecucion-invalidada/) | BCrypt con 0,5 CPU y el tiempo de espera de 3 s hacia identity (el circuit breaker de HU-12 respondió 503 como debe) | Dimensionar `auth`/`identity` para la hora punta de entrada, o limitar la tasa de login; no se cambió el timeout |
-| H5 | **ZAP: 2 Medium y 7 Low por cabeceras de seguridad ausentes en el cliente web** | [zap-report.html](zap/zap-report.html) | `mobile/nginx.conf` no define CSP, `X-Frame-Options` ni `X-Content-Type-Options` (el terminador TLS de HU-14 sí define HSTS, `X-Frame-Options` y `X-Content-Type-Options`) | Añadir las cabeceras en `mobile/nginx.conf` (HU-02) y repetir el análisis; con ellas el umbral podría bajarse a Medium |
-| H6 | Cobertura baja en `dashboard-service` (2,7 %) y `file-service` (46,7 %) | sección 5 | Casi sin pruebas unitarias (2 y 3) | Escribir pruebas de esos servicios |
+| H5 | **[Corregido en parte, sección 8]** **ZAP: 2 Medium y 7 Low por cabeceras de seguridad ausentes en el cliente web** | [zap-report.html](zap/zap-report.html) | `mobile/nginx.conf` no define CSP, `X-Frame-Options` ni `X-Content-Type-Options` (el terminador TLS de HU-14 sí define HSTS, `X-Frame-Options` y `X-Content-Type-Options`) | Añadir las cabeceras en `mobile/nginx.conf` (HU-02) y repetir el análisis; con ellas el umbral podría bajarse a Medium |
+| H6 | **[Corregido, sección 8]** Cobertura baja en `dashboard-service` (2,7 %) y `file-service` (46,7 %) | sección 5 | Casi sin pruebas unitarias (2 y 3) | Escribir pruebas de esos servicios |
 | H7 | Factor de confusión: Neo4j y Kafka consumieron 115–130 % de un núcleo durante toda la medición | [diagnóstico](rendimiento/diagnostico/) | JVM de infraestructura en el mismo equipo que Locust y los servicios | Repetir en un ambiente con recursos dedicados |
 
-## 8. Limitaciones
+## 8. Correcciones aplicadas después de la medición (2026-11-21)
+
+Autorizadas por el equipo; ninguna cambia los objetivos ni la medición de las secciones 3 a 5, que se conservan como línea base.
+
+| Hallazgo | Corrección | Verificación |
+|---|---|---|
+| H1 · QR de 300 ms | `qr.expiration: 60000` en el `application.yml` de auth (con un comentario sobre la unidad). Nueva prueba `QrExpirationConfigurationTest` que fija el valor de producción | Con el valor antiguo la prueba **falla** (comprobación de mutación en la copia de trabajo) y con el nuevo pasa; auth: 61 pruebas, 0 fallos |
+| H5 · cabeceras del cliente web | CSP (sin `'unsafe-inline'` para scripts: el script inline de Expo se permite por su hash SHA-256), `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` (cámara solo propia), COOP y CORP en `mobile/nginx.conf` | Nueva prueba E2E `security-headers.spec.ts`: ninguna de 5 pantallas viola la CSP y las cabeceras están presentes (falla si se quita el hash). Los flujos E2E existentes siguen igual: 10 pasan y 1 falla **también sin las cabeceras** (login con credenciales inválidas, preexistente). ZAP repetido: ver abajo |
+| H6 · cobertura | 32 pruebas nuevas en `dashboard` (34 en total) (filtro de k-anonimato, servicio, cliente HTTP, endpoints) y 11 en `file` (almacenamiento, ruta con `../`, errores, endpoint) | `dashboard`: 100 % de líneas (74/74); `file`: 86,7 % (13/15); 0 fallos y verificación de cobertura de JaCoCo en verde |
+| Contraseña por defecto de Grafana (HU-14) | `docker-compose.yml` de observabilidad exige `GRAFANA_ADMIN_PASSWORD` (sin valor por defecto) y el README explica cómo definirla | El escáner de secretos pasa de 1 a **0 hallazgos activos** |
+
+**ZAP después de las cabeceras** ([zap-con-cabeceras/](zap-con-cabeceras/)): 0 High, **1 Medium**, 3 Low, 1 Informational (antes 0/2/7/1).
+Quedan: `style-src 'unsafe-inline'` (Medium; react-native-web inyecta estilos en tiempo de ejecución y una exportación estática no puede usar nonces), `Cross-Origin-Embedder-Policy` ausente (Low; se dejó fuera a propósito para no arriesgar la carga de recursos), «Dangerous JS Functions» y «Timestamp Disclosure» (Low; vienen del paquete JavaScript).
+La compuerta sigue en **PASS con umbral High** y **FAIL con umbral Medium**: con esa alerta residual el umbral no puede bajarse a Medium sin aceptarla de forma explícita.
+El total de pruebas JUnit pasa de 302 a 347 (2 + 32 + 11 nuevas), sin fallos.
+**Esta repetición se hizo contra el nginx de la imagen web con la nueva configuración montada**, no contra un despliegue completo. Las demás conclusiones de rendimiento (H2, H3, H4, H7) no cambian: son de capacidad.
+
+## 9. Limitaciones
 
 - Ambiente pequeño, compartido y local, con límites de 0,5 CPU por servicio; **no es representativo de dev/stage de AWS** (HU-09/HU-10) ni del tamaño real de un campus.
 - Un único usuario de prueba (el sembrado por la migración V3): todos los usuarios virtuales comparten el mismo `anonymousId` y el mismo JWT; las validaciones no ejercitan estados de salud distintos. Los envíos de cuestionario usan identificadores sintéticos y responden siempre NO.

@@ -1,0 +1,9 @@
+ZAP baseline · umbral que bloquea: High o superior
+RIESGO         INSTANCIAS PLUGIN   ALERTA
+Medium         5          10055    CSP: style-src unsafe-inline
+Low            5          90004    Cross-Origin-Embedder-Policy Header Missing or Invalid
+Low            1          10110    Dangerous JS Functions
+Low            5          10096    Timestamp Disclosure - Unix
+Informational  5          10049    Storable and Cacheable Content
+Alertas distintas: High=0 Medium=1 Low=3 Informational=1
+RESULT: PASS · ninguna alerta alcanza el umbral High.

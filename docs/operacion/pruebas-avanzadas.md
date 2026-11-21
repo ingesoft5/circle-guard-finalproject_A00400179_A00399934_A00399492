@@ -2,7 +2,7 @@
 
 **Documento:** consolidación para HU-17 (E2.9) sobre HU-15 (S2 · E2.7)
 **Última actualización:** 2026-11-20
-**Estado:** **Implementado y ejecutado en un ambiente local aislado** (Docker Compose, nunca prod). Locust, ZAP baseline, la compuerta
+**Estado:** **Implementado y ejecutado en un ambiente local aislado, con las correcciones de los hallazgos aplicadas (QR, cabeceras, cobertura)** (Docker Compose, nunca prod). Locust, ZAP baseline, la compuerta
 de bloqueo y los pasos de Jenkins existen y están probados; **la integración en el Jenkinsfile está preparada como parche, no aplicada**
 (el Jenkinsfile es de HU-11), y **no se ha ejecutado en Jenkins ni en dev de AWS** (HU-09/HU-10/HU-11). Resultados e interpretación:
 [docs/evidencias/hu-15/INFORME.md](../evidencias/hu-15/INFORME.md).
