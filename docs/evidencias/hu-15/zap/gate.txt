@@ -1,0 +1,14 @@
+ZAP baseline · umbral que bloquea: High o superior
+RIESGO         INSTANCIAS PLUGIN   ALERTA
+Medium         5          10038    Content Security Policy (CSP) Header Not Set
+Medium         5          10020    Missing Anti-clickjacking Header
+Low            5          90004    Cross-Origin-Embedder-Policy Header Missing or Invalid
+Low            5          90004    Cross-Origin-Opener-Policy Header Missing or Invalid
+Low            5          90004    Cross-Origin-Resource-Policy Header Missing or Invalid
+Low            1          10110    Dangerous JS Functions
+Low            5          10063    Permissions Policy Header Not Set
+Low            5          10096    Timestamp Disclosure - Unix
+Low            5          10021    X-Content-Type-Options Header Missing
+Informational  5          10049    Storable and Cacheable Content
+Alertas distintas: High=0 Medium=2 Low=7 Informational=1
+RESULT: PASS · ninguna alerta alcanza el umbral High.

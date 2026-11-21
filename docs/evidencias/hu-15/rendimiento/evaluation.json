@@ -1,0 +1,249 @@
+{
+  "reference_users": 100,
+  "rows": [
+    {
+      "scenario": "access",
+      "users": 100,
+      "name": "POST /gateway/gate/validate",
+      "target": {
+        "flow": "Validaci\u00f3n de acceso",
+        "scenario": "access",
+        "p95_ms": 300,
+        "min_rps": 200,
+        "max_error_pct": 1.0
+      },
+      "requests": 24652,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 77.0,
+      "p95_ms": 460.0,
+      "p99_ms": 840.0,
+      "max_ms": 1576.0190569999395,
+      "rps": 86.80402534037594,
+      "checks": {
+        "p95": false,
+        "errors": true,
+        "throughput": false
+      }
+    },
+    {
+      "scenario": "access",
+      "users": 100,
+      "name": "GET /auth/qr/generate",
+      "target": null,
+      "requests": 24688,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 670.0,
+      "p95_ms": 2500.0,
+      "p99_ms": 3700.0,
+      "max_ms": 9162.586447000649,
+      "rps": 86.9307876684732,
+      "checks": {}
+    },
+    {
+      "scenario": "access",
+      "users": 10,
+      "name": "POST /gateway/gate/validate",
+      "target": {
+        "flow": "Validaci\u00f3n de acceso",
+        "scenario": "access",
+        "p95_ms": 300,
+        "min_rps": 200,
+        "max_error_pct": 1.0
+      },
+      "requests": 5195,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 21.0,
+      "p95_ms": 200.0,
+      "p99_ms": 450.0,
+      "max_ms": 14180.64586500077,
+      "rps": 18.234591190370583,
+      "checks": {
+        "p95": true,
+        "errors": true,
+        "throughput": null
+      }
+    },
+    {
+      "scenario": "access",
+      "users": 10,
+      "name": "GET /auth/qr/generate",
+      "target": null,
+      "requests": 5197,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 27.0,
+      "p95_ms": 450.0,
+      "p99_ms": 790.0,
+      "max_ms": 1277.842307001265,
+      "rps": 18.241611244726837,
+      "checks": {}
+    },
+    {
+      "scenario": "access",
+      "users": 50,
+      "name": "POST /gateway/gate/validate",
+      "target": {
+        "flow": "Validaci\u00f3n de acceso",
+        "scenario": "access",
+        "p95_ms": 300,
+        "min_rps": 200,
+        "max_error_pct": 1.0
+      },
+      "requests": 18752,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 57.0,
+      "p95_ms": 400.0,
+      "p99_ms": 640.0,
+      "max_ms": 2833.9690789998713,
+      "rps": 65.85939319132734,
+      "checks": {
+        "p95": false,
+        "errors": true,
+        "throughput": null
+      }
+    },
+    {
+      "scenario": "access",
+      "users": 50,
+      "name": "GET /auth/qr/generate",
+      "target": null,
+      "requests": 18757,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 350.0,
+      "p95_ms": 1500.0,
+      "p99_ms": 2200.0,
+      "max_ms": 4488.88329699912,
+      "rps": 65.8769538230443,
+      "checks": {}
+    },
+    {
+      "scenario": "survey",
+      "users": 100,
+      "name": "POST /form/surveys",
+      "target": {
+        "flow": "Env\u00edo de cuestionario",
+        "scenario": "survey",
+        "p95_ms": 800,
+        "min_rps": 50,
+        "max_error_pct": 2.0
+      },
+      "requests": 11473,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 700.0,
+      "p95_ms": 2700.0,
+      "p99_ms": 4000.0,
+      "max_ms": 8201.029284999095,
+      "rps": 40.55687730505066,
+      "checks": {
+        "p95": false,
+        "errors": true,
+        "throughput": false
+      }
+    },
+    {
+      "scenario": "survey",
+      "users": 100,
+      "name": "GET /form/questionnaires/active",
+      "target": null,
+      "requests": 11534,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 630.0,
+      "p95_ms": 2700.0,
+      "p99_ms": 3900.0,
+      "max_ms": 6783.320091002679,
+      "rps": 40.77251136027668,
+      "checks": {}
+    },
+    {
+      "scenario": "survey",
+      "users": 10,
+      "name": "POST /form/surveys",
+      "target": {
+        "flow": "Env\u00edo de cuestionario",
+        "scenario": "survey",
+        "p95_ms": 800,
+        "min_rps": 50,
+        "max_error_pct": 2.0
+      },
+      "requests": 1411,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 47.0,
+      "p95_ms": 620.0,
+      "p99_ms": 1600.0,
+      "max_ms": 2509.459926001,
+      "rps": 4.987160226925857,
+      "checks": {
+        "p95": true,
+        "errors": true,
+        "throughput": null
+      }
+    },
+    {
+      "scenario": "survey",
+      "users": 10,
+      "name": "GET /form/questionnaires/active",
+      "target": null,
+      "requests": 1413,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 21.0,
+      "p95_ms": 380.0,
+      "p99_ms": 940.0,
+      "max_ms": 1989.801712001281,
+      "rps": 4.994229199607538,
+      "checks": {}
+    },
+    {
+      "scenario": "survey",
+      "users": 50,
+      "name": "POST /form/surveys",
+      "target": {
+        "flow": "Env\u00edo de cuestionario",
+        "scenario": "survey",
+        "p95_ms": 800,
+        "min_rps": 50,
+        "max_error_pct": 2.0
+      },
+      "requests": 6970,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 290.0,
+      "p95_ms": 1100.0,
+      "p99_ms": 1700.0,
+      "max_ms": 3676.887407000322,
+      "rps": 24.617877550805588,
+      "checks": {
+        "p95": false,
+        "errors": true,
+        "throughput": null
+      }
+    },
+    {
+      "scenario": "survey",
+      "users": 50,
+      "name": "GET /form/questionnaires/active",
+      "target": null,
+      "requests": 6970,
+      "failures": 0,
+      "error_pct": 0.0,
+      "p50_ms": 180.0,
+      "p95_ms": 1000.0,
+      "p99_ms": 1700.0,
+      "max_ms": 3370.6938230025116,
+      "rps": 24.617877550805588,
+      "checks": {}
+    }
+  ],
+  "verdicts": {
+    "POST /gateway/gate/validate": "NOT MET",
+    "POST /form/surveys": "NOT MET"
+  }
+}

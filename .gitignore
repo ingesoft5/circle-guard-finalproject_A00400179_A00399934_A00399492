@@ -86,3 +86,7 @@ deploy/releases/history.tsv
 *.swp
 *~
 !gradle/wrapper/gradle-wrapper.jar
+
+# HU-15: Locust and ZAP raw results (the published evidence is copied to docs/evidencias/hu-15/) and Python caches
+tests/performance/results/
+__pycache__/

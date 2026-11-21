@@ -26,6 +26,7 @@
    services/circleguard-auth-service/src/main/java/com/circleguard/auth/security/SecurityConfig.java:59 fija
    contextSource.setUrl("ldap://localhost:389"), ignorando SPRING_LDAP_URLS=ldap://openldap:389 de Compose.
    El healthcheck de Docker de auth no usa ese endpoint y sigue en healthy; liveness y readiness están UP.
+   [CORREGIDO 2026-11-20 en HU-12: SecurityConfig lee spring.ldap.*; health de auth UP. Ver docs/evidencias/hu-12/auth-ldap-configurable.md]
 2. [CORREGIDO 2026-11-20] El 401 del usuario de prueba NO era un defecto del servicio: era un error de MI prueba. Extraje la
    contraseña del comentario de V3__fix_user_passwords.sql buscando "password is" en minúsculas, y el comentario dice
    "Password is": la extracción quedó vacía y se envió una contraseña vacía. Se comprobó con bcrypt que el hash de la
