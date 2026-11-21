@@ -1,50 +1,104 @@
 # Índice de la documentación
 
 Punto de entrada a todo lo que no es código. El README general del proyecto está en
-[`../README.md`](../README.md).
+[`../README.md`](../README.md). Cada documento declara su **estado** (`Implementado`, `Parcial`,
+`Pendiente`) para que la documentación no prometa más de lo que existe.
+
+## Estado por criterio de la rúbrica (Entregable 2)
+
+| Criterio | Documento dueño | Evidencia | Estado 2026-11-16 |
+|---|---|---|---|
+| C1 · Metodología ágil, cierre (E2.9) | [`metodologia/sprint-2.md`](metodologia/sprint-2.md) | Jira, flujo acumulado, retrospectiva | En curso (datos de cierre pendientes) |
+| C2 · Terraform (E2.1) | [`arquitectura/terraform.md`](arquitectura/terraform.md) | Módulos, plan/apply, backend remoto | Implementado y aplicado (HU-09 S2) |
+| C3 · Kubernetes (E2.2) | [`arquitectura/kubernetes.md`](arquitectura/kubernetes.md) | Manifiestos, pods, Ingress, HPA | Parcial: clúster k3s sí; manifiestos de la app pendientes (HU-10 S2) |
+| C4 · Patrones de diseño (E2.4) | [`arquitectura/patrones-diseno.md`](arquitectura/patrones-diseno.md) | Código + pruebas de falla | Implementado (HU-12, PR #14) |
+| C5 · CI/CD avanzado (E2.3) | [`arquitectura/pipeline-cd.md`](arquitectura/pipeline-cd.md) | Jenkinsfile, builds | Parcial (falta K8s/Trivy) |
+| C6 · Pruebas avanzadas (E2.7) | [`operacion/pruebas-avanzadas.md`](operacion/pruebas-avanzadas.md) | Locust, ZAP, informe | Implementado en rama HU-14; falta merge e integración en Jenkins |
+| C7 · Change management y rollback (E2.8) | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) | Release notes, registro, rollback | Parcial (Compose sí; K8s pendiente) |
+| C8 · Observabilidad (E2.5) | [`operacion/observabilidad.md`](operacion/observabilidad.md) | Dashboards, alertas, trazas, logs | Parcial (código y stack local; falta evidencia K8s) |
+| C9 · Seguridad (E2.6) | [`operacion/seguridad.md`](operacion/seguridad.md) | Trivy, RBAC, TLS, secretos | Implementado en rama HU-14; falta merge y despliegue |
+| C10 · Documentación completa (E2.9) | Este índice + [`operacion/manual-operaciones.md`](operacion/manual-operaciones.md) + [`operacion/analisis-costos.md`](operacion/analisis-costos.md) + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) | Documentos + evidencias | En curso |
+| C11 · Presentación (E2.10) | [`sustentacion/guion-sprint-2.md`](sustentacion/guion-sprint-2.md) | Demo y falla provocada | Listo para ensayo |
+
+> **Convención:** `HU-09 (S1)` es branching; `HU-09 (S2)` es Terraform. Ver D-32 en
+> [`iag/decisiones.md`](iag/decisiones.md).
 
 ## Arquitectura y diseño
 
-| Documento | Contenido |
-|---|---|
-| [`arquitectura/diagramas.md`](arquitectura/diagramas.md) | Diagramas de arquitectura lógica, flujo de eventos, pipeline de CI, pipeline de CD e infraestructura |
-| [`arquitectura/infra-ambientes.md`](arquitectura/infra-ambientes.md) | Diagrama completo de la infraestructura en AWS y de los tres ambientes |
-| [`arquitectura/pipeline-cd.md`](arquitectura/pipeline-cd.md) | Etapas del Jenkinsfile y mapeo de ramas |
-| [`arquitectura/empaquetado-inmutable.md`](arquitectura/empaquetado-inmutable.md) | Imágenes inmutables y Compose por ambiente |
-| [`arquitectura/registro-artefactos.md`](arquitectura/registro-artefactos.md) | Decisión del registro: CNCF Distribution en lugar de Nexus |
+| Documento | Contenido | Estado |
+|---|---|---|
+| [`arquitectura/arquitectura-general.md`](arquitectura/arquitectura-general.md) | Vista lógica, responsabilidades, dependencias, comunicación y ambientes | Vigente |
+| [`arquitectura/diagramas.md`](arquitectura/diagramas.md) | Diagramas de arquitectura, flujo de eventos, CI, CD e infraestructura | Vigente |
+| [`arquitectura/infra-ambientes.md`](arquitectura/infra-ambientes.md) | Diagrama completo de la infraestructura AWS y los tres ambientes | Vigente |
+| [`arquitectura/kubernetes.md`](arquitectura/kubernetes.md) | Contrato de K8s: namespaces, ConfigMaps, Secrets, probes, HPA, Blue-Green | Parcial: clúster k3s sí; manifiestos de la app pendientes (HU-10 S2) |
+| [`arquitectura/terraform.md`](arquitectura/terraform.md) | Módulos, backend remoto, variables, ambientes y diagrama | Implementado y aplicado (HU-09 S2) |
+| [`arquitectura/pipeline-cd.md`](arquitectura/pipeline-cd.md) | Etapas del Jenkinsfile y mapeo de ramas | Vigente |
+| [`arquitectura/patrones-diseno.md`](arquitectura/patrones-diseno.md) | Inventario de patrones + Circuit Breaker, External Configuration y DLT | Implementado (HU-12) |
+| [`arquitectura/empaquetado-inmutable.md`](arquitectura/empaquetado-inmutable.md) | Imágenes inmutables y Compose por ambiente | Vigente |
+| [`arquitectura/registro-artefactos.md`](arquitectura/registro-artefactos.md) | Decisión del registro: CNCF Distribution en lugar de Nexus | Vigente |
 
 ## Operación
 
-| Documento | Contenido |
-|---|---|
-| [`operacion/infraestructura-aws.md`](operacion/infraestructura-aws.md) | Construir, destruir y reconstruir la plataforma; demostración guiada |
-| [`../infra/README.md`](../infra/README.md) | Referencia técnica de los scripts de infraestructura |
-| [`../deploy/README.md`](../deploy/README.md) | Imágenes y despliegue con Compose |
-| [`../jenkins/README.md`](../jenkins/README.md) | Requisitos de Jenkins (plugins, credenciales, agente) |
-| [`estrategia-branching.md`](estrategia-branching.md) | GitHub Flow y Conventional Commits |
+| Documento | Contenido | Estado |
+|---|---|---|
+| [`operacion/manual-operaciones.md`](operacion/manual-operaciones.md) | Instalar, configurar, desplegar, operar, monitorear, recuperar y revertir | Vigente; K8s pendiente |
+| [`operacion/observabilidad.md`](operacion/observabilidad.md) | Stack, métricas, dashboards, alertas, trazas, logs y runbook | Pendiente (HU-13 S2) |
+| [`operacion/seguridad.md`](operacion/seguridad.md) | Controles actuales y pendientes: Trivy, RBAC, TLS, secretos | Implementado en rama HU-14; doc pendiente de actualizar |
+| [`operacion/pruebas-avanzadas.md`](operacion/pruebas-avanzadas.md) | Objetivos, Locust, ZAP e informe consolidado | Implementado en rama HU-14; falta merge |
+| [`operacion/analisis-costos.md`](operacion/analisis-costos.md) | Tarifas, gasto real, estimación del Sprint 2 y FinOps | Estimación lista; Billing pendiente |
+| [`operacion/infraestructura-aws.md`](operacion/infraestructura-aws.md) | Construir, destruir y reconstruir la plataforma; demostración guiada | Vigente |
+| [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) | Releases, registro por ambiente, aprobación y rollback | Parcial; K8s pendiente |
+| [`operaciones/politica-aprobacion.md`](operaciones/politica-aprobacion.md) | Tipos de cambio y aprobadores | Vigente |
+| [`operaciones/solicitud-cambio.md`](operaciones/solicitud-cambio.md) | Plantilla de RFC | Vigente |
+| [`../infra/README.md`](../infra/README.md) | Referencia técnica de los scripts de infraestructura | Vigente |
+| [`../deploy/README.md`](../deploy/README.md) | Imágenes y despliegue con Compose | Vigente |
+| [`../jenkins/README.md`](../jenkins/README.md) | Requisitos de Jenkins (plugins, credenciales, agente) | Vigente |
+| [`estrategia-branching.md`](estrategia-branching.md) | GitHub Flow y Conventional Commits | Vigente |
+
+## Metodología y revisiones
+
+| Documento | Contenido | Estado |
+|---|---|---|
+| [`metodologia/sprint-2.md`](metodologia/sprint-2.md) | Objetivo, alcance, dependencias, DoD, métricas, review y retro | En curso |
+| [`revisiones/hu-12-revision.md`](revisiones/hu-12-revision.md) | Revisión de HU-12 contra sus 9 criterios y observaciones | Cerrada |
 
 ## Evidencias por historia de usuario
 
-| Historia | Carpeta |
-|---|---|
-| HU-01 · Infraestructura en la nube | [`evidencias/hu-01/`](evidencias/hu-01/README.md) |
-| HU-02 · Imágenes Docker inmutables | [`evidencias/hu-02/`](evidencias/hu-02/README.md) |
-| HU-04 · Pruebas unitarias y de integración | [`evidencias/hu-04/`](evidencias/hu-04/README.md) |
-| HU-06 · Entrega continua y promoción | [`evidencias/hu-06/`](evidencias/hu-06/README.md) |
-| HU-07 · Rollback, notificaciones y release notes | [`evidencias/hu-07/`](evidencias/hu-07/README.md) |
-| HU-08 · Documentación y bitácora de IAG | [`evidencias/hu-08/`](evidencias/hu-08/README.md) |
+| Historia | Carpeta | Estado |
+|---|---|---|
+| HU-01 (S1) · Infraestructura en la nube | [`evidencias/hu-01/`](evidencias/hu-01/README.md) | Completa |
+| HU-02 (S1) · Imágenes Docker inmutables | [`evidencias/hu-02/`](evidencias/hu-02/README.md) | Completa |
+| HU-04 (S1) · Pruebas unitarias y de integración | [`evidencias/hu-04/`](evidencias/hu-04/README.md) | Completa |
+| HU-06 (S1) · Entrega continua y promoción | [`evidencias/hu-06/`](evidencias/hu-06/README.md) | Completa |
+| HU-07 (S1) · Rollback, notificaciones y release notes | [`evidencias/hu-07/`](evidencias/hu-07/README.md) | Completa |
+| HU-08 (S1) · Documentación y bitácora de IAG | [`evidencias/hu-08/`](evidencias/hu-08/README.md) | Completa |
+| HU-12 (S2) · Patrones de diseño | [`arquitectura/patrones-diseno.md`](arquitectura/patrones-diseno.md) + [`revisiones/hu-12-revision.md`](revisiones/hu-12-revision.md) | Implementada; cierre pendiente O1/O2/O3 |
+| HU-13 (S2) · Observabilidad | [`evidencias/hu-13/`](evidencias/hu-13/README.md) | Parcial; implementación en curso |
+| HU-16 (S2) · Change management | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) + [`evidencias/hu-16/`](evidencias/hu-16/README.md) | Parcial; K8s pendiente |
+| HU-17 (S2) · Documentación | este índice + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) + [`evidencias/hu-17/`](evidencias/hu-17/README.md) | En curso |
 
-## Bitácora de IA generativa
+## Bitácora de IA generativa y decisiones
 
 | Documento | Contenido |
 |---|---|
 | [`../IAG_REGISTRO.md`](../IAG_REGISTRO.md) | Anexo: índice, método de verificación y reflexión crítica |
 | [`iag/README.md`](iag/README.md) | Reglas e índice de sesiones |
 | [`iag/sesiones/`](iag/sesiones/) | Prompts literales y respuestas por historia |
-| [`iag/decisiones.md`](iag/decisiones.md) | Decisiones D-01 a D-25 |
+| [`iag/decisiones.md`](iag/decisiones.md) | Decisiones D-01 a D-35 (Sprint 1 y Sprint 2) |
 
 ## Sustentación
 
 | Documento | Contenido |
 |---|---|
-| [`sustentacion/GUION_SUSTENTACION_HU01_HU04.md`](sustentacion/GUION_SUSTENTACION_HU01_HU04.md) | Guion para exponer HU-01 y HU-04, con preguntas probables |
+| [`sustentacion/guion-sprint-2.md`](sustentacion/guion-sprint-2.md) | Guion de 20–30 min, demo en vivo, falla provocada y preguntas |
+| [`sustentacion/decisiones-clave.md`](sustentacion/decisiones-clave.md) | Decisiones explicadas en 30 s + Blue-Green vs Canary |
+| [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) | Resumen ejecutivo en inglés (1 página) |
+| [`sustentacion/GUION_SUSTENTACION_HU01_HU04.md`](sustentacion/GUION_SUSTENTACION_HU01_HU04.md) | Guion del Sprint 1 (HU-01 y HU-04) |
+
+## Cómo mantener el índice
+
+1. Todo documento nuevo se agrega aquí en el mismo PR.
+2. La columna **Estado** se actualiza al cerrar la HU, no al final del sprint.
+3. Una captura sin documento dueño es un archivo huérfano: se elimina o se enlaza.
+4. Si un documento describe algo que no está en el código, se corrige el documento o se marca
+   `Pendiente` con la HU que lo desbloquea.

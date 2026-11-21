@@ -152,7 +152,7 @@ host, sin rebuild por ambiente.
 | `deploy.sh <env> <version>` | Despliega una versión; local o `DEPLOY_MODE=ssh` |
 | `rollback.sh <env> <version>` | Verifica las imágenes y redespliega una versión anterior |
 | `current-version.sh <env>` | Lee la versión registrada del ambiente |
-| `record-release.sh` | Escribe `deploy/releases/<env>.json` e historial TSV |
+| `record-release.sh` | Escribe `deploy/releases/<env>.json` e historial TSV (incluye `result`, `approved_by`, `approval_ref` y `image_digest` de D-30) |
 | `tag-release.sh <version>` | Crea y publica el tag anotado `vX.Y.Z` |
 | `release-notes.sh <version>` | Genera `docs/release-notes/vX.Y.Z.md` y actualiza `CHANGELOG.md` |
 | `github-release.sh <version>` | Publica las notas como GitHub Release (requiere `GITHUB_TOKEN`) |

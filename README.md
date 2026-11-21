@@ -358,9 +358,25 @@ cada merge genera un release con tag semántico. Detalle: [`docs/estrategia-bran
 | **HU-06** Entrega continua y promoción | dev → stage → prod con aprobación manual | [`docs/evidencias/hu-06/`](docs/evidencias/hu-06/README.md) · [`docs/arquitectura/pipeline-cd.md`](docs/arquitectura/pipeline-cd.md) |
 | **HU-07** Rollback, notificaciones y release notes | Reversión, avisos y notas de versión | [`docs/evidencias/hu-07/`](docs/evidencias/hu-07/README.md) |
 | **HU-08** Documentación y bitácora de IAG | Este README, diagramas y bitácora | [`docs/evidencias/hu-08/`](docs/evidencias/hu-08/README.md) |
-| **HU-09** Estrategia de ramas y commits | GitHub Flow y Conventional Commits | [`docs/estrategia-branching.md`](docs/estrategia-branching.md) |
+| **HU-09 (S1)** Estrategia de ramas y commits | GitHub Flow y Conventional Commits | [`docs/estrategia-branching.md`](docs/estrategia-branching.md) |
 
-Índice de toda la documentación: [`docs/README.md`](docs/README.md).
+### Sprint 2 (E2.1 a E2.9)
+
+| Historia | Qué entrega | Documento principal |
+|---|---|---|
+| **HU-12 (S2)** Patrones de diseño | Circuit Breaker, External Configuration y Dead Letter Topic | [`docs/arquitectura/patrones-diseno.md`](docs/arquitectura/patrones-diseno.md) · [`revisión`](docs/revisiones/hu-12-revision.md) |
+| **HU-13 (S2)** Observabilidad | Prometheus, Grafana, Alertmanager, Jaeger y Loki | [`docs/operacion/observabilidad.md`](docs/operacion/observabilidad.md) · [`evidencias`](docs/evidencias/hu-13/README.md) |
+| **HU-16 (S2)** Cambios y versiones | Release notes, registro por ambiente y rollback en K8s | [`docs/operaciones/gestion-cambios.md`](docs/operaciones/gestion-cambios.md) |
+| **HU-17 (S2)** Documentación | Arquitectura, manual de operaciones, costos y resumen en inglés | [`docs/arquitectura/arquitectura-general.md`](docs/arquitectura/arquitectura-general.md) · [`docs/operacion/manual-operaciones.md`](docs/operacion/manual-operaciones.md) · [`docs/operacion/analisis-costos.md`](docs/operacion/analisis-costos.md) · [`resumen ejecutivo`](docs/sustentacion/resumen-ejecutivo-en.md) |
+| **HU-09/10/11 (S2)** Terraform y Kubernetes | Terraform implementado y aplicado; Kubernetes pendiente | [`docs/arquitectura/terraform.md`](docs/arquitectura/terraform.md) · [`docs/arquitectura/kubernetes.md`](docs/arquitectura/kubernetes.md) |
+| **HU-14/15 (S2)** Seguridad y pruebas | Trivy, RBAC, TLS, Locust y ZAP | [`docs/operacion/seguridad.md`](docs/operacion/seguridad.md) · [`docs/operacion/pruebas-avanzadas.md`](docs/operacion/pruebas-avanzadas.md) |
+
+> El Sprint 1 y el Sprint 2 reutilizan el número HU-09: en documentos se escribe `HU-09 (S1)`
+> para branching y `HU-09 (S2)` para Terraform (decisión D-32).
+
+Índice de toda la documentación, con el estado por criterio de la rúbrica:
+[`docs/README.md`](docs/README.md). Guion de sustentación:
+[`docs/sustentacion/guion-sprint-2.md`](docs/sustentacion/guion-sprint-2.md).
 
 ---
 

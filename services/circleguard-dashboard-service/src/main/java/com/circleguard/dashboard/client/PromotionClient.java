@@ -2,6 +2,7 @@ package com.circleguard.dashboard.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -11,10 +12,15 @@ import java.util.*;
 @Slf4j
 public class PromotionClient {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+    private final String promotionServiceUrl;
 
-    @Value("${circleguard.promotion-service.url:http://localhost:8088}")
-    private String promotionServiceUrl;
+    public PromotionClient(RestTemplateBuilder restTemplateBuilder,
+                           @Value("${circleguard.promotion-service.url:http://localhost:8088}") String promotionServiceUrl) {
+        // HU-13: a builder-managed RestTemplate propagates trace and HTTP metrics.
+        this.restTemplate = restTemplateBuilder.build();
+        this.promotionServiceUrl = promotionServiceUrl;
+    }
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> getHealthStats() {

@@ -61,9 +61,36 @@ detenidas después): [evidencia 14](../docs/evidencias/hu-01/14-despliegue-aws-f
 | `config/secrets.catalog` | **Nombres** y generadores de los secretos (nunca valores) |
 | `config/iam/hu01-{reader,operator,teardown}-policy.json` | Permisos de los tres roles: lectura y detener; crear e iniciar sin borrar; destruir solo lo etiquetado |
 | `config/iam/hu01-*-role-trust.json`, `hu01-*-user-policy.json` | Quién asume cada rol y con qué MFA; permisos mínimos de los dos usuarios (sin claves) |
+| `terraform/` | Infraestructura declarativa de `dev`, `stage`, `prod` y `tools` (HU-09 S2): red, k3s, ECR, S3, CloudWatch y Jenkins |
 | `bootstrap/lib/*.sh` | Librerías: utilidades comunes, AWS, sesiones, estimación de costos y transporte SSH/local |
 | `bootstrap/host/setup-docker.sh` | Se ejecuta en el host: Docker Engine, Compose, rotación de logs, `vm.max_map_count`, swap de seguridad y parada automática |
 | `bootstrap/{jenkins,sonarqube,nexus,registry}/` | Stacks Compose con imágenes fijadas y scripts de configuración por API (`registry/prepare.sh` genera el certificado y el usuario antes de arrancar el contenedor) |
+
+## Terraform (HU-09 S2)
+
+La infraestructura del Sprint 2 está declarada en `infra/terraform/` y convive con los scripts de
+HU-01 (no los reemplaza). El estado remoto vive en S3 (`circleguard-tfstate-a00400179`) con lock en
+DynamoDB (`circleguard-tflock`).
+
+| Ambiente | Qué crea |
+|---|---|
+| `bootstrap-state` | Bucket S3 versionado y tabla de bloqueo |
+| `dev` / `stage` / `prod` | VPC, nodo k3s en EC2 con EIP, `kubeconfig` en SSM, bucket S3 de datos, log group y alarma de CPU |
+| `tools` | 9 repositorios ECR y servidor Jenkins |
+
+Módulos: `network`, `compute`, `registry`, `storage`, `observability`, `ci-server`.
+
+```bash
+cd infra/terraform/envs/dev
+terraform init
+terraform plan  -var="admin_cidr=<CIDR>" -out=dev.tfplan
+terraform apply dev.tfplan
+```
+
+`admin_cidr` es obligatorio y no está en los `terraform.tfvars` versionados.
+
+Evidencias: [`docs/evidencias/e2.1-terraform/`](../docs/evidencias/e2.1-terraform/README.md).
+Diseño y diagrama: [`docs/arquitectura/terraform.md`](../docs/arquitectura/terraform.md).
 
 ## Convenciones
 
