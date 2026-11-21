@@ -13,6 +13,8 @@ data:
   SPRING_NEO4J_URI: bolt://neo4j:7687
   SPRING_LDAP_URLS: ldap://openldap:389
   AUTH_API_URL: http://auth:8180
+  CIRCLEGUARD_IDENTITYSERVICE_URL: http://identity:8083
+  CIRCLEGUARD_PROMOTIONSERVICE_URL: http://promotion:8088
   SPRING_MAIL_HOST: localhost
   SPRING_MAIL_PORT: "25"
   CG_ENVIRONMENT: base
