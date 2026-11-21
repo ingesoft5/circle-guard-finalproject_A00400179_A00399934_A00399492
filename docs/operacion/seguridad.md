@@ -1,154 +1,92 @@
 # Seguridad de la plataforma (HU-14 · E2.6)
 
 **Documento:** consolidación para HU-17 (E2.9) sobre HU-14 (S2 · E2.6)
-**Última actualización:** 2026-11-16
-**Estado:** controles del Sprint 1 **verificados**; los controles de Kubernetes, Trivy y TLS están
-**pendientes** de HU-14. Este documento separa lo que existe de lo que se va a implementar para no
-declarar como hecho lo que todavía no está.
+**Última actualización:** 2026-11-21
+**Estado:** los controles de HU-14 están **implementados y probados en local** (PR #20). La
+integración en el `Jenkinsfile` está preparada como parche, y el RBAC/TLS de Kubernetes todavía no
+se aplica al clúster. Este documento separa lo probado de lo pendiente.
 
-> Diseño de pipeline y despliegue: [`pipeline-cd.md`](../arquitectura/pipeline-cd.md),
-> [`kubernetes.md`](../arquitectura/kubernetes.md).
+> Detalle técnico por fase: [`../seguridad/hu-14.md`](../seguridad/hu-14.md).
+> Evidencias: [`../evidencias/hu-14/`](../evidencias/hu-14/README.md).
+> Diseño de pipeline y despliegue: [`../arquitectura/pipeline-cd.md`](../arquitectura/pipeline-cd.md),
+> [`../arquitectura/kubernetes.md`](../arquitectura/kubernetes.md).
 
 ## 1. Matriz E2.6
 
-| # | Criterio | Implementación actual | Estado |
+| # | Criterio | Implementación | Estado |
 |---|---|---|---|
-| 1 | Análisis de vulnerabilidades de imágenes con Trivy | Pipeline no lo ejecuta | Pendiente |
-| 2 | Análisis de dependencias | Gradle resuelve dependencias; no hay escaneo bloqueante | Pendiente |
-| 3 | Informes como artefactos del pipeline | Jenkins archiva JUnit/JaCoCo; falta Trivy | Parcial |
-| 4 | Bloqueo por umbral de vulnerabilidades | No existe | Pendiente |
-| 5 | Sin credenciales reales en el repositorio | `.gitignore`, `.gitleaks.toml`, escaneo en PASS | Cumplido |
-| 6 | Secretos en mecanismo seguro | SSM SecureString + `.env` 0600; K8s Secrets pendiente | Parcial |
-| 7 | Credenciales protegidas en Jenkins | `circleguard-*` como credenciales, no en el Jenkinsfile | Cumplido |
-| 8 | RBAC en Kubernetes | No hay clúster todavía | Pendiente |
-| 9 | TLS en servicios expuestos | Registro CNCF con TLS; Ingress pendiente | Parcial |
-| 10 | Certificados verificables | Certificado autofirmado del registro; falta Ingress | Parcial |
-| 11 | Documentar controles y resultados | Este documento + evidencias | En curso |
+| 1 | Análisis de vulnerabilidades de imágenes con Trivy | `security/scan-images.sh` sobre 9 imágenes propias y 13 de terceros; SARIF/JSON | Implementado y probado en local; **integración Jenkins pendiente** |
+| 2 | Análisis de dependencias | SBOM de Gradle + Trivy; `security/scan-dependencies.sh` | Implementado y probado en local; **integración Jenkins pendiente** |
+| 3 | Informes como artefactos del pipeline | JSON, SARIF, SBOM y resumen por imagen | Implementado en local; falta archivarlos desde Jenkins |
+| 4 | Bloqueo por umbral de vulnerabilidades | Compuerta por severidad con excepciones y caducidad; 14 casos de prueba | Implementado y probado |
+| 5 | Sin credenciales reales en el repositorio | `.gitignore`, `.gitleaks.toml` y Gitleaks en PASS | Cumplido |
+| 6 | Secretos en mecanismo seguro | SSM SecureString, `.env` 0600, `security/k8s/create-secrets.sh` y catálogo | Cumplido en Compose; despliegue K8s pendiente |
+| 7 | Credenciales protegidas en Jenkins | Credenciales `circleguard-*`; auditoría con `security/audit-jenkins-credentials.sh` | Cumplido |
+| 8 | RBAC en Kubernetes | Manifiestos en `security/k8s/rbac/`, matriz y pruebas; RBAC de Jenkins validado en un controlador real | Probado en simulación; **validación en el clúster pendiente** |
+| 9 | TLS en servicios expuestos | Terminador nginx y certificado de desarrollo; `security/tls/verify-tls.sh` | Probado con certificado de desarrollo; **Ingress TLS no desplegado** |
+| 10 | Certificados verificables | `openssl s_client` y verificador propio | Certificado de desarrollo verificable; producción pendiente |
+| 11 | Documentar controles y resultados | Este documento + `docs/seguridad/hu-14.md` + evidencias | Cumplido |
 
-## 2. Lo que ya existe (Sprint 1)
+## 2. Lo que está implementado y probado
 
-### 2.1 Secretos fuera del repositorio
+### 2.1 Imágenes y dependencias
 
-- `.env.example` solo tiene nombres y valores de ejemplo; los valores reales viven en
-  `~/.circleguard/*.env` con permisos `0600`.
-- En AWS, los secretos están en **SSM Parameter Store** como `SecureString` y se inyectan al host.
-- `infra/scan-secrets.sh` ejecuta Gitleaks y distingue worktree de historial.
-- Resultado declarado: **0 secretos activos en el worktree**; los 51 hallazgos del historial se
-  consideran comprometidos y no se reutilizan.
+- Trivy fijado por digest; escaneo de las 9 imágenes propias y 13 de terceros.
+- Compuerta por severidad con umbral configurable en `security/policy.env`.
+- Correcciones aplicadas a dependencias vulnerables dentro de la misma línea de versión.
+- Resultado documentado: **3 CRITICAL y 22 HIGH** pendientes, con análisis de origen y excepciones.
+- Evidencia: [`../evidencias/hu-14/fase2/`](../evidencias/hu-14/fase2/) y
+  [`fase3/`](../evidencias/hu-14/fase3/).
 
-```bash
-bash infra/scan-secrets.sh          # PASS esperado
-```
+### 2.2 Secretos y credenciales
 
-### 2.2 Acceso a la plataforma
+- Gitleaks en PASS sobre el árbol de trabajo.
+- Auditoría de credenciales de Jenkins sin imprimir valores.
+- Creación de secretos de K8s desde SSM con `security/k8s/create-secrets.sh`.
+- Catálogo de secretos en `security/k8s/secrets.catalog`.
+- Evidencia: [`fase4/`](../evidencias/hu-14/fase4/) y [`fase5/`](../evidencias/hu-14/fase5/).
 
-- Jenkins, SonarQube y el registro **no** se exponen a Internet: solo SSH (22) desde la IP del
-  operador; el resto por túnel.
-- IAM con roles temporales y MFA; no hay claves de acceso permanentes.
-- El registro CNCF Distribution usa TLS y `htpasswd` (usuario `ci`).
-- Imágenes Docker multi-stage con usuario no root.
+### 2.3 RBAC y TLS
 
-### 2.3 Seguridad de la aplicación
+- RBAC de Jenkins validado en un controlador real (`security/jenkins/validate-rbac-live.sh`).
+- Manifiestos de RBAC de K8s para `jenkins-deployer`, `prometheus`, `developer` y `admin`.
+- Terminador TLS con nginx y certificado de desarrollo; verificación con `openssl`.
+- Evidencia: [`fase6/`](../evidencias/hu-14/fase6/) y [`fase7/`](../evidencias/hu-14/fase7/).
 
-| Control | Dónde | Nota |
+### 2.4 Excepciones con caducidad
+
+- `security/exceptions.tsv` activo vacío y `security/exceptions.pending.tsv` con candidatas.
+- Cada excepción tiene responsable, motivo y fecha de revisión.
+- Evidencia: [`../evidencias/hu-14/excepciones.md`](../evidencias/hu-14/excepciones.md).
+
+## 3. Lo que falta
+
+| Pendiente | Depende de | Impacto |
 |---|---|---|
-| JWT firmado | `auth`, `gateway` | Secreto `CG_JWT_SECRET` fuera del repo |
-| RBAC de aplicación | Spring Security en auth/identity/promotion | Roles `ADMIN`, `HEALTH_CENTER`, `VISITOR` |
-| Anonimización | `identity` | Los nombres no salen de la bóveda |
-| Cifrado de identidades | `IdentityEncryptionConverter` | Clave en SSM |
-| QR firmado y de vida corta | `gateway` | Secreto `CG_QR_SECRET` |
-| Auditoría | Kafka `audit.identity.accessed`, `notification.audit` | Trazabilidad de accesos |
+| Aplicar `security/jenkins/Jenkinsfile-security-stages.patch` | HU-11 | Trivy y dependencias no bloquean en CI todavía |
+| Desplegar RBAC en el clúster y capturar `kubectl auth can-i` | HU-10 (hecho) | El RBAC está probado en simulación, no en el clúster |
+| Aplicar el Ingress TLS de `security/k8s/tls/` | HU-10/HU-11 | El TLS está probado con certificado de desarrollo, no en prod |
+| Cerrar las 3 CRITICAL y 22 HIGH o declararlas como excepción | Matt | La compuerta las conoce, pero siguen abiertas |
+| Corregir el mapeo de estados del QR (`SUSPECT`, `PROBABLE`, `CONFIRMED`) | HU-12/HU-16 | El gateway podría dejar pasar estados reales |
 
-**Hallazgo de HU-12 que afecta la seguridad:** `QrValidationService` solo bloquea `CONTAGIED` y
-`POTENTIAL`, pero promotion escribe `SUSPECT`, `PROBABLE` y `CONFIRMED`. Con los estados reales, el
-control de acceso no bloquea a nadie. Debe corregirse en HU-14 o en una historia de defecto; no se
-corrigió en HU-12 para no ampliar su alcance.
+## 4. Pruebas
 
-## 3. Lo que falta (HU-14)
-
-### 3.1 Trivy en el pipeline
-
-```groovy
-stage('Trivy image scan') {
-  steps {
-    sh '''
-      trivy image --exit-code 1 --severity CRITICAL \
-        --format table -o trivy-auth.txt $IMAGE
-      trivy image --exit-code 0 --severity HIGH \
-        --format json -o trivy-auth.json $IMAGE
-    '''
-    archiveArtifacts artifacts: 'trivy-*.txt,trivy-*.json', allowEmptyArchive: false
-  }
-}
-```
-
-- **Umbral propuesto:** falla con `CRITICAL`; reporta `HIGH` sin bloquear (se revisa y se documenta).
-- El umbral debe estar en una variable (`TRIVY_SEVERITY=CRITICAL`) para poder explicarlo.
-- Se ejecuta **después** de construir la imagen y **antes** de publicarla.
-
-### 3.2 Análisis de dependencias
-
-- `./gradlew dependencyCheckAnalyze` (OWASP Dependency-Check) u `osv-scanner`.
-- Publicar el informe HTML como artefacto.
-- Un `CRITICAL` con CVSS ≥ 9 bloquea; el resto se documenta con fecha de revisión.
-
-### 3.3 RBAC en Kubernetes
-
-| Sujeto | Namespace | Permisos |
+| Prueba | Herramienta | Evidencia |
 |---|---|---|
-| `jenkins-deployer` | `circleguard-dev/stage/prod` | `get,list,watch,create,update,patch` sobre Deployments, Services, ConfigMaps; **no** Secrets |
-| `prometheus` | `observability` + lectura de pods | `get,list,watch` pods/services/endpoints |
-| `developer` | dev/stage | lectura + port-forward; sin prod |
-| `admin` | todos | solo operador de guardia |
+| Escaneo de imágenes | Trivy | [`fase2/`](../evidencias/hu-14/fase2/) |
+| Escaneo de dependencias | Trivy SBOM | [`fase3/`](../evidencias/hu-14/fase3/) |
+| Escaneo de secretos | Gitleaks | [`fase4/`](../evidencias/hu-14/fase4/) |
+| Credenciales de Jenkins | Auditoría propia | [`fase5/02-auditoria-credenciales-jenkins.txt`](../evidencias/hu-14/fase5/02-auditoria-credenciales-jenkins.txt) |
+| RBAC | `rbac-check.py` y controlador real | [`fase6/`](../evidencias/hu-14/fase6/) |
+| TLS | `openssl s_client` | [`fase7/`](../evidencias/hu-14/fase7/) |
+| Sintaxis del parche Jenkins | Groovy + `kubeconform` | [`fase8/`](../evidencias/hu-14/fase8/) |
 
-Se crean con `Role`/`RoleBinding` (no `ClusterRole` salvo para Prometheus). El `kubeconfig` de
-Jenkins usa el `ServiceAccount` `jenkins-deployer`, no credenciales de administrador.
-
-### 3.4 TLS
-
-- Ingress con `cert-manager` y `Let's Encrypt` si hay dominio público; si no, certificado
-  autofirmado y validación con `openssl s_client`.
-- Redirección 301 de HTTP a HTTPS.
-- HSTS opcional; no se activa si el certificado es autofirmado.
-- Evidencia: `openssl s_client -connect <host>:443 -servername <host>` con `Verify return code: 0`
-  (o explicación del autofirmado).
-
-### 3.5 Secretos en Kubernetes
-
-- `Secret` creado desde SSM con `External Secrets Operator` o un `Job` de sincronización.
-- Nunca `stringData` con valores reales en Git.
-- `imagePullSecret` para el registro.
-- Rotación documentada en el manual de operaciones §6.
-
-## 4. Pruebas de seguridad
-
-| Prueba | Herramienta | Cuándo | Evidencia |
-|---|---|---|---|
-| Escaneo de imagen | Trivy | Cada build | `trivy-*.json`, stage en Jenkins |
-| Escaneo de dependencias | Dependency-Check/OSV | Cada build | Informe HTML |
-| Escaneo de secretos | Gitleaks | Cada build | `scan-secrets.log` |
-| Análisis dinámico web | OWASP ZAP baseline | Cada build de dev | Informe HTML (HU-15) |
-| TLS | `openssl s_client` | Al desplegar | Salida con código 0 |
-| RBAC | `kubectl auth can-i` | Al desplegar | Matriz de permisos |
-| QR / acceso | Prueba funcional | Antes de prod | Caso `SUSPECT` bloqueado |
-
-## 5. Evidencias
-
-| Evidencia | Archivo sugerido | Estado |
-|---|---|---|
-| Informe Trivy | `docs/evidencias/hu-14/01-trivy.json` | Pendiente |
-| Informe de dependencias | `docs/evidencias/hu-14/02-dependency-check.html` | Pendiente |
-| Escaneo de secretos | `docs/evidencias/hu-14/03-gitleaks.txt` | Existe en HU-06/HU-07 |
-| RBAC | `docs/evidencias/hu-14/04-rbac.yaml` + `kubectl auth can-i` | Pendiente |
-| TLS | `docs/evidencias/hu-14/05-tls.txt` | Pendiente |
-| Credenciales de Jenkins | Captura sin valores | Pendiente |
-
-## 6. Riesgos
+## 5. Riesgos
 
 | Riesgo | Mitigación |
 |---|---|
-| Trivy bloquea todo por CVEs base de la imagen | Fijar umbral en `CRITICAL` y actualizar la imagen base |
-| El certificado autofirmado no “valida” en el navegador | Documentar la limitación y usar `-k` solo en la demo interna |
+| Trivy bloquea por CVEs de la imagen base | Umbral en `CRITICAL`, imagen base actualizada y excepciones con caducidad |
+| El certificado autofirmado no valida en el navegador | Documentar la limitación; usar TLS de desarrollo solo en la demo interna |
 | RBAC demasiado amplio para que “funcione” | Revisar `kubectl auth can-i --list` y quitar permisos de Secrets |
-| Secretos en logs de Jenkins | Enmascarar credenciales; no imprimir `env` completo |
-| El defecto del gateway deja pasar estados reales | Corregir antes de la demo o declararlo como hallazgo crítico |
+| Secretos en logs de Jenkins | Enmascarar credenciales; no imprimir el entorno completo |
+| Estados reales del QR sin bloquear | Corregir el mapeo antes de la demo o declararlo como hallazgo crítico |
