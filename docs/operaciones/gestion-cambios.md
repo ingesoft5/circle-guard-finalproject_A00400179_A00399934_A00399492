@@ -275,14 +275,16 @@ registra como `event=test` y no cuenta como evidencia de producción.
 | 5 | Rollback de artefactos en Kubernetes | **Pendiente** | Requiere HU-10/HU-11 |
 | 6 | Prueba real de rollback | Cumplido en Compose; **pendiente en K8s** | HU-07 builds #19/#21 |
 | 7 | Registro por dev, stage y prod | Parcial | `deploy/releases/*.json` y `history.tsv` |
-| 8 | Versión, fecha, ambiente, responsable, aprobación, resultado | Parcial | Falta `approved_by`, `approval_ref`, `result` (D-30) |
+| 8 | Versión, fecha, ambiente, responsable, aprobación, resultado | Cumplido en código (D-30) | `record-release.sh` escribe `result`, `approved_by`, `approval_ref` e `image_digest`; falta evidenciarlo en un despliegue |
 | 9 | Evidencia de aprobación de prod | Cumplido | Jenkins `Approve prod` + `05-approval.txt` de HU-06 |
 | 10 | Relación con commits y versiones | Cumplido | `commit` en el registro y tag |
 | 11 | Procedimientos documentados | Cumplido | Este documento + manual de operaciones |
 
 ## 11. Qué falta para cerrar HU-16
 
-1. Implementar el registro ampliado (D-30) en `deploy/record-release.sh`.
+1. ~~Implementar el registro ampliado (D-30) en `deploy/record-release.sh`.~~ **Hecho:** el script
+   acepta `RESULT`, `APPROVED_BY`, `APPROVAL_REF` e `IMAGE_DIGEST` y migra el historial anterior.
+   Falta registrar un despliegue real con esos campos.
 2. Ejecutar un rollback real en K8s (dev y prod) y adjuntar la evidencia.
 3. Añadir el enlace de aprobación y el digest al registro.
 4. Actualizar las notas de la versión del Sprint 2.

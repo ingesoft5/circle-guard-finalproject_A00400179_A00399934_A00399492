@@ -1,10 +1,11 @@
 # Manual de operaciones de CircleGuard
 
 **Documento:** HU-17 (Sprint 2 · E2.9, criterios 10 y 11)
-**Última actualización:** 2026-11-16
+**Última actualización:** 2026-11-20
 **Alcance:** instalar, configurar, desplegar, operar, monitorear, recuperar y revertir CircleGuard.
-**Estado:** procedimientos del Sprint 1 **verificados**; los de Kubernetes/Terraform están marcados
-**[S2]** y se completan cuando HU-09/HU-10/HU-11/HU-13/HU-14 se mergeen.
+**Estado:** procedimientos del Sprint 1 **verificados**; Terraform **implementado y aplicado**
+(HU-09). Los procedimientos de Kubernetes siguen marcados **[S2]** hasta que HU-10/HU-11 se
+mergeen.
 
 > Este manual está escrito para que **otra persona** lo ejecute sin preguntar. Cada procedimiento
 > dice qué necesita, qué comandos ejecutar, qué salida es correcta y qué hacer si falla. Si un paso
@@ -123,6 +124,29 @@ kubectl -n circleguard-dev get pods,svc,ingress,hpa
 
 **Salida correcta:** todos los pods `1/1 Running` y `Ready`.
 **Si falla:** `kubectl -n circleguard-dev describe pod <pod>` y `logs <pod> --previous`.
+
+> **Estado:** los manifiestos de la aplicación son de HU-10/HU-11. Hoy solo existe el stack de
+> observabilidad en `deploy/k8s/observability/`; el comando anterior funciona cuando HU-10 mergee.
+
+### 3.5 Infraestructura con Terraform **[S2]**
+
+```bash
+cd infra/terraform/envs/dev
+terraform init
+terraform plan  -var="admin_cidr=<CIDR>" -out=dev.tfplan
+terraform apply dev.tfplan
+terraform output
+```
+
+**Salida correcta:** `Apply complete!` y `kubeconfig_parameter = "/circleguard/dev/kubeconfig"`.
+**Si falla:** revisar la sesión AWS, el backend S3/DynamoDB y que `admin_cidr` esté definido.
+**No** ejecutar `apply` en `prod` sin plan revisado y aprobación de costo (D-33).
+
+```bash
+aws ssm get-parameter --name /circleguard/dev/kubeconfig --with-decryption \
+  --query Parameter.Value --output text > /tmp/dev.kubeconfig
+KUBECONFIG=/tmp/dev.kubeconfig kubectl get nodes
+```
 
 ## 4. Operación de los ambientes
 

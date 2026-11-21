@@ -1,10 +1,11 @@
 # Kubernetes en CircleGuard — diseño y consolidación **[S2]**
 
 **Documento:** HU-17 (Sprint 2 · E2.9) sobre el diseño de HU-10 (S2 · E2.2)
-**Última actualización:** 2026-11-16
-**Estado:** **Pendiente de implementación.** No existen manifiestos, charts ni clúster en el
-repositorio a la fecha. Este documento fija el contrato que HU-13 y HU-16 necesitan y se completa
-con las evidencias cuando HU-10 (S2) se mergee.
+**Última actualización:** 2026-11-20
+**Estado:** **Parcial.** El clúster k3s ya existe por ambiente (Terraform, HU-09) y los manifiestos
+de observabilidad están en `deploy/k8s/observability/`. Faltan los manifiestos de los 8 servicios y
+del middleware (HU-10) y el pipeline que los despliegue (HU-11). Este documento fija el contrato y
+se completa con las evidencias cuando HU-10 se mergee.
 
 > Si algo de este documento no coincide con lo que implemente HU-10, **prevalece el código** y se
 > corrige este archivo en el mismo PR.
@@ -13,7 +14,7 @@ con las evidencias cuando HU-10 (S2) se mergee.
 
 | Criterio de la rúbrica | Artefacto esperado | Estado |
 |---|---|---|
-| Clúster funcional (EKS o k3s) | Salida de `kubectl cluster-info` | Pendiente |
+| Clúster funcional (EKS o k3s) | Salida de `kubectl cluster-info` | Cumplido (k3s por Terraform en dev/stage/prod) |
 | 8 microservicios con manifiestos/plantillas | `deploy/k8s/` o chart Helm | Pendiente |
 | Middleware y dependencias en el clúster | PostgreSQL, Neo4j, Redis, Kafka, OpenLDAP (o servicios gestionados) | Pendiente |
 | Deployment y Service por servicio | Un `Deployment` + un `Service` por microservicio | Pendiente |

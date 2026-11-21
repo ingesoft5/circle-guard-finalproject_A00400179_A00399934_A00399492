@@ -1,7 +1,7 @@
 # Metodología ágil y cierre del Sprint 2
 
 **Documento:** HU-17 (Sprint 2 · E2.9, criterios 4 y 5) y rúbrica C1
-**Última actualización:** 2026-11-16
+**Última actualización:** 2026-11-20
 **Estado:** proceso definido y en ejecución. Las métricas de cierre (burndown y retrospectiva) se
 completan al final del sprint; este documento deja el formato y los datos que ya existen.
 
@@ -37,17 +37,17 @@ la prioridad: observabilidad y patrones (4 % cada uno), Terraform (4 %), documen
 
 ## 3. Alcance y responsables
 
-| HU (S2) | Jira | Tema | Responsable | Peso rúbrica | Estado 16-nov |
+| HU (S2) | Jira | Tema | Responsable | Peso rúbrica | Estado 20-nov |
 |---|---|---|---|---|---|
-| HU-09 (S2) | PDDZ-64 | Terraform con módulos y backend remoto | Juan Esteban | 4 % | Por hacer |
+| HU-09 (S2) | PDDZ-64 | Terraform con módulos y backend remoto | Juan Esteban | 4 % | Hecho (PR #15/#16/#18) |
 | HU-10 (S2) | PDDZ-65 | Kubernetes: 8 servicios + middleware | Juan Esteban | 2 % | Por hacer |
 | HU-11 (S2) | PDDZ-66 | Jenkins → Kubernetes, Trivy, aprobación | Juan Esteban | 1 % | Por hacer |
-| HU-12 (S2) | PDDZ-67 | Patrones de diseño (3 nuevos) | Matt Lane | 4 % | En curso (PR #14 mergeado) |
-| HU-13 (S2) | PDDZ-68 | Observabilidad centralizada | Sebastian Cosme | 4 % | En curso |
+| HU-12 (S2) | PDDZ-67 | Patrones de diseño (3 nuevos) | Matt Lane | 4 % | Hecho (PR #14); cierre O1/O2/O3 pendiente |
+| HU-13 (S2) | PDDZ-68 | Observabilidad centralizada | Sebastian Cosme | 4 % | En revisión (rama lista; PR pendiente) |
 | HU-14 (S2) | PDDZ-69 | Seguridad: Trivy, RBAC, TLS, secretos | Matt Lane | 2 % | Por hacer |
 | HU-15 (S2) | PDDZ-70 | Locust + OWASP ZAP | Matt Lane | 2.5 % | Por hacer |
-| HU-16 (S2) | PDDZ-71 | Change management y rollback K8s | Sebastian Cosme | 0.5 % | En curso |
-| HU-17 (S2) | PDDZ-72 | Documentación completa + resumen en inglés | Sebastian Cosme | 2 % + C1 2 % | En curso |
+| HU-16 (S2) | PDDZ-71 | Change management y rollback K8s | Sebastian Cosme | 0.5 % | En curso (documento y D-30 listos; falta K8s) |
+| HU-17 (S2) | PDDZ-72 | Documentación completa + resumen en inglés | Sebastian Cosme | 2 % + C1 2 % | En curso (documentos en rama; cierre pendiente) |
 | — | PDDZ-73 | Revisar pipeline del Sprint 1 | Juan Esteban | — | Por hacer |
 | — | PDDZ-74 | Vincular GitHub al Kanban | Matt Lane | — | Por hacer |
 
@@ -107,7 +107,7 @@ Se exporta de Jira al cierre. La tabla se llena con el histórico de transicione
 |---|---:|---:|---:|---:|---:|
 | 11-nov (inicio) | 11 | 0 | 0 | 0 | 11 |
 | 16-nov | 6 | 4 | 1 | 0 | 11 |
-| 20-nov | | | | | |
+| 20-nov | 6 | 4 | 1 | 0 | 11 |
 | Cierre | | | | | |
 
 **Lectura esperada:** el trabajo se mueve de izquierda a derecha sin acumularse en “En revisión”.
@@ -124,7 +124,7 @@ la primera daily:
 | 11-nov | 11 | — | Inicio |
 | 12-nov | 11 | — | Planificación |
 | 16-nov | 7 | — | HU-12 mergeada; 3 en curso |
-| 20-nov | | | |
+| 20-nov | 7 | — | Sin merges desde #14; HU-13 lista para PR |
 | Cierre | 0 | — | Demo |
 
 **Regla:** el burndown se actualiza al final de cada daily, no al final del sprint. Un burndown
@@ -135,7 +135,7 @@ reconstruido no demuestra nada.
 | Sprint | Historias completadas | PRs mergeados | Observación |
 |---|---:|---:|---|
 | Sprint 1 | 9 (HU-01 a HU-09 S1) | #5–#13 | Base de CI/CD, pruebas y documentación |
-| Sprint 2 | En curso | #14 | HU-12 integrada el 15-nov |
+| Sprint 2 | En curso | #14–#19 | HU-12 y HU-09 integradas; #19 (HU-13) en revisión |
 
 ### 5.4 Métricas de calidad
 
@@ -177,8 +177,8 @@ diapositivas solo explican decisiones y trade-offs.
 
 | Acción | Dueño | Fecha | Estado |
 |---|---|---|---|
-| Cerrar O1/O2 de HU-12 en Compose/K8s | Juan Esteban | 18-nov | Pendiente |
-| Repetir la suite de HU-12 en Jenkins | Matt Lane | 18-nov | Pendiente |
+| Cerrar O1/O2 de HU-12 en Compose/K8s | Juan Esteban | 18-nov | Vencida |
+| Repetir la suite de HU-12 en Jenkins | Matt Lane | 18-nov | Vencida |
 | Captura de Billing al cierre | Sebastian Cosme | Cierre | Pendiente |
 | Ensayo de la demo con falla provocada | Sebastian Cosme | 21-nov | Pendiente |
 | Revisión de documentación por otra persona | Juan Esteban | Cierre | Pendiente |
@@ -195,8 +195,9 @@ diapositivas solo explican decisiones y trade-offs.
 | La revisión de HU-12 dejó observaciones accionables, no un “LGTM” | `docs/revisiones/hu-12-revision.md` |
 
 **Lo que no mejoró todavía:** SonarQube no está conectado de extremo a extremo; el E2E no cubre
-todos los flujos en stage; la infraestructura sigue en Bash hasta que HU-09 (S2) mergee. Se declara
-en la retrospectiva, no se oculta.
+todos los flujos en stage; la infraestructura ya está declarada en Terraform (HU-09), pero el
+despliegue de la aplicación en Kubernetes sigue pendiente (HU-10/HU-11). Se declara en la
+retrospectiva, no se oculta.
 
 ## 8. Riesgos y bloqueos del sprint
 
