@@ -4,6 +4,8 @@
 verificó en vivo `file-service`; faltan los otros 7 servicios, las capturas de dashboards/alerta/
 traza/logs y la falla provocada.
 
+> Guía paso a paso para ejecutar y tomar cada captura: [`00-guia-capturas.md`](00-guia-capturas.md).
+
 ## Matriz de criterios
 
 | # | Criterio | Implementación | Evidencia | Estado |
@@ -68,7 +70,9 @@ El script escribe `09`–`13` en esta carpeta. No reemplaza las capturas manuale
 ### Evidencia en Kubernetes
 
 El clúster k3s ya existe por ambiente (Terraform, HU-09) y la aplicación está desplegada (HU-10,
-PR #21). Falta desplegar el stack de observabilidad:
+PR #21). Los manifiestos de `deploy/k8s/base/apps/` ya llevan las anotaciones
+`prometheus.io/scrape`, `prometheus.io/port` y `prometheus.io/path`, así que Prometheus descubre los
+pods. Falta desplegar el stack de observabilidad:
 
 ```bash
 aws ssm get-parameter --name /circleguard/dev/kubeconfig --with-decryption \
