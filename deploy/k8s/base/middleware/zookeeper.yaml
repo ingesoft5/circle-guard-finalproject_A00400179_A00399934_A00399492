@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+    app.kubernetes.io/part-of: circleguard
+spec:
+  serviceName: zookeeper
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+        app.kubernetes.io/part-of: circleguard
+    spec:
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: zookeeper
+        image: confluentinc/cp-zookeeper:7.6.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: tcp
+          containerPort: 2181
+        env:
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: "2181"
+        - name: ZOOKEEPER_TICK_TIME
+          value: "2000"
+        - name: KAFKA_HEAP_OPTS
+          value: "-Xms128m -Xmx192m"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 256Mi
+          limits:
+            memory: 384Mi
+        startupProbe:
+          tcpSocket:
+            port: tcp
+          periodSeconds: 10
+          failureThreshold: 30
+        readinessProbe:
+          tcpSocket:
+            port: tcp
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: tcp
+          periodSeconds: 20
+          failureThreshold: 6
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/zookeeper/data
+        - name: log
+          mountPath: /var/lib/zookeeper/log
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+  - metadata:
+      name: log
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+    app.kubernetes.io/part-of: circleguard
+spec:
+  type: ClusterIP
+  selector:
+    app: zookeeper
+  ports:
+  - name: tcp
+    port: 2181
+    targetPort: tcp

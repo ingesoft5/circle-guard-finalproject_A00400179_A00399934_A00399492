@@ -46,6 +46,7 @@ module "compute" {
   subnet_id     = module.network.public_subnet_id
   instance_type = var.instance_type
   admin_cidr    = var.admin_cidr
+  ci_cidr       = var.ci_cidr
 }
 
 module "storage" {

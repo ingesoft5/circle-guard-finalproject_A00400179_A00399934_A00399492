@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- configmap.yaml
+- apps/auth.yaml
+- apps/identity.yaml
+- apps/dashboard.yaml
+- apps/file.yaml
+- apps/form.yaml
+- apps/gateway.yaml
+- apps/notification.yaml
+- apps/promotion.yaml
+- apps/web.yaml
+- middleware/postgres.yaml
+- middleware/neo4j.yaml
+- middleware/zookeeper.yaml
+- middleware/kafka.yaml
+- middleware/redis.yaml
+- middleware/openldap.yaml
+- hpa.yaml
+- ingress.yaml
+configMapGenerator:
+- name: postgres-init
+  files:
+  - init-db.sql
+- name: web-nginx
+  files:
+  - nginx.conf
