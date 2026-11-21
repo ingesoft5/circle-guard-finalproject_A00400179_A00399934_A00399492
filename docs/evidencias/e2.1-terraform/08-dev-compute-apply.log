@@ -1,0 +1,39 @@
+[33m╷[0m[0m
+[33m│[0m [0m[1m[33mWarning: [0m[0m[1mDeprecated Parameter[0m
+[33m│[0m [0m
+[33m│[0m [0m[0mThe parameter "dynamodb_table" is deprecated. Use parameter "use_lockfile" instead.
+[33m╵[0m[0m
+[0m[1mmodule.compute.aws_iam_role.node: Creating...[0m[0m
+[0m[1mmodule.compute.aws_security_group.node: Creating...[0m[0m
+[0m[1mmodule.compute.aws_key_pair.node: Creating...[0m[0m
+[0m[1mmodule.compute.aws_key_pair.node: Creation complete after 1s [id=circleguard-dev-key][0m
+[0m[1mmodule.compute.aws_iam_role.node: Creation complete after 1s [id=circleguard-dev-node][0m
+[0m[1mmodule.compute.aws_iam_role_policy_attachment.ecr_read: Creating...[0m[0m
+[0m[1mmodule.compute.aws_iam_role_policy.publish_kubeconfig: Creating...[0m[0m
+[0m[1mmodule.compute.aws_iam_instance_profile.node: Creating...[0m[0m
+[0m[1mmodule.compute.aws_iam_role_policy.publish_kubeconfig: Creation complete after 1s [id=circleguard-dev-node:circleguard-dev-publish-kubeconfig][0m
+[0m[1mmodule.compute.aws_iam_role_policy_attachment.ecr_read: Creation complete after 1s [id=circleguard-dev-node/arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly][0m
+[0m[1mmodule.compute.aws_security_group.node: Creation complete after 3s [id=sg-040a943e4e4eec9f8][0m
+[0m[1mmodule.compute.aws_vpc_security_group_egress_rule.all: Creating...[0m[0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.ssh: Creating...[0m[0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.https: Creating...[0m[0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.kube_api: Creating...[0m[0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.http: Creating...[0m[0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.kube_api: Creation complete after 1s [id=sgr-<ACCOUNT_ID>63e18][0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.https: Creation complete after 1s [id=sgr-0fb4b9edeaa004b0a][0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.ssh: Creation complete after 1s [id=sgr-0877d30804a20fc35][0m
+[0m[1mmodule.compute.aws_vpc_security_group_egress_rule.all: Creation complete after 1s [id=sgr-067d95d5f18761658][0m
+[0m[1mmodule.compute.aws_vpc_security_group_ingress_rule.http: Creation complete after 1s [id=sgr-0a6599415f6c86000][0m
+[0m[1mmodule.compute.aws_iam_instance_profile.node: Creation complete after 7s [id=circleguard-dev-node][0m
+[0m[1mmodule.compute.aws_instance.node: Creating...[0m[0m
+[0m[1mmodule.compute.aws_instance.node: Still creating... [00m10s elapsed][0m[0m
+[0m[1mmodule.compute.aws_instance.node: Creation complete after 16s [id=i-059d70cf56a1d6948][0m
+[0m[1m[32m
+Apply complete! Resources: 12 added, 0 changed, 0 destroyed.[0m
+[0m[1m[32m
+Outputs:
+
+[0mkubeconfig_parameter = "/circleguard/dev/kubeconfig"
+node_public_ip = "3.145.112.20"
+public_subnet_id = "subnet-075f493d9f66171d2"
+vpc_id = "vpc-0cac5978ecfd91ca9"

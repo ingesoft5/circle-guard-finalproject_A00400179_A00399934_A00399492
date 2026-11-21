@@ -90,3 +90,12 @@ deploy/releases/history.tsv
 # HU-15: Locust and ZAP raw results (the published evidence is copied to docs/evidencias/hu-15/) and Python caches
 tests/performance/results/
 __pycache__/
+
+#Terraform files
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfplan
+
+!docs/evidencias/**/*.log
