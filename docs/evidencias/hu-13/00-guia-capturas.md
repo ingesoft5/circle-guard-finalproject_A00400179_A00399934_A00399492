@@ -164,13 +164,13 @@ kubectl -n observability port-forward svc/loki 3100:3100
 
 1. Deja Grafana y Prometheus abiertos y anota la hora.
 2. Detén `identity`:
-   - Compose: `docker stop circleguard-identity`
+   - Compose: `docker stop $(docker ps -q --filter "name=identity")`
    - K8s: `kubectl -n circleguard-dev scale deployment/identity --replicas=0`
 3. Espera 2–3 minutos (la regla `ServiceDown` usa `for: 2m`).
 4. Captura `http://localhost:9093/#/alerts` con **ServiceDown** activa y `severity="critical"`.
    Alternativa: `http://localhost:9090/alerts` muestra el estado `firing`.
 5. **Restaura identity**:
-   - Compose: `docker start circleguard-identity`
+   - Compose: `docker start $(docker ps -aq --filter "name=identity")`
    - K8s: `kubectl -n circleguard-dev scale deployment/identity --replicas=1`
 
 ### 05 · Traza E2E
