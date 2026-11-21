@@ -46,10 +46,10 @@ flowchart LR
 - **Builder**: `gradle:8.14-jdk21` fijado por digest. Ejecuta `bootJar` del servicio con
   `-x test`; la caché de Gradle se monta con BuildKit. No depende de
   `gradle/wrapper/gradle-wrapper.jar`, que no está versionado.
-- **Runtime**: `eclipse-temurin:21.0.9_10-jre-alpine` fijado por digest.
+- **Runtime**: `eclipse-temurin:21.0.13_9-jre-alpine-3.22` fijado por digest (HU-14: base actualizada dentro de la misma serie Alpine 3.22).
 - Se crea el usuario/grupo `circleguard` con UID/GID **10001**; `USER 10001:10001`.
 - El cliente web usa `node:22.22-bookworm-slim` para el build y
-  `nginxinc/nginx-unprivileged:1.27-alpine` para el runtime; corre como UID **101**.
+  `nginxinc/nginx-unprivileged:1.30.6-alpine` (rama estable de nginx, fijada por digest) para el runtime; corre como UID **101**.
 - Etiquetas OCI: `title`, `description`, `version`, `revision`, `created`, `source` y
   `base.name`.
 

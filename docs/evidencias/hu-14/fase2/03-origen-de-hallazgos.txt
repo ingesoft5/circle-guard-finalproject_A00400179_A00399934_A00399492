@@ -1,0 +1,42 @@
+reports: 9
+circleguard-auth-service:1.0.0-hu14scan                 os=alpine 3.22.3  os-pkgs C/H=5/45  lang-pkgs C/H=11/37
+circleguard-dashboard-service:1.0.0-hu14scan            os=alpine 3.22.3  os-pkgs C/H=5/45  lang-pkgs C/H=9/35
+circleguard-file-service:1.0.0-hu14scan                 os=alpine 3.22.3  os-pkgs C/H=5/45  lang-pkgs C/H=9/34
+circleguard-form-service:1.0.0-hu14scan                 os=alpine 3.22.3  os-pkgs C/H=5/45  lang-pkgs C/H=9/41
+circleguard-gateway-service:1.0.0-hu14scan              os=alpine 3.22.3  os-pkgs C/H=5/45  lang-pkgs C/H=10/40
+circleguard-identity-service:1.0.0-hu14scan             os=alpine 3.22.3  os-pkgs C/H=5/45  lang-pkgs C/H=11/42
+circleguard-notification-service:1.0.0-hu14scan         os=alpine 3.22.3  os-pkgs C/H=5/45  lang-pkgs C/H=12/63
+circleguard-promotion-service:1.0.0-hu14scan            os=alpine 3.22.3  os-pkgs C/H=5/45  lang-pkgs C/H=12/48
+circleguard-web:1.0.0-hu14scan                          os=alpine 3.21.3  os-pkgs C/H=3/65  lang-pkgs C/H=0/0
+
+Blocking findings (CRITICAL+HIGH) by origin, all images:
+  lang-pkgs  CRITICAL  83
+  lang-pkgs  HIGH      340
+  os-pkgs    CRITICAL  43
+  os-pkgs    HIGH      425
+
+Blocking findings with a fixed version available vs not:
+  lang-pkgs  no fix yet   8
+  lang-pkgs  fix available 415
+  os-pkgs    fix available 468
+
+CRITICAL packages (distinct package/version) and the images that carry them:
+  os-pkgs   gnutls@3.8.8-r0 -> fixed in 3.8.13-r0  [8 images]
+  os-pkgs   libcrypto3@3.5.5-r0 -> fixed in 3.5.6-r0  [8 images]
+  os-pkgs   libssl3@3.5.5-r0 -> fixed in 3.5.6-r0  [8 images]
+  os-pkgs   openssl@3.5.5-r0 -> fixed in 3.5.6-r0  [8 images]
+  lang-pkgs org.apache.tomcat.embed:tomcat-embed-core@10.1.19 -> fixed in 11.0.3, 10.1.35, 9.0.99  [8 images]
+  lang-pkgs org.apache.tomcat.embed:tomcat-embed-core@10.1.19 -> fixed in 9.0.118, 10.1.55, 11.0.22  [8 images]
+  lang-pkgs org.apache.tomcat.embed:tomcat-embed-core@10.1.19 -> fixed in 11.0.23, 10.1.56, 9.0.119  [8 images]
+  lang-pkgs org.apache.tomcat.embed:tomcat-embed-core@10.1.19 -> fixed in 11.0.25, 10.1.58, 9.0.121  [8 images]
+  lang-pkgs org.springframework:spring-webmvc@6.1.5 -> fixed in 7.0.9  [8 images]
+  lang-pkgs io.netty:netty-handler@4.1.107.Final -> fixed in 4.2.17.Final, 4.1.137.Final  [3 images]
+  lang-pkgs org.springframework.security:spring-security-web@6.2.3 -> fixed in 5.7.13, 5.8.15, 6.2.7, 6.0.13, 6.1.11, 6.3.4  [3 images]
+  lang-pkgs org.springframework.security:spring-security-web@6.2.3 -> fixed in 6.5.9, 7.0.4  [3 images]
+  os-pkgs   brotli-libs@1.1.0-r2 -> fixed in 1.1.1-r0  [1 images]
+  os-pkgs   libcrypto3@3.3.3-r0 -> fixed in 3.3.7-r0  [1 images]
+  os-pkgs   libssl3@3.3.3-r0 -> fixed in 3.3.7-r0  [1 images]
+  lang-pkgs org.freemarker:freemarker@2.3.32 -> fixed in 2.3.35  [1 images]
+  lang-pkgs org.springframework:spring-webflux@6.1.5 -> fixed in 7.0.9  [1 images]
+
+CRITICAL table written to docs/evidencias/hu-14/fase2/04-criticos-imagenes-propias.tsv

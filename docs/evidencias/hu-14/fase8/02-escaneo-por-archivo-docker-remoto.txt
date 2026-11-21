@@ -1,0 +1,7 @@
+# Escaneo de la misma imagen por socket y por volumen/archivo (modo usado con un Docker remoto, como el DinD de Jenkins): mismo resultado
+== socket mode
+FAIL        own           C=2    H=16   M=28   L=8    U=0     localhost:5000/circleguard/circleguard-auth-service:1.0.0-
+== archive mode (as used behind a remote DOCKER_HOST)
+FAIL        own           C=2    H=16   M=28   L=8    U=0     localhost:5000/circleguard/circleguard-auth-service:1.0.0-
+volumes left: 0
+14 passed, 0 failed

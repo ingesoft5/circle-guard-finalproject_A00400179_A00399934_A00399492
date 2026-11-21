@@ -1,0 +1,18 @@
+# HU-14 · Candidates for an exception. NOT ACTIVE: this file is never read by the gate.
+# To activate one: fill owner and justification, add approved/last_review/expires, move the row to exceptions.tsv in a reviewed pull request.
+id	package	scope	severity	owner	justification	approved	last_review	expires
+CVE-2024-38821	org.springframework.security:spring-security-web	deps:circleguard-auth-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2024-38821	org.springframework.security:spring-security-web	deps:circleguard-identity-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2024-38821	org.springframework.security:spring-security-web	deps:circleguard-promotion-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-22732	org.springframework.security:spring-security-web	deps:circleguard-auth-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-22732	org.springframework.security:spring-security-web	deps:circleguard-identity-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-22732	org.springframework.security:spring-security-web	deps:circleguard-promotion-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-auth-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-dashboard-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-file-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-form-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-gateway-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-identity-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-notification-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-promotion-service	CRITICAL	PENDIENTE	PENDIENTE			
+CVE-2026-47892	org.springframework:spring-webflux	deps:circleguard-notification-service	CRITICAL	PENDIENTE	PENDIENTE			

@@ -1,0 +1,24 @@
+# HU-04/HU-13: pruebas de integración ANTES de la corrección (repositorio real, copia sincronizada)
+synced to /home/matth/cg-real
+[before] gradle rc=1
+DeadLetterTopicIntegrationTest > initializationError FAILED
+FormToPromotionIntegrationTest > initializationError FAILED
+PromotionToNotificationIntegrationTest > initializationError FAILED
+> Task :tests:integration:integrationTest FAILED
+BUILD FAILED in 6m 54s
+  com.circleguard.it.DeadLetterTopicIntegrationTest                      tests=1 failures=1 errors=0
+  com.circleguard.it.FormToPromotionIntegrationTest                      tests=1 failures=1 errors=0
+  com.circleguard.it.PromotionToNotificationIntegrationTest              tests=1 failures=1 errors=0
+  com.circleguard.promotion.service.AdministrativeCorrectionIntegrationTest tests=2 failures=0 errors=0
+  com.circleguard.promotion.service.HealthStatusReevaluationIntegrationTest tests=4 failures=0 errors=0
+      1 Error creating bean with name 'managementSecurityFilterChain'
+
+# DESPUÉS de la corrección (solo IntegrationEnvironment.java modificado)
+synced to /home/matth/cg-real
+[after] gradle rc=0
+BUILD SUCCESSFUL in 3m 15s
+  com.circleguard.it.DeadLetterTopicIntegrationTest                      tests=6 failures=0 errors=0
+  com.circleguard.it.FormToPromotionIntegrationTest                      tests=3 failures=0 errors=0
+  com.circleguard.it.PromotionToNotificationIntegrationTest              tests=2 failures=0 errors=0
+  com.circleguard.promotion.service.AdministrativeCorrectionIntegrationTest tests=2 failures=0 errors=0
+  com.circleguard.promotion.service.HealthStatusReevaluationIntegrationTest tests=4 failures=0 errors=0

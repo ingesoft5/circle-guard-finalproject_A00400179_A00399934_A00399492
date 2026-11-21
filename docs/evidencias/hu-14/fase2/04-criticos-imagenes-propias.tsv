@@ -1,0 +1,127 @@
+image	vulnerability	severity	origin	package	installed	fixed_in
+circleguard-auth-service:1.0.0-hu14scan	CVE-2024-38821	CRITICAL	lang-pkgs	org.springframework.security:spring-security-web	6.2.3	5.7.13, 5.8.15, 6.2.7, 6.0.13, 6.1.11, 6.3.4
+circleguard-auth-service:1.0.0-hu14scan	CVE-2025-24813	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.3, 10.1.35, 9.0.99
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-22732	CRITICAL	lang-pkgs	org.springframework.security:spring-security-web	6.2.3	6.5.9, 7.0.4
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libcrypto3	3.5.5-r0	3.5.6-r0
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libssl3	3.5.5-r0	3.5.6-r0
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	openssl	3.5.5-r0	3.5.6-r0
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-33845	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-41293	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-42010	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-43512	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-43515	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-47884	CRITICAL	lang-pkgs	org.springframework:spring-webmvc	6.1.5	7.0.9
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-55276	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.23, 10.1.56, 9.0.119
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-65182	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-65905	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-auth-service:1.0.0-hu14scan	CVE-2026-68525	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2025-24813	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.3, 10.1.35, 9.0.99
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libcrypto3	3.5.5-r0	3.5.6-r0
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libssl3	3.5.5-r0	3.5.6-r0
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	openssl	3.5.5-r0	3.5.6-r0
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-33845	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-41293	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-42010	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-43512	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-43515	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-47884	CRITICAL	lang-pkgs	org.springframework:spring-webmvc	6.1.5	7.0.9
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-55276	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.23, 10.1.56, 9.0.119
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-65182	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-65905	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-dashboard-service:1.0.0-hu14scan	CVE-2026-68525	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-file-service:1.0.0-hu14scan	CVE-2025-24813	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.3, 10.1.35, 9.0.99
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libcrypto3	3.5.5-r0	3.5.6-r0
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libssl3	3.5.5-r0	3.5.6-r0
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	openssl	3.5.5-r0	3.5.6-r0
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-33845	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-41293	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-42010	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-43512	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-43515	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-47884	CRITICAL	lang-pkgs	org.springframework:spring-webmvc	6.1.5	7.0.9
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-55276	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.23, 10.1.56, 9.0.119
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-65182	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-65905	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-file-service:1.0.0-hu14scan	CVE-2026-68525	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-form-service:1.0.0-hu14scan	CVE-2025-24813	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.3, 10.1.35, 9.0.99
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libcrypto3	3.5.5-r0	3.5.6-r0
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libssl3	3.5.5-r0	3.5.6-r0
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	openssl	3.5.5-r0	3.5.6-r0
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-33845	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-41293	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-42010	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-43512	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-43515	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-47884	CRITICAL	lang-pkgs	org.springframework:spring-webmvc	6.1.5	7.0.9
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-55276	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.23, 10.1.56, 9.0.119
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-65182	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-65905	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-form-service:1.0.0-hu14scan	CVE-2026-68525	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2025-24813	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.3, 10.1.35, 9.0.99
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libcrypto3	3.5.5-r0	3.5.6-r0
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libssl3	3.5.5-r0	3.5.6-r0
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	openssl	3.5.5-r0	3.5.6-r0
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-33845	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-41293	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-42010	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-43512	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-43515	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-47884	CRITICAL	lang-pkgs	org.springframework:spring-webmvc	6.1.5	7.0.9
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-55276	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.23, 10.1.56, 9.0.119
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-65182	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-65905	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-68525	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-gateway-service:1.0.0-hu14scan	CVE-2026-75595	CRITICAL	lang-pkgs	io.netty:netty-handler	4.1.107.Final	4.2.17.Final, 4.1.137.Final
+circleguard-identity-service:1.0.0-hu14scan	CVE-2024-38821	CRITICAL	lang-pkgs	org.springframework.security:spring-security-web	6.2.3	5.7.13, 5.8.15, 6.2.7, 6.0.13, 6.1.11, 6.3.4
+circleguard-identity-service:1.0.0-hu14scan	CVE-2025-24813	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.3, 10.1.35, 9.0.99
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-22732	CRITICAL	lang-pkgs	org.springframework.security:spring-security-web	6.2.3	6.5.9, 7.0.4
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libcrypto3	3.5.5-r0	3.5.6-r0
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libssl3	3.5.5-r0	3.5.6-r0
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	openssl	3.5.5-r0	3.5.6-r0
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-33845	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-41293	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-42010	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-43512	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-43515	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-47884	CRITICAL	lang-pkgs	org.springframework:spring-webmvc	6.1.5	7.0.9
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-55276	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.23, 10.1.56, 9.0.119
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-65182	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-65905	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-identity-service:1.0.0-hu14scan	CVE-2026-68525	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-notification-service:1.0.0-hu14scan	CVE-2025-24813	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.3, 10.1.35, 9.0.99
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libcrypto3	3.5.5-r0	3.5.6-r0
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libssl3	3.5.5-r0	3.5.6-r0
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	openssl	3.5.5-r0	3.5.6-r0
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-33845	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-41293	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-42010	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-43512	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-43515	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-47884	CRITICAL	lang-pkgs	org.springframework:spring-webmvc	6.1.5	7.0.9
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-47892	CRITICAL	lang-pkgs	org.springframework:spring-webflux	6.1.5	7.0.9
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-55276	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.23, 10.1.56, 9.0.119
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-65182	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-65905	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-68525	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-75595	CRITICAL	lang-pkgs	io.netty:netty-handler	4.1.107.Final	4.2.17.Final, 4.1.137.Final
+circleguard-notification-service:1.0.0-hu14scan	CVE-2026-84939	CRITICAL	lang-pkgs	org.freemarker:freemarker	2.3.32	2.3.35
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2024-38821	CRITICAL	lang-pkgs	org.springframework.security:spring-security-web	6.2.3	5.7.13, 5.8.15, 6.2.7, 6.0.13, 6.1.11, 6.3.4
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2025-24813	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.3, 10.1.35, 9.0.99
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-22732	CRITICAL	lang-pkgs	org.springframework.security:spring-security-web	6.2.3	6.5.9, 7.0.4
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libcrypto3	3.5.5-r0	3.5.6-r0
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libssl3	3.5.5-r0	3.5.6-r0
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	openssl	3.5.5-r0	3.5.6-r0
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-33845	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-41293	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-42010	CRITICAL	os-pkgs	gnutls	3.8.8-r0	3.8.13-r0
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-43512	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-43515	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	9.0.118, 10.1.55, 11.0.22
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-47884	CRITICAL	lang-pkgs	org.springframework:spring-webmvc	6.1.5	7.0.9
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-55276	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.23, 10.1.56, 9.0.119
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-65182	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-65905	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-68525	CRITICAL	lang-pkgs	org.apache.tomcat.embed:tomcat-embed-core	10.1.19	11.0.25, 10.1.58, 9.0.121
+circleguard-promotion-service:1.0.0-hu14scan	CVE-2026-75595	CRITICAL	lang-pkgs	io.netty:netty-handler	4.1.107.Final	4.2.17.Final, 4.1.137.Final
+circleguard-web:1.0.0-hu14scan	CVE-2026-111497	CRITICAL	os-pkgs	brotli-libs	1.1.0-r2	1.1.1-r0
+circleguard-web:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libcrypto3	3.3.3-r0	3.3.7-r0
+circleguard-web:1.0.0-hu14scan	CVE-2026-31789	CRITICAL	os-pkgs	libssl3	3.3.3-r0	3.3.7-r0

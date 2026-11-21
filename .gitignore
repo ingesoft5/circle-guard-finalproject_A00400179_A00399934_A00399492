@@ -64,6 +64,12 @@ services/*/bin/
 # Secret scanning reports (no values, but they reveal locations)
 infra/security/reports/
 
+# Image scan reports of HU-14 (JSON/SARIF are large and regenerable; evidence copies live under docs/evidencias/hu-14/).
+security/reports/
+
+# HU-14 development TLS material (private keys of a throw-away CA). *.pem and *.key are already ignored; this keeps the folder out too.
+security/tls/dev/
+
 # Infrastructure run logs (HU-01). Sanitized copies kept as evidence are versioned.
 infra/logs/
 !docs/evidencias/hu-01/local/*.log
@@ -80,6 +86,10 @@ deploy/releases/history.tsv
 *.swp
 *~
 !gradle/wrapper/gradle-wrapper.jar
+
+# HU-15: Locust and ZAP raw results (the published evidence is copied to docs/evidencias/hu-15/) and Python caches
+tests/performance/results/
+__pycache__/
 
 #Terraform files
 .terraform/
