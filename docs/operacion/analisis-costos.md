@@ -51,6 +51,11 @@ encendido.
 
 ### 3.2 Costo por escenario
 
+> **Actualización 2026-11-20.** Desde HU-09 la infraestructura de `dev`, `stage`, `prod` y `tools`
+> se crea con Terraform (`infra/terraform/`): un nodo k3s `m7i-flex.large` por ambiente, Jenkins en
+> `tools`, ECR, S3 y CloudWatch. La tabla siguiente describe el Sprint 1 (Compose sobre EC2) y la
+> estimación debe recalcularse con el Billing real antes del cierre de HU-17.
+
 | Escenario | Cómputo | EBS/día | Total |
 |---|---|---|---|
 | Todo detenido | 0.00 USD/h | 0.145 | 0.145 USD/día |
