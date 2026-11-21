@@ -1,8 +1,8 @@
 # Evidencias HU-17 · Documentación completa y metodología (E2.9)
 
 **Estado:** en curso. Los documentos están escritos en la rama HU-13, pero varios dependen de
-resultados que aún no existen (Terraform, Kubernetes, seguridad y rendimiento) y faltan las
-capturas de cierre del sprint.
+resultados que aún no están mergeados (Kubernetes, seguridad y rendimiento) y faltan las capturas
+de cierre del sprint. Terraform ya está implementado y aplicado (HU-09).
 
 **Documentos dueños:** [`../../README.md`](../../README.md) (índice),
 [`../../metodologia/sprint-2.md`](../../metodologia/sprint-2.md),
@@ -33,7 +33,7 @@ capturas de cierre del sprint.
 | `04-burndown.png` | Export del burndown | Sebastian | Por crear |
 | `05-retro.png` | Tablero de acciones de la retrospectiva | Sebastian | Por crear |
 | `06-patrones.md` | Enlaces a código y pruebas de HU-12 | Matt | Por crear |
-| `07-terraform.txt` | `terraform init/plan/apply` y backend remoto | Juan Esteban | Bloqueado |
+| `07-terraform.txt` | `terraform init/plan/apply` y backend remoto | Juan Esteban | Cumplido: ver [`e2.1-terraform/`](../e2.1-terraform/README.md) |
 | `08-locust-zap.md` | p95, throughput, errores y hallazgos ZAP | Matt | Bloqueado |
 | `09-billing.png` / `09-billing.csv` | Factura real y comparación con la estimación | Sebastian | Por crear |
 | `10-ensayo.md` | Fecha, duración y ajustes del ensayo | Sebastian | Por crear |
@@ -52,7 +52,7 @@ capturas de cierre del sprint.
 
 | Pendiente | Depende de | Qué falta |
 |---|---|---|
-| Resultados de rendimiento | HU-15 | Informe de Locust y ZAP |
-| Sección IaC real | HU-09 | Módulos Terraform y backend remoto |
+| Resultados de rendimiento | HU-15 | Informe en la rama HU-14; falta merge |
+| Sección IaC real | HU-09 | Cumplido: `infra/terraform/` y `arquitectura/terraform.md` |
 | Manual con K8s | HU-10/HU-11 | Comandos reales del clúster |
 | Revisión por otra persona | Juan Esteban | Tiempo de revisión antes del cierre |

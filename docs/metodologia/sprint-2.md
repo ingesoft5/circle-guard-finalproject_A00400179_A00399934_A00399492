@@ -39,7 +39,7 @@ la prioridad: observabilidad y patrones (4 % cada uno), Terraform (4 %), documen
 
 | HU (S2) | Jira | Tema | Responsable | Peso rúbrica | Estado 20-nov |
 |---|---|---|---|---|---|
-| HU-09 (S2) | PDDZ-64 | Terraform con módulos y backend remoto | Juan Esteban | 4 % | Por hacer |
+| HU-09 (S2) | PDDZ-64 | Terraform con módulos y backend remoto | Juan Esteban | 4 % | Hecho (PR #15/#16/#18) |
 | HU-10 (S2) | PDDZ-65 | Kubernetes: 8 servicios + middleware | Juan Esteban | 2 % | Por hacer |
 | HU-11 (S2) | PDDZ-66 | Jenkins → Kubernetes, Trivy, aprobación | Juan Esteban | 1 % | Por hacer |
 | HU-12 (S2) | PDDZ-67 | Patrones de diseño (3 nuevos) | Matt Lane | 4 % | Hecho (PR #14); cierre O1/O2/O3 pendiente |
@@ -135,7 +135,7 @@ reconstruido no demuestra nada.
 | Sprint | Historias completadas | PRs mergeados | Observación |
 |---|---:|---:|---|
 | Sprint 1 | 9 (HU-01 a HU-09 S1) | #5–#13 | Base de CI/CD, pruebas y documentación |
-| Sprint 2 | En curso | #14 | HU-12 integrada el 15-nov |
+| Sprint 2 | En curso | #14–#19 | HU-12 y HU-09 integradas; #19 (HU-13) en revisión |
 
 ### 5.4 Métricas de calidad
 
@@ -195,8 +195,9 @@ diapositivas solo explican decisiones y trade-offs.
 | La revisión de HU-12 dejó observaciones accionables, no un “LGTM” | `docs/revisiones/hu-12-revision.md` |
 
 **Lo que no mejoró todavía:** SonarQube no está conectado de extremo a extremo; el E2E no cubre
-todos los flujos en stage; la infraestructura sigue en Bash hasta que HU-09 (S2) mergee. Se declara
-en la retrospectiva, no se oculta.
+todos los flujos en stage; la infraestructura ya está declarada en Terraform (HU-09), pero el
+despliegue de la aplicación en Kubernetes sigue pendiente (HU-10/HU-11). Se declara en la
+retrospectiva, no se oculta.
 
 ## 8. Riesgos y bloqueos del sprint
 
