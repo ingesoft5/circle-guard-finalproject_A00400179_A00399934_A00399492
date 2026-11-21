@@ -15,7 +15,7 @@ Punto de entrada a todo lo que no es código. El README general del proyecto est
 | C5 · CI/CD avanzado (E2.3) | [`arquitectura/pipeline-cd.md`](arquitectura/pipeline-cd.md) | Jenkinsfile, builds | Parcial (falta K8s/Trivy) |
 | C6 · Pruebas avanzadas (E2.7) | [`operacion/pruebas-avanzadas.md`](operacion/pruebas-avanzadas.md) | Locust, ZAP, informe | Implementado y ejecutado en local; Jenkins pendiente (HU-15 S2) |
 | C7 · Change management y rollback (E2.8) | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) | Release notes, registro, rollback | Parcial (Compose sí; K8s pendiente) |
-| C8 · Observabilidad (E2.5) | [`operacion/observabilidad.md`](operacion/observabilidad.md) | Dashboards, alertas, trazas, logs | Parcial (código y stack local; falta evidencia K8s) |
+| C8 · Observabilidad (E2.5) | [`operacion/observabilidad.md`](operacion/observabilidad.md) | Dashboards, alertas, trazas, logs | Parcial: implementado y mergeado; faltan capturas y evidencia K8s |
 | C9 · Seguridad (E2.6) | [`operacion/seguridad.md`](operacion/seguridad.md) | Trivy, RBAC, TLS, secretos | Implementado en rama HU-14; falta merge y despliegue |
 | C10 · Documentación completa (E2.9) | Este índice + [`operacion/manual-operaciones.md`](operacion/manual-operaciones.md) + [`operacion/analisis-costos.md`](operacion/analisis-costos.md) + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) | Documentos + evidencias | En curso |
 | C11 · Presentación (E2.10) | [`sustentacion/guion-sprint-2.md`](sustentacion/guion-sprint-2.md) | Demo y falla provocada | Listo para ensayo |
@@ -42,7 +42,7 @@ Punto de entrada a todo lo que no es código. El README general del proyecto est
 | Documento | Contenido | Estado |
 |---|---|---|
 | [`operacion/manual-operaciones.md`](operacion/manual-operaciones.md) | Instalar, configurar, desplegar, operar, monitorear, recuperar y revertir | Vigente; K8s pendiente |
-| [`operacion/observabilidad.md`](operacion/observabilidad.md) | Stack, métricas, dashboards, alertas, trazas, logs y runbook | Pendiente (HU-13 S2) |
+| [`operacion/observabilidad.md`](operacion/observabilidad.md) | Stack, métricas, dashboards, alertas, trazas, logs y runbook | Implementado; evidencia en ejecución (HU-13 S2) |
 | [`operacion/seguridad.md`](operacion/seguridad.md) | Controles actuales y pendientes: Trivy, RBAC, TLS, secretos | Implementado en rama HU-14; doc pendiente de actualizar |
 | [`operacion/pruebas-avanzadas.md`](operacion/pruebas-avanzadas.md) | Objetivos, Locust, ZAP e informe consolidado | Implementado y ejecutado en local; Jenkins pendiente (HU-15 S2) |
 | [`operacion/analisis-costos.md`](operacion/analisis-costos.md) | Tarifas, gasto real, estimación del Sprint 2 y FinOps | Estimación lista; Billing pendiente |
