@@ -1,0 +1,115 @@
+Desplegando 0.3.0 en prod (circleguard-prod)
+namespace/circleguard-prod created
+Secretos de prod generados y guardados en SSM
+secret/circleguard-secrets created
+secret/ecr-pull created
+configmap/circleguard-config created
+configmap/postgres-init-75fhc7866k created
+configmap/web-nginx-g2fggt65mh created
+service/auth created
+service/dashboard created
+service/file created
+service/form created
+service/gateway created
+service/identity created
+service/kafka created
+service/neo4j created
+service/notification created
+service/openldap created
+service/postgres created
+service/promotion created
+service/redis created
+service/web created
+service/zookeeper created
+deployment.apps/auth created
+deployment.apps/dashboard created
+deployment.apps/file created
+deployment.apps/form created
+deployment.apps/gateway created
+deployment.apps/identity created
+deployment.apps/notification created
+deployment.apps/promotion created
+deployment.apps/web created
+statefulset.apps/kafka created
+statefulset.apps/neo4j created
+statefulset.apps/openldap created
+statefulset.apps/postgres created
+statefulset.apps/redis created
+statefulset.apps/zookeeper created
+horizontalpodautoscaler.autoscaling/auth created
+horizontalpodautoscaler.autoscaling/dashboard created
+horizontalpodautoscaler.autoscaling/file created
+horizontalpodautoscaler.autoscaling/form created
+horizontalpodautoscaler.autoscaling/gateway created
+horizontalpodautoscaler.autoscaling/identity created
+horizontalpodautoscaler.autoscaling/notification created
+horizontalpodautoscaler.autoscaling/promotion created
+horizontalpodautoscaler.autoscaling/web created
+ingress.networking.k8s.io/circleguard created
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+Waiting for 1 pods to be ready...
+partitioned roll out complete: 1 new pods have been updated...
+partitioned roll out complete: 1 new pods have been updated...
+partitioned roll out complete: 1 new pods have been updated...
+partitioned roll out complete: 1 new pods have been updated...
+deployment "auth" successfully rolled out
+deployment "identity" successfully rolled out
+deployment "dashboard" successfully rolled out
+deployment "file" successfully rolled out
+deployment "form" successfully rolled out
+deployment "gateway" successfully rolled out
+deployment "notification" successfully rolled out
+Waiting for deployment "promotion" rollout to finish: 0 of 1 updated replicas are available...
+deployment "promotion" successfully rolled out
+deployment "web" successfully rolled out
+NAME                                READY   STATUS    RESTARTS      AGE
+pod/auth-848bfd9bbf-fsvth           1/1     Running   0             3m15s
+pod/dashboard-bb45bd48-7pcjt        1/1     Running   0             3m15s
+pod/file-77cdfb44cc-2ktz7           1/1     Running   0             3m14s
+pod/form-78fd9b8d6-rlqpw            1/1     Running   0             3m14s
+pod/gateway-69f66cc7cb-wcmfp        1/1     Running   0             3m13s
+pod/gateway-69f66cc7cb-wg29t        1/1     Running   0             3m4s
+pod/identity-67489657c-vs8dk        1/1     Running   0             3m13s
+pod/kafka-0                         1/1     Running   1 (42s ago)   3m11s
+pod/neo4j-0                         1/1     Running   0             3m10s
+pod/notification-546c5987fb-8z7kb   1/1     Running   0             3m12s
+pod/openldap-0                      1/1     Running   0             3m9s
+pod/postgres-0                      1/1     Running   0             3m8s
+pod/promotion-5dbb59fd86-4qzwb      1/1     Running   1 (37s ago)   3m12s
+pod/redis-0                         1/1     Running   0             3m7s
+pod/web-6cd57479d5-8dnrz            1/1     Running   0             3m12s
+pod/zookeeper-0                     1/1     Running   0             3m6s
+
+NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/auth           ClusterIP   10.43.14.123    <none>        8180/TCP   3m21s
+service/dashboard      ClusterIP   10.43.206.65    <none>        8084/TCP   3m21s
+service/file           ClusterIP   10.43.216.196   <none>        8085/TCP   3m20s
+service/form           ClusterIP   10.43.31.127    <none>        8086/TCP   3m20s
+service/gateway        ClusterIP   10.43.143.144   <none>        8087/TCP   3m20s
+service/identity       ClusterIP   10.43.7.73      <none>        8083/TCP   3m19s
+service/kafka          ClusterIP   10.43.158.117   <none>        9092/TCP   3m19s
+service/neo4j          ClusterIP   10.43.19.106    <none>        7687/TCP   3m18s
+service/notification   ClusterIP   10.43.202.215   <none>        8082/TCP   3m18s
+service/openldap       ClusterIP   10.43.77.235    <none>        389/TCP    3m18s
+service/postgres       ClusterIP   10.43.2.215     <none>        5432/TCP   3m17s
+service/promotion      ClusterIP   10.43.215.235   <none>        8088/TCP   3m17s
+service/redis          ClusterIP   10.43.69.151    <none>        6379/TCP   3m16s
+service/web            ClusterIP   10.43.77.225    <none>        8080/TCP   3m16s
+service/zookeeper      ClusterIP   10.43.80.49     <none>        2181/TCP   3m15s
+
+NAME                                    CLASS     HOSTS   ADDRESS       PORTS   AGE
+ingress.networking.k8s.io/circleguard   traefik   *       10.30.1.182   80      3m3s
+
+NAME                                               REFERENCE                 TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/auth           Deployment/auth           cpu: 6%/70%          1         2         1          3m7s
+horizontalpodautoscaler.autoscaling/dashboard      Deployment/dashboard      cpu: 3%/70%          1         2         1          3m7s
+horizontalpodautoscaler.autoscaling/file           Deployment/file           cpu: 3%/70%          1         2         1          3m6s
+horizontalpodautoscaler.autoscaling/form           Deployment/form           cpu: 5%/70%          1         2         1          3m6s
+horizontalpodautoscaler.autoscaling/gateway        Deployment/gateway        cpu: 3%/70%          2         2         2          3m5s
+horizontalpodautoscaler.autoscaling/identity       Deployment/identity       cpu: 5%/70%          1         2         1          3m5s
+horizontalpodautoscaler.autoscaling/notification   Deployment/notification   cpu: 23%/70%         1         2         1          3m4s
+horizontalpodautoscaler.autoscaling/promotion      Deployment/promotion      cpu: <unknown>/70%   1         2         1          3m4s
+horizontalpodautoscaler.autoscaling/web            Deployment/web            cpu: 5%/70%          1         2         1          3m4s
