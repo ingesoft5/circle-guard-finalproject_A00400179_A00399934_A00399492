@@ -14,7 +14,7 @@ Punto de entrada a todo lo que no es código. El README general del proyecto est
 | C4 · Patrones de diseño (E2.4) | [`arquitectura/patrones-diseno.md`](arquitectura/patrones-diseno.md) | Código + pruebas de falla | Implementado (HU-12, PR #14) |
 | C5 · CI/CD avanzado (E2.3) | [`arquitectura/pipeline-cd.md`](arquitectura/pipeline-cd.md) | Jenkinsfile, builds | Parcial (falta K8s/Trivy) |
 | C6 · Pruebas avanzadas (E2.7) | [`operacion/pruebas-avanzadas.md`](operacion/pruebas-avanzadas.md) | Locust, ZAP, informe | Implementado y ejecutado en local; Jenkins pendiente (HU-15 S2) |
-| C7 · Change management y rollback (E2.8) | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) | Release notes, registro, rollback | Parcial (Compose sí; K8s pendiente) |
+| C7 · Change management y rollback (E2.8) | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) | Release notes, registro, rollback | Parcial: rollback K8s implementado; pendiente ejecutar |
 | C8 · Observabilidad (E2.5) | [`operacion/observabilidad.md`](operacion/observabilidad.md) | Dashboards, alertas, trazas, logs | Parcial: implementado y mergeado; faltan capturas y evidencia K8s |
 | C9 · Seguridad (E2.6) | [`operacion/seguridad.md`](operacion/seguridad.md) | Trivy, RBAC, TLS, secretos | Implementado en rama HU-14; falta merge y despliegue |
 | C10 · Documentación completa (E2.9) | Este índice + [`operacion/manual-operaciones.md`](operacion/manual-operaciones.md) + [`operacion/analisis-costos.md`](operacion/analisis-costos.md) + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) | Documentos + evidencias | En curso |
@@ -74,7 +74,7 @@ Punto de entrada a todo lo que no es código. El README general del proyecto est
 | HU-08 (S1) · Documentación y bitácora de IAG | [`evidencias/hu-08/`](evidencias/hu-08/README.md) | Completa |
 | HU-12 (S2) · Patrones de diseño | [`arquitectura/patrones-diseno.md`](arquitectura/patrones-diseno.md) + [`revisiones/hu-12-revision.md`](revisiones/hu-12-revision.md) | Implementada; cierre pendiente O1/O2/O3 |
 | HU-13 (S2) · Observabilidad | [`evidencias/hu-13/`](evidencias/hu-13/README.md) | Parcial; implementación en curso |
-| HU-16 (S2) · Change management | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) + [`evidencias/hu-16/`](evidencias/hu-16/README.md) | Parcial; K8s pendiente |
+| HU-16 (S2) · Change management | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) + [`evidencias/hu-16/`](evidencias/hu-16/README.md) | Procedimiento K8s listo; falta ejecutar el rollback |
 | HU-17 (S2) · Documentación | este índice + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) + [`evidencias/hu-17/`](evidencias/hu-17/README.md) | En curso |
 
 ## Bitácora de IA generativa y decisiones

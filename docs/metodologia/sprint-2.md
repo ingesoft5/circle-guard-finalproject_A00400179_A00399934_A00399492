@@ -46,7 +46,7 @@ la prioridad: observabilidad y patrones (4 % cada uno), Terraform (4 %), documen
 | HU-13 (S2) | PDDZ-68 | Observabilidad centralizada | Sebastian Cosme | 4 % | En revisión (rama lista; PR pendiente) |
 | HU-14 (S2) | PDDZ-69 | Seguridad: Trivy, RBAC, TLS, secretos | Matt Lane | 2 % | Por hacer |
 | HU-15 (S2) | PDDZ-70 | Locust + OWASP ZAP | Matt Lane | 2.5 % | Por hacer |
-| HU-16 (S2) | PDDZ-71 | Change management y rollback K8s | Sebastian Cosme | 0.5 % | En curso (documento y D-30 listos; falta K8s) |
+| HU-16 (S2) | PDDZ-71 | Change management y rollback K8s | Sebastian Cosme | 0.5 % | En curso (procedimiento K8s listo; falta ejecutar el rollback) |
 | HU-17 (S2) | PDDZ-72 | Documentación completa + resumen en inglés | Sebastian Cosme | 2 % + C1 2 % | En curso (documentos en rama; cierre pendiente) |
 | — | PDDZ-73 | Revisar pipeline del Sprint 1 | Juan Esteban | — | Por hacer |
 | — | PDDZ-74 | Vincular GitHub al Kanban | Matt Lane | — | Por hacer |

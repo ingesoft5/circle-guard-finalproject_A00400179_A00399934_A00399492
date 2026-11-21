@@ -2,6 +2,7 @@
 # Rolls an environment back to a previously published semantic version (HU-06).
 # Usage:
 #   IMAGE_REGISTRY=localhost:5000 ./deploy/rollback.sh dev 1.0.0
+#   DEPLOY_MODE=k8s ./deploy/rollback.sh dev 1.0.0
 # The target version must be different from the current one and its images must
 # exist in the registry (or locally for local deployments).
 set -Eeuo pipefail
@@ -22,6 +23,36 @@ DEPLOY_MODE=${DEPLOY_MODE:-local}
 
 CURRENT=$(cg_current_version_optional "$ENV_NAME" 2>/dev/null || true)
 [[ "$VERSION" != "$CURRENT" ]] || cg_die "La versión $VERSION ya está desplegada en $ENV_NAME."
+
+if [[ "$DEPLOY_MODE" == "k8s" ]]; then
+  command -v aws >/dev/null 2>&1 || cg_die "DEPLOY_MODE=k8s requiere AWS CLI."
+  command -v kubectl >/dev/null 2>&1 || cg_die "DEPLOY_MODE=k8s requiere kubectl."
+
+  AWS_REGION=${AWS_REGION:-us-east-2}
+  if [[ -z "${KUBECONFIG:-}" ]]; then
+    KUBECONFIG=$(mktemp)
+    chmod 600 "$KUBECONFIG"
+    export KUBECONFIG
+    trap 'rm -f "$KUBECONFIG"' EXIT
+    aws ssm get-parameter --region "$AWS_REGION" --name "/circleguard/$ENV_NAME/kubeconfig" \
+      --with-decryption --query Parameter.Value --output text > "$KUBECONFIG"
+  fi
+
+  ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+  ECR_REGISTRY=${ECR_REGISTRY:-$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com}
+  for name in "${CG_SERVICES[@]}" "$CG_WEB_SERVICE"; do
+    aws ecr describe-images --region "$AWS_REGION" --repository-name "$name" \
+      --image-ids imageTag="$VERSION" >/dev/null 2>&1 \
+      || cg_die "La imagen $name:$VERSION no existe en ECR."
+  done
+
+  cg_info "Rollback K8s de $ENV_NAME: ${CURRENT:-sin versión} -> $VERSION"
+  AWS_REGION="$AWS_REGION" ECR_REGISTRY="$ECR_REGISTRY" \
+    ./deploy/k8s/deploy.sh "$ENV_NAME" "$VERSION"
+  RESULT=success ./deploy/record-release.sh "$ENV_NAME" "$VERSION" rollback "${USER:-jenkins}"
+  cg_info "Rollback K8s registrado en deploy/releases/$ENV_NAME.json"
+  exit 0
+fi
 
 if [[ "$DEPLOY_MODE" == "ssh" ]]; then
   cg_info "La verificación de imágenes se delega al host remoto."
