@@ -80,6 +80,19 @@ data:
             target_label: application
           - source_labels: [__meta_kubernetes_pod_name]
             target_label: pod
+        static_configs:
+          - targets:
+              - auth.circleguard-dev.svc.cluster.local:8180
+              - identity.circleguard-dev.svc.cluster.local:8083
+              - form.circleguard-dev.svc.cluster.local:8086
+              - promotion.circleguard-dev.svc.cluster.local:8088
+              - notification.circleguard-dev.svc.cluster.local:8082
+              - gateway.circleguard-dev.svc.cluster.local:8087
+              - dashboard.circleguard-dev.svc.cluster.local:8084
+              - file.circleguard-dev.svc.cluster.local:8085
+            labels:
+              environment: dev
+              runtime: k8s
   circleguard-alerts.yml: |
     groups:
       - name: circleguard-critical
