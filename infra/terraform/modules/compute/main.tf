@@ -30,6 +30,15 @@ resource "aws_vpc_security_group_ingress_rule" "kube_api" {
   to_port           = 6443
 }
 
+resource "aws_vpc_security_group_ingress_rule" "kube_api_ci" {
+  count             = var.ci_cidr == "" ? 0 : 1
+  security_group_id = aws_security_group.node.id
+  cidr_ipv4         = var.ci_cidr
+  ip_protocol       = "tcp"
+  from_port         = 6443
+  to_port           = 6443
+}
+
 resource "aws_vpc_security_group_ingress_rule" "http" {
   security_group_id = aws_security_group.node.id
   cidr_ipv4         = "0.0.0.0/0"

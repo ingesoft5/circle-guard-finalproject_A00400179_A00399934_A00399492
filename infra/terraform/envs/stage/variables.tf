@@ -22,3 +22,8 @@ variable "instance_type" {
 variable "admin_cidr" {
   type = string
 }
+
+variable "ci_cidr" {
+  type    = string
+  default = ""
+}
