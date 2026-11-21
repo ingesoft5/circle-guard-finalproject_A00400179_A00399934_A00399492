@@ -134,7 +134,7 @@ resource "aws_instance" "node" {
   }
 
   lifecycle {
-    ignore_changes = [associate_public_ip_address]
+    ignore_changes = [associate_public_ip_address, ami]
   }
 
   tags = {
