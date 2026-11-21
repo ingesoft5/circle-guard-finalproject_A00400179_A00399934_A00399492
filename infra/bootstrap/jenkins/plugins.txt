@@ -17,3 +17,5 @@ sonar
 timestamper
 ws-cleanup
 build-timeout
+# HU-14: role-based authorization (administrator, developer, viewer).
+role-strategy:928.vc60b_edb_fea_e1

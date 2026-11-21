@@ -41,16 +41,32 @@ class SecurityConfigTest {
     }
 
     @Test
-    void ldapContextSource_PointsAtTheDirectoryBase() {
-        LdapContextSource source = config.contextSource();
+    void ldapContextSource_UsesTheExternalConfiguration() {
+        LdapContextSource source = config.contextSource(new String[] {"ldap://openldap:389"}, "dc=circleguard,dc=edu",
+                "cn=admin,dc=circleguard,dc=edu", "from-configuration");
+        source.afterPropertiesSet();
 
         assertThat(source.getBaseLdapPathAsString()).isEqualTo("dc=circleguard,dc=edu");
-        assertThat(source.getUrls()).containsExactly("ldap://localhost:389");
+        assertThat(source.getUrls()).containsExactly("ldap://openldap:389");
+        assertThat(source.getUserDn()).isEqualTo("cn=admin,dc=circleguard,dc=edu");
+    }
+
+    @Test
+    void ldapContextSource_DoesNotHardCodeTheBindPassword() {
+        LdapContextSource first = config.contextSource(new String[] {"ldap://a:389"}, "dc=x", "cn=admin,dc=x", "pw-one");
+        LdapContextSource second = config.contextSource(new String[] {"ldap://a:389"}, "dc=x", "cn=admin,dc=x", "pw-two");
+
+        first.afterPropertiesSet();
+        second.afterPropertiesSet();
+
+        assertThat(first.getAuthenticationSource().getCredentials()).isEqualTo("pw-one");
+        assertThat(second.getAuthenticationSource().getCredentials()).isEqualTo("pw-two");
     }
 
     @Test
     void ldapAuthenticationProvider_IsBuiltFromTheContextSource() {
-        LdapContextSource source = config.contextSource();
+        LdapContextSource source = config.contextSource(new String[] {"ldap://localhost:389"}, "dc=circleguard,dc=edu",
+                "cn=admin,dc=circleguard,dc=edu", "unused");
 
         LdapAuthenticationProvider provider = config.ldapAuthenticationProvider(source);
 

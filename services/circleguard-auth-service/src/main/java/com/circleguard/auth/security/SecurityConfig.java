@@ -1,6 +1,7 @@
 package com.circleguard.auth.security;
 
 import com.circleguard.auth.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.support.LdapContextSource;
@@ -54,12 +55,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    public LdapContextSource contextSource() {
+    // HU-12 / HU-14: the directory location and its bind credential come from external configuration (spring.ldap.* in
+    // application.yml, overridden by SPRING_LDAP_URLS and LDAP_ADMIN_PASSWORD in a container or cluster). They used to be
+    // literals here, so the container setting was ignored and a password was committed in the code.
+    public LdapContextSource contextSource(
+            @Value("${spring.ldap.urls:ldap://localhost:389}") String[] urls,
+            @Value("${spring.ldap.base:dc=circleguard,dc=edu}") String base,
+            @Value("${spring.ldap.username:cn=admin,dc=circleguard,dc=edu}") String userDn,
+            @Value("${spring.ldap.password}") String password) {
         LdapContextSource contextSource = new LdapContextSource();
-        contextSource.setUrl("ldap://localhost:389");
-        contextSource.setBase("dc=circleguard,dc=edu");
-        contextSource.setUserDn("cn=admin,dc=circleguard,dc=edu");
-        contextSource.setPassword("admin");
+        contextSource.setUrls(urls);
+        contextSource.setBase(base);
+        contextSource.setUserDn(userDn);
+        contextSource.setPassword(password);
         return contextSource;
     }
 

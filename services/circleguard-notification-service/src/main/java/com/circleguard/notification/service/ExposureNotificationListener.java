@@ -1,5 +1,6 @@
 package com.circleguard.notification.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,21 +19,21 @@ public class ExposureNotificationListener {
 
     /**
      * Listens for status changes and exposure events.
+     *
+     * <p>HU-12: no exception is swallowed here. A failure reaches the container's error handler
+     * ({@code KafkaErrorHandlingConfig}), which retries transient errors and publishes what cannot be
+     * processed to {@code promotion.status.changed.DLT}.
      */
     @KafkaListener(topics = "promotion.status.changed", groupId = "notification-group")
-    public void handleStatusChange(String eventJson) {
+    public void handleStatusChange(String eventJson) throws JsonProcessingException {
         log.info("Received health status change event: {}", eventJson);
-        try {
-            JsonNode node = objectMapper.readTree(eventJson);
-            String userId = node.path("anonymousId").asText("unknown");
-            String status = node.path("status").asText("UNKNOWN");
-            
-            if (!"ACTIVE".equals(status) && !"UNKNOWN".equals(status)) {
-                dispatcher.dispatch(userId, status);
-                lmsService.syncRemoteAttendance(userId, status);
-            }
-        } catch (Exception e) {
-            log.error("Failed to parse health status change event: {}", e.getMessage());
+        JsonNode node = objectMapper.readTree(eventJson);
+        String userId = node.path("anonymousId").asText("unknown");
+        String status = node.path("status").asText("UNKNOWN");
+
+        if (!"ACTIVE".equals(status) && !"UNKNOWN".equals(status)) {
+            dispatcher.dispatch(userId, status);
+            lmsService.syncRemoteAttendance(userId, status);
         }
     }
 }

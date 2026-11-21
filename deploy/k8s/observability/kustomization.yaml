@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: observability
+
+resources:
+  - all-in-one.yaml
+
+# The K8s copy of the dashboards lives next to this kustomization so Kustomize
+# does not need to read files outside its root. Keep it in sync with
+# deploy/observability/grafana/dashboards/ (source of truth for local Compose).
+configMapGenerator:
+  - name: grafana-dashboards
+    files:
+      - grafana/service-overview.json
+      - grafana/business.json

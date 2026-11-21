@@ -1,0 +1,21 @@
+# Login de extremo a extremo con las imágenes 1.0.0-hu14fix (2026-11-20)
+# Stack Compose aislado circleguard-hu14val, 15 de 15 contenedores healthy, credenciales aleatorias fuera del repositorio.
+# La contraseña de prueba se lee de services/circleguard-auth-service/.../V3__fix_user_passwords.sql con una búsqueda
+# insensible a mayúsculas ("Password is"); no se imprime (longitud 8, no vacía).
+
+auth, puerto interno 8180:
+  POST /api/v1/auth/login  staff_guard + contraseña sembrada -> 200
+  cuerpo: {"anonymousId":"<uuid>","type":"Bearer","token":"<JWT, no se reproduce>"}
+
+A través del proxy del cliente web (web:8080, desde la red del stack):
+  GET  /healthz                         -> 200
+  POST /auth/api/v1/auth/login, sembrada      -> 200 con token
+  POST /auth/api/v1/auth/login, incorrecta    -> 401 (esperado)
+  GET  /identity/actuator/health              -> {"status":"UP",...} [200]
+
+Circuit breaker de HU-12 (métricas de HU-13) en auth, instancia identity-service:
+  state closed = 1.0 (open/half_open/forced_open = 0.0)
+  llamadas fallidas = 0.0, ignoradas = 0.0
+
+Nota: el puerto publicado en 127.0.0.1:3000 de Windows no es alcanzable desde WSL (resultado 000 en una primera tentativa);
+por eso la prueba del proxy se hizo desde dentro de la red de Docker. No es un defecto del proxy.

@@ -1,5 +1,6 @@
 package com.circleguard.notification.service;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +18,9 @@ class NotificationDispatcherTest {
 
     @Autowired
     private NotificationDispatcher dispatcher;
+
+    @Autowired
+    private MeterRegistry meterRegistry;
 
     @MockBean
     private EmailService emailService;
@@ -42,5 +46,9 @@ class NotificationDispatcherTest {
         verify(emailService, timeout(1000)).sendAsync(eq("user-123"), any());
         verify(smsService, timeout(1000)).sendAsync(eq("user-123"), any());
         verify(pushService, timeout(1000)).sendAsync(eq("user-123"), any(), any());
+
+        // HU-13: each channel records a successful notification.
+        org.junit.jupiter.api.Assertions.assertTrue(meterRegistry.get("circleguard.notifications")
+                .tag("channel", "email").tag("result", "success").counter().count() >= 1.0);
     }
 }

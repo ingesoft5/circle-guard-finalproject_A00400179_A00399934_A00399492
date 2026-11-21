@@ -1,0 +1,14 @@
+# HU-14 image scan · 20261117T020143Z · threshold: CRITICAL,HIGH
+REPORT-ONLY  third-party  postgres:16.15@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a                   2   148  192  146  11
+REPORT-ONLY  third-party  neo4j:5.26.32-community@sha256:249a1ec6e3c52d82101a5ed33d6ed2b5ed5b0017b21a28c0bfebc335e87fb177          1   131  823  302  29
+REPORT-ONLY  third-party  confluentinc/cp-zookeeper:7.6.0@sha256:9babd1c0beaf93189982bdbb9fe4bf194a2730298b640c057817746c19838866  5   257  717  312  0
+REPORT-ONLY  third-party  confluentinc/cp-kafka:7.6.0@sha256:24cdd3a7fa89d2bed150560ebea81ff1943badfa61e51d66bb541a6b0d7fb047      5   257  717  312  0
+REPORT-ONLY  third-party  redis:7.2.5-alpine@sha256:6aaf3f5e6bc8a592fbfe2cccf19eb36d27c39d12dab4f4b01556b7449e7b1f44               6   77   74   28   2
+REPORT-ONLY  third-party  osixia/openldap:1.5.0                                                                                    68  507  438  73   21
+REPORT-ONLY  third-party  prom/prometheus:v2.54.1                                                                                  6   116  134  15   6
+REPORT-ONLY  third-party  prom/alertmanager:v0.27.0                                                                                4   106  141  8    6
+REPORT-ONLY  third-party  grafana/grafana:11.1.4                                                                                   7   137  200  47   7
+REPORT-ONLY  third-party  grafana/loki:3.1.1                                                                                       4   87   80   28   3
+REPORT-ONLY  third-party  grafana/promtail:3.1.1                                                                                   12  137  265  158  15
+REPORT-ONLY  third-party  jaegertracing/all-in-one:1.60                                                                            4   80   80   30   3
+REPORT-ONLY  third-party  otel/opentelemetry-collector-contrib:0.108.0                                                             7   82   87   15   3

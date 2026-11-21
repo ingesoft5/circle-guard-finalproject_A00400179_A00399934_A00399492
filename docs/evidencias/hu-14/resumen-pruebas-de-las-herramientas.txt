@@ -1,0 +1,9 @@
+SUITE                      RESULT
+test-gate.sh               PASS  14 passed, 0 failed
+test-jenkins-audit.sh      PASS  7 passed, 0 failed
+test-create-secrets.sh     PASS  10 passed, 0 failed
+test-rbac.sh               PASS  10 passed, 0 failed
+test-secret-scan.sh        PASS  9 passed, 0 failed
+test-tls.sh                PASS  8 passed, 0 failed
+
+RESULT: PASS · 6 suite(s)

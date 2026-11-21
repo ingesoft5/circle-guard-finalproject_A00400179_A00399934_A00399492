@@ -1,0 +1,8 @@
+# Bloqueo controlado con una imagen conocida por estar desactualizada (alpine:3.10, fuera de soporte)
+# Comando: security/scan-images.sh --image alpine:3.10 --class own
+Trivy: aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+Umbral que bloquea: CRITICAL,HIGH · sin arreglo ignoradas: false · terceros bloquean: false
+==> scanning alpine:3.10 (own)
+FAIL        own           C=1    H=0    M=0    L=0    U=0     alpine:3.10
+RESULT: FAIL · 1 image(s) exceed the threshold (CRITICAL,HIGH). Promotion must stop. Summary: (ruta local)
+exit=1

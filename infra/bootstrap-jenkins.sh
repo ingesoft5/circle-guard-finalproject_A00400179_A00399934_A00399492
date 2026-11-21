@@ -2,7 +2,8 @@
 # HU-01 · Jenkins on the ci server (shared with SonarQube): prepares the host (Docker Engine +
 # Compose), publishes the Compose stack and the JCasC configuration, writes its .env from the
 # secret manager and verifies that Jenkins started configured (no setup wizard, managed admin,
-# no anonymous access).
+# no anonymous access). Access is role based (HU-14): administrator, developer and viewer, each with its
+# own password from the secret manager (see casc/jenkins.yaml).
 # Jenkins only listens on 127.0.0.1 of its host: administrators use infra/tunnel.sh jenkins.
 # The container also gets the registry address and the "ci" user of the registry (from the secret
 # manager), used by crane to publish and pull images (verify-infra.sh --registry).
@@ -55,7 +56,7 @@ TOOL_NETWORK=cg-ci
 # shellcheck disable=SC2034
 TOOL_FILES=(docker-compose.yml Dockerfile plugins.txt casc/jenkins.yaml)
 # shellcheck disable=SC2034
-TOOL_SECRETS=(JENKINS_ADMIN_PASSWORD)
+TOOL_SECRETS=(JENKINS_ADMIN_PASSWORD JENKINS_DEV_PASSWORD JENKINS_VIEWER_PASSWORD)
 # shellcheck disable=SC2034
 TOOL_SHARED_SECRETS=("tools/registry REGISTRY_CI_PASSWORD")
 # shellcheck disable=SC2034
@@ -64,6 +65,8 @@ TOOL_ENV=(
   "RESTART_POLICY=$RESTART"
   "JENKINS_HTTP_PORT=$JENKINS_HTTP_PORT"
   "JENKINS_ADMIN_USER=admin"
+  "JENKINS_DEV_USER=ci-developer"
+  "JENKINS_VIEWER_USER=ci-viewer"
   "CG_JENKINS_URL=http://localhost:${JENKINS_HTTP_PORT}/"
   "CG_LIBRARY_REMOTE=${CG_LIBRARY_REMOTE:-https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git}"
   "REGISTRY_ADDRESS=$REGISTRY_ADDRESS"

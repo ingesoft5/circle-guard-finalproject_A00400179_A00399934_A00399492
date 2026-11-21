@@ -1,0 +1,14 @@
+# Imagen web (anterior y corregida) conectada a la red del stack de validación: auth e identity REALES detrás del proxy, 2026-11-17
+# (form, notification y promotion no estaban iniciados en ese momento: solo se probó lo que atraviesa auth e identity)
+--- ANTES (localhost:5000/circleguard/circleguard-web:1.0.0-hu14scan)
+web /healthz                                  -> 200
+POST /auth/api/v1/auth/login, wrong password  -> 404 (expected 401)
+POST /auth/api/v1/auth/login, seeded user     -> 404 (token field: 0)
+GET  /identity/actuator/health (identity)     ->  [401]
+GET  /auth/actuator/health (auth)             -> 404
+--- DESPUES (localhost:5000/circleguard/circleguard-web:1.0.0-hu02web)
+web /healthz                                  -> 200
+POST /auth/api/v1/auth/login, wrong password  -> 401 (expected 401)
+POST /auth/api/v1/auth/login, seeded user     -> 401 (token field: 0)
+GET  /identity/actuator/health (identity)     -> {"status":"UP","groups":["liveness","readiness"]} [200]
+GET  /auth/actuator/health (auth)             -> 503

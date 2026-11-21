@@ -33,7 +33,8 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/identities/visitor", "/api/v1/identities/map").permitAll()
-                .requestMatchers("/actuator/health/**").permitAll()
+                // HU-13: Prometheus scraping and Kubernetes probes only; the rest of Actuator stays closed.
+                .requestMatchers("/actuator/health/**", "/actuator/prometheus").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(exceptions -> exceptions
