@@ -1,10 +1,9 @@
 # Arquitectura general de CircleGuard
 
 **Documento:** HU-17 (Sprint 2 · E2.9, criterios 1 y 2)
-**Última actualización:** 2026-11-20
-**Estado:** vigente para la arquitectura lógica. Terraform ya está implementado y aplicado; las
-secciones de Kubernetes marcadas **[S2]** describen el estado objetivo y se actualizan cuando
-HU-10/HU-11 se mergeen.
+**Última actualización:** 2026-11-21
+**Estado:** vigente para la arquitectura lógica. Terraform, Kubernetes, observabilidad y seguridad
+ya están implementados y mergeados; el pipeline de Jenkins hacia K8s (HU-11) sigue pendiente.
 
 > Diagramas complementarios: [`diagramas.md`](diagramas.md) (flujos y pipeline) e
 > [`infra-ambientes.md`](infra-ambientes.md) (red y hosts AWS). Este documento es la vista de
@@ -148,10 +147,10 @@ flowchart TB
 | Pieza | Historia | Estado |
 |---|---|---|
 | Terraform con módulos y backend remoto con lock | HU-09 (S2) | Implementado y aplicado (PR #15/#16/#18) |
-| Kubernetes con 8 servicios, ConfigMaps, Secrets, Ingress, HPA y probes | HU-10 (S2) | Pendiente (clúster k3s sí; manifiestos no) |
+| Kubernetes con 8 servicios, ConfigMaps, Secrets, Ingress, HPA y probes | HU-10 (S2) | Implementado (PR #21); Jenkins pendiente |
 | Jenkins gobernando el despliegue K8s | HU-11 (S2) | Pendiente |
-| Observabilidad (Prometheus/Grafana/Jaeger/Loki) | HU-13 (S2) | Implementado; evidencia parcial (PR #19) |
-| Seguridad (Trivy, RBAC, TLS, secretos) | HU-14 (S2) | Implementado en rama; pendiente merge |
+| Observabilidad (Prometheus/Grafana/Jaeger/Loki) | HU-13 (S2) | Implementado (PR #19); evidencia en ejecución |
+| Seguridad (Trivy, RBAC, TLS, secretos) | HU-14 (S2) | Implementado (PR #20); Jenkins/K8s pendiente |
 | Blue-Green en prod + RollingUpdate en dev/stage | HU-16 (S2) | Aceptado (D-29, 2026-11-16) |
 
 Los detalles de cada pieza están en [`kubernetes.md`](kubernetes.md),
