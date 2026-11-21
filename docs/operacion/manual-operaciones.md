@@ -237,6 +237,14 @@ Procedimiento completo, catálogo de métricas y alertas:
 
 ### 7.2 Rollback en Kubernetes **[S2]**
 
+Comando recomendado (reaplica la versión anterior y registra `event=rollback`):
+
+```bash
+DEPLOY_MODE=k8s ./deploy/rollback.sh prod 1.2.2
+```
+
+Alternativa manual:
+
 ```bash
 # Opción A: historial de despliegue
 kubectl -n circleguard-prod rollout history deployment/auth
