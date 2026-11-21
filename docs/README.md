@@ -74,8 +74,8 @@ Punto de entrada a todo lo que no es código. El README general del proyecto est
 | HU-08 (S1) · Documentación y bitácora de IAG | [`evidencias/hu-08/`](evidencias/hu-08/README.md) | Completa |
 | HU-12 (S2) · Patrones de diseño | [`arquitectura/patrones-diseno.md`](arquitectura/patrones-diseno.md) + [`revisiones/hu-12-revision.md`](revisiones/hu-12-revision.md) | Implementada; cierre pendiente O1/O2/O3 |
 | HU-13 (S2) · Observabilidad | [`evidencias/hu-13/`](evidencias/hu-13/README.md) | Parcial; implementación en curso |
-| HU-16 (S2) · Change management | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) + `evidencias/hu-16/` (por crear) | Pendiente K8s |
-| HU-17 (S2) · Documentación | este índice + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) | En curso |
+| HU-16 (S2) · Change management | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) + [`evidencias/hu-16/`](evidencias/hu-16/README.md) | Parcial; K8s pendiente |
+| HU-17 (S2) · Documentación | este índice + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) + [`evidencias/hu-17/`](evidencias/hu-17/README.md) | En curso |
 
 ## Bitácora de IA generativa y decisiones
 
