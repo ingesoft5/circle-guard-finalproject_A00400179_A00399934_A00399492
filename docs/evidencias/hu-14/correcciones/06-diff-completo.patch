@@ -1,0 +1,236 @@
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 791f5ae..3dc66c7 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -38,6 +38,14 @@ subprojects {
+     apply(plugin = "java")
+     apply(plugin = "org.jetbrains.kotlin.jvm")
+     apply(plugin = "jacoco")
++    // HU-14: security patches of the libraries that Spring Boot 3.2.4 manages, within the same minor line of each one
++    // (no major or minor jump). Found by security/scan-dependencies.sh; evidence in docs/evidencias/hu-14/fase3/.
++    // Spring Boot itself stays on 3.2.4: moving it was tested and breaks identity-service tests (see docs/seguridad/hu-14.md).
++    extra["tomcat.version"] = "10.1.62"                // tomcat-embed-core 10.1.19: 8 CRITICAL + 18 HIGH
++    extra["netty.version"] = "4.1.141.Final"           // netty-handler/codec* 4.1.107
++    extra["spring-framework.version"] = "6.1.21"       // spring-web* 6.1.5
++    extra["spring-security.version"] = "6.2.8"         // spring-security-web/crypto 6.2.3
++    extra["freemarker.version"] = "2.3.35"             // freemarker 2.3.32 (notification-service)
+     val serviceName = name
+     extensions.configure<SonarExtension>("sonar") {
+         val selected = (findProperty("sonarServices") as String?)?.split(",")?.map { it.trim() }
+@@ -61,6 +69,10 @@ subprojects {
+         "implementation"("org.jetbrains.kotlin:kotlin-reflect")
+         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
+         "testRuntimeOnly"("com.h2database:h2")
++        // HU-14: transitive library that the Boot BOM does not manage (kafka-clients brings snappy-java 1.1.10.5).
++        constraints {
++            "implementation"("org.xerial.snappy:snappy-java:1.1.10.12")
++        }
+     }
+ 
+     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+diff --git a/docs/arquitectura/empaquetado-inmutable.md b/docs/arquitectura/empaquetado-inmutable.md
+index a4d7222..4f95766 100644
+--- a/docs/arquitectura/empaquetado-inmutable.md
++++ b/docs/arquitectura/empaquetado-inmutable.md
+@@ -46,7 +46,7 @@ flowchart LR
+ - **Builder**: `gradle:8.14-jdk21` fijado por digest. Ejecuta `bootJar` del servicio con
+   `-x test`; la caché de Gradle se monta con BuildKit. No depende de
+   `gradle/wrapper/gradle-wrapper.jar`, que no está versionado.
+-- **Runtime**: `eclipse-temurin:21.0.9_10-jre-alpine` fijado por digest.
++- **Runtime**: `eclipse-temurin:21.0.13_9-jre-alpine-3.22` fijado por digest (HU-14: base actualizada dentro de la misma serie Alpine 3.22).
+ - Se crea el usuario/grupo `circleguard` con UID/GID **10001**; `USER 10001:10001`.
+ - El cliente web usa `node:22.22-bookworm-slim` para el build y
+   `nginxinc/nginx-unprivileged:1.27-alpine` para el runtime; corre como UID **101**.
+diff --git a/services/circleguard-auth-service/Dockerfile b/services/circleguard-auth-service/Dockerfile
+index 728af2d..1477a53 100644
+--- a/services/circleguard-auth-service/Dockerfile
++++ b/services/circleguard-auth-service/Dockerfile
+@@ -3,7 +3,7 @@
+ # Build from the repository root:
+ #   docker build -f services/circleguard-auth-service/Dockerfile -t <registry>/circleguard/circleguard-auth-service:<semver> .
+ ARG GRADLE_IMAGE=gradle:8.14-jdk21@sha256:aa72246029828dd4b4ddb5d4aba31f72ee070cafe52dc85ad5cc3296007ace6f
+-ARG RUNTIME_IMAGE=eclipse-temurin:21.0.9_10-jre-alpine@sha256:08eecc477dbe3f2e33daac27f36e41daf7f4ec51d2f3396006e54fa41832c74c
++ARG RUNTIME_IMAGE=eclipse-temurin:21.0.13_9-jre-alpine-3.22@sha256:f816ce16bcad97d2e68420362bf37edd914a2a986b2b5aa4a7b3e7492128a0e8
+ 
+ FROM ${GRADLE_IMAGE} AS build
+ USER root
+@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="CircleGuard auth service" \
+       org.opencontainers.image.revision="${REVISION}" \
+       org.opencontainers.image.created="${CREATED}" \
+       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
+-      org.opencontainers.image.base.name="eclipse-temurin:21.0.9_10-jre-alpine"
++      org.opencontainers.image.base.name="eclipse-temurin:21.0.13_9-jre-alpine-3.22"
+ RUN addgroup -S -g 10001 circleguard \
+     && adduser -S -u 10001 -G circleguard -h /app -s /sbin/nologin circleguard \
+     && apk add --no-cache curl
+diff --git a/services/circleguard-dashboard-service/Dockerfile b/services/circleguard-dashboard-service/Dockerfile
+index 4994702..6d8951a 100644
+--- a/services/circleguard-dashboard-service/Dockerfile
++++ b/services/circleguard-dashboard-service/Dockerfile
+@@ -3,7 +3,7 @@
+ # Build from the repository root:
+ #   docker build -f services/circleguard-dashboard-service/Dockerfile -t <registry>/circleguard/circleguard-dashboard-service:<semver> .
+ ARG GRADLE_IMAGE=gradle:8.14-jdk21@sha256:aa72246029828dd4b4ddb5d4aba31f72ee070cafe52dc85ad5cc3296007ace6f
+-ARG RUNTIME_IMAGE=eclipse-temurin:21.0.9_10-jre-alpine@sha256:08eecc477dbe3f2e33daac27f36e41daf7f4ec51d2f3396006e54fa41832c74c
++ARG RUNTIME_IMAGE=eclipse-temurin:21.0.13_9-jre-alpine-3.22@sha256:f816ce16bcad97d2e68420362bf37edd914a2a986b2b5aa4a7b3e7492128a0e8
+ 
+ FROM ${GRADLE_IMAGE} AS build
+ USER root
+@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="CircleGuard dashboard service" \
+       org.opencontainers.image.revision="${REVISION}" \
+       org.opencontainers.image.created="${CREATED}" \
+       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
+-      org.opencontainers.image.base.name="eclipse-temurin:21.0.9_10-jre-alpine"
++      org.opencontainers.image.base.name="eclipse-temurin:21.0.13_9-jre-alpine-3.22"
+ RUN addgroup -S -g 10001 circleguard \
+     && adduser -S -u 10001 -G circleguard -h /app -s /sbin/nologin circleguard \
+     && apk add --no-cache curl
+diff --git a/services/circleguard-file-service/Dockerfile b/services/circleguard-file-service/Dockerfile
+index 0b95b3f..7b27848 100644
+--- a/services/circleguard-file-service/Dockerfile
++++ b/services/circleguard-file-service/Dockerfile
+@@ -3,7 +3,7 @@
+ # Build from the repository root:
+ #   docker build -f services/circleguard-file-service/Dockerfile -t <registry>/circleguard/circleguard-file-service:<semver> .
+ ARG GRADLE_IMAGE=gradle:8.14-jdk21@sha256:aa72246029828dd4b4ddb5d4aba31f72ee070cafe52dc85ad5cc3296007ace6f
+-ARG RUNTIME_IMAGE=eclipse-temurin:21.0.9_10-jre-alpine@sha256:08eecc477dbe3f2e33daac27f36e41daf7f4ec51d2f3396006e54fa41832c74c
++ARG RUNTIME_IMAGE=eclipse-temurin:21.0.13_9-jre-alpine-3.22@sha256:f816ce16bcad97d2e68420362bf37edd914a2a986b2b5aa4a7b3e7492128a0e8
+ 
+ FROM ${GRADLE_IMAGE} AS build
+ USER root
+@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="CircleGuard file service" \
+       org.opencontainers.image.revision="${REVISION}" \
+       org.opencontainers.image.created="${CREATED}" \
+       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
+-      org.opencontainers.image.base.name="eclipse-temurin:21.0.9_10-jre-alpine"
++      org.opencontainers.image.base.name="eclipse-temurin:21.0.13_9-jre-alpine-3.22"
+ RUN addgroup -S -g 10001 circleguard \
+     && adduser -S -u 10001 -G circleguard -h /app -s /sbin/nologin circleguard \
+     && apk add --no-cache curl
+diff --git a/services/circleguard-form-service/Dockerfile b/services/circleguard-form-service/Dockerfile
+index 16d5562..8b5e835 100644
+--- a/services/circleguard-form-service/Dockerfile
++++ b/services/circleguard-form-service/Dockerfile
+@@ -3,7 +3,7 @@
+ # Build from the repository root:
+ #   docker build -f services/circleguard-form-service/Dockerfile -t <registry>/circleguard/circleguard-form-service:<semver> .
+ ARG GRADLE_IMAGE=gradle:8.14-jdk21@sha256:aa72246029828dd4b4ddb5d4aba31f72ee070cafe52dc85ad5cc3296007ace6f
+-ARG RUNTIME_IMAGE=eclipse-temurin:21.0.9_10-jre-alpine@sha256:08eecc477dbe3f2e33daac27f36e41daf7f4ec51d2f3396006e54fa41832c74c
++ARG RUNTIME_IMAGE=eclipse-temurin:21.0.13_9-jre-alpine-3.22@sha256:f816ce16bcad97d2e68420362bf37edd914a2a986b2b5aa4a7b3e7492128a0e8
+ 
+ FROM ${GRADLE_IMAGE} AS build
+ USER root
+@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="CircleGuard form service" \
+       org.opencontainers.image.revision="${REVISION}" \
+       org.opencontainers.image.created="${CREATED}" \
+       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
+-      org.opencontainers.image.base.name="eclipse-temurin:21.0.9_10-jre-alpine"
++      org.opencontainers.image.base.name="eclipse-temurin:21.0.13_9-jre-alpine-3.22"
+ RUN addgroup -S -g 10001 circleguard \
+     && adduser -S -u 10001 -G circleguard -h /app -s /sbin/nologin circleguard \
+     && apk add --no-cache curl
+diff --git a/services/circleguard-gateway-service/Dockerfile b/services/circleguard-gateway-service/Dockerfile
+index 3a100cb..e031083 100644
+--- a/services/circleguard-gateway-service/Dockerfile
++++ b/services/circleguard-gateway-service/Dockerfile
+@@ -3,7 +3,7 @@
+ # Build from the repository root:
+ #   docker build -f services/circleguard-gateway-service/Dockerfile -t <registry>/circleguard/circleguard-gateway-service:<semver> .
+ ARG GRADLE_IMAGE=gradle:8.14-jdk21@sha256:aa72246029828dd4b4ddb5d4aba31f72ee070cafe52dc85ad5cc3296007ace6f
+-ARG RUNTIME_IMAGE=eclipse-temurin:21.0.9_10-jre-alpine@sha256:08eecc477dbe3f2e33daac27f36e41daf7f4ec51d2f3396006e54fa41832c74c
++ARG RUNTIME_IMAGE=eclipse-temurin:21.0.13_9-jre-alpine-3.22@sha256:f816ce16bcad97d2e68420362bf37edd914a2a986b2b5aa4a7b3e7492128a0e8
+ 
+ FROM ${GRADLE_IMAGE} AS build
+ USER root
+@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="CircleGuard gateway service" \
+       org.opencontainers.image.revision="${REVISION}" \
+       org.opencontainers.image.created="${CREATED}" \
+       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
+-      org.opencontainers.image.base.name="eclipse-temurin:21.0.9_10-jre-alpine"
++      org.opencontainers.image.base.name="eclipse-temurin:21.0.13_9-jre-alpine-3.22"
+ RUN addgroup -S -g 10001 circleguard \
+     && adduser -S -u 10001 -G circleguard -h /app -s /sbin/nologin circleguard \
+     && apk add --no-cache curl
+diff --git a/services/circleguard-identity-service/Dockerfile b/services/circleguard-identity-service/Dockerfile
+index 06e7bba..4c2920a 100644
+--- a/services/circleguard-identity-service/Dockerfile
++++ b/services/circleguard-identity-service/Dockerfile
+@@ -3,7 +3,7 @@
+ # Build from the repository root:
+ #   docker build -f services/circleguard-identity-service/Dockerfile -t <registry>/circleguard/circleguard-identity-service:<semver> .
+ ARG GRADLE_IMAGE=gradle:8.14-jdk21@sha256:aa72246029828dd4b4ddb5d4aba31f72ee070cafe52dc85ad5cc3296007ace6f
+-ARG RUNTIME_IMAGE=eclipse-temurin:21.0.9_10-jre-alpine@sha256:08eecc477dbe3f2e33daac27f36e41daf7f4ec51d2f3396006e54fa41832c74c
++ARG RUNTIME_IMAGE=eclipse-temurin:21.0.13_9-jre-alpine-3.22@sha256:f816ce16bcad97d2e68420362bf37edd914a2a986b2b5aa4a7b3e7492128a0e8
+ 
+ FROM ${GRADLE_IMAGE} AS build
+ USER root
+@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="CircleGuard identity service" \
+       org.opencontainers.image.revision="${REVISION}" \
+       org.opencontainers.image.created="${CREATED}" \
+       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
+-      org.opencontainers.image.base.name="eclipse-temurin:21.0.9_10-jre-alpine"
++      org.opencontainers.image.base.name="eclipse-temurin:21.0.13_9-jre-alpine-3.22"
+ RUN addgroup -S -g 10001 circleguard \
+     && adduser -S -u 10001 -G circleguard -h /app -s /sbin/nologin circleguard \
+     && apk add --no-cache curl
+diff --git a/services/circleguard-notification-service/Dockerfile b/services/circleguard-notification-service/Dockerfile
+index 07af380..ca0854d 100644
+--- a/services/circleguard-notification-service/Dockerfile
++++ b/services/circleguard-notification-service/Dockerfile
+@@ -3,7 +3,7 @@
+ # Build from the repository root:
+ #   docker build -f services/circleguard-notification-service/Dockerfile -t <registry>/circleguard/circleguard-notification-service:<semver> .
+ ARG GRADLE_IMAGE=gradle:8.14-jdk21@sha256:aa72246029828dd4b4ddb5d4aba31f72ee070cafe52dc85ad5cc3296007ace6f
+-ARG RUNTIME_IMAGE=eclipse-temurin:21.0.9_10-jre-alpine@sha256:08eecc477dbe3f2e33daac27f36e41daf7f4ec51d2f3396006e54fa41832c74c
++ARG RUNTIME_IMAGE=eclipse-temurin:21.0.13_9-jre-alpine-3.22@sha256:f816ce16bcad97d2e68420362bf37edd914a2a986b2b5aa4a7b3e7492128a0e8
+ 
+ FROM ${GRADLE_IMAGE} AS build
+ USER root
+@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="CircleGuard notification service" \
+       org.opencontainers.image.revision="${REVISION}" \
+       org.opencontainers.image.created="${CREATED}" \
+       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
+-      org.opencontainers.image.base.name="eclipse-temurin:21.0.9_10-jre-alpine"
++      org.opencontainers.image.base.name="eclipse-temurin:21.0.13_9-jre-alpine-3.22"
+ RUN addgroup -S -g 10001 circleguard \
+     && adduser -S -u 10001 -G circleguard -h /app -s /sbin/nologin circleguard \
+     && apk add --no-cache curl
+diff --git a/services/circleguard-promotion-service/Dockerfile b/services/circleguard-promotion-service/Dockerfile
+index 73f5522..0b7160d 100644
+--- a/services/circleguard-promotion-service/Dockerfile
++++ b/services/circleguard-promotion-service/Dockerfile
+@@ -3,7 +3,7 @@
+ # Build from the repository root:
+ #   docker build -f services/circleguard-promotion-service/Dockerfile -t <registry>/circleguard/circleguard-promotion-service:<semver> .
+ ARG GRADLE_IMAGE=gradle:8.14-jdk21@sha256:aa72246029828dd4b4ddb5d4aba31f72ee070cafe52dc85ad5cc3296007ace6f
+-ARG RUNTIME_IMAGE=eclipse-temurin:21.0.9_10-jre-alpine@sha256:08eecc477dbe3f2e33daac27f36e41daf7f4ec51d2f3396006e54fa41832c74c
++ARG RUNTIME_IMAGE=eclipse-temurin:21.0.13_9-jre-alpine-3.22@sha256:f816ce16bcad97d2e68420362bf37edd914a2a986b2b5aa4a7b3e7492128a0e8
+ 
+ FROM ${GRADLE_IMAGE} AS build
+ USER root
+@@ -26,7 +26,7 @@ LABEL org.opencontainers.image.title="CircleGuard promotion service" \
+       org.opencontainers.image.revision="${REVISION}" \
+       org.opencontainers.image.created="${CREATED}" \
+       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
+-      org.opencontainers.image.base.name="eclipse-temurin:21.0.9_10-jre-alpine"
++      org.opencontainers.image.base.name="eclipse-temurin:21.0.13_9-jre-alpine-3.22"
+ RUN addgroup -S -g 10001 circleguard \
+     && adduser -S -u 10001 -G circleguard -h /app -s /sbin/nologin circleguard \
+     && apk add --no-cache curl
+diff --git a/tests/integration/src/test/java/com/circleguard/it/IntegrationEnvironment.java b/tests/integration/src/test/java/com/circleguard/it/IntegrationEnvironment.java
+index 091fb32..dabaf65 100644
+--- a/tests/integration/src/test/java/com/circleguard/it/IntegrationEnvironment.java
++++ b/tests/integration/src/test/java/com/circleguard/it/IntegrationEnvironment.java
+@@ -98,7 +98,11 @@ public final class IntegrationEnvironment {
+                         "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration",
+                         "org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration",
+                         "org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration",
+-                        "org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration")));
++                        "org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration",
++                        // HU-13 added Actuator. Its default management security chain needs an HttpSecurity bean, which only
++                        // exists when Spring Security is enabled, and it is excluded just above. notification-service has no
++                        // Spring Security in production (see its build.gradle.kts), so this only affects this test context.
++                        "org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration")));
+ 
+         buildFormSide();
+         waitForPartitions(promotionContext);

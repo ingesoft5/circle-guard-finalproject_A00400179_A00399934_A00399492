@@ -74,6 +74,33 @@ class IdentityClientTest {
         assertThatThrownBy(() -> client.getAnonymousId("alice@example.com")).isInstanceOf(RestClientException.class);
     }
 
+    @Test
+    void getAnonymousId_WithAnEmptyBody_ReportsTheIdentityServiceAsUnavailable() {
+        server.expect(requestTo(URL)).andRespond(withSuccess());
+
+        assertThatThrownBy(() -> client.getAnonymousId("alice@example.com"))
+                .isInstanceOf(IdentityClient.IdentityServiceUnavailableException.class)
+                .hasMessageContaining("without an anonymousId");
+    }
+
+    @Test
+    void getAnonymousId_WithoutTheAnonymousIdField_ReportsTheIdentityServiceAsUnavailable() {
+        server.expect(requestTo(URL)).andRespond(withSuccess("{\"other\":\"x\"}", MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> client.getAnonymousId("alice@example.com"))
+                .isInstanceOf(IdentityClient.IdentityServiceUnavailableException.class)
+                .hasMessageContaining("without an anonymousId");
+    }
+
+    @Test
+    void getAnonymousId_WithAMalformedAnonymousId_ReportsTheIdentityServiceAsUnavailable() {
+        server.expect(requestTo(URL)).andRespond(withSuccess("{\"anonymousId\":\"not-a-uuid\"}", MediaType.APPLICATION_JSON));
+
+        assertThatThrownBy(() -> client.getAnonymousId("alice@example.com"))
+                .isInstanceOf(IdentityClient.IdentityServiceUnavailableException.class)
+                .hasMessageContaining("invalid anonymousId");
+    }
+
     // ------------------------------------------------------------------------------------------------
     // HU-12 · Circuit Breaker. A real HTTP server (JDK) plays identity-service and its faults are injected:
     // 500 answers, answers slower than the read timeout and 400 answers. No mocks of the breaker: the real

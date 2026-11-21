@@ -29,7 +29,7 @@ class QrValidationEdgeCasesTest {
     @BeforeEach
     void setUp() {
         when(redisTemplate.opsForValue()).thenReturn(valueOps);
-        service = new QrValidationService(redisTemplate);
+        service = new QrValidationService(redisTemplate, new io.micrometer.core.instrument.simple.SimpleMeterRegistry());
         ReflectionTestUtils.setField(service, "qrSecret", SECRET);
     }
 

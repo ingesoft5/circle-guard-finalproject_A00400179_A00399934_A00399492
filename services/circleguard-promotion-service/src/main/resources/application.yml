@@ -19,6 +19,11 @@ spring:
       password: ${NEO4J_PASSWORD}
   kafka:
     bootstrap-servers: localhost:9092
+    # HU-13: propagate trace context through Kafka messages.
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -26,8 +31,11 @@ spring:
       group-id: promotion-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      # HU-12: ErrorHandlingDeserializer wraps JsonDeserializer so a record that cannot be deserialized does not
+      # make poll() throw forever on the same bytes; it reaches the error handler and the dead letter topic.
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.trusted.packages: "*"
   data:
     redis:
@@ -37,17 +45,37 @@ spring:
 server:
   port: 8088
 
-jwt:
-  secret: "${CG_JWT_SECRET}"
-  expiration: 3600000
-
+# HU-13: Actuator, Prometheus, OpenTelemetry and trace-correlated logs.
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
   endpoint:
     health:
       probes:
         enabled: true
-      show-details: never
+      show-details: ${MANAGEMENT_HEALTH_DETAILS:never}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${ENVIRONMENT:dev}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLE_RATE:1.0}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+jwt:
+  secret: "${CG_JWT_SECRET}"
+  expiration: 3600000

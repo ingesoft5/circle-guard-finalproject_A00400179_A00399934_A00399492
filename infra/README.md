@@ -61,9 +61,36 @@ detenidas después): [evidencia 14](../docs/evidencias/hu-01/14-despliegue-aws-f
 | `config/secrets.catalog` | **Nombres** y generadores de los secretos (nunca valores) |
 | `config/iam/hu01-{reader,operator,teardown}-policy.json` | Permisos de los tres roles: lectura y detener; crear e iniciar sin borrar; destruir solo lo etiquetado |
 | `config/iam/hu01-*-role-trust.json`, `hu01-*-user-policy.json` | Quién asume cada rol y con qué MFA; permisos mínimos de los dos usuarios (sin claves) |
+| `terraform/` | Infraestructura declarativa de `dev`, `stage`, `prod` y `tools` (HU-09 S2): red, k3s, ECR, S3, CloudWatch y Jenkins |
 | `bootstrap/lib/*.sh` | Librerías: utilidades comunes, AWS, sesiones, estimación de costos y transporte SSH/local |
 | `bootstrap/host/setup-docker.sh` | Se ejecuta en el host: Docker Engine, Compose, rotación de logs, `vm.max_map_count`, swap de seguridad y parada automática |
 | `bootstrap/{jenkins,sonarqube,nexus,registry}/` | Stacks Compose con imágenes fijadas y scripts de configuración por API (`registry/prepare.sh` genera el certificado y el usuario antes de arrancar el contenedor) |
+
+## Terraform (HU-09 S2)
+
+La infraestructura del Sprint 2 está declarada en `infra/terraform/` y convive con los scripts de
+HU-01 (no los reemplaza). El estado remoto vive en S3 (`circleguard-tfstate-a00400179`) con lock en
+DynamoDB (`circleguard-tflock`).
+
+| Ambiente | Qué crea |
+|---|---|
+| `bootstrap-state` | Bucket S3 versionado y tabla de bloqueo |
+| `dev` / `stage` / `prod` | VPC, nodo k3s en EC2 con EIP, `kubeconfig` en SSM, bucket S3 de datos, log group y alarma de CPU |
+| `tools` | 9 repositorios ECR y servidor Jenkins |
+
+Módulos: `network`, `compute`, `registry`, `storage`, `observability`, `ci-server`.
+
+```bash
+cd infra/terraform/envs/dev
+terraform init
+terraform plan  -var="admin_cidr=<CIDR>" -out=dev.tfplan
+terraform apply dev.tfplan
+```
+
+`admin_cidr` es obligatorio y no está en los `terraform.tfvars` versionados.
+
+Evidencias: [`docs/evidencias/e2.1-terraform/`](../docs/evidencias/e2.1-terraform/README.md).
+Diseño y diagrama: [`docs/arquitectura/terraform.md`](../docs/arquitectura/terraform.md).
 
 ## Convenciones
 
@@ -538,6 +565,18 @@ Credenciales (Manage Jenkins → Credentials → Global). Los valores se toman d
 | `sonar-token` | Secret text | Análisis de SonarQube (My Account → Security → Generate Tokens) |
 | `nexus-credentials` | Usuario y contraseña | Publicar artefactos (opcional: sin `NEXUS_URL` se omite) |
 | `discord-webhook` | Secret text | Notificación de fallos (opcional) |
+
+Accesos a Jenkins por rol (HU-14). El controlador ya no trata a todo usuario autenticado como administrador: `casc/jenkins.yaml` define
+tres roles con el plugin `role-strategy`, y cada usuario recibe su contraseña del gestor de secretos
+(`/circleguard/tools/jenkins/JENKINS_{ADMIN,DEV,VIEWER}_PASSWORD`, creadas por `bootstrap-secrets.sh` si faltan):
+
+| Usuario | Rol | Puede | No puede |
+|:---|:---|:---|:---|
+| `admin` | admin | Administrar Jenkins, credenciales y plugins; aprobar el paso a producción (`input submitter: 'admin'`) | — |
+| `ci-developer` | developer | Leer, ejecutar, cancelar y repetir trabajos; ver el espacio de trabajo | Entrar en la administración, ver o cambiar credenciales, crear o borrar trabajos |
+| `ci-viewer` | viewer | Leer trabajos y vistas | Ejecutar, cancelar o administrar |
+
+El acceso anónimo sigue denegado. `configure.sh` comprueba estos permisos al arrancar. Al cambiar los plugins se subió el tag de la imagen a `-ci4`.
 
 Job: New Item → Multibranch Pipeline → Branch Sources: GitHub, repositorio del proyecto, credencial `github-token`,
 Build Configuration: by Jenkinsfile. El disparo `githubPush()` requiere que GitHub alcance a Jenkins; como la

@@ -9,7 +9,7 @@
 # This is a build-time transformation: the repository source is not modified.
 # bookworm-slim (glibc) avoids optional native-module issues in the Expo build stage.
 ARG NODE_IMAGE=node:22.22-bookworm-slim@sha256:e21fc383b50d5347dc7a9f1cae45b8f4e2f0d39f7ade28e4eef7d2934522b752
-ARG NGINX_IMAGE=nginxinc/nginx-unprivileged:1.27-alpine@sha256:65e3e85dbaed8ba248841d9d58a899b6197106c23cb0ff1a132b7bfe0547e4c0
+ARG NGINX_IMAGE=nginxinc/nginx-unprivileged:1.30.6-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
 
 FROM ${NODE_IMAGE} AS build
 WORKDIR /app
@@ -41,7 +41,7 @@ LABEL org.opencontainers.image.title="CircleGuard web client" \
       org.opencontainers.image.revision="${REVISION}" \
       org.opencontainers.image.created="${CREATED}" \
       org.opencontainers.image.source="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492" \
-      org.opencontainers.image.base.name="nginxinc/nginx-unprivileged:1.27-alpine"
+      org.opencontainers.image.base.name="nginxinc/nginx-unprivileged:1.30.6-alpine"
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY nginx-proxy.inc /etc/nginx/cg-proxy.inc
 COPY --from=build --chown=101:101 /app/dist /usr/share/nginx/html

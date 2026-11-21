@@ -1,0 +1,3 @@
+Method,Name,Error,Occurrences
+POST,POST /gateway/gate/validate,CatchResponseError('the gate denied a valid token'),244
+POST,POST /auth/login (setup),CatchResponseError('login failed with 503'),1

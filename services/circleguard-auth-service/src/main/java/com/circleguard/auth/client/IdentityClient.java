@@ -3,6 +3,7 @@ package com.circleguard.auth.client;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -46,8 +47,18 @@ public class IdentityClient {
         this(new IdentityClientProperties());
     }
 
-    @Autowired
+    /** Local/test constructor: owns a private registry so each instance is isolated. */
     public IdentityClient(IdentityClientProperties properties) {
+        this(properties, CircuitBreakerRegistry.ofDefaults());
+    }
+
+    @Autowired
+    public IdentityClient(IdentityClientProperties properties,
+                          org.springframework.beans.factory.ObjectProvider<CircuitBreakerRegistry> registryProvider) {
+        this(properties, registryProvider.getIfAvailable(CircuitBreakerRegistry::ofDefaults));
+    }
+
+    public IdentityClient(IdentityClientProperties properties, CircuitBreakerRegistry circuitBreakerRegistry) {
         this.mapUrl = properties.getUrl().replaceAll("/+$", "") + MAP_PATH;
         this.restTemplate = new RestTemplateBuilder()
                 .setConnectTimeout(properties.getConnectTimeout())
@@ -64,7 +75,8 @@ public class IdentityClient {
                 .recordException(IdentityClient::isDependencyFailure)
                 .ignoreExceptions(HttpClientErrorException.class)
                 .build();
-        this.circuitBreaker = CircuitBreaker.of("identity-service", config);
+        // HU-13: the shared registry lets TaggedCircuitBreakerMetrics publish the same breaker.
+        this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("identity-service", config);
         this.circuitBreaker.getEventPublisher().onStateTransition(event ->
                 log.warn("Circuit breaker '{}' changed state: {}", event.getCircuitBreakerName(), event.getStateTransition()));
     }
@@ -79,7 +91,24 @@ public class IdentityClient {
         } catch (ResourceAccessException | HttpServerErrorException e) {
             throw new IdentityServiceUnavailableException("identity-service call failed: " + e.getMessage(), e);
         }
-        return UUID.fromString(response.get("anonymousId").toString());
+        return parseAnonymousId(response);
+    }
+
+    /**
+     * A 2xx answer without a usable anonymousId is an identity-service failure, not a bug of the caller:
+     * report it as "unavailable" (503) instead of letting a NullPointerException or an
+     * IllegalArgumentException surface as a generic 500.
+     */
+    private static UUID parseAnonymousId(Map<?, ?> response) {
+        Object value = response == null ? null : response.get("anonymousId");
+        if (value == null) {
+            throw new IdentityServiceUnavailableException("identity-service answered without an anonymousId", null);
+        }
+        try {
+            return UUID.fromString(value.toString());
+        } catch (IllegalArgumentException e) {
+            throw new IdentityServiceUnavailableException("identity-service answered an invalid anonymousId", e);
+        }
     }
 
     /** The circuit of this client, for metrics (HU-13) and tests. */

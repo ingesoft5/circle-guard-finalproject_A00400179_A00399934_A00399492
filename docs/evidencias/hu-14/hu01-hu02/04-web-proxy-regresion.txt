@@ -1,0 +1,25 @@
+# deploy/test-web-proxy.sh: imagen anterior (defecto original, debe FALLAR) y luego la imagen corregida. El ANTES muestra solo las primeras líneas que fallan.
+=== ANTES: imagen anterior (defecto original) — debe FALLAR
+FAIL  /auth/api/v1/ping reaches auth as /api/v1/ping: expected "auth got: /api/v1/ping", got "auth got: /"
+FAIL  /identity/api/v1/ping reaches identity as /api/v1/ping: expected "identity got: /api/v1/ping", got "identity got: /"
+FAIL  /dashboard/api/v1/ping reaches dashboard as /api/v1/ping: expected "dashboard got: /api/v1/ping", got "dashboard got: /"
+FAIL  /file/api/v1/ping reaches file as /api/v1/ping: expected "file got: /api/v1/ping", got "file got: /"
+=== reconstruyendo la imagen web con la corrección
+build rc=0
+=== DESPUÉS: imagen corregida
+PASS  /auth/api/v1/ping reaches auth as /api/v1/ping -> auth got: /api/v1/ping
+PASS  /identity/api/v1/ping reaches identity as /api/v1/ping -> identity got: /api/v1/ping
+PASS  /dashboard/api/v1/ping reaches dashboard as /api/v1/ping -> dashboard got: /api/v1/ping
+PASS  /file/api/v1/ping reaches file as /api/v1/ping -> file got: /api/v1/ping
+PASS  /form/api/v1/ping reaches form as /api/v1/ping -> form got: /api/v1/ping
+PASS  /gateway/api/v1/ping reaches gateway as /api/v1/ping -> gateway got: /api/v1/ping
+PASS  /notification/api/v1/ping reaches notification as /api/v1/ping -> notification got: /api/v1/ping
+PASS  /promotion/api/v1/ping reaches promotion as /api/v1/ping -> promotion got: /api/v1/ping
+PASS  the query string is kept -> auth got: /api/v1/items?x=1&y=two
+PASS  the bare prefix reaches the root of the service -> identity got: /
+PASS  nested paths are kept -> gateway got: /api/v1/qr/validate/abc
+PASS  a POST keeps its path too -> auth got: /api/v1/auth/login
+PASS  the health endpoint of the web client still answers -> 200
+PASS  an unknown client route still falls back to the SPA shell -> 200
+
+14 passed, 0 failed

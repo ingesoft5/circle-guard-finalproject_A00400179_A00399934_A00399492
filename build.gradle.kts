@@ -38,6 +38,14 @@ subprojects {
     apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "jacoco")
+    // HU-14: security patches of the libraries that Spring Boot 3.2.4 manages, within the same minor line of each one
+    // (no major or minor jump). Found by security/scan-dependencies.sh; evidence in docs/evidencias/hu-14/fase3/.
+    // Spring Boot itself stays on 3.2.4: moving it was tested and breaks identity-service tests (see docs/seguridad/hu-14.md).
+    extra["tomcat.version"] = "10.1.62"                // tomcat-embed-core 10.1.19: 8 CRITICAL + 18 HIGH
+    extra["netty.version"] = "4.1.141.Final"           // netty-handler/codec* 4.1.107
+    extra["spring-framework.version"] = "6.1.21"       // spring-web* 6.1.5
+    extra["spring-security.version"] = "6.2.8"         // spring-security-web/crypto 6.2.3
+    extra["freemarker.version"] = "2.3.35"             // freemarker 2.3.32 (notification-service)
     val serviceName = name
     extensions.configure<SonarExtension>("sonar") {
         val selected = (findProperty("sonarServices") as String?)?.split(",")?.map { it.trim() }
@@ -61,6 +69,10 @@ subprojects {
         "implementation"("org.jetbrains.kotlin:kotlin-reflect")
         "testImplementation"("org.springframework.boot:spring-boot-starter-test")
         "testRuntimeOnly"("com.h2database:h2")
+        // HU-14: transitive library that the Boot BOM does not manage (kafka-clients brings snappy-java 1.1.10.5).
+        constraints {
+            "implementation"("org.xerial.snappy:snappy-java:1.1.10.12")
+        }
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

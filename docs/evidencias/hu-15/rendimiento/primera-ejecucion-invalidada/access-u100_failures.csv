@@ -1,0 +1,2 @@
+Method,Name,Error,Occurrences
+POST,POST /auth/login (setup),CatchResponseError('login failed with 401'),55

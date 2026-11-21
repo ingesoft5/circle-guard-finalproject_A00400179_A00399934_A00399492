@@ -3,6 +3,11 @@ spring:
     name: circleguard-notification-service
   kafka:
     bootstrap-servers: localhost:9092
+    # HU-13: propagate trace context through Kafka messages.
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -36,13 +41,37 @@ qr:
 server:
   port: 8082
 
+# HU-13: Actuator, Prometheus, OpenTelemetry and trace-correlated logs.
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
   endpoint:
     health:
       probes:
         enabled: true
-      show-details: never
+      show-details: ${MANAGEMENT_HEALTH_DETAILS:never}
+  health:
+    # The test profile has no JavaMailSender; the mail indicator would fail the context.
+    mail:
+      enabled: false
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${ENVIRONMENT:dev}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLE_RATE:1.0}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
