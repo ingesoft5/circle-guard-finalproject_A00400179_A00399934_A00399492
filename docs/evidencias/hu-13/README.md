@@ -18,7 +18,7 @@ se marca `Cumplido` sin evidencia ejecutada.
 | 9 | Propagación de trace ID por HTTP y Kafka | `RestTemplateBuilder` + Kafka observation | `06-kafka-headers.txt` | Pendiente |
 | 10 | Logs centralizados | Loki + Promtail | `07-loki-consulta.png` | Parcial |
 | 11 | Logs con servicio, severidad y contexto | Patrón `%X{traceId}` y logs JSON | Consulta por `traceId` | Pendiente |
-| 12 | Consultar métricas, trazas y logs ante un incidente | Runbook §9 | `08-incidente.md` | Pendiente |
+| 12 | Consultar métricas, trazas y logs ante un incidente | Runbook §9 | [`08-incidente.md`](08-incidente.md) (plantilla) | Pendiente de ejecución |
 
 ## Evidencia ejecutada
 
