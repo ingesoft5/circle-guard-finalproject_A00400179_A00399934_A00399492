@@ -1,0 +1,49 @@
+# HU-16 · Registro de cambio con campos D-30
+
+**ESTADO: PENDIENTE DE EJECUCIÓN.** Plantilla para evidenciar `result`, `approved_by`,
+`approval_ref` e `image_digest` en un despliegue real.
+
+## Comando
+
+```bash
+export AWS_REGION=us-east-2
+export KUBECONFIG=/tmp/dev.kubeconfig
+DIGEST=$(aws ecr describe-images --region "$AWS_REGION" \
+  --repository-name circleguard-auth-service --image-ids imageTag=0.3.0 \
+  --query 'imageDetails[0].imageDigest' --output text)
+
+APPROVED_BY="Sebastian Cosme" \
+APPROVAL_REF="https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492/pull/22" \
+IMAGE_DIGEST="$DIGEST" \
+RESULT=success \
+./deploy/record-release.sh dev 0.3.0 deploy "secosbe"
+```
+
+## Verificación
+
+```bash
+cat deploy/releases/dev.json
+tail -n 3 deploy/releases/history.tsv
+```
+
+## Salida real
+
+```json
+{
+  "environment": "dev",
+  "version": "0.3.0",
+  "commit": "(pendiente)",
+  "deployed_at": "(pendiente)",
+  "deployed_by": "secosbe",
+  "event": "deploy",
+  "result": "success",
+  "approved_by": "Sebastian Cosme",
+  "approval_ref": "(pendiente)",
+  "image_digest": "sha256:(pendiente)"
+}
+```
+
+```text
+timestamp	environment	version	commit	deployed_by	event	result	approved_by	approval_ref
+(pendiente)
+```

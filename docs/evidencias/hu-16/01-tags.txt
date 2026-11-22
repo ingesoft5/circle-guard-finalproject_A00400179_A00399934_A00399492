@@ -1,0 +1,17 @@
+# HU-16 - Tags y relacion con commits
+# Generado: 2026-11-21T17:48:56Z
+
+## git tag -n
+v0.1.0          CircleGuard 0.1.0
+v0.2.0          Release 0.2.0
+
+## Detalle por tag
+### v0.1.0
+commit dd825e6
+ fecha 2026-11-08 12:39:51 -0500
+ asunto fix(jenkins): eliminar volumenes de dev/stage al promover
+
+### v0.2.0
+commit 59cec5c
+ fecha 2026-11-08 15:24:39 -0500
+ asunto fix(hu-07): publicar el tag en GitHub desde Jenkins
