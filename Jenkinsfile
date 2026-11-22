@@ -332,6 +332,7 @@ pipeline {
           def envName = params.ROLLBACK_ENV?.trim() ?: 'dev'
           if (params.DEPLOY_MODE == 'k8s') {
             sh "./deploy/k8s/deploy.sh '${envName}' '${target}'"
+            sh "./deploy/record-release.sh '${envName}' '${target}' rollback jenkins"
           } else {
             withCredentials([file(credentialsId: "circleguard-env-${envName}", variable: 'CG_ENV_FILE')]) {
               withEnv(["CG_APP_ENV_FILE=deploy/compose/ci.env", "WEB_BIND_ADDRESS=0.0.0.0", "BIND_ADDRESS=0.0.0.0"]) {
@@ -669,6 +670,7 @@ pipeline {
 def deployEnv(String envName) {
   if (env.DEPLOY_MODE == 'k8s') {
     sh "./deploy/k8s/deploy.sh '${envName}' '${env.VERSION}'"
+    sh "./deploy/record-release.sh '${envName}' '${env.VERSION}' deploy jenkins"
     return
   }
   def bindAddress = envName == 'prod' ? '127.0.0.1' : '0.0.0.0'
