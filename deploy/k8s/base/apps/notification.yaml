@@ -21,6 +21,10 @@ spec:
       labels:
         app: notification
         app.kubernetes.io/part-of: circleguard
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8082"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       enableServiceLinks: false
       automountServiceAccountToken: false
