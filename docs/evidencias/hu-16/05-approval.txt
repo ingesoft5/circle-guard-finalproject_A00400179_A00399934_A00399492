@@ -1,0 +1,10 @@
+# HU-16 · Evidencia de aprobación de producción
+
+**Estado:** se reutiliza la evidencia de HU-06.
+
+- Aprobación del stage `Approve prod` de Jenkins: [`../../hu-06/05-approval.txt`](../../hu-06/05-approval.txt).
+- Registro de la aprobación en `prod.json`: campos `approved_by` y `approval_ref` (D-30).
+- Notificación de Discord/Slack: [`../../hu-07/02-notification.txt`](../../hu-07/02-notification.txt).
+
+Cuando se apruebe el despliegue de cierre, pegar aquí el enlace al build de Jenkins y la hora de la
+aprobación.
