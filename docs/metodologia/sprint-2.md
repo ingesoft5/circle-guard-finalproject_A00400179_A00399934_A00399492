@@ -41,7 +41,7 @@ la prioridad: observabilidad y patrones (4 % cada uno), Terraform (4 %), documen
 |---|---|---|---|---|---|
 | HU-09 (S2) | PDDZ-64 | Terraform con módulos y backend remoto | Juan Esteban | 4 % | Hecho (PR #15/#16/#18) |
 | HU-10 (S2) | PDDZ-65 | Kubernetes: 8 servicios + middleware | Juan Esteban | 2 % | Hecho (PR #21) |
-| HU-11 (S2) | PDDZ-66 | Jenkins → Kubernetes, Trivy, aprobación | Juan Esteban | 1 % | Por hacer |
+| HU-11 (S2) | PDDZ-66 | Jenkins → Kubernetes, Trivy, aprobación | Juan Esteban | 1 % | En revisión (PR #25) |
 | HU-12 (S2) | PDDZ-67 | Patrones de diseño (3 nuevos) | Matt Lane | 4 % | Hecho (PR #14); cierre O1/O2/O3 pendiente |
 | HU-13 (S2) | PDDZ-68 | Observabilidad centralizada | Sebastian Cosme | 4 % | Hecho (PR #19); evidencia en ejecución |
 | HU-14 (S2) | PDDZ-69 | Seguridad: Trivy, RBAC, TLS, secretos | Matt Lane | 2 % | Hecho (PR #20); despliegue K8s pendiente |
