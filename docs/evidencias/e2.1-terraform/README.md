@@ -21,8 +21,9 @@ Estado remoto en S3 con lock en DynamoDB. Falta la salida de `terraform fmt -che
 | 8 | Elastic IP y salida pública estable | `13-dev-eip-plan.log`, `14-dev-eip-apply.log` | Cumplido |
 | 9 | Servidor Jenkins declarado en Terraform | `15-tools-ci-plan.log`, `16-tools-ci-apply.log` | Cumplido |
 | 10 | Ambientes stage y prod parametrizados y aplicados | `17-stage-full-plan.log`, `18-stage-full-apply.log`, `19-prod-full-plan.log`, `20-prod-full-apply.log` | Cumplido |
-| 11 | `terraform fmt -check` y `validate` | — | **Pendiente de evidencia** |
-| 12 | Diagrama de recursos | `arquitectura/terraform.md` §4 | Cumplido (2026-11-20) |
+| 11 | Acceso del CI a la API de Kubernetes (`ci_cidr`) | `21-dev-ci-access-apply.log`, `22-stage-ci-access-apply.log`, `23-prod-ci-access-apply.log` | Cumplido |
+| 12 | `terraform fmt -check` y `validate` | — | **Pendiente de evidencia** |
+| 13 | Diagrama de recursos | `arquitectura/terraform.md` §4 | Cumplido (2026-11-20) |
 
 ## Archivos
 
@@ -38,6 +39,9 @@ Estado remoto en S3 con lock en DynamoDB. Falta la salida de `terraform fmt -che
 | [`15-tools-ci-plan.log`](15-tools-ci-plan.log) / [`16-tools-ci-apply.log`](16-tools-ci-apply.log) | Servidor Jenkins de tools (16 recursos) |
 | [`17-stage-full-plan.log`](17-stage-full-plan.log) / [`18-stage-full-apply.log`](18-stage-full-apply.log) | Stack completo de stage (25 recursos) |
 | [`19-prod-full-plan.log`](19-prod-full-plan.log) / [`20-prod-full-apply.log`](20-prod-full-apply.log) | Stack completo de prod (25 recursos) |
+| [`21-dev-ci-access-apply.log`](21-dev-ci-access-apply.log) | Regla de la API de Kubernetes para el CIDR del CI en dev |
+| [`22-stage-ci-access-apply.log`](22-stage-ci-access-apply.log) | Regla de la API de Kubernetes para el CIDR del CI en stage |
+| [`23-prod-ci-access-apply.log`](23-prod-ci-access-apply.log) | Regla de la API de Kubernetes para el CIDR del CI en prod |
 
 ## Cómo regenerar la evidencia
 
