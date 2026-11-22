@@ -88,11 +88,11 @@ security/zap/run-zap-baseline.sh --target http://web:8080 --network <red del sta
 
 ### 4.1 Integración en Jenkins
 
-Paso de la Shared Library [cgZapBaseline](../../jenkins/vars/cgZapBaseline.groovy) y [cgPerformanceTest](../../jenkins/vars/cgPerformanceTest.groovy), y el parche
-[security/jenkins/Jenkinsfile-hu15-stages.patch](../../security/jenkins/Jenkinsfile-hu15-stages.patch), que añade las etapas «ZAP baseline dev» y «Performance dev» **después de «E2E dev»
-y antes de desplegar a stage**, y los parámetros `ZAP_GATE`, `RUN_ZAP`, `RUN_PERF`, `PERF_CREDENTIALS_ID`, `PERF_STEPS`, `PERF_DURATION` y `ADV_DOCKER_NETWORK`.
-El parche se verifica con `git apply --check` (solo y encadenado después del de HU-14), la sintaxis Groovy se comprueba con un intérprete real y la auditoría de credenciales de HU-14
-da 0 violaciones con ambos parches (la credencial del usuario de prueba pasa solo por `withCredentials`). **No está aplicado al Jenkinsfile.**
+Pasos de la Shared Library [cgZapBaseline](../../jenkins/vars/cgZapBaseline.groovy) y [cgPerformanceTest](../../jenkins/vars/cgPerformanceTest.groovy), usados por el [Jenkinsfile](../../Jenkinsfile)
+con las etapas «ZAP baseline dev» y «Performance dev» **después de «E2E dev» y antes de «Stop dev»/stage**, y los parámetros `RUN_ZAP`, `ZAP_GATE`, `RUN_PERF`, `PERF_CREDENTIALS_ID`,
+`PERF_STEPS`, `PERF_DURATION` y `ADV_DOCKER_NETWORK`. Ambas etapas están **apagadas por defecto** (`RUN_ZAP`/`RUN_PERF` = false) para no alterar el pipeline validado de HU-11.
+Con `DEPLOY_MODE=k8s`, `E2E_URL_DEV` debe apuntar al Ingress de dev (ZAP y Locust se ejecutan desde el agente). La sintaxis Groovy se comprueba con un intérprete real y la auditoría de
+credenciales de HU-14 da 0 violaciones (la credencial del usuario de prueba pasa solo por `withCredentials`). **Aún no se ha ejecutado un build de Jenkins con estas etapas.**
 
 ### 4.2 Política de bloqueo
 

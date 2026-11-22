@@ -139,4 +139,4 @@ El total de pruebas JUnit pasa de 302 a 347 (2 + 32 + 11 nuevas), sin fallos.
 - Locust y los servicios comparten la misma máquina: el generador de carga compite por CPU con lo que mide.
 - El override `QR_EXPIRATION=60000` cambia la configuración respecto al repositorio (H1). El consumidor de promotion y el lag de Kafka no se midieron.
 - ZAP baseline es pasivo y su rastreo dura 1 minuto.
-- **Integración con Jenkins preparada pero no ejecutada:** [parche](../../../security/jenkins/Jenkinsfile-hu15-stages.patch) y pasos de la Shared Library verificados; no aplicados al Jenkinsfile (HU-11) y sin ejecución en un Jenkins.
+- **Integración con Jenkins aplicada pero no ejecutada:** los stages «ZAP baseline dev» y «Performance dev» y sus parámetros están en el [Jenkinsfile](../../../Jenkinsfile) (sintaxis Groovy y auditoría de credenciales verificadas), apagados por defecto (`RUN_ZAP`, `RUN_PERF` = false); no se ha ejecutado ningún build en Jenkins con ellos.

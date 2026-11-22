@@ -1,0 +1,15 @@
+SUITE                      RESULT
+test-gate.sh               PASS  14 passed, 0 failed
+test-exceptions.sh         PASS  29 passed, 0 failed
+test-iac-gate.sh           PASS  23 passed, 0 failed
+test-zap-gate.sh           PASS  13 passed, 0 failed
+test-performance-eval.sh   PASS  14 passed, 0 failed
+test-tls-secret.sh         PASS  21 passed, 0 failed
+test-fetch-kubeconfig.sh   PASS  15 passed, 0 failed
+test-hu10-secrets.sh       PASS  13 passed, 0 failed
+test-jenkins-audit.sh      PASS  7 passed, 0 failed
+test-create-secrets.sh     PASS  10 passed, 0 failed
+test-rbac.sh               PASS  16 passed, 0 failed
+
+RESULT: PASS · 11 suite(s)
+rc=0

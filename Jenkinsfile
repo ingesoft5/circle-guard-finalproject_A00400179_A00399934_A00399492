@@ -71,6 +71,19 @@ pipeline {
     booleanParam(name: 'RUN_TERRAFORM', defaultValue: false, description: 'Ejecutar fmt, validate y plan de dev, stage y prod (solo DEPLOY_MODE=k8s).')
     booleanParam(name: 'TERRAFORM_APPLY', defaultValue: false, description: 'Aplicar el plan: dev y stage antes de su despliegue; prod tras la aprobación manual.')
     string(name: 'SCAN_SEVERITY', defaultValue: 'CRITICAL', description: 'Severidades que bloquean Trivy en imágenes e IaC (separadas por coma).')
+
+    // HU-14: controles de seguridad adicionales a los de HU-11. Los secretos siempre bloquean. Dependencias, IaC e imágenes locales:
+    // enforce detiene la promoción; report publica los informes y deja el build UNSTABLE. Un escaneo que no pudo ejecutarse siempre falla.
+    choice(name: 'SECURITY_GATE', choices: ['report', 'enforce'], description: 'HU-14: gate de dependencias, IaC e imágenes locales. Pasar a enforce cuando security/exceptions.tsv tenga aprobadas las excepciones de security/exceptions.pending.tsv.')
+
+    // HU-15: pruebas avanzadas sobre dev ya desplegado (nunca prod). En DEPLOY_MODE=k8s, E2E_URL_DEV debe apuntar al Ingress de dev.
+    booleanParam(name: 'RUN_ZAP', defaultValue: false, description: 'HU-15: OWASP ZAP baseline sobre el cliente web de dev (E2E_URL_DEV).')
+    choice(name: 'ZAP_GATE', choices: ['enforce', 'report'], description: 'HU-15: enforce falla el build si ZAP supera el umbral (security/policy.env, ZAP_BLOCK_RISK).')
+    booleanParam(name: 'RUN_PERF', defaultValue: false, description: 'HU-15: pruebas de carga Locust sobre dev (~30 min con los valores por defecto).')
+    string(name: 'PERF_CREDENTIALS_ID', defaultValue: 'perf-test-user', description: 'HU-15: credencial de Jenkins (usuario y contraseña) del usuario de prueba de dev.')
+    string(name: 'PERF_STEPS', defaultValue: '10 50 100', description: 'HU-15: usuarios concurrentes de cada escalón.')
+    string(name: 'PERF_DURATION', defaultValue: '5m', description: 'HU-15: duración de cada escalón (sintaxis de Locust).')
+    string(name: 'ADV_DOCKER_NETWORK', defaultValue: '', description: 'HU-15: red Docker del ambiente dev en modo Compose (vacío = la del agente). Sin uso en k8s.')
   }
 
   environment {
@@ -142,6 +155,22 @@ pipeline {
       }
       steps {
         sh './deploy/pipeline/scan-iac.sh'
+      }
+    }
+
+    stage('Security: secrets, dependencies and governed IaC') {
+      // HU-14: secretos versionables (siempre bloquea), vulnerabilidades de las bibliotecas Java y configuración insegura de Terraform y
+      // Kubernetes con excepciones que caducan (security/exceptions.tsv). Complementa al escaneo CRITICAL de HU-11.
+      when {
+        expression { !params.ROLLBACK_VERSION?.trim() }
+      }
+      steps {
+        script {
+          boolean enforce = params.SECURITY_GATE == 'enforce'
+          cgSecurityScan(kind: 'secrets', enforce: true)
+          cgSecurityScan(kind: 'dependencies', enforce: enforce)
+          cgSecurityScan(kind: 'iac', enforce: enforce)
+        }
       }
     }
 
@@ -284,6 +313,21 @@ pipeline {
       }
     }
 
+    stage('Security: local image scan') {
+      // HU-14: Trivy sobre las 9 imágenes construidas localmente (modo ssh/Compose), antes de publicarlas. En k8s las cubre HU-11 en ECR.
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE != 'k8s' }
+          expression { params.BUILD_IMAGES }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+        }
+      }
+      steps {
+        script { cgSecurityScan(kind: 'images', version: env.VERSION, enforce: params.SECURITY_GATE == 'enforce') }
+      }
+    }
+
     stage('Publish images') {
       when {
         allOf {
@@ -402,6 +446,39 @@ pipeline {
           withEnv(["E2E_BASE_URL=${params.E2E_URL_DEV}"]) {
             sh './deploy/e2e.sh dev'
           }
+        }
+      }
+    }
+
+    stage('ZAP baseline dev') {
+      // HU-15: análisis dinámico pasivo del cliente web de dev. Si supera el umbral, el build falla y no se promociona a stage.
+      when {
+        allOf {
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { params.RUN_ZAP }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+        }
+      }
+      steps {
+        script {
+          cgZapBaseline(target: params.E2E_URL_DEV, env: 'dev', network: params.ADV_DOCKER_NETWORK, enforce: params.ZAP_GATE == 'enforce')
+        }
+      }
+    }
+
+    stage('Performance dev') {
+      // HU-15: Locust (validación de acceso y envío de cuestionarios) contra los objetivos de tests/performance/targets.json. Solo dev.
+      when {
+        allOf {
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { params.RUN_PERF }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+        }
+      }
+      steps {
+        script {
+          cgPerformanceTest(host: params.E2E_URL_DEV, env: 'dev', credentialsId: params.PERF_CREDENTIALS_ID,
+                            steps: params.PERF_STEPS, duration: params.PERF_DURATION, network: params.ADV_DOCKER_NETWORK)
         }
       }
     }
