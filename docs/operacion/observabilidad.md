@@ -1,11 +1,11 @@
 # Observabilidad centralizada — diseño y runbook (HU-13 · E2.5)
 
 **Documento:** HU-13 (Sprint 2 · E2.5) y consolidación para HU-17 (E2.9)
-**Última actualización:** 2026-11-16
-**Estado:** **Implementación en curso (rama HU-13).** Ya existen las dependencias de Actuator,
-Micrometer y OpenTelemetry en los ocho servicios, la configuración común, los contadores de negocio
-y el stack local/K8s. Falta ejecutar la evidencia completa (dashboards, alerta, traza E2E y logs)
-y portar el stack al clúster cuando HU-10/HU-11 estén disponibles. La matriz de evidencias está en
+**Última actualización:** 2026-11-21
+**Estado:** **Implementado y mergeado en `dev`** (PR #19). Las dependencias de Actuator,
+Micrometer y OpenTelemetry están en los ocho servicios, con stack local y manifiestos K8s. La
+evidencia está en ejecución: falta capturar dashboards, alerta, traza E2E y logs, y desplegar el
+stack en el clúster (HU-10 ya mergeó; HU-11 sigue pendiente para el pipeline). La matriz está en
 [`../evidencias/hu-13/README.md`](../evidencias/hu-13/README.md).
 
 > Decisión de stack: [`../iag/decisiones.md`](../iag/decisiones.md) D-26, D-27 y D-28.
@@ -61,7 +61,7 @@ En local se levanta con `deploy/observability/docker-compose.yml`; en Kubernetes
 `deploy/k8s/observability/`. El mismo `prometheus.yml` y los mismos dashboards se reutilizan para
 no mantener dos verdades.
 
-**Implementación actual (rama HU-13).**
+**Implementación actual (dev).**
 
 | Pieza | Archivo |
 |---|---|
@@ -279,27 +279,31 @@ interpretadas ante una falla provocada”.
 
 ## 10. Matriz de evidencias
 
-| Evidencia | Archivo sugerido | Estado |
+| Evidencia | Archivo | Estado |
 |---|---|---|
-| Configuración de Micrometer/Prometheus | `deploy/observability/prometheus/prometheus.yml` | Pendiente |
-| Targets `UP` | `docs/evidencias/hu-13/01-prometheus-targets.png` | Pendiente |
-| Dashboard por servicio | `docs/evidencias/hu-13/02-grafana-servicio.png` | Pendiente |
-| Dashboard de negocio | `docs/evidencias/hu-13/03-grafana-negocio.png` | Pendiente |
-| Alerta disparada | `docs/evidencias/hu-13/04-alertmanager-firing.png` | Pendiente |
-| Traza E2E | `docs/evidencias/hu-13/05-jaeger-traza.png` | Pendiente |
-| Propagación por Kafka | `docs/evidencias/hu-13/06-kafka-headers.txt` | Pendiente |
-| Consulta de logs | `docs/evidencias/hu-13/07-loki-consulta.png` | Pendiente |
-| Incidente resuelto | `docs/evidencias/hu-13/08-incidente.md` | Pendiente |
+| Configuración de Micrometer/Prometheus | `deploy/observability/prometheus/*.yml` | Cumplido |
+| Endpoints de los 8 servicios | `docs/evidencias/hu-13/09-check-metrics.txt` | Pendiente de ejecución |
+| Targets `UP` | `docs/evidencias/hu-13/10-prometheus-targets.txt` | Pendiente de ejecución |
+| Dashboard por servicio | `docs/evidencias/hu-13/02-grafana-servicio.png` | Pendiente de captura |
+| Dashboard de negocio | `docs/evidencias/hu-13/03-grafana-negocio.png` | Pendiente de captura |
+| Alerta disparada | `docs/evidencias/hu-13/04-alertmanager-firing.png` | Pendiente de captura |
+| Traza E2E | `docs/evidencias/hu-13/05-jaeger-traza.png` | Pendiente de captura |
+| Propagación por Kafka | `docs/evidencias/hu-13/06-kafka-headers.txt` | Pendiente de ejecución |
+| Consulta de logs | `docs/evidencias/hu-13/07-loki-consulta.png` | Pendiente de captura |
+| Incidente resuelto | `docs/evidencias/hu-13/08-incidente.md` | Pendiente de ejecución |
+| Stack en Kubernetes | `docs/evidencias/hu-13/10-k8s-observability.txt` | Pendiente de ejecución |
+
+La captura automática de texto se hace con `deploy/observability/capture-evidence.sh`.
 
 ## 11. Dependencias y riesgos
 
 | Dependencia | Historia | Si falta |
 |---|---|---|
-| Clúster y namespaces | HU-10 (S2) | El stack corre en Compose; no hay evidencia K8s |
+| Clúster y namespaces | HU-10 (hecho, PR #21) | El stack corre en Compose; no hay evidencia K8s |
 | Probes de Actuator | HU-13 misma | HU-10 no puede configurar liveness/readiness reales |
-| Secretos y TLS para Grafana | HU-14 (S2) | Grafana queda en `port-forward`, aceptable para la demo |
-| Imágenes con la instrumentación | HU-11 (S2) | El pipeline despliega imágenes sin métricas |
-| Objetivos de rendimiento de Locust | HU-15 (S2) | Los umbrales de latencia no tienen referencia externa |
+| Secretos y TLS para Grafana | HU-14 (hecho, PR #20) | Grafana queda en `port-forward`; el Ingress TLS aún no se aplica |
+| Imágenes con la instrumentación | HU-11 (pendiente) | El pipeline despliega imágenes sin métricas |
+| Objetivos de rendimiento de Locust | HU-15 (hecho, PR #20) | Los umbrales de latencia no tienen referencia externa |
 
 **Riesgos:** memoria del clúster (mitigar con límites y retención), cardinalidad de etiquetas (no
 usar `anonymousId` ni `userId` como etiqueta), y relojes desincronizados (usar NTP del nodo para que

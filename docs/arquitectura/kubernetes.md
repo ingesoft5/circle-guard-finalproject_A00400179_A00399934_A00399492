@@ -1,11 +1,11 @@
 # Kubernetes en CircleGuard — diseño y consolidación **[S2]**
 
 **Documento:** HU-17 (Sprint 2 · E2.9) sobre el diseño de HU-10 (S2 · E2.2)
-**Última actualización:** 2026-11-20
-**Estado:** **Parcial.** El clúster k3s ya existe por ambiente (Terraform, HU-09) y los manifiestos
-de observabilidad están en `deploy/k8s/observability/`. Faltan los manifiestos de los 8 servicios y
-del middleware (HU-10) y el pipeline que los despliegue (HU-11). Este documento fija el contrato y
-se completa con las evidencias cuando HU-10 se mergee.
+**Última actualización:** 2026-11-21
+**Estado:** **Implementado** (PR #21). El clúster k3s, los 8 servicios, el cliente web, el
+middleware, los overlays por ambiente, el Ingress y los HPA están desplegados y con evidencia en
+`docs/evidencias/e2.2-kubernetes/`. Queda pendiente el despliegue desde Jenkins (HU-11) y el
+Blue-Green/rollback de HU-16.
 
 > Si algo de este documento no coincide con lo que implemente HU-10, **prevalece el código** y se
 > corrige este archivo en el mismo PR.
@@ -15,18 +15,18 @@ se completa con las evidencias cuando HU-10 se mergee.
 | Criterio de la rúbrica | Artefacto esperado | Estado |
 |---|---|---|
 | Clúster funcional (EKS o k3s) | Salida de `kubectl cluster-info` | Cumplido (k3s por Terraform en dev/stage/prod) |
-| 8 microservicios con manifiestos/plantillas | `deploy/k8s/` o chart Helm | Pendiente |
-| Middleware y dependencias en el clúster | PostgreSQL, Neo4j, Redis, Kafka, OpenLDAP (o servicios gestionados) | Pendiente |
-| Deployment y Service por servicio | Un `Deployment` + un `Service` por microservicio | Pendiente |
-| Configuraciones por ambiente | Kustomize `overlays/dev|stage|prod` o `values-*.yaml` | Pendiente |
-| ConfigMaps | Variables no sensibles por ambiente | Pendiente |
-| Secrets sin valores reales en Git | `Secret` con `stringData` referenciado a SSM/SealedSecrets | Pendiente |
-| PersistentVolumes/PVC | PostgreSQL, Neo4j y Kafka si corren en el clúster | Pendiente |
-| Ingress | Un host por ambiente (o path por servicio) | Pendiente |
-| Liveness/readiness con Actuator | `/actuator/health/liveness` y `/actuator/health/readiness` | Pendiente (depende de HU-13) |
-| Descubrimiento interno | `Service` DNS: `http://identity:8083`, etc. | Pendiente |
-| Pods `Ready` | `kubectl get pods` con `1/1 Running` | Pendiente |
-| HPA (rúbrica C3) | `HorizontalPodAutoscaler` con CPU/memoria | Pendiente |
+| 8 microservicios con manifiestos/plantillas | `deploy/k8s/` o chart Helm | Cumplido (`deploy/k8s/base/apps/`) |
+| Middleware y dependencias en el clúster | PostgreSQL, Neo4j, Redis, Kafka, OpenLDAP (o servicios gestionados) | Cumplido (`statefulsets` + ZooKeeper) |
+| Deployment y Service por servicio | Un `Deployment` + un `Service` por microservicio | Cumplido |
+| Configuraciones por ambiente | Kustomize `overlays/dev|stage|prod` o `values-*.yaml` | Cumplido (`deploy/k8s/overlays/`) |
+| ConfigMaps | Variables no sensibles por ambiente | Cumplido (`base/configmap.yaml`) |
+| Secrets sin valores reales en Git | `Secret` con `stringData` referenciado a SSM/SealedSecrets | Cumplido (`deploy/k8s/secrets.sh` + SSM) |
+| PersistentVolumes/PVC | PostgreSQL, Neo4j y Kafka si corren en el clúster | Cumplido (StatefulSets) |
+| Ingress | Un host por ambiente (o path por servicio) | Cumplido (Traefik) |
+| Liveness/readiness con Actuator | `/actuator/health/liveness` y `/actuator/health/readiness` | Cumplido (HU-13 + HU-10) |
+| Descubrimiento interno | `Service` DNS: `http://identity:8083`, etc. | Cumplido |
+| Pods `Ready` | `kubectl get pods` con `1/1 Running` | Cumplido (evidencia e2.2) |
+| HPA (rúbrica C3) | `HorizontalPodAutoscaler` con CPU/memoria | Cumplido (9 HPA) |
 
 ## 2. Estructura propuesta
 
