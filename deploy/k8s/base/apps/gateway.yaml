@@ -21,6 +21,10 @@ spec:
       labels:
         app: gateway
         app.kubernetes.io/part-of: circleguard
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8087"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       enableServiceLinks: false
       automountServiceAccountToken: false

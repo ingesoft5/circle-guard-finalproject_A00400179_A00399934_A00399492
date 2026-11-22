@@ -1,9 +1,14 @@
 # Guion de sustentación — Sprint 2 (20–30 min)
 
 **Documento:** HU-17 / rúbrica de presentación (C1–C5)
-**Última actualización:** 2026-11-16
+**Última actualización:** 2026-11-21
 **Objetivo:** recorrer un cambio desde el commit hasta producción, explicar las decisiones y
 demostrar observabilidad ante una falla provocada, sin ocultar lo que falta.
+
+> **Estado real al 21-nov.** Terraform, Kubernetes, observabilidad, seguridad y rendimiento están
+> mergeados. El despliegue a K8s se hace con `deploy/k8s/deploy.sh`; las etapas de Jenkins hacia K8s
+> y Trivy siguen pendientes (HU-11). El rollback en K8s tiene comando (`DEPLOY_MODE=k8s
+> ./deploy/rollback.sh`) pero aún no se ha ejecutado para la evidencia.
 
 > Regla: **se muestra el sistema, no diapositivas**. Las diapositivas solo cubren decisiones,
 > arquitectura y resultados que no se pueden ver en pantalla.
@@ -47,10 +52,10 @@ falla provocada.
 >
 > The project is delivered as a monorepo with a Jenkins pipeline that builds, tests, packages,
 > scans and promotes nine immutable images from dev to stage to production. In this second sprint
-> we are moving from Docker Compose to Terraform and Kubernetes, adding observability with
-> Prometheus, Grafana and Jaeger, and proving a real rollback. The most important design decision
-> is Blue-Green in production: we deploy a new colour, validate it, and switch the Service selector
-> so a rollback takes seconds.
+> we moved from Docker Compose to Terraform and Kubernetes, added observability with Prometheus,
+> Grafana, Jaeger and Loki, and implemented a version-based rollback. The most important design
+> decision is Blue-Green in production: we deploy a new colour, validate it, and switch the Service
+> selector so a rollback takes seconds.
 >
 > Our current results are 269 unit tests with zero failures, over 90 % line coverage in the five
 > gated services, integration tests with real Kafka and databases, and releases v0.1.0 and v0.2.0
