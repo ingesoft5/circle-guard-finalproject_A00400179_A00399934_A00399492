@@ -143,8 +143,8 @@ El pipeline está escrito, pero para ejecutarlo en Jenkins faltan:
 
 ## Estado de HU-11 (build #14, rama `HU-11_Pipeline`)
 
-Verificado contra el `Jenkinsfile` y los logs de las builds #14 y #29 (PR #25). **Todavía no está mergeado en
-`dev`.**
+Verificado contra el `Jenkinsfile` y los logs de las builds #14 y #29 (PR #25, ya mergeado en
+`dev`).
 
 | # | Criterio | Estado | Nota |
 |---|---|---|---|
