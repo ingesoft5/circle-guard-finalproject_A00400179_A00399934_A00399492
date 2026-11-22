@@ -282,7 +282,7 @@ Commit message: "fix(ci): record k8s deployments and rollbacks in release histor
 [2026-11-22T19:50:04.663Z] [0m[1mmodule.compute.data.aws_ssm_parameter.ami: Reading...[0m[0m
 [2026-11-22T19:50:04.663Z] [0m[1mmodule.compute.data.aws_caller_identity.current: Reading...[0m[0m
 [2026-11-22T19:50:04.663Z] [0m[1mmodule.compute.aws_iam_role.node: Refreshing state... [id=circleguard-dev-node][0m
-[2026-11-22T19:50:04.663Z] [0m[1mmodule.compute.data.aws_caller_identity.current: Read complete after 0s [id=009040764248][0m
+[2026-11-22T19:50:04.663Z] [0m[1mmodule.compute.data.aws_caller_identity.current: Read complete after 0s [id=<ACCOUNT_ID>][0m
 [2026-11-22T19:50:04.663Z] [0m[1mmodule.compute.data.aws_ssm_parameter.ami: Read complete after 0s [id=/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64][0m
 [2026-11-22T19:50:04.663Z] [0m[1mmodule.storage.aws_s3_bucket_versioning.this: Refreshing state... [id=circleguard-dev-data-a00400179][0m
 [2026-11-22T19:50:04.663Z] [0m[1mmodule.storage.aws_s3_bucket_public_access_block.this: Refreshing state... [id=circleguard-dev-data-a00400179][0m
@@ -365,7 +365,7 @@ Commit message: "fix(ci): record k8s deployments and rollbacks in release histor
 [2026-11-22T19:50:23.044Z] [0m[1mmodule.storage.aws_s3_bucket.this: Refreshing state... [id=circleguard-stage-data-a00400179][0m
 [2026-11-22T19:50:23.044Z] [0m[1mmodule.network.aws_vpc.this: Refreshing state... [id=vpc-00b3bf80e7011afd5][0m
 [2026-11-22T19:50:23.044Z] [0m[1mmodule.compute.aws_key_pair.node: Refreshing state... [id=circleguard-stage-key][0m
-[2026-11-22T19:50:23.044Z] [0m[1mmodule.compute.data.aws_caller_identity.current: Read complete after 0s [id=009040764248][0m
+[2026-11-22T19:50:23.044Z] [0m[1mmodule.compute.data.aws_caller_identity.current: Read complete after 0s [id=<ACCOUNT_ID>][0m
 [2026-11-22T19:50:23.044Z] [0m[1mmodule.compute.data.aws_ssm_parameter.ami: Read complete after 0s [id=/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64][0m
 [2026-11-22T19:50:23.044Z] [0m[1mmodule.storage.aws_s3_bucket_public_access_block.this: Refreshing state... [id=circleguard-stage-data-a00400179][0m
 [2026-11-22T19:50:23.044Z] [0m[1mmodule.storage.aws_s3_bucket_versioning.this: Refreshing state... [id=circleguard-stage-data-a00400179][0m
@@ -448,7 +448,7 @@ Commit message: "fix(ci): record k8s deployments and rollbacks in release histor
 [2026-11-22T19:50:41.312Z] [0m[1mmodule.compute.aws_iam_role.node: Refreshing state... [id=circleguard-prod-node][0m
 [2026-11-22T19:50:41.312Z] [0m[1mmodule.compute.aws_eip.node: Refreshing state... [id=eipalloc-03de93c44a8625f5b][0m
 [2026-11-22T19:50:41.312Z] [0m[1mmodule.compute.data.aws_caller_identity.current: Reading...[0m[0m
-[2026-11-22T19:50:41.312Z] [0m[1mmodule.compute.data.aws_caller_identity.current: Read complete after 0s [id=009040764248][0m
+[2026-11-22T19:50:41.312Z] [0m[1mmodule.compute.data.aws_caller_identity.current: Read complete after 0s [id=<ACCOUNT_ID>][0m
 [2026-11-22T19:50:41.312Z] [0m[1mmodule.compute.data.aws_ssm_parameter.ami: Read complete after 0s [id=/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64][0m
 [2026-11-22T19:50:41.312Z] [0m[1mmodule.storage.aws_s3_bucket_public_access_block.this: Refreshing state... [id=circleguard-prod-data-a00400179][0m
 [2026-11-22T19:50:41.312Z] [0m[1mmodule.storage.aws_s3_bucket_server_side_encryption_configuration.this: Refreshing state... [id=circleguard-prod-data-a00400179][0m
@@ -1364,10 +1364,10 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:10.114Z] #21 exporting layers 0.4s done
 [2026-11-22T19:58:10.114Z] #21 writing image sha256:c42654d0bff22924adb52de3b558ccb4f6306ff06a0f9409b01b318998817bf5
 [2026-11-22T19:58:10.114Z] #21 writing image sha256:c42654d0bff22924adb52de3b558ccb4f6306ff06a0f9409b01b318998817bf5 done
-[2026-11-22T19:58:10.114Z] #21 naming to 009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-auth-service:0.3.0-c6ac037 done
+[2026-11-22T19:58:10.114Z] #21 naming to <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-auth-service:0.3.0-c6ac037 done
 [2026-11-22T19:58:10.114Z] #21 DONE 0.4s
 [2026-11-22T19:58:10.114Z] ==> Publicando circleguard-auth-service:0.3.0-c6ac037
-[2026-11-22T19:58:10.114Z] The push refers to repository [009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-auth-service]
+[2026-11-22T19:58:10.114Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-auth-service]
 [2026-11-22T19:58:10.114Z] 09806d178116: Preparing
 [2026-11-22T19:58:10.114Z] 5f70bf18a086: Preparing
 [2026-11-22T19:58:10.114Z] 65d58022f6c6: Preparing
@@ -1458,10 +1458,10 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:15.886Z] #21 exporting layers
 [2026-11-22T19:58:16.437Z] #21 exporting layers 0.5s done
 [2026-11-22T19:58:16.437Z] #21 writing image sha256:5fa532e193497630f920273cdecaf512efa4a98dcd46356513028663a7154588 done
-[2026-11-22T19:58:16.437Z] #21 naming to 009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-identity-service:0.3.0-c6ac037 done
+[2026-11-22T19:58:16.437Z] #21 naming to <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-identity-service:0.3.0-c6ac037 done
 [2026-11-22T19:58:16.437Z] #21 DONE 0.5s
 [2026-11-22T19:58:16.437Z] ==> Publicando circleguard-identity-service:0.3.0-c6ac037
-[2026-11-22T19:58:16.437Z] The push refers to repository [009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-identity-service]
+[2026-11-22T19:58:16.437Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-identity-service]
 [2026-11-22T19:58:16.437Z] 60976122700b: Preparing
 [2026-11-22T19:58:16.437Z] 5f70bf18a086: Preparing
 [2026-11-22T19:58:16.437Z] 65d58022f6c6: Preparing
@@ -1553,10 +1553,10 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:22.634Z] #21 exporting layers 0.3s done
 [2026-11-22T19:58:22.634Z] #21 writing image sha256:9ae703dcb368b51891d8b7c8e2a198f2e32b73fc12be8e709ce205462bb980f0
 [2026-11-22T19:58:22.884Z] #21 writing image sha256:9ae703dcb368b51891d8b7c8e2a198f2e32b73fc12be8e709ce205462bb980f0 done
-[2026-11-22T19:58:22.884Z] #21 naming to 009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-dashboard-service:0.3.0-c6ac037 done
+[2026-11-22T19:58:22.884Z] #21 naming to <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-dashboard-service:0.3.0-c6ac037 done
 [2026-11-22T19:58:22.884Z] #21 DONE 0.4s
 [2026-11-22T19:58:22.884Z] ==> Publicando circleguard-dashboard-service:0.3.0-c6ac037
-[2026-11-22T19:58:22.884Z] The push refers to repository [009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-dashboard-service]
+[2026-11-22T19:58:22.884Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-dashboard-service]
 [2026-11-22T19:58:22.884Z] 92e4f2b11d5f: Preparing
 [2026-11-22T19:58:22.884Z] 5f70bf18a086: Preparing
 [2026-11-22T19:58:22.884Z] 65d58022f6c6: Preparing
@@ -1647,10 +1647,10 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:28.697Z] #21 exporting layers
 [2026-11-22T19:58:28.697Z] #21 exporting layers 0.2s done
 [2026-11-22T19:58:28.697Z] #21 writing image sha256:e7b24e9628a20c3f2311f227d43d813c21a9b2ee615daa56f365023e8ca7ff8e done
-[2026-11-22T19:58:28.697Z] #21 naming to 009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-file-service:0.3.0-c6ac037 done
+[2026-11-22T19:58:28.697Z] #21 naming to <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-file-service:0.3.0-c6ac037 done
 [2026-11-22T19:58:28.697Z] #21 DONE 0.2s
 [2026-11-22T19:58:28.697Z] ==> Publicando circleguard-file-service:0.3.0-c6ac037
-[2026-11-22T19:58:28.697Z] The push refers to repository [009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-file-service]
+[2026-11-22T19:58:28.697Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-file-service]
 [2026-11-22T19:58:28.697Z] 809a1c25f33e: Preparing
 [2026-11-22T19:58:28.697Z] 5f70bf18a086: Preparing
 [2026-11-22T19:58:28.697Z] 65d58022f6c6: Preparing
@@ -1741,10 +1741,10 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:33.882Z] #21 exporting layers
 [2026-11-22T19:58:34.134Z] #21 exporting layers 0.5s done
 [2026-11-22T19:58:34.134Z] #21 writing image sha256:6cc8e13c4cf25dda14c8e2941fa38c32b085e7865cb1561758191209f3d0c694 done
-[2026-11-22T19:58:34.134Z] #21 naming to 009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-form-service:0.3.0-c6ac037 done
+[2026-11-22T19:58:34.134Z] #21 naming to <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-form-service:0.3.0-c6ac037 done
 [2026-11-22T19:58:34.134Z] #21 DONE 0.5s
 [2026-11-22T19:58:34.134Z] ==> Publicando circleguard-form-service:0.3.0-c6ac037
-[2026-11-22T19:58:34.134Z] The push refers to repository [009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-form-service]
+[2026-11-22T19:58:34.134Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-form-service]
 [2026-11-22T19:58:34.134Z] a47c68f9dfe4: Preparing
 [2026-11-22T19:58:34.134Z] 5f70bf18a086: Preparing
 [2026-11-22T19:58:34.134Z] 65d58022f6c6: Preparing
@@ -1835,10 +1835,10 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:40.016Z] #21 exporting layers
 [2026-11-22T19:58:40.016Z] #21 exporting layers 0.2s done
 [2026-11-22T19:58:40.016Z] #21 writing image sha256:be9589e3b57072c7c2e89b8c834ae7a42335ed3c66f9b5d0d36acf9cdba7890b done
-[2026-11-22T19:58:40.016Z] #21 naming to 009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-gateway-service:0.3.0-c6ac037 done
+[2026-11-22T19:58:40.016Z] #21 naming to <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-gateway-service:0.3.0-c6ac037 done
 [2026-11-22T19:58:40.016Z] #21 DONE 0.2s
 [2026-11-22T19:58:40.016Z] ==> Publicando circleguard-gateway-service:0.3.0-c6ac037
-[2026-11-22T19:58:40.016Z] The push refers to repository [009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-gateway-service]
+[2026-11-22T19:58:40.016Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-gateway-service]
 [2026-11-22T19:58:40.016Z] e1955415e3c7: Preparing
 [2026-11-22T19:58:40.016Z] 5f70bf18a086: Preparing
 [2026-11-22T19:58:40.016Z] 65d58022f6c6: Preparing
@@ -1929,10 +1929,10 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:44.282Z] #21 exporting layers
 [2026-11-22T19:58:44.282Z] #21 exporting layers 0.3s done
 [2026-11-22T19:58:44.282Z] #21 writing image sha256:3f48d22e0bab81d6799715900c51069b38797d30bee225cc3789cddfbbdb37e4 done
-[2026-11-22T19:58:44.282Z] #21 naming to 009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-notification-service:0.3.0-c6ac037 done
+[2026-11-22T19:58:44.282Z] #21 naming to <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-notification-service:0.3.0-c6ac037 done
 [2026-11-22T19:58:44.282Z] #21 DONE 0.4s
 [2026-11-22T19:58:44.282Z] ==> Publicando circleguard-notification-service:0.3.0-c6ac037
-[2026-11-22T19:58:44.533Z] The push refers to repository [009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-notification-service]
+[2026-11-22T19:58:44.533Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-notification-service]
 [2026-11-22T19:58:44.533Z] 9fe2c09e194f: Preparing
 [2026-11-22T19:58:44.533Z] 5f70bf18a086: Preparing
 [2026-11-22T19:58:44.533Z] 65d58022f6c6: Preparing
@@ -2024,10 +2024,10 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:49.048Z] #21 exporting layers 0.4s done
 [2026-11-22T19:58:49.048Z] #21 writing image sha256:5c8bec17efe63e388284609395772f464b5dc6eb332265e30925be4ac1b0508d
 [2026-11-22T19:58:49.048Z] #21 writing image sha256:5c8bec17efe63e388284609395772f464b5dc6eb332265e30925be4ac1b0508d done
-[2026-11-22T19:58:49.048Z] #21 naming to 009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-promotion-service:0.3.0-c6ac037 done
+[2026-11-22T19:58:49.048Z] #21 naming to <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-promotion-service:0.3.0-c6ac037 done
 [2026-11-22T19:58:49.048Z] #21 DONE 0.4s
 [2026-11-22T19:58:49.048Z] ==> Publicando circleguard-promotion-service:0.3.0-c6ac037
-[2026-11-22T19:58:49.048Z] The push refers to repository [009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-promotion-service]
+[2026-11-22T19:58:49.048Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-promotion-service]
 [2026-11-22T19:58:49.048Z] 9192713fdb40: Preparing
 [2026-11-22T19:58:49.048Z] 5f70bf18a086: Preparing
 [2026-11-22T19:58:49.048Z] 65d58022f6c6: Preparing
@@ -2114,13 +2114,13 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:55.007Z] #19 exporting to image
 [2026-11-22T19:58:55.007Z] #19 exporting layers done
 [2026-11-22T19:58:55.007Z] #19 writing image sha256:7fbeed85fdbc45490d5934afc751ad08179120e065c374c0b6bafcd7f749d9d6 done
-[2026-11-22T19:58:55.007Z] #19 naming to 009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-web:0.3.0-c6ac037 done
+[2026-11-22T19:58:55.007Z] #19 naming to <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-web:0.3.0-c6ac037 done
 [2026-11-22T19:58:55.007Z] #19 DONE 0.0s
 [2026-11-22T19:58:55.007Z] ==> Publicando circleguard-web:0.3.0-c6ac037
-[2026-11-22T19:58:55.007Z] The push refers to repository [009040764248.dkr.ecr.us-east-2.amazonaws.com/circleguard-web]
+[2026-11-22T19:58:55.007Z] The push refers to repository [<ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-web]
 [2026-11-22T19:58:55.007Z] bb88e8bbac64: Preparing
 [2026-11-22T19:58:55.007Z] fb82388f9ff6: Preparing
-[2026-11-22T19:58:55.007Z] 321793894005: Preparing
+[2026-11-22T19:58:55.007Z] <ACCOUNT_ID>: Preparing
 [2026-11-22T19:58:55.007Z] 901452d45798: Preparing
 [2026-11-22T19:58:55.007Z] 00052d18c950: Preparing
 [2026-11-22T19:58:55.007Z] 76d28e61993f: Preparing
@@ -2140,7 +2140,7 @@ Stage "E2E Playwright" skipped due to when conditional
 [2026-11-22T19:58:55.007Z] 901452d45798: Layer already exists
 [2026-11-22T19:58:55.007Z] fb82388f9ff6: Layer already exists
 [2026-11-22T19:58:55.007Z] bb88e8bbac64: Layer already exists
-[2026-11-22T19:58:55.259Z] 321793894005: Layer already exists
+[2026-11-22T19:58:55.259Z] <ACCOUNT_ID>: Layer already exists
 [2026-11-22T19:58:55.259Z] 00052d18c950: Layer already exists
 [2026-11-22T19:58:55.259Z] 76d28e61993f: Layer already exists
 [2026-11-22T19:58:55.259Z] f3ab0add3da3: Layer already exists
