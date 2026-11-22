@@ -12,11 +12,11 @@ Punto de entrada a todo lo que no es código. El README general del proyecto est
 | C2 · Terraform (E2.1) | [`arquitectura/terraform.md`](arquitectura/terraform.md) | Módulos, plan/apply, backend remoto | Implementado y aplicado (HU-09 S2) |
 | C3 · Kubernetes (E2.2) | [`arquitectura/kubernetes.md`](arquitectura/kubernetes.md) | Manifiestos, pods, Ingress, HPA | Implementado (PR #21); despliegue desde Jenkins pendiente |
 | C4 · Patrones de diseño (E2.4) | [`arquitectura/patrones-diseno.md`](arquitectura/patrones-diseno.md) | Código + pruebas de falla | Implementado (HU-12, PR #14; correcciones en PR #20) |
-| C5 · CI/CD avanzado (E2.3) | [`arquitectura/pipeline-cd.md`](arquitectura/pipeline-cd.md) | Jenkinsfile, builds | Parcial: K8s desplegado manualmente; Jenkins sin K8s/Trivy (HU-11) |
+| C5 · CI/CD avanzado (E2.3) | [`arquitectura/pipeline-cd.md`](arquitectura/pipeline-cd.md) | Jenkinsfile, builds | Parcial: K8s desplegado manualmente; Jenkins con K8s/Trivy en PR #25, pendiente merge |
 | C6 · Pruebas avanzadas (E2.7) | [`operacion/pruebas-avanzadas.md`](operacion/pruebas-avanzadas.md) | Locust, ZAP, informe | Implementado (PR #20); Jenkins pendiente |
 | C7 · Change management y rollback (E2.8) | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) | Release notes, registro, rollback | Parcial: rollback K8s implementado; pendiente ejecutar |
 | C8 · Observabilidad (E2.5) | [`operacion/observabilidad.md`](operacion/observabilidad.md) | Dashboards, alertas, trazas, logs | Parcial: implementado y mergeado; faltan capturas y evidencia K8s |
-| C9 · Seguridad (E2.6) | [`operacion/seguridad.md`](operacion/seguridad.md) | Trivy, RBAC, TLS, secretos | Implementado (PR #20); Jenkins y despliegue K8s pendientes |
+| C9 · Seguridad (E2.6) | [`operacion/seguridad.md`](operacion/seguridad.md) | Trivy, RBAC, TLS, secretos | Implementado (PR #20); Jenkins en PR #25 y despliegue K8s pendientes |
 | C10 · Documentación completa (E2.9) | Este índice + [`operacion/manual-operaciones.md`](operacion/manual-operaciones.md) + [`operacion/analisis-costos.md`](operacion/analisis-costos.md) + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) | Documentos + evidencias | En curso; faltan Jira, Billing y revisión |
 | C11 · Presentación (E2.10) | [`sustentacion/guion-sprint-2.md`](sustentacion/guion-sprint-2.md) | Demo y falla provocada | Listo para ensayo |
 
