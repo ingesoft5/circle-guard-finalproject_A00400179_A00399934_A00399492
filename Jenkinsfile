@@ -68,7 +68,7 @@ pipeline {
 
     // HU-11: Terraform, Trivy y Kubernetes (DEPLOY_MODE=k8s).
     string(name: 'ADMIN_CIDR', defaultValue: '', description: 'CIDR del administrador (a.b.c.d/32) que usa Terraform. Obligatorio con RUN_TERRAFORM.')
-    booleanParam(name: 'RUN_TERRAFORM', defaultValue: true, description: 'Ejecutar fmt, validate y plan de dev, stage y prod (solo DEPLOY_MODE=k8s).')
+    booleanParam(name: 'RUN_TERRAFORM', defaultValue: false, description: 'Ejecutar fmt, validate y plan de dev, stage y prod (solo DEPLOY_MODE=k8s).')
     booleanParam(name: 'TERRAFORM_APPLY', defaultValue: false, description: 'Aplicar el plan: dev y stage antes de su despliegue; prod tras la aprobación manual.')
     string(name: 'SCAN_SEVERITY', defaultValue: 'CRITICAL', description: 'Severidades que bloquean Trivy en imágenes e IaC (separadas por coma).')
   }
