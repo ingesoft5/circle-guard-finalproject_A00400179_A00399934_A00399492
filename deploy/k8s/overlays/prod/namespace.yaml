@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: circleguard-prod
+  labels:
+    app.kubernetes.io/part-of: circleguard
+    environment: prod
+    # HU-14: Pod Security Admission. baseline is enforced (no privileged pods, host namespaces or host paths: all HU-10 pod
+    # templates were checked and comply); restricted is only reported, because the six middleware StatefulSets still run as root.
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

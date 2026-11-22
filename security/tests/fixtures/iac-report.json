@@ -1,0 +1,122 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "synthetic"
+  },
+  "ArtifactName": "/src",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "infra/terraform/modules/compute/main.tf",
+      "Class": "config",
+      "Type": "terraform",
+      "MisconfSummary": {
+        "Successes": 5,
+        "Failures": 2
+      },
+      "Misconfigurations": [
+        {
+          "Type": "Terraform Security Check",
+          "ID": "SYN-0104",
+          "Title": "Synthetic: unrestricted egress",
+          "Description": "Synthetic finding for the tests.",
+          "Message": "Security group rule allows egress to multiple public internet addresses.",
+          "Namespace": "builtin.synthetic",
+          "Query": "data.builtin.synthetic.deny",
+          "Resolution": "Restrict the egress.",
+          "Severity": "CRITICAL",
+          "PrimaryURL": "https://example.invalid/SYN-0104",
+          "References": [
+            "https://example.invalid/SYN-0104"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "module.compute",
+            "Provider": "AWS",
+            "Service": "ec2",
+            "StartLine": 10,
+            "EndLine": 20
+          }
+        },
+        {
+          "Type": "Terraform Security Check",
+          "ID": "SYN-0164",
+          "Title": "Synthetic: public IP",
+          "Description": "Synthetic finding for the tests.",
+          "Message": "Subnet associates public IPs.",
+          "Namespace": "builtin.synthetic",
+          "Query": "data.builtin.synthetic.deny",
+          "Resolution": "Disable it.",
+          "Severity": "MEDIUM",
+          "PrimaryURL": "https://example.invalid/SYN-0164",
+          "References": [
+            "https://example.invalid/SYN-0164"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Resource": "module.network",
+            "Provider": "AWS",
+            "Service": "ec2",
+            "StartLine": 30,
+            "EndLine": 40
+          }
+        }
+      ]
+    },
+    {
+      "Target": "deploy/k8s/base/apps/auth.yaml",
+      "Class": "config",
+      "Type": "kubernetes",
+      "MisconfSummary": {
+        "Successes": 50,
+        "Failures": 2
+      },
+      "Misconfigurations": [
+        {
+          "Type": "Kubernetes Security Check",
+          "ID": "SYN-K14",
+          "Title": "Synthetic: root file system is not read-only",
+          "Description": "Synthetic finding for the tests.",
+          "Message": "Container 'auth' of Deployment 'auth' should set 'securityContext.readOnlyRootFilesystem' to true",
+          "Namespace": "builtin.synthetic",
+          "Query": "data.builtin.synthetic.deny",
+          "Resolution": "Set it.",
+          "Severity": "HIGH",
+          "PrimaryURL": "https://example.invalid/SYN-K14",
+          "References": [
+            "https://example.invalid/SYN-K14"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Provider": "Kubernetes",
+            "Service": "general",
+            "StartLine": 37,
+            "EndLine": 105
+          }
+        },
+        {
+          "Type": "Kubernetes Security Check",
+          "ID": "SYN-K01",
+          "Title": "Synthetic: can elevate its own privileges",
+          "Description": "Synthetic finding for the tests.",
+          "Message": "Container 'auth' of Deployment 'auth' should set 'allowPrivilegeEscalation' to false",
+          "Namespace": "builtin.synthetic",
+          "Query": "data.builtin.synthetic.deny",
+          "Resolution": "Set it.",
+          "Severity": "LOW",
+          "PrimaryURL": "https://example.invalid/SYN-K01",
+          "References": [
+            "https://example.invalid/SYN-K01"
+          ],
+          "Status": "FAIL",
+          "CauseMetadata": {
+            "Provider": "Kubernetes",
+            "Service": "general",
+            "StartLine": 37,
+            "EndLine": 105
+          }
+        }
+      ]
+    }
+  ]
+}

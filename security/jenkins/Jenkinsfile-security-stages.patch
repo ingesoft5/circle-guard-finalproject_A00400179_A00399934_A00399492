@@ -11,12 +11,12 @@
    }
  
    environment {
-@@ -147,6 +151,20 @@
+@@ -147,6 +151,21 @@
        }
      }
  
-+    stage('Security: secrets and dependencies') {
-+      // HU-14: secretos en archivos versionables y vulnerabilidades de las bibliotecas Java (umbral en security/policy.env).
++    stage('Security: secrets, dependencies and IaC') {
++      // HU-14: secretos en archivos versionables, vulnerabilidades de las bibliotecas Java y configuración insegura de Terraform y Kubernetes (umbrales en security/policy.env).
 +      when {
 +        expression { !params.ROLLBACK_VERSION?.trim() }
 +      }
@@ -25,6 +25,7 @@
 +          boolean enforce = params.SECURITY_GATE == 'enforce'
 +          cgSecurityScan(kind: 'secrets', enforce: enforce)
 +          cgSecurityScan(kind: 'dependencies', enforce: enforce)
++          cgSecurityScan(kind: 'iac', enforce: enforce)
 +        }
 +      }
 +    }
@@ -32,10 +33,13 @@
      stage('SonarQube quality gate') {
        when {
          allOf {
-@@ -210,6 +228,20 @@
+@@ -207,6 +226,20 @@
        }
-     }
- 
+       steps {
+         sh "./deploy/build-images.sh '${env.VERSION}'"
++      }
++    }
++
 +    stage('Security: image scan') {
 +      // HU-14: Trivy sobre las 9 imágenes recién construidas. Va ANTES de publicarlas: si supera el umbral, no se publica ni se despliega.
 +      when {
@@ -47,9 +51,6 @@
 +      }
 +      steps {
 +        script { cgSecurityScan(kind: 'images', version: env.VERSION, enforce: params.SECURITY_GATE == 'enforce') }
-+      }
-+    }
-+
-     stage('Publish images') {
-       when {
-         allOf {
+       }
+     }
+ 

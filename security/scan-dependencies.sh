@@ -52,4 +52,4 @@ for service in "${SERVICES[@]}"; do
   args+=(--sbom "$SBOM_DIR/$service.cdx.json=$service")
 done
 
-exec "$ROOT_DIR/security/scan-images.sh" "${args[@]}" --class own
+exec bash "$ROOT_DIR/security/scan-images.sh" "${args[@]}" --class own

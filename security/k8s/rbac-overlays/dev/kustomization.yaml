@@ -1,0 +1,6 @@
+# HU-14 · RBAC of the dev environment (namespace circleguard-dev, created by HU-10 deploy/k8s/overlays/dev/namespace.yaml).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: circleguard-dev
+resources:
+  - ../../rbac

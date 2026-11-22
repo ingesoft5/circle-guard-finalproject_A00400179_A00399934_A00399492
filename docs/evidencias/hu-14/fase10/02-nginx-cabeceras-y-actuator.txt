@@ -1,0 +1,20 @@
+== Compose web (mobile/nginx.conf)
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+GET /                              ->  HTTP/1.1 200 OK
+GET /auth/actuator/prometheus      ->  HTTP/1.1 404 Not Found   (expected 404)
+GET /identity/actuator/env         ->  HTTP/1.1 404 Not Found   (expected 404)
+GET /auth/actuator/health          ->  HTTP/1.1 502 Bad Gateway   (expected NOT 404: it is proxied; 502 here because the upstream is not running)
+GET /does-not-exist (SPA fallback) ->  HTTP/1.1 200 OK
+security headers on /: 5 of 5
+security headers on /auth/actuator/prometheus: 0 of 5
+security headers on /healthz: 0 of 5
+== Kubernetes web (deploy/k8s/base/nginx.conf)
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+GET /                              ->  HTTP/1.1 200 OK
+GET /auth/actuator/prometheus      ->  HTTP/1.1 404 Not Found   (expected 404)
+GET /identity/actuator/env         ->  HTTP/1.1 404 Not Found   (expected 404)
+GET /auth/actuator/health          ->  HTTP/1.1 502 Bad Gateway   (expected NOT 404: it is proxied; 502 here because the upstream is not running)
+GET /does-not-exist (SPA fallback) ->  HTTP/1.1 200 OK
+security headers on /: 5 of 5
+security headers on /auth/actuator/prometheus: 0 of 5
+security headers on /healthz: 0 of 5

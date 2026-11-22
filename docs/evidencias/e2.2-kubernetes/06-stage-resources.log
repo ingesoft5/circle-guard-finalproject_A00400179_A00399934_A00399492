@@ -1,0 +1,76 @@
+NAME                                READY   STATUS    RESTARTS        AGE     IP           NODE                                        NOMINATED NODE   READINESS GATES
+pod/auth-848bfd9bbf-c9n4r           1/1     Running   0               8m45s   10.42.0.16   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/dashboard-bb45bd48-wkgms        1/1     Running   0               8m45s   10.42.0.17   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/file-77cdfb44cc-tkdwk           1/1     Running   0               8m44s   10.42.0.18   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/form-78fd9b8d6-rnr4b            1/1     Running   0               8m44s   10.42.0.19   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/gateway-69f66cc7cb-fbc5m        1/1     Running   0               8m43s   10.42.0.20   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/identity-67489657c-rckbb        1/1     Running   0               8m43s   10.42.0.21   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/kafka-0                         1/1     Running   1 (6m14s ago)   8m41s   10.42.0.32   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/neo4j-0                         1/1     Running   0               8m41s   10.42.0.29   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/notification-546c5987fb-5znkq   1/1     Running   0               8m42s   10.42.0.22   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/openldap-0                      1/1     Running   0               8m40s   10.42.0.31   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/postgres-0                      1/1     Running   0               8m40s   10.42.0.36   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/promotion-5dbb59fd86-7bmjc      1/1     Running   1 (6m12s ago)   8m42s   10.42.0.23   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/redis-0                         1/1     Running   0               8m39s   10.42.0.38   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/web-6cd57479d5-vt52z            1/1     Running   0               8m42s   10.42.0.24   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+pod/zookeeper-0                     1/1     Running   0               8m38s   10.42.0.37   ip-10-20-1-218.us-east-2.compute.internal   <none>           <none>
+
+NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE     SELECTOR
+service/auth           ClusterIP   10.43.248.252   <none>        8180/TCP   8m52s   app=auth
+service/dashboard      ClusterIP   10.43.80.255    <none>        8084/TCP   8m52s   app=dashboard
+service/file           ClusterIP   10.43.206.47    <none>        8085/TCP   8m51s   app=file
+service/form           ClusterIP   10.43.100.224   <none>        8086/TCP   8m51s   app=form
+service/gateway        ClusterIP   10.43.4.228     <none>        8087/TCP   8m50s   app=gateway
+service/identity       ClusterIP   10.43.99.242    <none>        8083/TCP   8m50s   app=identity
+service/kafka          ClusterIP   10.43.179.30    <none>        9092/TCP   8m50s   app=kafka
+service/neo4j          ClusterIP   10.43.189.125   <none>        7687/TCP   8m49s   app=neo4j
+service/notification   ClusterIP   10.43.227.51    <none>        8082/TCP   8m49s   app=notification
+service/openldap       ClusterIP   10.43.24.236    <none>        389/TCP    8m48s   app=openldap
+service/postgres       ClusterIP   10.43.85.111    <none>        5432/TCP   8m48s   app=postgres
+service/promotion      ClusterIP   10.43.238.236   <none>        8088/TCP   8m48s   app=promotion
+service/redis          ClusterIP   10.43.197.91    <none>        6379/TCP   8m47s   app=redis
+service/web            ClusterIP   10.43.134.127   <none>        8080/TCP   8m47s   app=web
+service/zookeeper      ClusterIP   10.43.67.84     <none>        2181/TCP   8m46s   app=zookeeper
+
+NAME                           READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS     IMAGES                                                                                SELECTOR
+deployment.apps/auth           1/1     1            1           8m46s   auth           <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-auth-service:0.3.0           app=auth
+deployment.apps/dashboard      1/1     1            1           8m46s   dashboard      <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-dashboard-service:0.3.0      app=dashboard
+deployment.apps/file           1/1     1            1           8m45s   file           <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-file-service:0.3.0           app=file
+deployment.apps/form           1/1     1            1           8m45s   form           <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-form-service:0.3.0           app=form
+deployment.apps/gateway        1/1     1            1           8m44s   gateway        <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-gateway-service:0.3.0        app=gateway
+deployment.apps/identity       1/1     1            1           8m44s   identity       <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-identity-service:0.3.0       app=identity
+deployment.apps/notification   1/1     1            1           8m43s   notification   <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-notification-service:0.3.0   app=notification
+deployment.apps/promotion      1/1     1            1           8m43s   promotion      <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-promotion-service:0.3.0      app=promotion
+deployment.apps/web            1/1     1            1           8m43s   web            <ACCOUNT_ID>.dkr.ecr.us-east-2.amazonaws.com/circleguard-web:0.3.0                    app=web
+
+NAME                         READY   AGE     CONTAINERS   IMAGES
+statefulset.apps/kafka       1/1     8m42s   kafka        confluentinc/cp-kafka:7.6.0
+statefulset.apps/neo4j       1/1     8m42s   neo4j        neo4j:5.26.32-community
+statefulset.apps/openldap    1/1     8m41s   openldap     osixia/openldap:1.5.0
+statefulset.apps/postgres    1/1     8m41s   postgres     postgres:16.15
+statefulset.apps/redis       1/1     8m40s   redis        redis:7.2.5-alpine
+statefulset.apps/zookeeper   1/1     8m39s   zookeeper    confluentinc/cp-zookeeper:7.6.0
+
+NAME                                    CLASS     HOSTS   ADDRESS       PORTS   AGE
+ingress.networking.k8s.io/circleguard   traefik   *       10.20.1.218   80      8m35s
+
+NAME                                               REFERENCE                 TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/auth           Deployment/auth           cpu: 4%/70%   1         2         1          8m39s
+horizontalpodautoscaler.autoscaling/dashboard      Deployment/dashboard      cpu: 2%/70%   1         2         1          8m38s
+horizontalpodautoscaler.autoscaling/file           Deployment/file           cpu: 2%/70%   1         2         1          8m38s
+horizontalpodautoscaler.autoscaling/form           Deployment/form           cpu: 2%/70%   1         2         1          8m38s
+horizontalpodautoscaler.autoscaling/gateway        Deployment/gateway        cpu: 3%/70%   1         2         1          8m37s
+horizontalpodautoscaler.autoscaling/identity       Deployment/identity       cpu: 8%/70%   1         2         1          8m37s
+horizontalpodautoscaler.autoscaling/notification   Deployment/notification   cpu: 8%/70%   1         2         1          8m36s
+horizontalpodautoscaler.autoscaling/promotion      Deployment/promotion      cpu: 7%/70%   1         2         1          8m36s
+horizontalpodautoscaler.autoscaling/web            Deployment/web            cpu: 5%/70%   1         2         1          8m35s
+
+NAME                                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE     VOLUMEMODE
+persistentvolumeclaim/config-openldap-0   Bound    pvc-7f7cfc05-6f6e-4878-a624-39756b7a748c   1Gi        RWO            local-path     <unset>                 8m41s   Filesystem
+persistentvolumeclaim/data-kafka-0        Bound    pvc-ab4a747e-d1c6-4121-9e31-51bf32028deb   2Gi        RWO            local-path     <unset>                 8m42s   Filesystem
+persistentvolumeclaim/data-neo4j-0        Bound    pvc-87a6acd4-6901-4760-a5fd-37dfb477218e   2Gi        RWO            local-path     <unset>                 8m42s   Filesystem
+persistentvolumeclaim/data-openldap-0     Bound    pvc-5165a300-32d6-48c1-9015-7d36facb0621   1Gi        RWO            local-path     <unset>                 8m41s   Filesystem
+persistentvolumeclaim/data-postgres-0     Bound    pvc-997add50-a403-44f9-bb38-90c86ca3f55e   2Gi        RWO            local-path     <unset>                 8m41s   Filesystem
+persistentvolumeclaim/data-redis-0        Bound    pvc-afe89087-cf9e-4fd0-b37f-130e161e00ca   1Gi        RWO            local-path     <unset>                 8m40s   Filesystem
+persistentvolumeclaim/data-zookeeper-0    Bound    pvc-69515951-2e0b-488a-a068-3f84ebefefbe   1Gi        RWO            local-path     <unset>                 8m39s   Filesystem
+persistentvolumeclaim/log-zookeeper-0     Bound    pvc-8ea95bcd-33de-45ae-b42a-75e0529c5f38   1Gi        RWO            local-path     <unset>                 8m39s   Filesystem

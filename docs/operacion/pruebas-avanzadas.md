@@ -110,6 +110,24 @@ La compuerta (`security/zap/evaluate-zap.sh`) devuelve 0, 1 o 2; 2 (informe ause
 
 ZAP baseline es **pasivo**: no envía ataques ni sustituye una prueba de penetración. Solo ve lo que el rastreador de 1 minuto alcanza.
 
+### 4.3 Ejecución contra el clúster de HU-10 (pendiente: hay que encender la infraestructura)
+
+Los mismos scripts sirven contra el Ingress de un ambiente de Kubernetes; solo cambia la URL (el nginx del cliente web reenvía `/auth/`, `/gateway/`, `/form/` igual que en Compose):
+
+```bash
+export PERF_TARGET_ENV=dev PERF_USERNAME=<usuario de prueba>
+read -rs -p "Contraseña del usuario de prueba: " PERF_PASSWORD; export PERF_PASSWORD
+tests/performance/run-perf.sh --host http://<ip pública del nodo> --seed                      # Locust: 10/50/100 usuarios x 5 min
+security/zap/run-zap-baseline.sh --target http://<ip pública del nodo> --env dev               # ZAP baseline (https:// cuando el Ingress tenga TLS)
+```
+
+Qué cambia respecto de la medición local, y por qué los resultados no son comparables sin más:
+- los contenedores de HU-10 piden 100 m de CPU y tienen **límite de 1 CPU** (en la pila local eran 0,5), y hay un HPA por Deployment (mínimo 1 réplica; 2 en el gateway de prod), así que el cuello de botella de CPU encontrado en el INFORME puede moverse;
+- el nodo de dev es una sola máquina k3s de 8 GiB que ya aloja Postgres, Neo4j, Kafka, ZooKeeper, Redis y OpenLDAP; Locust se ejecuta aparte y compite menos por CPU;
+- el `/actuator/prometheus` ya no es alcanzable desde fuera (regla del nginx), pero las métricas siguen disponibles para Prometheus dentro del clúster.
+
+Mientras el clúster esté apagado, esta ejecución **no se ha hecho**: los resultados del INFORME son solo de la pila local.
+
 ## 5. Informe consolidado de calidad
 
 [docs/evidencias/hu-15/INFORME.md](../evidencias/hu-15/INFORME.md) reúne: alcance y objetivos, ambiente y versión probada, rendimiento (tabla y gráficas), ZAP (conteo por severidad),
@@ -138,7 +156,7 @@ cobertura (JaCoCo), pruebas ejecutadas (unitarias e integración), comparación 
 
 | Necesidad | Historia | Estado |
 |---|---|---|
-| Ambiente dev/stage estable y accesible para ejecutar contra él | HU-10/HU-09 | **Esperar**: se ejecutó en una pila local aislada |
+| Ambiente dev/stage estable y accesible para ejecutar contra él | HU-10/HU-09 | **Ya están en `dev`, pero hay que encender la infraestructura** (no se ha hecho); se ejecutó en una pila local aislada. Receta en §4.3 |
 | Usuario y QR de prueba | HU-04/HU-05 | Usado el usuario sembrado por la migración V3; ver limitación del usuario único |
 | Métricas de latencia/errores | HU-13 | Disponibles (Micrometer); no se contrastaron con Prometheus en esta ejecución |
 | Pipeline con las etapas | HU-11 | **Esperar**: parche listo para aplicar |

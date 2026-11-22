@@ -1,0 +1,265 @@
+# HU-14 IaC scan · 20261122T030422Z · threshold: CRITICAL,HIGH · paths: infra/terraform deploy/k8s security/k8s
+# severity	rule	resource	file	title	exception
+MEDIUM	AWS-0024	aws_dynamodb_table.lock	infra/terraform/bootstrap-state/main.tf	Point in time recovery should be enabled to protect DynamoDB table	-
+MEDIUM	AWS-0178	module.network	infra/terraform/modules/network/main.tf	VPC Flow Logs is a feature that enables you to capture information about the IP traffic going to and from network interfaces in your VPC. After you've created a flow log, you can view and retrieve its data in Amazon CloudWatch Logs. It is recommended that VPC Flow Logs be enabled for packet \"Rejects\" for VPCs.	-
+MEDIUM	AWS-0178	module.network	infra/terraform/modules/network/main.tf	VPC Flow Logs is a feature that enables you to capture information about the IP traffic going to and from network interfaces in your VPC. After you've created a flow log, you can view and retrieve its data in Amazon CloudWatch Logs. It is recommended that VPC Flow Logs be enabled for packet \"Rejects\" for VPCs.	-
+MEDIUM	AWS-0178	module.network	infra/terraform/modules/network/main.tf	VPC Flow Logs is a feature that enables you to capture information about the IP traffic going to and from network interfaces in your VPC. After you've created a flow log, you can view and retrieve its data in Amazon CloudWatch Logs. It is recommended that VPC Flow Logs be enabled for packet \"Rejects\" for VPCs.	-
+MEDIUM	AWS-0178	module.network	infra/terraform/modules/network/main.tf	VPC Flow Logs is a feature that enables you to capture information about the IP traffic going to and from network interfaces in your VPC. After you've created a flow log, you can view and retrieve its data in Amazon CloudWatch Logs. It is recommended that VPC Flow Logs be enabled for packet \"Rejects\" for VPCs.	-
+MEDIUM	KSV-0001	Container 'alertmanager' of Deployment 'alertmanager' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/observability/all-in-one.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'grafana' of Deployment 'grafana' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/observability/all-in-one.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'jaeger' of Deployment 'jaeger' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/observability/all-in-one.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'kafka' of StatefulSet 'kafka' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/base/middleware/kafka.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'loki' of Deployment 'loki' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/observability/all-in-one.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'neo4j' of StatefulSet 'neo4j' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/base/middleware/neo4j.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'openldap' of StatefulSet 'openldap' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/base/middleware/openldap.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'otel-collector' of Deployment 'otel-collector' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/observability/all-in-one.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'postgres' of StatefulSet 'postgres' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/base/middleware/postgres.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'prometheus' of Deployment 'prometheus' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/observability/all-in-one.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'promtail' of DaemonSet 'promtail' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/observability/all-in-one.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'redis' of StatefulSet 'redis' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/base/middleware/redis.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0001	Container 'zookeeper' of StatefulSet 'zookeeper' should set 'securityContext.allowPrivilegeEscalation' to false	deploy/k8s/base/middleware/zookeeper.yaml	Can elevate its own privileges	-
+MEDIUM	KSV-0012	Container 'alertmanager' of Deployment 'alertmanager' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/observability/all-in-one.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'grafana' of Deployment 'grafana' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/observability/all-in-one.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'jaeger' of Deployment 'jaeger' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/observability/all-in-one.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'kafka' of StatefulSet 'kafka' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/base/middleware/kafka.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'loki' of Deployment 'loki' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/observability/all-in-one.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'neo4j' of StatefulSet 'neo4j' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/base/middleware/neo4j.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'openldap' of StatefulSet 'openldap' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/base/middleware/openldap.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'otel-collector' of Deployment 'otel-collector' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/observability/all-in-one.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'postgres' of StatefulSet 'postgres' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/base/middleware/postgres.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'prometheus' of Deployment 'prometheus' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/observability/all-in-one.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'promtail' of DaemonSet 'promtail' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/observability/all-in-one.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'redis' of StatefulSet 'redis' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/base/middleware/redis.yaml	Runs as root user	-
+MEDIUM	KSV-0012	Container 'zookeeper' of StatefulSet 'zookeeper' should set 'securityContext.runAsNonRoot' to true	deploy/k8s/base/middleware/zookeeper.yaml	Runs as root user	-
+MEDIUM	KSV-0023	DaemonSet 'promtail' should not set 'spec.template.volumes.hostPath'	deploy/k8s/observability/all-in-one.yaml	hostPath volumes mounted	-
+MEDIUM	KSV-0048	Role 'circleguard-deployer' should not have access to resources [\"pods\", \"deployments\", \"jobs\", \"cronjobs\", \"statefulsets\", \"daemonsets\", \"replicasets\", \"replicationcontrollers\"] for verbs [\"create\", \"update\", \"patch\", \"delete\", \"deletecollection\", \"impersonate\", \"*\"]	security/k8s/rbac/roles.yaml	Manage Kubernetes workloads and pods	-
+MEDIUM	KSV-0049	Role 'circleguard-deployer' should not have access to resource 'configmaps' for verbs [\"create\", \"update\", \"patch\", \"delete\", \"deletecollection\", \"impersonate\", \"*\"]	security/k8s/rbac/roles.yaml	Manage configmaps	-
+MEDIUM	KSV-01010	ConfigMap 'circleguard-config' in 'default' namespace stores sensitive contents in key(s) or value(s) '{\"SPRING_DATA_REDIS_PORT\"}'	deploy/k8s/base/configmap.yaml	ConfigMap with sensitive content	-
+MEDIUM	KSV-0104	container \"alertmanager\" of deployment \"alertmanager\" in \"observability\" namespace should specify a seccomp profile	deploy/k8s/observability/all-in-one.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"grafana\" of deployment \"grafana\" in \"observability\" namespace should specify a seccomp profile	deploy/k8s/observability/all-in-one.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"jaeger\" of deployment \"jaeger\" in \"observability\" namespace should specify a seccomp profile	deploy/k8s/observability/all-in-one.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"kafka\" of statefulset \"kafka\" in \"default\" namespace should specify a seccomp profile	deploy/k8s/base/middleware/kafka.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"loki\" of deployment \"loki\" in \"observability\" namespace should specify a seccomp profile	deploy/k8s/observability/all-in-one.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"neo4j\" of statefulset \"neo4j\" in \"default\" namespace should specify a seccomp profile	deploy/k8s/base/middleware/neo4j.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"openldap\" of statefulset \"openldap\" in \"default\" namespace should specify a seccomp profile	deploy/k8s/base/middleware/openldap.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"otel-collector\" of deployment \"otel-collector\" in \"observability\" namespace should specify a seccomp profile	deploy/k8s/observability/all-in-one.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"postgres\" of statefulset \"postgres\" in \"default\" namespace should specify a seccomp profile	deploy/k8s/base/middleware/postgres.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"prometheus\" of deployment \"prometheus\" in \"observability\" namespace should specify a seccomp profile	deploy/k8s/observability/all-in-one.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"promtail\" of daemonset \"promtail\" in \"observability\" namespace should specify a seccomp profile	deploy/k8s/observability/all-in-one.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"redis\" of statefulset \"redis\" in \"default\" namespace should specify a seccomp profile	deploy/k8s/base/middleware/redis.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0104	container \"zookeeper\" of statefulset \"zookeeper\" in \"default\" namespace should specify a seccomp profile	deploy/k8s/base/middleware/zookeeper.yaml	Seccomp policies disabled	-
+MEDIUM	KSV-0113	Role 'circleguard-secret-manager' shouldn't have access to manage secrets in namespace 'circleguard'	security/k8s/rbac/roles.yaml	Manage namespace secrets	-
+MEDIUM	KSV-0117	statefulset openldap in default namespace should not set spec.template.spec.containers.ports.containerPort to less than 1024	deploy/k8s/base/middleware/openldap.yaml	Prevent binding to privileged ports	-
+MEDIUM	KSV-0125	Container alertmanager in deployment alertmanager (namespace: observability) uses an image from an untrusted registry.	deploy/k8s/observability/all-in-one.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container auth in deployment auth (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/apps/auth.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container auth-service in deployment auth-service (namespace: circleguard) uses an image from an untrusted registry.	security/k8s/secrets-consumption.example.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container dashboard in deployment dashboard (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/apps/dashboard.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container file in deployment file (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/apps/file.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container form in deployment form (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/apps/form.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container gateway in deployment gateway (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/apps/gateway.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container grafana in deployment grafana (namespace: observability) uses an image from an untrusted registry.	deploy/k8s/observability/all-in-one.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container identity in deployment identity (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/apps/identity.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container jaeger in deployment jaeger (namespace: observability) uses an image from an untrusted registry.	deploy/k8s/observability/all-in-one.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container kafka in statefulset kafka (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/middleware/kafka.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container loki in deployment loki (namespace: observability) uses an image from an untrusted registry.	deploy/k8s/observability/all-in-one.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container notification in deployment notification (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/apps/notification.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container openldap in statefulset openldap (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/middleware/openldap.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container otel-collector in deployment otel-collector (namespace: observability) uses an image from an untrusted registry.	deploy/k8s/observability/all-in-one.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container prometheus in deployment prometheus (namespace: observability) uses an image from an untrusted registry.	deploy/k8s/observability/all-in-one.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container promotion in deployment promotion (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/apps/promotion.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container promtail in daemonset promtail (namespace: observability) uses an image from an untrusted registry.	deploy/k8s/observability/all-in-one.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container web in deployment web (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/apps/web.yaml	Restrict container images to trusted registries	-
+MEDIUM	KSV-0125	Container zookeeper in statefulset zookeeper (namespace: default) uses an image from an untrusted registry.	deploy/k8s/base/middleware/zookeeper.yaml	Restrict container images to trusted registries	-
+LOW	AWS-0017	module.observability	infra/terraform/modules/observability/main.tf	CloudWatch log groups should be encrypted using CMK	-
+LOW	AWS-0017	module.observability	infra/terraform/modules/observability/main.tf	CloudWatch log groups should be encrypted using CMK	-
+LOW	AWS-0017	module.observability	infra/terraform/modules/observability/main.tf	CloudWatch log groups should be encrypted using CMK	-
+LOW	AWS-0025	aws_dynamodb_table.lock	infra/terraform/bootstrap-state/main.tf	DynamoDB tables should use at rest encryption with a Customer Managed Key	-
+LOW	AWS-0089	aws_s3_bucket.state	infra/terraform/bootstrap-state/main.tf	S3 Bucket Logging	-
+LOW	AWS-0089	module.storage	infra/terraform/modules/storage/main.tf	S3 Bucket Logging	-
+LOW	AWS-0089	module.storage	infra/terraform/modules/storage/main.tf	S3 Bucket Logging	-
+LOW	AWS-0089	module.storage	infra/terraform/modules/storage/main.tf	S3 Bucket Logging	-
+LOW	AWS-0124	module.ci_server	infra/terraform/modules/ci-server/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.ci_server	infra/terraform/modules/ci-server/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.ci_server	infra/terraform/modules/ci-server/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	AWS-0124	module.compute	infra/terraform/modules/compute/main.tf	Missing description for security group rule.	-
+LOW	KSV-0003	Container 'alertmanager' of Deployment 'alertmanager' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'grafana' of Deployment 'grafana' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'jaeger' of Deployment 'jaeger' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'kafka' of StatefulSet 'kafka' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/base/middleware/kafka.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'loki' of Deployment 'loki' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'neo4j' of StatefulSet 'neo4j' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/base/middleware/neo4j.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'openldap' of StatefulSet 'openldap' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/base/middleware/openldap.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'otel-collector' of Deployment 'otel-collector' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'postgres' of StatefulSet 'postgres' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/base/middleware/postgres.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'prometheus' of Deployment 'prometheus' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'promtail' of DaemonSet 'promtail' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'redis' of StatefulSet 'redis' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/base/middleware/redis.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0003	Container 'zookeeper' of StatefulSet 'zookeeper' should add 'ALL' to 'securityContext.capabilities.drop'	deploy/k8s/base/middleware/zookeeper.yaml	Default capabilities: some containers do not drop all	-
+LOW	KSV-0004	Container 'alertmanager' of 'deployment' 'alertmanager' in 'observability' namespace should set securityContext.capabilities.drop	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'grafana' of 'deployment' 'grafana' in 'observability' namespace should set securityContext.capabilities.drop	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'jaeger' of 'deployment' 'jaeger' in 'observability' namespace should set securityContext.capabilities.drop	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'kafka' of 'statefulset' 'kafka' in 'default' namespace should set securityContext.capabilities.drop	deploy/k8s/base/middleware/kafka.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'loki' of 'deployment' 'loki' in 'observability' namespace should set securityContext.capabilities.drop	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'neo4j' of 'statefulset' 'neo4j' in 'default' namespace should set securityContext.capabilities.drop	deploy/k8s/base/middleware/neo4j.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'openldap' of 'statefulset' 'openldap' in 'default' namespace should set securityContext.capabilities.drop	deploy/k8s/base/middleware/openldap.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'otel-collector' of 'deployment' 'otel-collector' in 'observability' namespace should set securityContext.capabilities.drop	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'postgres' of 'statefulset' 'postgres' in 'default' namespace should set securityContext.capabilities.drop	deploy/k8s/base/middleware/postgres.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'prometheus' of 'deployment' 'prometheus' in 'observability' namespace should set securityContext.capabilities.drop	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'promtail' of 'daemonset' 'promtail' in 'observability' namespace should set securityContext.capabilities.drop	deploy/k8s/observability/all-in-one.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'redis' of 'statefulset' 'redis' in 'default' namespace should set securityContext.capabilities.drop	deploy/k8s/base/middleware/redis.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0004	Container 'zookeeper' of 'statefulset' 'zookeeper' in 'default' namespace should set securityContext.capabilities.drop	deploy/k8s/base/middleware/zookeeper.yaml	Default capabilities: some containers do not drop any	-
+LOW	KSV-0011	Container 'auth-service' of Deployment 'auth-service' should set 'resources.limits.cpu'	security/k8s/secrets-consumption.example.yaml	CPU not limited	-
+LOW	KSV-0011	Container 'kafka' of StatefulSet 'kafka' should set 'resources.limits.cpu'	deploy/k8s/base/middleware/kafka.yaml	CPU not limited	-
+LOW	KSV-0011	Container 'neo4j' of StatefulSet 'neo4j' should set 'resources.limits.cpu'	deploy/k8s/base/middleware/neo4j.yaml	CPU not limited	-
+LOW	KSV-0011	Container 'openldap' of StatefulSet 'openldap' should set 'resources.limits.cpu'	deploy/k8s/base/middleware/openldap.yaml	CPU not limited	-
+LOW	KSV-0011	Container 'postgres' of StatefulSet 'postgres' should set 'resources.limits.cpu'	deploy/k8s/base/middleware/postgres.yaml	CPU not limited	-
+LOW	KSV-0011	Container 'redis' of StatefulSet 'redis' should set 'resources.limits.cpu'	deploy/k8s/base/middleware/redis.yaml	CPU not limited	-
+LOW	KSV-0011	Container 'zookeeper' of StatefulSet 'zookeeper' should set 'resources.limits.cpu'	deploy/k8s/base/middleware/zookeeper.yaml	CPU not limited	-
+LOW	KSV-0015	Container 'auth-service' of Deployment 'auth-service' should set 'resources.requests.cpu'	security/k8s/secrets-consumption.example.yaml	CPU requests not specified	-
+LOW	KSV-0016	Container 'auth-service' of Deployment 'auth-service' should set 'resources.requests.memory'	security/k8s/secrets-consumption.example.yaml	Memory requests not specified	-
+LOW	KSV-0018	Container 'auth-service' of Deployment 'auth-service' should set 'resources.limits.memory'	security/k8s/secrets-consumption.example.yaml	Memory not limited	-
+LOW	KSV-0020	Container 'alertmanager' of Deployment 'alertmanager' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'grafana' of Deployment 'grafana' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'jaeger' of Deployment 'jaeger' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'kafka' of StatefulSet 'kafka' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/base/middleware/kafka.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'loki' of Deployment 'loki' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'neo4j' of StatefulSet 'neo4j' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/base/middleware/neo4j.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'openldap' of StatefulSet 'openldap' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/base/middleware/openldap.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'otel-collector' of Deployment 'otel-collector' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'postgres' of StatefulSet 'postgres' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/base/middleware/postgres.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'prometheus' of Deployment 'prometheus' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'promtail' of DaemonSet 'promtail' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'redis' of StatefulSet 'redis' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/base/middleware/redis.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'web' of Deployment 'web' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/base/apps/web.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0020	Container 'zookeeper' of StatefulSet 'zookeeper' should set 'securityContext.runAsUser' \u003e 10000	deploy/k8s/base/middleware/zookeeper.yaml	Runs with UID \u003c= 10000	-
+LOW	KSV-0021	Container 'alertmanager' of Deployment 'alertmanager' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'grafana' of Deployment 'grafana' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'jaeger' of Deployment 'jaeger' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'kafka' of StatefulSet 'kafka' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/base/middleware/kafka.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'loki' of Deployment 'loki' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'neo4j' of StatefulSet 'neo4j' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/base/middleware/neo4j.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'openldap' of StatefulSet 'openldap' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/base/middleware/openldap.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'otel-collector' of Deployment 'otel-collector' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'postgres' of StatefulSet 'postgres' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/base/middleware/postgres.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'prometheus' of Deployment 'prometheus' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'promtail' of DaemonSet 'promtail' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/observability/all-in-one.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'redis' of StatefulSet 'redis' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/base/middleware/redis.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'web' of Deployment 'web' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/base/apps/web.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0021	Container 'zookeeper' of StatefulSet 'zookeeper' should set 'securityContext.runAsGroup' \u003e 10000	deploy/k8s/base/middleware/zookeeper.yaml	Runs with GID \u003c= 10000	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/base/middleware/kafka.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/base/middleware/neo4j.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/base/middleware/openldap.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/base/middleware/postgres.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/base/middleware/redis.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/base/middleware/zookeeper.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/observability/all-in-one.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/observability/all-in-one.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/observability/all-in-one.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/observability/all-in-one.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/observability/all-in-one.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/observability/all-in-one.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0030	Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'	deploy/k8s/observability/all-in-one.yaml	Runtime/Default Seccomp profile not set	-
+LOW	KSV-0106	container should drop all	deploy/k8s/base/middleware/kafka.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/base/middleware/neo4j.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/base/middleware/openldap.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/base/middleware/postgres.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/base/middleware/redis.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/base/middleware/zookeeper.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/observability/all-in-one.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/observability/all-in-one.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/observability/all-in-one.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/observability/all-in-one.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/observability/all-in-one.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/observability/all-in-one.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0106	container should drop all	deploy/k8s/observability/all-in-one.yaml	Container capabilities must only include NET_BIND_SERVICE	-
+LOW	KSV-0110	deployment auth in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/apps/auth.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	deployment dashboard in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/apps/dashboard.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	deployment file in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/apps/file.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	deployment form in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/apps/form.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	deployment gateway in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/apps/gateway.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	deployment identity in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/apps/identity.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	deployment notification in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/apps/notification.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	deployment promotion in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/apps/promotion.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	deployment web in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/apps/web.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	statefulset kafka in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/middleware/kafka.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	statefulset neo4j in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/middleware/neo4j.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	statefulset openldap in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/middleware/openldap.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	statefulset postgres in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/middleware/postgres.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	statefulset redis in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/middleware/redis.yaml	Workloads in the default namespace	-
+LOW	KSV-0110	statefulset zookeeper in default namespace should set metadata.namespace to a non-default namespace	deploy/k8s/base/middleware/zookeeper.yaml	Workloads in the default namespace	-
+HIGH	AWS-0132	aws_s3_bucket_server_side_encryption_configuration.state	infra/terraform/bootstrap-state/main.tf	S3 encryption should use Customer Managed Keys	-
+HIGH	AWS-0132	module.storage	infra/terraform/modules/storage/main.tf	S3 encryption should use Customer Managed Keys	-
+HIGH	AWS-0132	module.storage	infra/terraform/modules/storage/main.tf	S3 encryption should use Customer Managed Keys	-
+HIGH	AWS-0132	module.storage	infra/terraform/modules/storage/main.tf	S3 encryption should use Customer Managed Keys	-
+HIGH	AWS-0164	module.network	infra/terraform/modules/network/main.tf	Instances in a subnet should not receive a public IP address by default.	-
+HIGH	AWS-0164	module.network	infra/terraform/modules/network/main.tf	Instances in a subnet should not receive a public IP address by default.	-
+HIGH	AWS-0164	module.network	infra/terraform/modules/network/main.tf	Instances in a subnet should not receive a public IP address by default.	-
+HIGH	AWS-0164	module.network	infra/terraform/modules/network/main.tf	Instances in a subnet should not receive a public IP address by default.	-
+HIGH	KSV-0014	Container 'alertmanager' of Deployment 'alertmanager' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/observability/all-in-one.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'auth' of Deployment 'auth' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/apps/auth.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'dashboard' of Deployment 'dashboard' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/apps/dashboard.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'file' of Deployment 'file' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/apps/file.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'form' of Deployment 'form' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/apps/form.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'gateway' of Deployment 'gateway' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/apps/gateway.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'grafana' of Deployment 'grafana' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/observability/all-in-one.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'identity' of Deployment 'identity' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/apps/identity.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'jaeger' of Deployment 'jaeger' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/observability/all-in-one.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'kafka' of StatefulSet 'kafka' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/middleware/kafka.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'loki' of Deployment 'loki' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/observability/all-in-one.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'neo4j' of StatefulSet 'neo4j' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/middleware/neo4j.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'notification' of Deployment 'notification' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/apps/notification.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'openldap' of StatefulSet 'openldap' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/middleware/openldap.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'otel-collector' of Deployment 'otel-collector' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/observability/all-in-one.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'postgres' of StatefulSet 'postgres' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/middleware/postgres.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'prometheus' of Deployment 'prometheus' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/observability/all-in-one.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'promotion' of Deployment 'promotion' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/apps/promotion.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'promtail' of DaemonSet 'promtail' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/observability/all-in-one.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'redis' of StatefulSet 'redis' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/middleware/redis.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'web' of Deployment 'web' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/apps/web.yaml	Root file system is not read-only	-
+HIGH	KSV-0014	Container 'zookeeper' of StatefulSet 'zookeeper' should set 'securityContext.readOnlyRootFilesystem' to true	deploy/k8s/base/middleware/zookeeper.yaml	Root file system is not read-only	-
+HIGH	KSV-0056	Role 'circleguard-deployer' should not have access to resources [\"services\", \"endpoints\", \"endpointslices\", \"networkpolicies\", \"ingresses\"] for verbs [\"create\", \"update\", \"patch\", \"delete\", \"deletecollection\", \"impersonate\", \"*\"]	security/k8s/rbac/roles.yaml	Manage Kubernetes networking	-
+HIGH	KSV-0056	Role 'circleguard-deployer' should not have access to resources [\"services\", \"endpoints\", \"endpointslices\", \"networkpolicies\", \"ingresses\"] for verbs [\"create\", \"update\", \"patch\", \"delete\", \"deletecollection\", \"impersonate\", \"*\"]	security/k8s/rbac/roles.yaml	Manage Kubernetes networking	-
+HIGH	KSV-0118	container alertmanager in observability namespace is using the default security context	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	container grafana in observability namespace is using the default security context	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	container jaeger in observability namespace is using the default security context	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	container kafka in default namespace is using the default security context	deploy/k8s/base/middleware/kafka.yaml	Default security context configured	-
+HIGH	KSV-0118	container loki in observability namespace is using the default security context	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	container neo4j in default namespace is using the default security context	deploy/k8s/base/middleware/neo4j.yaml	Default security context configured	-
+HIGH	KSV-0118	container openldap in default namespace is using the default security context	deploy/k8s/base/middleware/openldap.yaml	Default security context configured	-
+HIGH	KSV-0118	container otel-collector in observability namespace is using the default security context	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	container postgres in default namespace is using the default security context	deploy/k8s/base/middleware/postgres.yaml	Default security context configured	-
+HIGH	KSV-0118	container prometheus in observability namespace is using the default security context	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	container promtail in observability namespace is using the default security context	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	container redis in default namespace is using the default security context	deploy/k8s/base/middleware/redis.yaml	Default security context configured	-
+HIGH	KSV-0118	container zookeeper in default namespace is using the default security context	deploy/k8s/base/middleware/zookeeper.yaml	Default security context configured	-
+HIGH	KSV-0118	daemonset promtail in observability namespace is using the default security context, which allows root privileges	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	deployment alertmanager in observability namespace is using the default security context, which allows root privileges	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	deployment grafana in observability namespace is using the default security context, which allows root privileges	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	deployment jaeger in observability namespace is using the default security context, which allows root privileges	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	deployment loki in observability namespace is using the default security context, which allows root privileges	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	deployment otel-collector in observability namespace is using the default security context, which allows root privileges	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	deployment prometheus in observability namespace is using the default security context, which allows root privileges	deploy/k8s/observability/all-in-one.yaml	Default security context configured	-
+HIGH	KSV-0118	statefulset kafka in default namespace is using the default security context, which allows root privileges	deploy/k8s/base/middleware/kafka.yaml	Default security context configured	-
+HIGH	KSV-0118	statefulset neo4j in default namespace is using the default security context, which allows root privileges	deploy/k8s/base/middleware/neo4j.yaml	Default security context configured	-
+HIGH	KSV-0118	statefulset openldap in default namespace is using the default security context, which allows root privileges	deploy/k8s/base/middleware/openldap.yaml	Default security context configured	-
+HIGH	KSV-0118	statefulset postgres in default namespace is using the default security context, which allows root privileges	deploy/k8s/base/middleware/postgres.yaml	Default security context configured	-
+HIGH	KSV-0118	statefulset redis in default namespace is using the default security context, which allows root privileges	deploy/k8s/base/middleware/redis.yaml	Default security context configured	-
+HIGH	KSV-0118	statefulset zookeeper in default namespace is using the default security context, which allows root privileges	deploy/k8s/base/middleware/zookeeper.yaml	Default security context configured	-
+CRITICAL	AWS-0104	module.ci_server	infra/terraform/modules/ci-server/main.tf	A security group rule should not allow unrestricted egress to any IP address.	-
+CRITICAL	AWS-0104	module.compute	infra/terraform/modules/compute/main.tf	A security group rule should not allow unrestricted egress to any IP address.	-
+CRITICAL	AWS-0104	module.compute	infra/terraform/modules/compute/main.tf	A security group rule should not allow unrestricted egress to any IP address.	-
+CRITICAL	AWS-0104	module.compute	infra/terraform/modules/compute/main.tf	A security group rule should not allow unrestricted egress to any IP address.	-

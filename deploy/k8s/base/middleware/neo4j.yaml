@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: neo4j
+  labels:
+    app: neo4j
+    app.kubernetes.io/part-of: circleguard
+spec:
+  serviceName: neo4j
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neo4j
+  template:
+    metadata:
+      labels:
+        app: neo4j
+        app.kubernetes.io/part-of: circleguard
+    spec:
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: neo4j
+        image: neo4j:5.26.32-community
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: tcp
+          containerPort: 7687
+        env:
+        - name: GRAPH_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: circleguard-secrets
+              key: NEO4J_PASSWORD
+        - name: NEO4J_AUTH
+          value: neo4j/$(GRAPH_DB_PASSWORD)
+        - name: NEO4J_PLUGINS
+          value: '["apoc"]'
+        - name: NEO4J_server_memory_heap_max__size
+          value: "512m"
+        - name: NEO4J_server_memory_pagecache_size
+          value: "256m"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 640Mi
+          limits:
+            memory: 1Gi
+        startupProbe:
+          tcpSocket:
+            port: tcp
+          periodSeconds: 10
+          failureThreshold: 36
+        readinessProbe:
+          tcpSocket:
+            port: tcp
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: tcp
+          periodSeconds: 20
+          failureThreshold: 6
+        volumeMounts:
+        - name: data
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: neo4j
+  labels:
+    app: neo4j
+    app.kubernetes.io/part-of: circleguard
+spec:
+  type: ClusterIP
+  selector:
+    app: neo4j
+  ports:
+  - name: tcp
+    port: 7687
+    targetPort: tcp
