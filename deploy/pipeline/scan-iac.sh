@@ -15,7 +15,7 @@ for target in infra/terraform deploy/k8s; do
   report="$REPORT_DIR/trivy-iac-$name.txt"
   cg_info "==> Trivy config en $target (umbral: $SEVERITY)"
   rc=0
-  trivy config --no-progress --severity "$SEVERITY" --skip-dirs '**/.terraform' --exit-code 10 \
+  trivy config --severity "$SEVERITY" --skip-dirs '**/.terraform' --exit-code 10 \
     --format table --output "$report" "$ROOT_DIR/$target" || rc=$?
   cat "$report"
   case "$rc" in
