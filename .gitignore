@@ -99,3 +99,6 @@ crash.log
 *.tfplan
 
 !docs/evidencias/**/*.log
+
+deploy/pipeline-reports/
+infra/terraform/envs/*/ci.tfplan
