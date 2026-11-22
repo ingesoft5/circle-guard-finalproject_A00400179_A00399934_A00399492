@@ -103,13 +103,12 @@ KUBECONFIG=~/.kube/config ./deploy/observability/k8s-evidence.sh
 ```
 
 El script aplica los manifiestos, crea el secreto de Grafana, espera los deployments y escribe
-`10-k8s-observability.txt`. El Prometheus del clúster ya tiene targets estáticos para
-`circleguard-dev`, así que las métricas funcionan sin redesplegar la aplicación.
+`10-k8s-observability.txt`.
 
-### B.3 Redesplegar la app (opcional)
+### B.3 Redesplegar la app con las anotaciones (obligatorio para métricas)
 
-Los manifiestos de `deploy/k8s/base/apps/` también llevan anotaciones `prometheus.io/*`. Si quieres
-que Prometheus descubra los pods por anotación (además de los targets estáticos):
+Prometheus descubre los pods por las anotaciones `prometheus.io/*`. Si los pods actuales no las
+tienen, redespliega:
 
 ```bash
 export AWS_REGION=us-east-2

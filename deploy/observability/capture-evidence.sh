@@ -70,4 +70,7 @@ Captura automatica terminada. Faltan las capturas manuales:
   06-kafka-headers.txt       traceId en los headers de Kafka
   07-loki-consulta.png       Consulta por traceId y severidad
   08-incidente.md            Ejecutar la falla de identity
+
+ADVERTENCIA: 12-jaeger-*.json y 13-loki-errors.json pueden contener datos de
+usuarios (anonymousId, trazas y logs). Revisalos y anonimiza antes de commitear.
 EOF

@@ -26,10 +26,11 @@ kubectl apply -k "$ROOT_DIR/deploy/k8s/observability"
 
 if [[ -n "${GRAFANA_ADMIN_PASSWORD:-}" ]]; then
   say "Creando/actualizando el secreto grafana-admin"
-  kubectl -n observability create secret generic grafana-admin \
-    --from-literal=admin-user="${GRAFANA_ADMIN_USER:-admin}" \
-    --from-literal=admin-password="$GRAFANA_ADMIN_PASSWORD" \
-    --dry-run=client -o yaml | kubectl apply -f -
+  printf 'admin-user=%s\nadmin-password=%s\n' \
+    "${GRAFANA_ADMIN_USER:-admin}" "$GRAFANA_ADMIN_PASSWORD" \
+    | kubectl -n observability create secret generic grafana-admin \
+        --from-env-file=/dev/stdin --dry-run=client -o yaml \
+    | kubectl apply -f -
   kubectl -n observability rollout restart deployment/grafana >/dev/null 2>&1 || true
 else
   say "ADVERTENCIA: GRAFANA_ADMIN_PASSWORD no está definido; Grafana puede quedar en CrashLoop."
@@ -53,7 +54,8 @@ Port-forward para las capturas (una terminal por comando):
   kubectl -n observability port-forward svc/jaeger 16686:16686
   kubectl -n observability port-forward svc/loki 3100:3100
 
-Prometheus ya tiene targets estáticos para circleguard-dev; no hace falta
-redesplegar la aplicación para las métricas. Para Loki, Promtail ya corre en
-el clúster y lee los logs de los pods.
+Prometheus descubre los pods por las anotaciones prometheus.io/*. Si la
+aplicación aún no se ha redesplegado con esas anotaciones, ejecuta:
+  ./deploy/k8s/deploy.sh dev 0.3.0
+Para Loki, Promtail ya corre en el clúster y lee los logs de los pods.
 EOF

@@ -72,7 +72,8 @@ El script escribe `09`–`13` en esta carpeta. No reemplaza las capturas manuale
 El clúster k3s ya existe por ambiente (Terraform, HU-09) y la aplicación está desplegada (HU-10,
 PR #21). Los manifiestos de `deploy/k8s/base/apps/` ya llevan las anotaciones
 `prometheus.io/scrape`, `prometheus.io/port` y `prometheus.io/path`, así que Prometheus descubre los
-pods. Falta desplegar el stack de observabilidad:
+pods **después de redesplegar** con `./deploy/k8s/deploy.sh dev 0.3.0`. Falta desplegar el stack de
+observabilidad:
 
 ```bash
 aws ssm get-parameter --name /circleguard/dev/kubeconfig --with-decryption \
