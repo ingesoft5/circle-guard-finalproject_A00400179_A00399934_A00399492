@@ -26,6 +26,18 @@ export GRAFANA_ADMIN_PASSWORD="$(openssl rand -base64 24)"
 Sin `GRAFANA_ADMIN_PASSWORD`, Compose detiene el arranque con un mensaje explícito. La contraseña
 no se escribe en ningún archivo versionado.
 
+## Captura de evidencia
+
+Con el stack corriendo (modo 1 o 2), el script recoge el texto que respalda las capturas:
+
+```bash
+./deploy/observability/capture-evidence.sh localhost
+```
+
+Escribe `09-check-metrics.txt`, `10-prometheus-targets.*`, `11-alertmanager-alerts.*`,
+`12-jaeger-*` y `13-loki-errors.json` en `docs/evidencias/hu-13/`. Las capturas de Grafana,
+Jaeger, Alertmanager y Loki siguen siendo manuales.
+
 ## Modo 1 · servicios con `bootRun` (local)
 
 Los servicios escuchan en el host; Prometheus los busca en `host.docker.internal`.

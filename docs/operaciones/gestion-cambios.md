@@ -1,9 +1,10 @@
 # Gestión de cambios y versiones (HU-16 · E2.8)
 
 **Documento:** HU-16 (Sprint 2 · E2.8) y consolidación para HU-17 (E2.9)
-**Última actualización:** 2026-11-16
+**Última actualización:** 2026-11-21
 **Estado:** el proceso y el rollback con **Compose están verificados** (HU-06/HU-07). El rollback
-**en Kubernetes está pendiente** de HU-10/HU-11 y es el criterio central de E2.8.
+**en Kubernetes tiene procedimiento implementado** (`DEPLOY_MODE=k8s ./deploy/rollback.sh`), pero
+**falta ejecutarlo y adjuntar la evidencia**; es el criterio central de E2.8.
 
 > Decisión de estrategia de despliegue: [`../iag/decisiones.md`](../iag/decisiones.md) D-29.
 > Decisión del registro: D-30.
@@ -210,7 +211,17 @@ Archivos: [`../evidencias/hu-07/01-rollback.txt`](../evidencias/hu-07/01-rollbac
 
 ### 7.3 Rollback en Kubernetes **[S2] — criterio central**
 
-**Opción A · RollingUpdate (dev/stage):**
+**Opción A · Rollback por versión (recomendada):**
+
+```bash
+DEPLOY_MODE=k8s ./deploy/rollback.sh dev 0.2.0
+```
+
+Reaplica los manifiestos con la versión anterior, espera los `rollout status` de los 8 servicios y
+del middleware, y registra `event=rollback` con `RESULT=success`. Requiere `aws` y `kubectl`; el
+`kubeconfig` se lee de `/circleguard/<env>/kubeconfig` (SSM) si no hay `KUBECONFIG`.
+
+**Opción B · RollingUpdate manual (dev/stage):**
 
 ```bash
 kubectl -n circleguard-dev rollout history deployment/promotion
@@ -219,7 +230,7 @@ kubectl -n circleguard-dev rollout status deployment/promotion
 kubectl -n circleguard-dev get pods -l app=promotion
 ```
 
-**Opción B · Blue-Green (prod, D-29):**
+**Opción C · Blue-Green (prod, D-29):**
 
 ```bash
 # 1. La versión nueva ya está en <svc>-green y pasó el smoke test
@@ -268,14 +279,14 @@ registra como `event=test` y no cuenta como evidencia de producción.
 
 | # | Criterio | Estado | Evidencia |
 |---|---|---|---|
-| 1 | Identificador único y tag semántico | Cumplido (HU-07) | `deploy/tag-release.sh`, tags `v0.1.0`, `v0.2.0` |
-| 2 | Release Notes por versión | Cumplido (HU-07) | `docs/release-notes/v0.1.0.md`, `v0.2.0.md` |
+| 1 | Identificador único y tag semántico | Cumplido (HU-07) | `deploy/tag-release.sh`, tags `v0.1.0`, `v0.2.0`; `v0.3.0` pendiente de publicar |
+| 2 | Release Notes por versión | Cumplido | `docs/release-notes/v0.1.0.md`, `v0.2.0.md`, `v0.3.0.md` |
 | 3 | Nuevas funcionalidades, correcciones y cambios técnicos | Cumplido | Secciones de las notas |
-| 4 | Plan de rollback documentado | Cumplido (Compose) | §7.1 |
-| 5 | Rollback de artefactos en Kubernetes | **Pendiente** | Requiere HU-10/HU-11 |
+| 4 | Plan de rollback documentado | Cumplido (Compose y K8s) | §7.1, §7.2 y §7.3 |
+| 5 | Rollback de artefactos en Kubernetes | Procedimiento implementado (`DEPLOY_MODE=k8s`); **pendiente ejecutar** | [`../evidencias/hu-16/03-rollback-k8s.txt`](../evidencias/hu-16/03-rollback-k8s.txt) |
 | 6 | Prueba real de rollback | Cumplido en Compose; **pendiente en K8s** | HU-07 builds #19/#21 |
 | 7 | Registro por dev, stage y prod | Parcial | `deploy/releases/*.json` y `history.tsv` |
-| 8 | Versión, fecha, ambiente, responsable, aprobación, resultado | Cumplido en código (D-30) | `record-release.sh` escribe `result`, `approved_by`, `approval_ref` e `image_digest`; falta evidenciarlo en un despliegue |
+| 8 | Versión, fecha, ambiente, responsable, aprobación, resultado | Cumplido en código (D-30); falta evidencia de ejecución | `record-release.sh` escribe `result`, `approved_by`, `approval_ref` e `image_digest` |
 | 9 | Evidencia de aprobación de prod | Cumplido | Jenkins `Approve prod` + `05-approval.txt` de HU-06 |
 | 10 | Relación con commits y versiones | Cumplido | `commit` en el registro y tag |
 | 11 | Procedimientos documentados | Cumplido | Este documento + manual de operaciones |
@@ -285,7 +296,8 @@ registra como `event=test` y no cuenta como evidencia de producción.
 1. ~~Implementar el registro ampliado (D-30) en `deploy/record-release.sh`.~~ **Hecho:** el script
    acepta `RESULT`, `APPROVED_BY`, `APPROVAL_REF` e `IMAGE_DIGEST` y migra el historial anterior.
    Falta registrar un despliegue real con esos campos.
-2. Ejecutar un rollback real en K8s (dev y prod) y adjuntar la evidencia.
-3. Añadir el enlace de aprobación y el digest al registro.
-4. Actualizar las notas de la versión del Sprint 2.
+2. Ejecutar un rollback real en K8s (dev y prod) con `DEPLOY_MODE=k8s ./deploy/rollback.sh` y
+   adjuntar la evidencia en `03-rollback-k8s.txt`.
+3. Añadir el enlace de aprobación y el digest al registro (`04-registro.txt`).
+4. Publicar las notas del Sprint 2 (`docs/release-notes/v0.3.0.md`) y el tag `v0.3.0`.
 5. Verificar que el manual de operaciones §7.2 coincide con los comandos usados.
