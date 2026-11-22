@@ -368,7 +368,7 @@ cada merge genera un release con tag semántico. Detalle: [`docs/estrategia-bran
 | **HU-13 (S2)** Observabilidad | Prometheus, Grafana, Alertmanager, Jaeger y Loki | [`docs/operacion/observabilidad.md`](docs/operacion/observabilidad.md) · [`evidencias`](docs/evidencias/hu-13/README.md) |
 | **HU-16 (S2)** Cambios y versiones | Release notes, registro por ambiente y rollback en K8s | [`docs/operaciones/gestion-cambios.md`](docs/operaciones/gestion-cambios.md) |
 | **HU-17 (S2)** Documentación | Arquitectura, manual de operaciones, costos y resumen en inglés | [`docs/arquitectura/arquitectura-general.md`](docs/arquitectura/arquitectura-general.md) · [`docs/operacion/manual-operaciones.md`](docs/operacion/manual-operaciones.md) · [`docs/operacion/analisis-costos.md`](docs/operacion/analisis-costos.md) · [`resumen ejecutivo`](docs/sustentacion/resumen-ejecutivo-en.md) |
-| **HU-09/10/11 (S2)** Terraform y Kubernetes | Terraform implementado y aplicado; Kubernetes pendiente | [`docs/arquitectura/terraform.md`](docs/arquitectura/terraform.md) · [`docs/arquitectura/kubernetes.md`](docs/arquitectura/kubernetes.md) |
+| **HU-09/10/11 (S2)** Terraform y Kubernetes | Terraform y Kubernetes implementados; Jenkins→K8s pendiente (HU-11) | [`docs/arquitectura/terraform.md`](docs/arquitectura/terraform.md) · [`docs/arquitectura/kubernetes.md`](docs/arquitectura/kubernetes.md) |
 | **HU-14/15 (S2)** Seguridad y pruebas | Trivy, RBAC, TLS, Locust y ZAP | [`docs/operacion/seguridad.md`](docs/operacion/seguridad.md) · [`docs/operacion/pruebas-avanzadas.md`](docs/operacion/pruebas-avanzadas.md) |
 
 > El Sprint 1 y el Sprint 2 reutilizan el número HU-09: en documentos se escribe `HU-09 (S1)`
