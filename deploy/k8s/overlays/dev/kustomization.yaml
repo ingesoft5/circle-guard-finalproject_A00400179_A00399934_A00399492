@@ -17,3 +17,6 @@ patches:
     - op: replace
       path: /data/CG_ENVIRONMENT
       value: dev
+    - op: replace
+      path: /data/ENVIRONMENT
+      value: dev

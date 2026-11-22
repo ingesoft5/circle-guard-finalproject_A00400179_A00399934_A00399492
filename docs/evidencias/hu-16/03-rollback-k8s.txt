@@ -1,0 +1,47 @@
+# HU-16 · Rollback en Kubernetes
+
+**ESTADO: PENDIENTE DE EJECUCIÓN.** Este archivo es la plantilla; no se marca como cumplido hasta
+pegar la salida real de un rollback en el clúster.
+
+## Preparación
+
+```bash
+export AWS_REGION=us-east-2
+export KUBECONFIG=/tmp/dev.kubeconfig
+aws ssm get-parameter --region "$AWS_REGION" --name /circleguard/dev/kubeconfig \
+  --with-decryption --query Parameter.Value --output text > "$KUBECONFIG"
+kubectl get nodes
+kubectl -n circleguard-dev get deploy,pods
+```
+
+## Ejecución
+
+```bash
+# 1. Versión desplegada antes del rollback
+./deploy/current-version.sh dev
+
+# 2. Rollback a la versión anterior (reaplica manifiestos y registra event=rollback)
+DEPLOY_MODE=k8s ./deploy/rollback.sh dev 0.2.0
+
+# 3. Verificación
+kubectl -n circleguard-dev rollout history deployment/auth
+kubectl -n circleguard-dev get pods,svc,ingress,hpa
+kubectl -n circleguard-dev get deploy -o wide
+
+# 4. Registro
+cat deploy/releases/dev.json
+tail -n 3 deploy/releases/history.tsv
+```
+
+## Salida real
+
+```text
+(pendiente de ejecución)
+```
+
+## Criterios de aceptación
+
+- [ ] La versión anterior existe en ECR.
+- [ ] Los 8 servicios y el middleware quedan `Ready`.
+- [ ] El registro queda con `event=rollback`, `rollback_of` y `result=success`.
+- [ ] Se adjunta `kubectl rollout history` o `kubectl get deploy -o wide`.

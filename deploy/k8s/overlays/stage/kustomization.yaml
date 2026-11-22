@@ -17,3 +17,6 @@ patches:
     - op: replace
       path: /data/CG_ENVIRONMENT
       value: stage
+    - op: replace
+      path: /data/ENVIRONMENT
+      value: stage

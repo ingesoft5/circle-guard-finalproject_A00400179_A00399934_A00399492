@@ -15,6 +15,9 @@
  * El CI reutilizable vive en la Shared Library `jenkins/vars` (HU-03) y se carga
  * de forma implícita desde `infra/bootstrap/jenkins/casc/jenkins.yaml`.
  *
+ * HU-11 (DEPLOY_MODE=k8s): Trivy IaC -> terraform fmt/validate/plan -> build y push a ECR
+ *   -> Trivy imágenes (bloqueante) -> dev -> stage -> aprobación -> prod con el mismo tag.
+ *
  * Requisitos:
  *   - Agente con JDK 21, Git, Bash y el Gradle wrapper versionado.
  *   - Docker CLI + Compose apuntando al daemon DinD (DOCKER_HOST=tcp://dind:2375).
@@ -46,7 +49,7 @@ pipeline {
     string(name: 'VERSION', defaultValue: '', description: 'Semver (1.0.0). Vacío = calcular con Conventional Commits.')
     string(name: 'IMAGE_REGISTRY', defaultValue: 'localhost:5000', description: 'Registro OCI (por ejemplo <nexus-ip>:8082).')
     string(name: 'IMAGE_NAMESPACE', defaultValue: 'circleguard', description: 'Namespace de las imágenes.')
-    choice(name: 'DEPLOY_MODE', choices: ['local', 'ssh'], description: 'local = Docker Compose en este agente; ssh = host de ambiente.')
+    choice(name: 'DEPLOY_MODE', choices: ['k8s', 'local', 'ssh'], description: 'k8s = Terraform + Kubernetes en AWS (HU-11); local = Docker Compose en este agente; ssh = host de ambiente.')
     string(name: 'DEPLOY_HOST_DEV', defaultValue: '', description: 'usuario@host del ambiente dev (solo DEPLOY_MODE=ssh).')
     string(name: 'DEPLOY_HOST_STAGE', defaultValue: '', description: 'usuario@host del ambiente stage (solo DEPLOY_MODE=ssh).')
     string(name: 'DEPLOY_HOST_PROD', defaultValue: '', description: 'usuario@host del ambiente prod (solo DEPLOY_MODE=ssh).')
@@ -55,13 +58,19 @@ pipeline {
     string(name: 'E2E_URL_STAGE', defaultValue: 'http://localhost:3000', description: 'URL del cliente web de stage para Playwright.')
     booleanParam(name: 'BUILD_IMAGES', defaultValue: true, description: 'Construir las 9 imágenes en este pipeline.')
     booleanParam(name: 'PUBLISH_IMAGES', defaultValue: true, description: 'Publicar las imágenes en el registro.')
-    booleanParam(name: 'RUN_E2E_LOCAL', defaultValue: true, description: 'HU-05: construir el cliente web y ejecutar los flujos Playwright en este agente (sin Docker).')
+    booleanParam(name: 'RUN_E2E_LOCAL', defaultValue: false, description: 'HU-05: construir el cliente web y ejecutar los flujos Playwright en este agente (sin Docker).')
     booleanParam(name: 'SKIP_E2E', defaultValue: false, description: 'Omitir E2E (solo para diagnóstico; no sirve como evidencia).')
     booleanParam(name: 'FORCE_PROD', defaultValue: false, description: 'Permitir el flujo completo desde una rama que no sea main (validación).')
     booleanParam(name: 'SEQUENTIAL_ENVS', defaultValue: false, description: 'Bajar dev antes de stage (útil cuando todos corren en el mismo host/DinD).')
     booleanParam(name: 'PUSH_TAG', defaultValue: true, description: 'Publicar el tag en origin. false = crear el tag solo localmente (evidencia).')
     string(name: 'ROLLBACK_VERSION', defaultValue: '', description: 'Si no está vacío, ejecuta rollback a esa versión y omite el flujo normal.')
     string(name: 'ROLLBACK_ENV', defaultValue: 'dev', description: 'Ambiente del rollback (dev, stage o prod).')
+
+    // HU-11: Terraform, Trivy y Kubernetes (DEPLOY_MODE=k8s).
+    string(name: 'ADMIN_CIDR', defaultValue: '', description: 'CIDR del administrador (a.b.c.d/32) que usa Terraform. Obligatorio con RUN_TERRAFORM.')
+    booleanParam(name: 'RUN_TERRAFORM', defaultValue: false, description: 'Ejecutar fmt, validate y plan de dev, stage y prod (solo DEPLOY_MODE=k8s).')
+    booleanParam(name: 'TERRAFORM_APPLY', defaultValue: false, description: 'Aplicar el plan: dev y stage antes de su despliegue; prod tras la aprobación manual.')
+    string(name: 'SCAN_SEVERITY', defaultValue: 'CRITICAL', description: 'Severidades que bloquean Trivy en imágenes e IaC (separadas por coma).')
   }
 
   environment {
@@ -73,13 +82,17 @@ pipeline {
     DEPLOY_HOST_DEV = "${params.DEPLOY_HOST_DEV}"
     DEPLOY_HOST_STAGE = "${params.DEPLOY_HOST_STAGE}"
     DEPLOY_HOST_PROD = "${params.DEPLOY_HOST_PROD}"
+    AWS_REGION = 'us-east-2'
+    TF_VAR_admin_cidr = "${params.ADMIN_CIDR}"
+    IAC_SCAN_SEVERITY = "${params.SCAN_SEVERITY}"
+    IMAGE_SCAN_SEVERITY = "${params.SCAN_SEVERITY}"
   }
 
   triggers {
     // HU-03: webhook de GitHub cuando Jenkins es alcanzable.
     githubPush()
     // HU-01 no expone Jenkins a Internet: pollSCM evita depender de un webhook.
-    pollSCM('H/5 * * * *')
+    pollSCM('H/30 * * * *')
   }
 
   stages {
@@ -116,6 +129,39 @@ pipeline {
           env.VERSION = version
           echo "CircleGuard version: ${version}"
           sh './deploy/current-version.sh dev || true'
+        }
+      }
+    }
+
+    stage('Security: IaC scan') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+        }
+      }
+      steps {
+        sh './deploy/pipeline/scan-iac.sh'
+      }
+    }
+
+    stage('Terraform checks') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          expression { params.RUN_TERRAFORM }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+        }
+      }
+      steps {
+        script {
+          if (!params.ADMIN_CIDR?.trim()) {
+            error 'ADMIN_CIDR es obligatorio con RUN_TERRAFORM (formato a.b.c.d/32).'
+          }
+          for (String target : ['dev', 'stage', 'prod']) {
+            sh "./deploy/pipeline/terraform-env.sh '${target}' plan"
+          }
         }
       }
     }
@@ -197,9 +243,37 @@ pipeline {
       }
     }
 
+    stage('ECR build and push') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          expression { params.BUILD_IMAGES }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+        }
+      }
+      steps {
+        sh "./deploy/ecr/build-push.sh '${env.VERSION}'"
+      }
+    }
+
+    stage('Security: Trivy images') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+        }
+      }
+      steps {
+        sh "./deploy/pipeline/scan-ecr-images.sh '${env.VERSION}'"
+      }
+    }
+
     stage('Package images') {
       when {
         allOf {
+          expression { params.DEPLOY_MODE != 'k8s' }
           expression { params.BUILD_IMAGES }
           expression { !params.ROLLBACK_VERSION?.trim() }
           anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
@@ -213,6 +287,7 @@ pipeline {
     stage('Publish images') {
       when {
         allOf {
+          expression { params.DEPLOY_MODE != 'k8s' }
           expression { params.PUBLISH_IMAGES }
           expression { !params.ROLLBACK_VERSION?.trim() }
           anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
@@ -255,12 +330,32 @@ pipeline {
         script {
           def target = params.ROLLBACK_VERSION.trim()
           def envName = params.ROLLBACK_ENV?.trim() ?: 'dev'
-          withCredentials([file(credentialsId: "circleguard-env-${envName}", variable: 'CG_ENV_FILE')]) {
-            withEnv(["CG_APP_ENV_FILE=deploy/compose/ci.env", "WEB_BIND_ADDRESS=0.0.0.0", "BIND_ADDRESS=0.0.0.0"]) {
-              sh "./deploy/rollback.sh '${envName}' '${target}'"
+          if (params.DEPLOY_MODE == 'k8s') {
+            sh "./deploy/k8s/deploy.sh '${envName}' '${target}'"
+            sh "./deploy/record-release.sh '${envName}' '${target}' rollback jenkins"
+          } else {
+            withCredentials([file(credentialsId: "circleguard-env-${envName}", variable: 'CG_ENV_FILE')]) {
+              withEnv(["CG_APP_ENV_FILE=deploy/compose/ci.env", "WEB_BIND_ADDRESS=0.0.0.0", "BIND_ADDRESS=0.0.0.0"]) {
+                sh "./deploy/rollback.sh '${envName}' '${target}'"
+              }
             }
           }
         }
+      }
+    }
+
+    stage('Terraform apply dev') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          expression { params.RUN_TERRAFORM }
+          expression { params.TERRAFORM_APPLY }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+        }
+      }
+      steps {
+        sh "./deploy/pipeline/terraform-env.sh 'dev' apply"
       }
     }
 
@@ -279,9 +374,23 @@ pipeline {
       }
     }
 
+    stage('Smoke dev') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+        }
+      }
+      steps {
+        sh "./deploy/pipeline/smoke-k8s.sh 'dev'"
+      }
+    }
+
     stage('E2E dev') {
       when {
         allOf {
+          expression { params.DEPLOY_MODE != 'k8s' }
           anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
           expression { !params.SKIP_E2E }
           expression { !params.ROLLBACK_VERSION?.trim() }
@@ -310,6 +419,22 @@ pipeline {
       }
     }
 
+    stage('Terraform apply stage') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          expression { params.RUN_TERRAFORM }
+          expression { params.TERRAFORM_APPLY }
+          expression { !params.SKIP_E2E }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+        }
+      }
+      steps {
+        sh "./deploy/pipeline/terraform-env.sh 'stage' apply"
+      }
+    }
+
     stage('Deploy stage') {
       // Promotion to stage is gated by the dev E2E result.
       when {
@@ -327,9 +452,23 @@ pipeline {
       }
     }
 
+    stage('Smoke stage') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+        }
+      }
+      steps {
+        sh "./deploy/pipeline/smoke-k8s.sh 'stage'"
+      }
+    }
+
     stage('E2E stage') {
       when {
         allOf {
+          expression { params.DEPLOY_MODE != 'k8s' }
           anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
           expression { !params.SKIP_E2E }
           expression { !params.ROLLBACK_VERSION?.trim() }
@@ -371,8 +510,27 @@ pipeline {
       }
       steps {
         timeout(time: 24, unit: 'HOURS') {
-          input message: "¿Desplegar ${env.VERSION} a prod?", ok: 'Desplegar a prod', submitter: 'admin'
+          input message: "¿${params.TERRAFORM_APPLY ? 'Aplicar Terraform y desplegar' : 'Desplegar'} ${env.VERSION} a prod?", ok: 'Desplegar a prod', submitter: 'admin'
         }
+      }
+    }
+
+    stage('Terraform apply prod') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          expression { params.RUN_TERRAFORM }
+          expression { params.TERRAFORM_APPLY }
+          anyOf {
+            branch 'main'
+            expression { params.FORCE_PROD }
+          }
+          expression { !params.SKIP_E2E }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+        }
+      }
+      steps {
+        sh "./deploy/pipeline/terraform-env.sh 'prod' apply"
       }
     }
 
@@ -392,6 +550,23 @@ pipeline {
           env.TARGET_ENV = 'prod'
           deployEnv('prod')
         }
+      }
+    }
+
+    stage('Smoke prod') {
+      when {
+        allOf {
+          expression { params.DEPLOY_MODE == 'k8s' }
+          anyOf {
+            branch 'main'
+            expression { params.FORCE_PROD }
+          }
+          expression { !params.SKIP_E2E }
+          expression { !params.ROLLBACK_VERSION?.trim() }
+        }
+      }
+      steps {
+        sh "./deploy/pipeline/smoke-k8s.sh 'prod'"
       }
     }
 
@@ -457,7 +632,7 @@ pipeline {
 
   post {
     always {
-      archiveArtifacts artifacts: 'deploy/releases/*.json,deploy/releases/*.tsv,docs/release-notes/*.md,CHANGELOG.md,tests/e2e-playwright/results.xml,tests/e2e-playwright/playwright-report/**', allowEmptyArchive: true
+      archiveArtifacts artifacts: 'deploy/pipeline-reports/**,deploy/releases/*.json,deploy/releases/*.tsv,docs/release-notes/*.md,CHANGELOG.md,tests/e2e-playwright/results.xml,tests/e2e-playwright/playwright-report/**', allowEmptyArchive: true
       script {
         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
           junit allowEmptyResults: true, testResults: 'tests/e2e-playwright/results.xml'
@@ -493,6 +668,11 @@ pipeline {
  * stack inside the CI host budget.
  */
 def deployEnv(String envName) {
+  if (env.DEPLOY_MODE == 'k8s') {
+    sh "./deploy/k8s/deploy.sh '${envName}' '${env.VERSION}'"
+    sh "./deploy/record-release.sh '${envName}' '${env.VERSION}' deploy jenkins"
+    return
+  }
   def bindAddress = envName == 'prod' ? '127.0.0.1' : '0.0.0.0'
   withCredentials([file(credentialsId: "circleguard-env-${envName}", variable: 'CG_ENV_FILE')]) {
     withEnv([

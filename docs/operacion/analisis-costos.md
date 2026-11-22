@@ -4,7 +4,8 @@
 **Última actualización:** 2026-11-16
 **Moneda:** USD · **Región:** `us-east-2` · **Presupuesto absoluto:** 15 USD
 **Estado:** estimación basada en la AWS Pricing API y en las sesiones ejecutadas de HU-01. La
-factura real se consulta en Billing; la captura de cierre está pendiente (§5).
+factura real se consulta en Billing; la captura de cierre está pendiente (§5). La topología del
+Sprint 2 ya está aplicada con Terraform (HU-09).
 
 > Los precios son de referencia (Pricing API del 2026-11-02) y pueden cambiar. No incluyen
 > impuestos. Los créditos del plan gratuito **no** se cuentan como presupuesto disponible.
@@ -89,6 +90,12 @@ se conservan dos meses, el EBS solo consume ≈ 8.80 USD.
 - Ingress en el propio nodo (sin ELB, que costaría ≈ 0.0225 USD/h adicionales).
 - EBS adicional para el nodo: 30 GiB (≈ 0.0033 USD/h).
 - Sesiones de 4 h, apagado automático.
+
+> **Topología real aplicada (2026-11-21).** Terraform crea **un nodo k3s `m7i-flex.large` por
+> ambiente** (`dev`, `stage`, `prod`) y un servidor Jenkins en `tools`: cuatro instancias si todo
+> está encendido. La estimación por sesión de §4.2 asume un nodo; multiplicar por el número de
+> ambientes encendidos y sumar el EBS de cada uno (30 GiB por nodo, 60 GiB en `tools`). La factura
+> real sigue pendiente de Billing.
 
 ### 4.2 Estimación por sesión
 

@@ -1,11 +1,11 @@
 # Manual de operaciones de CircleGuard
 
 **Documento:** HU-17 (Sprint 2 · E2.9, criterios 10 y 11)
-**Última actualización:** 2026-11-20
+**Última actualización:** 2026-11-21
 **Alcance:** instalar, configurar, desplegar, operar, monitorear, recuperar y revertir CircleGuard.
 **Estado:** procedimientos del Sprint 1 **verificados**; Terraform **implementado y aplicado**
-(HU-09). Los procedimientos de Kubernetes siguen marcados **[S2]** hasta que HU-10/HU-11 se
-mergeen.
+(HU-09) y Kubernetes **implementado y desplegado** (HU-10). Queda pendiente el despliegue desde
+Jenkins (HU-11) y la ejecución del rollback en K8s (HU-16).
 
 > Este manual está escrito para que **otra persona** lo ejecute sin preguntar. Cada procedimiento
 > dice qué necesita, qué comandos ejecutar, qué salida es correcta y qué hacer si falla. Si un paso
@@ -114,19 +114,20 @@ Stage y prod exigen `IMAGE_REGISTRY` y `IMAGE_TAG` explícitos. Guía completa:
 **Salida correcta:** `deploy/releases/dev.json` con versión, commit, fecha, actor y evento; el
 historial `history.tsv` crece con una línea.
 
-### 3.4 Kubernetes **[S2]**
+### 3.4 Kubernetes (implementado)
 
 ```bash
-kubectl apply -k deploy/k8s/overlays/dev
-kubectl -n circleguard-dev rollout status deployment/auth
+export AWS_REGION=us-east-2
+./deploy/k8s/deploy.sh dev 0.3.0
 kubectl -n circleguard-dev get pods,svc,ingress,hpa
+kubectl -n circleguard-dev rollout status deployment/auth
 ```
 
 **Salida correcta:** todos los pods `1/1 Running` y `Ready`.
 **Si falla:** `kubectl -n circleguard-dev describe pod <pod>` y `logs <pod> --previous`.
 
-> **Estado:** los manifiestos de la aplicación son de HU-10/HU-11. Hoy solo existe el stack de
-> observabilidad en `deploy/k8s/observability/`; el comando anterior funciona cuando HU-10 mergee.
+> **Estado:** implementado en HU-10 (PR #21). El script crea los secretos desde SSM, autentica
+> contra ECR y aplica el overlay del ambiente. El despliegue desde Jenkins sigue pendiente (HU-11).
 
 ### 3.5 Infraestructura con Terraform **[S2]**
 
@@ -182,11 +183,12 @@ aws ec2 describe-instances --region us-east-2 \
 
 - Healthchecks HTTP en Compose (`/` con 2xx–4xx aceptados).
 - Jenkins conserva logs, reportes JUnit, JaCoCo y artefactos.
-- **HU-13 en curso:** los servicios ya exponen `/actuator/health/*` y `/actuator/prometheus`, y el
-  stack de observabilidad está en `deploy/observability/`. La evidencia K8s queda pendiente de
-  HU-10/HU-11. Ver [`observabilidad.md`](observabilidad.md).
+- **HU-13 implementado (PR #19):** los servicios exponen `/actuator/health/*` y
+  `/actuator/prometheus`; el stack de observabilidad está en `deploy/observability/` y los
+  manifiestos K8s en `deploy/k8s/observability/`. La evidencia visual está en ejecución. Ver
+  [`observabilidad.md`](observabilidad.md).
 
-### 5.2 Estado objetivo **[S2]**
+### 5.2 Estado de las señales
 
 | Señal | Herramienta | Dónde mirar |
 |---|---|---|
@@ -236,6 +238,14 @@ Procedimiento completo, catálogo de métricas y alertas:
 **Evidencia:** [`../evidencias/hu-07/01-rollback.txt`](../evidencias/hu-07/01-rollback.txt).
 
 ### 7.2 Rollback en Kubernetes **[S2]**
+
+Comando recomendado (reaplica la versión anterior y registra `event=rollback`):
+
+```bash
+DEPLOY_MODE=k8s ./deploy/rollback.sh prod 1.2.2
+```
+
+Alternativa manual:
 
 ```bash
 # Opción A: historial de despliegue
