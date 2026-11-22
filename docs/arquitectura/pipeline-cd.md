@@ -141,6 +141,38 @@ El pipeline está escrito, pero para ejecutarlo en Jenkins faltan:
 7. Trigger: `pollSCM` cada 5 minutos. Para webhook inmediato hace falta TLS o un relé, porque
    Jenkins no está expuesto a Internet (decisión de HU-01).
 
+## Estado de HU-11 (build #14, rama `HU-11_Pipeline`)
+
+Verificado contra el `Jenkinsfile` y el log de la build #14 (PR #25). **Todavía no está mergeado en
+`dev`.**
+
+| # | Criterio | Estado | Nota |
+|---|---|---|---|
+| 1 | `fmt`, `validate` y `plan` en 3 entornos | Cumple | `Terraform checks` corre en dev/stage/prod |
+| 2 | Apply de Terraform | Parcial | Existe y exige `TERRAFORM_APPLY`; no se ejecutó |
+| 3 | Apply de prod tras aprobación | Parcial | Va después de `Approve prod`; no se ejecutó |
+| 4 | 8 servicios + web | Cumple | |
+| 5 | Tag de versión | Cumple | `0.3.0-3f92511` |
+| 6 | Informe Trivy por imagen | Cumple | En el log del pipeline |
+| 7 | Bloqueo por vulnerabilidades | Cumple | Bloqueó en #6; hay excepciones |
+| 8 | Orden de publicación | Parcial | Publica en ECR antes del escaneo |
+| 9 | Deploy y smoke en dev | Cumple | `smoke-k8s.sh` valida los 8 servicios y la web |
+| 10 | Stage tras smoke de dev | Cumple | |
+| 11 | Aprobación manual | Cumple | `Approve prod` en #14 |
+| 12 | Mismo tag en 3 entornos | Cumple | Sin rebuild |
+| 13 | Discord en éxito y fallo | Cumple | `post` del pipeline |
+| 14 | Historial y artefactos | Parcial | Release notes no persisten tras `cleanWs` |
+
+### Limitaciones declaradas
+
+- `TERRAFORM_APPLY` está en `false`: E2.1 pide `plan` **y** `apply`; falta un build con apply.
+- `.trivyignore` tiene 9 entradas; hay que justificarlas y poner caducidad.
+- La imagen se publica en ECR **antes** de escanearla; si el escaneo falla, queda una imagen vulnerable.
+- Con `DEPLOY_MODE=k8s`, Playwright no corre; stage promueve por smoke, no por E2E.
+- El build termina `UNSTABLE` por el plugin de cobertura.
+- El stage `Rollback` de K8s redespliega la versión anterior, pero **no registra `event=rollback`**;
+  para la evidencia de HU-16 se usa `DEPLOY_MODE=k8s ./deploy/rollback.sh`.
+
 ## Limitaciones conocidas
 
 - Los 10 tests base de HU-01 siguen fallando; la etapa los publica y deja el build `UNSTABLE`, pero
