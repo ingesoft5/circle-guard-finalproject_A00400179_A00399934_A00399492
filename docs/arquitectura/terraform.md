@@ -59,6 +59,8 @@ Cada ambiente de aplicación crea:
 - VPC con subred pública, internet gateway y tabla de rutas (sin NAT Gateway).
 - Una instancia `m7i-flex.large` con k3s instalado por `user_data`, elastic IP y security group
   (SSH restringido por `admin_cidr`, API de Kubernetes, HTTP y HTTPS).
+- Regla adicional para la API de Kubernetes desde el CIDR del CI (`ci_cidr`), para que Jenkins
+  pueda desplegar sin abrir la API a Internet.
 - El `kubeconfig` se publica cifrado en SSM (`/circleguard/<env>/kubeconfig`), nunca en Git.
 - Un bucket S3 de datos con versionado, cifrado AES256 y acceso público bloqueado.
 - Un log group de CloudWatch (`/circleguard/<env>/k3s`, 7 días) y una alarma de CPU al 80 %.
@@ -135,8 +137,9 @@ terraform apply dev.tfplan
 
 `admin_cidr` (CIDR autorizado para SSH) es obligatorio y **no** está en los `terraform.tfvars`
 versionados. Se pasa por `-var` o por `TF_VAR_admin_cidr`; si se quiere fijar por ambiente, se usa un
-`*.auto.tfvars` local no versionado. La llave SSH sale de `ssh_public_key_path`
-(`~/.ssh/id_ed25519.pub` por defecto).
+`*.auto.tfvars` local no versionado. `ci_cidr` (CIDR del servidor Jenkins) sí está en los `tfvars`
+de cada ambiente y habilita el acceso a la API de Kubernetes. La llave SSH sale de
+`ssh_public_key_path` (`~/.ssh/id_ed25519.pub` por defecto).
 
 Después del apply:
 
@@ -163,6 +166,7 @@ KUBECONFIG=/tmp/dev.kubeconfig kubectl get nodes
 | Servidor Jenkins de tools | `15-tools-ci-plan.log`, `16-tools-ci-apply.log` |
 | Apply completo de stage | `17-stage-full-plan.log`, `18-stage-full-apply.log` |
 | Apply completo de prod | `19-prod-full-plan.log`, `20-prod-full-apply.log` |
+| Acceso del CI a la API de Kubernetes | `21-dev-ci-access-apply.log`, `22-stage-ci-access-apply.log`, `23-prod-ci-access-apply.log` |
 
 ## 8. Qué falta o está limitado
 
