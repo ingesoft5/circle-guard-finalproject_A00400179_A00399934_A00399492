@@ -150,7 +150,7 @@ pipeline {
       when {
         allOf {
           expression { params.DEPLOY_MODE == 'k8s' }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -162,7 +162,7 @@ pipeline {
       // HU-14: secretos versionables (siempre bloquea), vulnerabilidades de las bibliotecas Java y configuración insegura de Terraform y
       // Kubernetes con excepciones que caducan (security/exceptions.tsv). Complementa al escaneo CRITICAL de HU-11.
       when {
-        expression { !params.ROLLBACK_VERSION?.trim() }
+        expression { cgNoRollback() }
       }
       steps {
         script {
@@ -179,8 +179,8 @@ pipeline {
         allOf {
           expression { params.DEPLOY_MODE == 'k8s' }
           expression { params.RUN_TERRAFORM }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -199,7 +199,7 @@ pipeline {
       when {
         allOf {
           expression { env.SELECTED_SERVICES }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -211,7 +211,7 @@ pipeline {
       when {
         allOf {
           expression { env.SELECTED_SERVICES }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -227,7 +227,7 @@ pipeline {
         allOf {
           expression { env.SELECTED_SERVICES }
           expression { params.RUN_SONAR }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -240,7 +240,7 @@ pipeline {
         allOf {
           expression { env.SELECTED_SERVICES }
           expression { params.RUN_INTEGRATION }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -252,7 +252,7 @@ pipeline {
       when {
         allOf {
           expression { env.SELECTED_SERVICES }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -264,7 +264,7 @@ pipeline {
       when {
         allOf {
           expression { params.RUN_E2E_LOCAL }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -277,8 +277,8 @@ pipeline {
         allOf {
           expression { params.DEPLOY_MODE == 'k8s' }
           expression { params.BUILD_IMAGES }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -290,8 +290,8 @@ pipeline {
       when {
         allOf {
           expression { params.DEPLOY_MODE == 'k8s' }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -304,8 +304,8 @@ pipeline {
         allOf {
           expression { params.DEPLOY_MODE != 'k8s' }
           expression { params.BUILD_IMAGES }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -319,8 +319,8 @@ pipeline {
         allOf {
           expression { params.DEPLOY_MODE != 'k8s' }
           expression { params.BUILD_IMAGES }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -333,8 +333,8 @@ pipeline {
         allOf {
           expression { params.DEPLOY_MODE != 'k8s' }
           expression { params.PUBLISH_IMAGES }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -353,7 +353,7 @@ pipeline {
         allOf {
           expression { env.SELECTED_SERVICES }
           anyOf { branch 'dev'; branch 'main' }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -394,8 +394,8 @@ pipeline {
           expression { params.DEPLOY_MODE == 'k8s' }
           expression { params.RUN_TERRAFORM }
           expression { params.TERRAFORM_APPLY }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -406,8 +406,8 @@ pipeline {
     stage('Deploy dev') {
       when {
         allOf {
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgDevMainOrForced() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -422,8 +422,8 @@ pipeline {
       when {
         allOf {
           expression { params.DEPLOY_MODE == 'k8s' }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -435,9 +435,9 @@ pipeline {
       when {
         allOf {
           expression { params.DEPLOY_MODE != 'k8s' }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgDevMainOrForced() }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -454,9 +454,9 @@ pipeline {
       // HU-15: análisis dinámico pasivo del cliente web de dev. Si supera el umbral, el build falla y no se promociona a stage.
       when {
         allOf {
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgDevMainOrForced() }
           expression { params.RUN_ZAP }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -470,9 +470,9 @@ pipeline {
       // HU-15: Locust (validación de acceso y envío de cuestionarios) contra los objetivos de tests/performance/targets.json. Solo dev.
       when {
         allOf {
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgDevMainOrForced() }
           expression { params.RUN_PERF }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -487,8 +487,8 @@ pipeline {
       when {
         allOf {
           expression { params.SEQUENTIAL_ENVS }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -503,8 +503,8 @@ pipeline {
           expression { params.RUN_TERRAFORM }
           expression { params.TERRAFORM_APPLY }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -516,9 +516,9 @@ pipeline {
       // Promotion to stage is gated by the dev E2E result.
       when {
         allOf {
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgDevMainOrForced() }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -533,8 +533,8 @@ pipeline {
       when {
         allOf {
           expression { params.DEPLOY_MODE == 'k8s' }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -546,9 +546,9 @@ pipeline {
       when {
         allOf {
           expression { params.DEPLOY_MODE != 'k8s' }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgDevMainOrForced() }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -565,8 +565,8 @@ pipeline {
       when {
         allOf {
           expression { params.SEQUENTIAL_ENVS }
-          expression { !params.ROLLBACK_VERSION?.trim() }
-          anyOf { branch 'dev'; branch 'main'; expression { params.FORCE_PROD } }
+          expression { cgNoRollback() }
+          expression { cgDevMainOrForced() }
         }
       }
       steps {
@@ -582,7 +582,7 @@ pipeline {
             expression { params.FORCE_PROD }
           }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -603,7 +603,7 @@ pipeline {
             expression { params.FORCE_PROD }
           }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -619,7 +619,7 @@ pipeline {
             expression { params.FORCE_PROD }
           }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -639,7 +639,7 @@ pipeline {
             expression { params.FORCE_PROD }
           }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -655,7 +655,7 @@ pipeline {
             expression { params.FORCE_PROD }
           }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -679,7 +679,7 @@ pipeline {
             expression { params.FORCE_PROD }
           }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -696,7 +696,7 @@ pipeline {
           }
           expression { params.PUSH_TAG }
           expression { !params.SKIP_E2E }
-          expression { !params.ROLLBACK_VERSION?.trim() }
+          expression { cgNoRollback() }
         }
       }
       steps {
@@ -796,4 +796,12 @@ def notify(String status, String message) {
   } catch (Exception exc) {
     echo "Notificación omitida: ${exc.message}"
   }
+}
+
+def cgNoRollback() {
+  return !params.ROLLBACK_VERSION?.trim()
+}
+
+def cgDevMainOrForced() {
+  return env.BRANCH_NAME in ['dev', 'main'] || params.FORCE_PROD
 }
