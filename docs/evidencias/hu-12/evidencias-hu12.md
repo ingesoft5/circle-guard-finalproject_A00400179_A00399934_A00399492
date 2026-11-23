@@ -134,6 +134,6 @@ HU-13 cambia `IdentityClient` para usar un `CircuitBreakerRegistry` compartido y
 - **Auth no se volvió a ejecutar en la última corrida.** Gradle reutilizó el resultado de la ejecución anterior porque el código
   no había cambiado (los XML de auth son de las 14:16, los demás de las 14:35 a 14:40). El código es el mismo.
 - **No hay captura de pantalla ni log crudo versionado:** las tablas se generaron a partir de los XML de JUnit de esa ejecución.
-- **El login dentro de contenedores sigue pendiente** de definir `CIRCLEGUARD_IDENTITYSERVICE_URL` en Compose y Kubernetes
-  (observación O1; depende de HU-10/HU-11). Está probado a nivel de código, no en un despliegue.
+- **Actualización 2026-11-21 sobre la observación O1:** Compose y el ConfigMap de Kubernetes (HU-10) ya definen `CIRCLEGUARD_IDENTITYSERVICE_URL`; el login de extremo a extremo se verificó en Compose
+  ([evidencia](../hu-14/correcciones/06-login-extremo-a-extremo.txt)). **En el clúster no está verificado** (infraestructura apagada).
 - **Los diagramas Mermaid de patrones-diseno.md** no se vieron renderizados en esta sesión.

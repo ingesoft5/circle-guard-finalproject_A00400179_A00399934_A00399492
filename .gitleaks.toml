@@ -20,7 +20,8 @@ keywords = ["password", "secret", "salt", "access-key", "secret-key"]
 id = "circleguard-env-literal-credential"
 description = "Literal value assigned to an environment-style credential variable (Compose, .env, scripts)"
 # The name must not follow "${": ${VAR:?message} is an interpolation, not an assignment.
-regex = '''(?:^|[^{A-Za-z0-9_])[A-Z0-9_]*(?:PASSWORD|SECRET|SALT)[A-Z0-9_]*[ \t]*[:=][ \t]*["']?([^\s"'$(][^\s"']*)'''
+# A value that starts with % is a printf format (printf 'KEY=%s\n' "$(openssl rand -hex 16)"): the secret is generated at run time, not written.
+regex = '''(?:^|[^{A-Za-z0-9_])[A-Z0-9_]*(?:PASSWORD|SECRET|SALT)[A-Z0-9_]*[ \t]*[:=][ \t]*["']?([^\s"'$(%][^\s"']*)'''
 secretGroup = 1
 keywords = ["password", "secret", "salt"]
 

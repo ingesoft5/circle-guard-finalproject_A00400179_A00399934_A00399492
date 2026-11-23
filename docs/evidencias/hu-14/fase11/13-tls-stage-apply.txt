@@ -1,0 +1,2 @@
+Secret circleguard-tls en el namespace circleguard-stage · certificado autofirmado para DNS:18.225.129.35.sslip.io · 90 días
+Secret circleguard-tls aplicado en circleguard-stage. Verifíquelo con security/tls/verify-tls.sh.

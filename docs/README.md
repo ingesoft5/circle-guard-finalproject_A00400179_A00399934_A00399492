@@ -76,8 +76,8 @@ Punto de entrada a todo lo que no es código. El README general del proyecto est
 | HU-10 (S2) · Kubernetes | [`evidencias/e2.2-kubernetes/`](evidencias/e2.2-kubernetes/README.md) | Completa (dev, stage y prod) |
 | HU-12 (S2) · Patrones de diseño | [`arquitectura/patrones-diseno.md`](arquitectura/patrones-diseno.md) + [`revisiones/hu-12-revision.md`](revisiones/hu-12-revision.md) | Implementada; correcciones en PR #20 |
 | HU-13 (S2) · Observabilidad | [`evidencias/hu-13/`](evidencias/hu-13/README.md) | Parcial; evidencia en ejecución (PR #22) |
-| HU-14 (S2) · Seguridad | [`evidencias/hu-14/`](evidencias/hu-14/README.md) + [`seguridad/hu-14.md`](seguridad/hu-14.md) | Implementada; Jenkins/K8s pendiente |
-| HU-15 (S2) · Rendimiento | [`evidencias/hu-15/INFORME.md`](evidencias/hu-15/INFORME.md) | Implementada; Jenkins pendiente |
+| HU-14 (S2) · Seguridad | [`evidencias/hu-14/`](evidencias/hu-14/README.md) + [`seguridad/hu-14.md`](seguridad/hu-14.md) + [`evidencias/cierre-hu12-hu14-hu15.md`](evidencias/cierre-hu12-hu14-hu15.md) | Implementada e integrada en Jenkinsfile; ejecución en Jenkins/clúster pendiente |
+| HU-15 (S2) · Rendimiento | [`evidencias/hu-15/INFORME.md`](evidencias/hu-15/INFORME.md) + [`evidencias/cierre-hu12-hu14-hu15.md`](evidencias/cierre-hu12-hu14-hu15.md) | Implementada e integrada en Jenkinsfile; ejecución en Jenkins pendiente |
 | HU-16 (S2) · Change management | [`operaciones/gestion-cambios.md`](operaciones/gestion-cambios.md) + [`evidencias/hu-16/`](evidencias/hu-16/README.md) | Procedimiento K8s listo; falta ejecutar el rollback |
 | HU-17 (S2) · Documentación | este índice + [`sustentacion/resumen-ejecutivo-en.md`](sustentacion/resumen-ejecutivo-en.md) + [`evidencias/hu-17/`](evidencias/hu-17/README.md) | En curso; cierre de datos pendiente |
 
