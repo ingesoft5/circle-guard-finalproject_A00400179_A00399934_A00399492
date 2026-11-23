@@ -3,6 +3,7 @@
  *
  *   cgSecurityScan(kind: 'secrets')                         security/scan-secrets-ci.sh
  *   cgSecurityScan(kind: 'dependencies')                    security/scan-dependencies.sh   (Java libraries of the 8 services)
+ *   cgSecurityScan(kind: 'iac')                             security/scan-iac.sh            (Terraform, Kubernetes manifests, RBAC)
  *   cgSecurityScan(kind: 'images', version: env.VERSION)    security/scan-images.sh --own <version> --third-party
  *   cgSecurityScan(kind: 'images', version: '1.2.3', enforce: false)   report only: findings mark the build UNSTABLE instead of failing it
  *
@@ -20,19 +21,22 @@ def call(Map cfg = [:]) {
     String command
     switch (kind) {
         case 'secrets':
-            command = './security/scan-secrets-ci.sh'
+            command = 'bash ./security/scan-secrets-ci.sh'
             break
         case 'dependencies':
-            command = './security/scan-dependencies.sh'
+            command = 'bash ./security/scan-dependencies.sh'
+            break
+        case 'iac':
+            command = 'bash ./security/scan-iac.sh'
             break
         case 'images':
             if (!version) {
                 error('cgSecurityScan(kind: images) needs a version (cfg.version or env.VERSION)')
             }
-            command = "./security/scan-images.sh --own '${version}' --third-party"
+            command = "bash ./security/scan-images.sh --own '${version}' --third-party"
             break
         default:
-            error("cgSecurityScan: unknown kind '${kind}' (use secrets, dependencies or images)")
+            error("cgSecurityScan: unknown kind '${kind}' (use secrets, dependencies, iac or images)")
     }
 
     int rc = sh(returnStatus: true, script: command)

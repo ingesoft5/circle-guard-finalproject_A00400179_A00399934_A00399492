@@ -28,8 +28,10 @@ kubectl apply -f "$K8S_DIR/overlays/$ENV_NAME/namespace.yaml"
 "$K8S_DIR/secrets.sh" "$ENV_NAME"
 
 ECR_TOKEN=$(aws ecr get-login-password --region "$AWS_REGION")
-kubectl -n "$NAMESPACE" create secret docker-registry ecr-pull \
-  --docker-server="$ECR_REGISTRY" --docker-username=AWS --docker-password="$ECR_TOKEN" --dry-run=client -o yaml \
+# HU-14: the pull secret is built as a dockerconfigjson on stdin. --docker-password="$ECR_TOKEN" would put the token in the process list.
+printf '{"auths":{"%s":{"username":"AWS","password":"%s","auth":"%s"}}}' "$ECR_REGISTRY" "$ECR_TOKEN" "$(printf 'AWS:%s' "$ECR_TOKEN" | base64 -w0)" \
+  | kubectl -n "$NAMESPACE" create secret generic ecr-pull --type=kubernetes.io/dockerconfigjson \
+      --from-file=.dockerconfigjson=/dev/stdin --dry-run=client -o yaml \
   | kubectl apply -f -
 unset ECR_TOKEN
 

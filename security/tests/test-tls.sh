@@ -45,6 +45,14 @@ out=$(bash "$VERIFY" 127.0.0.1 "$HTTPS_PORT" --ca "$WORK/good/ca.pem" --name loc
 out=$(bash "$VERIFY" 127.0.0.1 "$HTTPS_PORT" --name localhost 2>&1); rc=$?
 [[ $rc == 1 && "$out" == *"FAIL  the certificate chain validates"* ]] && ok "the system trust store does not trust the development CA" || bad "system trust store" "$out"
 
+# Regressions found on macOS: the host given by NAME (curl --resolve only takes an IP) and an agent without `timeout`.
+out=$(bash "$VERIFY" localhost "$HTTPS_PORT" --ca "$WORK/good/ca.pem" 2>&1); rc=$?
+[[ $rc == 0 && "$out" == *"carries Strict-Transport-Security"* && "$out" != *"FAIL"* ]] && ok "a hostname (not an IP) as the endpoint passes every check" || bad "hostname endpoint" "$out"
+NOTMO=$(mktemp -d); for t in openssl curl awk sed grep cut date mktemp cat env bash tr basename; do p=$(command -v "$t") && ln -s "$p" "$NOTMO/$t"; done
+out=$(env PATH="$NOTMO" bash "$VERIFY" 127.0.0.1 "$HTTPS_PORT" --ca "$WORK/good/ca.pem" --name localhost 2>&1); rc=$?
+[[ $rc == 0 && "$out" == *"RESULT: PASS"* ]] && ok "it works on a system without the 'timeout' command (macOS)" || bad "without timeout" "$out"
+rm -rf "$NOTMO"
+
 out=$(bash "$VERIFY" 127.0.0.1 1 2>&1); rc=$?
 [[ $rc == 2 ]] && ok "an unreachable endpoint is an error (exit 2), never a pass" || bad "unreachable" "$out"
 

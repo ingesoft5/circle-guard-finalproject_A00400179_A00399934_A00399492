@@ -18,7 +18,7 @@ def call(Map cfg = [:]) {
     if (!target) {
         error('cgZapBaseline needs a target URL (cfg.target)')
     }
-    String command = "./security/zap/run-zap-baseline.sh --target '${target}' --env '${envName}'"
+    String command = "bash ./security/zap/run-zap-baseline.sh --target '${target}' --env '${envName}'"
     if (network) {
         command += " --network '${network}'"
     }

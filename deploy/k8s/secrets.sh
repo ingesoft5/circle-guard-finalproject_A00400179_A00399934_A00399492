@@ -22,7 +22,10 @@ if VALUE=$(aws ssm get-parameter --region "$REGION" --name "$PARAM" --with-decry
   echo "Secretos de $ENV_NAME leídos desde SSM"
 else
   VALUE=$(generate)
-  aws ssm put-parameter --region "$REGION" --name "$PARAM" --type SecureString --value "$VALUE" >/dev/null
+  # HU-14: the value travels on stdin, never as an argument: --value "$VALUE" would show every credential in the process list
+  # (`ps`, /proc) of this host. printf is a shell builtin, so it creates no process that carries the value either.
+  # (Checked with the real AWS CLI v2: --value file:///dev/stdin works; --cli-input-json file:///dev/stdin does NOT, it reads the file twice.)
+  printf '%s' "$VALUE" | aws ssm put-parameter --region "$REGION" --name "$PARAM" --type SecureString --value file:///dev/stdin >/dev/null
   echo "Secretos de $ENV_NAME generados y guardados en SSM"
 fi
 
