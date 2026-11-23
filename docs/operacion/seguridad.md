@@ -16,7 +16,7 @@ se aplica al clúster. Este documento separa lo probado de lo pendiente.
 | # | Criterio | Implementación | Estado |
 |---|---|---|---|
 | 1 | Análisis de vulnerabilidades de imágenes con Trivy | `security/scan-images.sh` (9 propias y 13 de terceros; SARIF/JSON) y, en k8s, `deploy/pipeline/scan-ecr-images.sh` (HU-11) | Integrado en el Jenkinsfile; **sin ejecución con los stages de HU-14 en Jenkins** |
-| 2 | Análisis de dependencias | SBOM de Gradle + Trivy; `security/scan-dependencies.sh` | Integrado en el Jenkinsfile (`SECURITY_GATE`, por defecto `report`); **sin ejecución en Jenkins** |
+| 2 | Análisis de dependencias | SBOM de Gradle + Trivy; `security/scan-dependencies.sh`, en el Jenkinsfile | Ejecutado en Jenkins (build de `dev` 0.3.0-78f32ed): **informa, no bloquea** (`SECURITY_GATE=report`); riesgo aceptado con plan, ver sección 3 |
 | 3 | Informes como artefactos del pipeline | JSON, SARIF, SBOM y resumen; `cgSecurityScan` archiva `security/reports/**` | Implementado en el Jenkinsfile; **sin ejecución en Jenkins** |
 | 4 | Bloqueo por umbral de vulnerabilidades | Compuerta por severidad con excepciones que caducan; 29 + 14 casos de prueba | Probado; en CI informa (`report`) hasta aprobar las excepciones; los secretos y el CRITICAL de HU-11 sí bloquean |
 | 5 | Sin credenciales reales en el repositorio | `.gitignore`, `.gitleaks.toml` y Gitleaks en PASS | Cumplido |
@@ -63,10 +63,10 @@ se aplica al clúster. Este documento separa lo probado de lo pendiente.
 
 | Pendiente | Depende de | Impacto |
 |---|---|---|
-| Aprobar las excepciones de `security/exceptions.pending.tsv` y pasar `SECURITY_GATE` a `enforce` (los stages ya están en el Jenkinsfile, por defecto en `report`) | Responsables de HU-09/HU-11 | Dependencias e IaC informan pero no bloquean; los secretos sí bloquean |
+| Pasar `SECURITY_GATE` a `enforce` cuando el informe de dependencias quede limpio o con excepciones revisadas una a una | Matthew Lane, antes del 2026-12-22 | Las dependencias informan pero no bloquean (build UNSTABLE solo por eso); los secretos, las imágenes y IaC sí bloquean |
 | Desplegar RBAC en el clúster y capturar `kubectl auth can-i` | HU-10 (hecho) | El RBAC está probado en simulación, no en el clúster |
 | Aplicar el TLS en el clúster (Traefik): `ensure-tls-secret.sh` y el componente `deploy/k8s/components/tls` | HU-10/HU-11 | El TLS está probado con certificado de desarrollo, no en el clúster |
-| Cerrar las 3 CRITICAL y 22 HIGH o declararlas como excepción | Matt | La compuerta las conoce, pero siguen abiertas |
+| Remediar las CRITICAL y HIGH de Spring (8 servicios: 1–2 CRITICAL y 14–20 HIGH por servicio): Spring Boot 3.5.x y, para las CRITICAL de Spring Framework, Spring Boot 4 | Matthew Lane, antes del 2026-12-22 | **Riesgo aceptado** (FASE 12 de `docs/seguridad/hu-14.md`, D-39): no se corrige en el cierre por riesgo de regresión (3.5.16 rompe 2 pruebas de identity) |
 | Corregir el mapeo de estados del QR (`SUSPECT`, `PROBABLE`, `CONFIRMED`) en el gateway | HU-04 (gateway) | El gateway podría dejar pasar estados reales |
 
 ## 4. Pruebas

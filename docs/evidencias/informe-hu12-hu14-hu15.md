@@ -45,7 +45,7 @@ IaC: 4 CRITICAL, 58 HIGH, 70 MEDIUM y 131 LOW; los 62 CRITICAL/HIGH están cubie
 
 **Evidencias.** Índice: [cierre-hu12-hu14-hu15.md](cierre-hu12-hu14-hu15.md) · [../seguridad/hu-14.md](../seguridad/hu-14.md) · [hu-14/fase11/](hu-14/fase11/) (RBAC, TLS, `pipeline-10.log`) · [hu-14/fase10/](hu-14/fase10/) · [hu-14/excepciones.md](hu-14/excepciones.md).
 
-**Limitaciones declaradas.** `SECURITY_GATE` sigue en `report`: quedan sin excepción las 3 CRITICAL y 22 HIGH de dependencias de Spring, y con `enforce` el pipeline fallaría. El certificado TLS es de una CA de desarrollo, no de una CA pública. El escaneo de dependencias aún no se ha repetido en Jenkins con el plugin `docker compose` instalado.
+**Limitaciones declaradas.** El escaneo de dependencias **informa pero no bloquea** (`SECURITY_GATE=report`): en el build de `dev` 0.3.0-78f32ed los 8 servicios tienen 1–2 CRITICAL y 14–20 HIGH de Spring. Es un **riesgo aceptado** con plan, responsable (Matthew Lane) y fecha (2026-12-22): las CRITICAL exigen Spring Boot 4 y Spring Boot 3.5.16 rompe 2 pruebas de `identity-service`; por eso el build queda UNSTABLE solo por esa causa y así se declara (no hay SUCCESS). Con `enforce` el pipeline fallaría. El certificado TLS es de una CA de desarrollo, no de una CA pública.
 
 **Capturas a incluir.** (1) Jenkins, build con el stage *Security: secrets, dependencies and governed IaC* y los informes archivados. (2) Salida de `test-rbac.sh` (matriz 38/38) de [fase11/04-rbac-dev-despues.txt](hu-14/fase11/04-rbac-dev-despues.txt). (3) `verify-tls.sh` 8/8 ([fase11/08-tls-dev-verify.txt](hu-14/fase11/08-tls-dev-verify.txt)). (4) Pestaña *Files* del PR con `security/exceptions.tsv`.
 

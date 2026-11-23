@@ -25,7 +25,7 @@ trabajo, pero el equipo revisa, entiende y puede explicar cada resultado.
 | 2026-11-07/08 | HU-04 · Pruebas unitarias y de integración | [Sesión](sesiones/2026-11-08-hu-04.md) | Cobertura ≥ 60 %, integración con Testcontainers, build #10 |
 | 2026-11-08 | HU-08 · Documentación y bitácora de IAG | [Sesión](sesiones/2026-11-08-hu-08.md) | README general, diagramas y anexo |
 | 2026-11-21 | HU-13/HU-16/HU-17 · Cierre del Sprint 2 | [Sesión](sesiones/2026-11-21-cierre-sprint2.md) | D-29, D-30 y D-33 |
-| 2026-11-16/23 | HU-12/HU-14/HU-15 · Autenticación, seguridad y pruebas avanzadas | [Sesión](sesiones/2026-11-23-hu-12-14-15.md) | D-36, D-37 y D-38 |
+| 2026-11-16/23 | HU-12/HU-14/HU-15 · Autenticación, seguridad y pruebas avanzadas | [Sesión](sesiones/2026-11-23-hu-12-14-15.md) | D-36 a D-39 |
 
 El **anexo consolidado**, con el método de verificación y la reflexión crítica, está en
 [`../../IAG_REGISTRO.md`](../../IAG_REGISTRO.md). Allí también se declaran las historias sin sesión

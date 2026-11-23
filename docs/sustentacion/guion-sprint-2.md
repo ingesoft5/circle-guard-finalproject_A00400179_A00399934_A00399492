@@ -185,7 +185,7 @@ la decisión.
 | ¿La documentación está actualizada? | Cada documento tiene fecha y estado; lo pendiente dice qué HU lo desbloquea. |
 | ¿Qué harían con más tiempo? | Canary con NGINX/Flagger, clúster más grande, Sonar completo y pruebas de caos. |
 | ¿Por qué el throughput no cumple? | Se midió dos veces en el clúster (190 y 192 de 200; 48 y 49 de 50) aunque se ofreció 25 % más: es un techo de capacidad, no pacing. La causa (servicio, nodo único o generador) no está separada; falta medir CPU durante la prueba. No cambiamos el objetivo. |
-| ¿Por qué el gate de seguridad está en `report`? | Quedan sin excepción aprobada los 3 CRITICAL y 22 HIGH de Spring; con `enforce` el pipeline fallaría. Los secretos sí bloquean siempre. IaC ya tiene excepciones por hallazgo con dueño y 30 días. |
+| ¿Por qué el gate de dependencias está en `report`? | Los 8 servicios tienen 1–2 CRITICAL y 14–20 HIGH de Spring; las CRITICAL exigen Spring Boot 4 y Spring Boot 3.5.16 rompe 2 pruebas de identity. Es un riesgo aceptado con plan, responsable y fecha (2026-12-22); por eso el build queda UNSTABLE. Imágenes, secretos e IaC sí bloquean, y IaC tiene excepciones por hallazgo con dueño y 30 días. |
 | ¿Cómo sabemos que un escaneo que no corre no pasa? | Sale con código 2 y el build falla; Jenkins lo demostró: sin `docker compose` el escaneo de dependencias no corrió y se corrigió para que no cuente como hallazgo ni como aprobado. |
 
 ## 11. Evidencias de respaldo (si falla la demo)

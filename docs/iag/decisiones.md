@@ -776,3 +776,15 @@ revisión de cierre de HU-12. No bloquean el merge ya hecho, pero sí el cierre 
 **Decisión.** Los objetivos (`tests/performance/targets.json`) no se tocan. La hipótesis del pacing quedó refutada por el dato y se corrigió en el informe: hay un techo de capacidad cercano a 190 y 49 req/s cuya causa (servicio, nodo único o generador) no está separada. El paso de Jenkins ofrece 25 % más de carga por defecto.
 
 **Consecuencias.** HU-15 declara el throughput como NOT MET. Para cerrar la causa hay que medir CPU del nodo y del agente durante la prueba o repartir la carga en varios procesos de Locust.
+
+## D-39 · Dependencias de Spring: riesgo aceptado, gate en modo informe
+
+- **Fecha:** 2026-11-23
+- **Historia:** HU-14 (Sprint 2 · E2.6)
+- **Estado:** Aceptada
+
+**Contexto.** El build de `dev` 0.3.0-78f32ed queda UNSTABLE solo por el escaneo de dependencias (8 servicios, 1–2 CRITICAL y 14–20 HIGH cada uno). Opciones: (A) aprobar excepciones por CVE, (B) subir las librerías, (C) aceptar el riesgo con un plan escrito.
+
+**Decisión.** Opción C. No se aprueban decenas de excepciones con justificación genérica (aparentaría un gate en verde) y no se cambian las versiones de los 8 servicios en el cierre (Spring Boot 3.5.16 rompe 2 pruebas de identity y no elimina las CRITICAL; estas exigen Spring Boot 4). `SECURITY_GATE` sigue en `report`; plan, responsable (Matthew Lane) y fecha (2026-12-22) en la FASE 12 de `docs/seguridad/hu-14.md`.
+
+**Consecuencias.** El pipeline no se ve en verde y así se declara en el informe. Los controles bloqueantes que sí se cumplen son imágenes, secretos e IaC. Si el profesor exige un pipeline en verde, la única vía honesta es aprobar, una a una y con justificación real, las CVE CRITICAL de Spring; los HIGH seguirían marcando UNSTABLE.

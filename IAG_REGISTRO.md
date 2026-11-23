@@ -32,7 +32,7 @@ lo haya leído, y los commits, los push y los PR los hace siempre una persona.
 | 2026-11-08 | HU-08 · Documentación y bitácora | Claude Code · Claude Sonnet 5.5 | [`2026-11-08-hu-08.md`](docs/iag/sesiones/2026-11-08-hu-08.md) |
 | 2026-11-16/23 | HU-12 · HU-14 · HU-15 · Autenticación, seguridad y pruebas avanzadas | Claude Code · Claude Sonnet 5.5 | [`2026-11-23-hu-12-14-15.md`](docs/iag/sesiones/2026-11-23-hu-12-14-15.md) |
 
-**Decisiones asistidas:** D-01 a D-38 en [`docs/iag/decisiones.md`](docs/iag/decisiones.md).
+**Decisiones asistidas:** D-01 a D-39 en [`docs/iag/decisiones.md`](docs/iag/decisiones.md).
 
 ### Cobertura de la bitácora (lagunas declaradas)
 
