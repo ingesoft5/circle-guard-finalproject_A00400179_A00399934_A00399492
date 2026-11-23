@@ -1,0 +1,41 @@
+FAIL  sa:circleguard-prod:jenkins-deployer get deployments in circleguard-prod: expected yes, got no
+FAIL  sa:circleguard-prod:jenkins-deployer patch deployments in circleguard-prod: expected yes, got no
+FAIL  sa:circleguard-prod:jenkins-deployer create deployments in circleguard-prod: expected yes, got no
+FAIL  sa:circleguard-prod:jenkins-deployer update services in circleguard-prod: expected yes, got no
+FAIL  sa:circleguard-prod:jenkins-deployer patch configmaps in circleguard-prod: expected yes, got no
+FAIL  sa:circleguard-prod:jenkins-deployer get pods/log in circleguard-prod: expected yes, got no
+FAIL  sa:circleguard-prod:jenkins-deployer patch statefulsets in circleguard-prod: expected yes, got no
+FAIL  sa:circleguard-prod:jenkins-deployer create horizontalpodautoscalers in circleguard-prod: expected yes, got no
+PASS  sa:circleguard-prod:jenkins-deployer delete deployments in circleguard-prod: no
+PASS  sa:circleguard-prod:jenkins-deployer get secrets in circleguard-prod: no
+PASS  sa:circleguard-prod:jenkins-deployer create secrets in circleguard-prod: no
+PASS  sa:circleguard-prod:jenkins-deployer create pods/exec in circleguard-prod: no
+PASS  sa:circleguard-prod:jenkins-deployer delete pods in circleguard-prod: no
+PASS  sa:circleguard-prod:jenkins-deployer get deployments in observability: no
+PASS  sa:circleguard-prod:jenkins-deployer get deployments in kube-system: no
+PASS  sa:circleguard-prod:jenkins-deployer create rolebindings in circleguard-prod: no
+FAIL  group:circleguard-viewers get pods in circleguard-prod: expected yes, got no
+FAIL  group:circleguard-viewers list deployments in circleguard-prod: expected yes, got no
+FAIL  group:circleguard-viewers get pods/log in circleguard-prod: expected yes, got no
+FAIL  group:circleguard-viewers get horizontalpodautoscalers in circleguard-prod: expected yes, got no
+PASS  group:circleguard-viewers get secrets in circleguard-prod: no
+PASS  group:circleguard-viewers list secrets in circleguard-prod: no
+PASS  group:circleguard-viewers create deployments in circleguard-prod: no
+PASS  group:circleguard-viewers update configmaps in circleguard-prod: no
+PASS  group:circleguard-viewers create pods/exec in circleguard-prod: no
+PASS  group:circleguard-viewers get pods in observability: no
+FAIL  group:circleguard-platform-admins get secrets in circleguard-prod: expected yes, got no
+FAIL  group:circleguard-platform-admins create secrets in circleguard-prod: expected yes, got no
+FAIL  group:circleguard-platform-admins update secrets in circleguard-prod: expected yes, got no
+PASS  group:circleguard-platform-admins list secrets in circleguard-prod: no
+PASS  group:circleguard-platform-admins delete secrets in circleguard-prod: no
+PASS  group:circleguard-platform-admins get deployments in circleguard-prod: no
+PASS  group:circleguard-platform-admins get secrets in observability: no
+PASS  sa:circleguard-prod:default get pods in circleguard-prod: no
+PASS  sa:circleguard-prod:default get secrets in circleguard-prod: no
+PASS  sa:circleguard-prod:default get configmaps in circleguard-prod: no
+PASS  sa:circleguard-prod:default list services in circleguard-prod: no
+PASS  sa:circleguard-prod:default create deployments in circleguard-prod: no
+
+Matrix: 23 of 38 rows as expected
+RESULT: FAIL
