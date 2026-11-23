@@ -3,6 +3,7 @@
  * declared objectives of tests/performance/targets.json.
  *
  *   cgPerformanceTest(host: 'http://web:8080', env: 'dev', credentialsId: 'perf-test-user', steps: '10 50 100', duration: '5m')
+ *   optional: accessRps (default '2.5') and surveyRps (default '0.65'), the requests per second offered by each virtual user.
  *
  * The test user comes from a Jenkins "username with password" credential (never from the repository); it is passed through the
  * environment of the script and is masked in the log. Production is refused by the script: only env local, dev or stage.
@@ -18,8 +19,16 @@ def call(Map cfg = [:]) {
     String duration = (cfg.duration ?: '5m').toString()
     String network = (cfg.network ?: '').toString().trim()
     boolean enforce = (cfg.enforce == null) ? false : (cfg.enforce as boolean)
+    // Offered load per virtual user. The objectives are 200 and 50 req/s at 100 users (2 and 0.5 per user); offering 25 % more
+    // (2.5 and 0.65) makes "throughput >= objective" a test of capacity and not of the generator's pacing (build #10 offered exactly
+    // the objective and reached 189.7 and 48.4).
+    String accessRps = (cfg.accessRps ?: '2.5').toString().trim()
+    String surveyRps = (cfg.surveyRps ?: '0.65').toString().trim()
     if (!host || !credentialsId) {
         error('cgPerformanceTest needs host and credentialsId')
+    }
+    if (!(accessRps ==~ /\d+(\.\d+)?/) || !(surveyRps ==~ /\d+(\.\d+)?/)) {
+        error('cgPerformanceTest: accessRps and surveyRps must be numbers (for example 2.5 and 0.65)')
     }
     String out = "tests/performance/results/build-${env.BUILD_NUMBER ?: 'local'}"
     String command = "bash ./tests/performance/run-perf.sh --host '${host}' --steps '${steps}' --duration '${duration}' --out '${out}'"
@@ -31,7 +40,7 @@ def call(Map cfg = [:]) {
     }
 
     int rc = 0
-    withEnv(["PERF_TARGET_ENV=${envName}"]) {
+    withEnv(["PERF_TARGET_ENV=${envName}", "PERF_ACCESS_RPS_PER_USER=${accessRps}", "PERF_SURVEY_RPS_PER_USER=${surveyRps}"]) {
         withCredentials([usernamePassword(credentialsId: credentialsId, usernameVariable: 'PERF_USERNAME', passwordVariable: 'PERF_PASSWORD')]) {
             rc = sh(returnStatus: true, script: command)
         }

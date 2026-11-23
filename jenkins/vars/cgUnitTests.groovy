@@ -25,6 +25,10 @@ def publishCoverage(List<String> services) {
         id: 'jacoco',
         name: 'JaCoCo',
         tools: [[parser: 'JACOCO', pattern: core.collect { "services/${it}/build/reports/jacoco/test/jacocoTestReport.xml" }.join(',')]],
+        // The JaCoCo XML only holds package/file names; without the source folders the plugin shows "Source file not found".
+        // Paths are relative to the workspace; the sources are copied into the build so the report keeps working after a clean.
+        sourceDirectories: core.collect { [path: "services/${it}/src/main/java"] },
+        sourceCodeRetention: 'EVERY_BUILD',
         qualityGates: [[threshold: 60.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'FAILURE']]
     )
     core.each { service ->

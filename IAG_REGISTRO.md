@@ -30,8 +30,9 @@ lo haya leído, y los commits, los push y los PR los hace siempre una persona.
 | 2026-11-08 | HU-07 · Rollback, notificaciones y release notes | OpenCode · DeepSeek V4.1 Flash 1017 | [`2026-11-08-hu-07.md`](docs/iag/sesiones/2026-11-08-hu-07.md) |
 | 2026-11-07/08 | HU-04 · Pruebas unitarias y de integración | Claude Code · Claude Sonnet 5.5 | [`2026-11-08-hu-04.md`](docs/iag/sesiones/2026-11-08-hu-04.md) |
 | 2026-11-08 | HU-08 · Documentación y bitácora | Claude Code · Claude Sonnet 5.5 | [`2026-11-08-hu-08.md`](docs/iag/sesiones/2026-11-08-hu-08.md) |
+| 2026-11-16/23 | HU-12 · HU-14 · HU-15 · Autenticación, seguridad y pruebas avanzadas | Claude Code · Claude Sonnet 5.5 | [`2026-11-23-hu-12-14-15.md`](docs/iag/sesiones/2026-11-23-hu-12-14-15.md) |
 
-**Decisiones asistidas:** D-01 a D-25 en [`docs/iag/decisiones.md`](docs/iag/decisiones.md).
+**Decisiones asistidas:** D-01 a D-38 en [`docs/iag/decisiones.md`](docs/iag/decisiones.md).
 
 ### Cobertura de la bitácora (lagunas declaradas)
 
@@ -72,6 +73,9 @@ contexto), y así se indica en su archivo.
 | Capturas tomadas en el Jenkins equivocado (el puerto 8080 de la PC lo ocupaba Docker Desktop) | Los números de build no coincidían; se usó el túnel en el puerto 8090 |
 | Afirmó que no había Playwright en el repo, cierto en su rama pero obsoleto tras integrar HU-06 | Al releer el árbol tras la fusión |
 | Historias anteriores: la verificación de imágenes y el tag/release de HU-07 necesitaron correcciones posteriores | Registradas en las sesiones de [HU-02](docs/iag/sesiones/2026-11-02-hu-02.md) y [HU-07](docs/iag/sesiones/2026-11-08-hu-07.md) |
+| Un escaneo que no se ejecutó (agente sin `docker compose`) salía con código 1 y se leía como «hallazgos» (HU-14) | La ejecución real en Jenkins (build #10): el log mostraba el error de herramienta pero el build solo quedaba UNSTABLE. Ahora sale con 2 y hay pruebas |
+| Atribuyó la falta de throughput al pacing del generador de carga (HU-15) | Al repetir con 25 % más de carga el resultado casi no cambió (192,3 de 200): la hipótesis estaba equivocada y se corrigió en el informe |
+| Sugirió mensajes de commit que incumplían el lint (coma en el alcance, descripción larga) | El check obligatorio `commit-lint` falló en el PR; se reproducía en local con `scripts/check-conventional-commits.sh` |
 
 ### Riesgos que vimos
 - **Sobreconfianza:** una salida plausible no es una salida verificada; por eso exigimos ejecución real y logs.

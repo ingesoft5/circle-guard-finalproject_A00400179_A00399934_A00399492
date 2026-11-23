@@ -70,10 +70,17 @@ rows=$(grep -c . <<<"$out")
 printf '%s\n' "$HEAD" >"$WORK/cand-as-active.tsv"; printf '%s\n' "$out" >>"$WORK/cand-as-active.tsv"
 check "candidate rows copied as-is into the active file are rejected (empty dates, PENDIENTE fields)" 2 "campos vacíos" "$WORK/cand-as-active.tsv"
 
+
+# Regression (found when approving the real KSV-0056): a message that quotes lists and a "*" verb cannot be an exact identity under the
+# no-wildcards rule, so those characters are removed from the identity on both sides (iac_extract) and the exception can match.
+LISTS="$HERE/fixtures/iac-report-lists.json"
+LISTS_EXC=$(exc SYN-K56 "Role 'deployer' should not have access to resources services, ingresses for verbs create, " iac:security/k8s/rbac/roles.yaml HIGH carol@example.org "$JUST" 2026-11-10 2026-11-15 2026-12-05)
+check "a finding whose message quotes lists and a * verb is blocked without an exception" 1 "bloquean: 1" "$(file lists-none)" -- "$LISTS"
+check "an exception written with the cleaned identity covers it"       0 "con excepción vigente: 1" "$(file lists-ok "$LISTS_EXC")" -- "$LISTS"
 # the shipped file is valid and the report is not modified
 sum_before=$(cksum <"$REPORT")
 out=$(env SECURITY_REPORT_DIR="$WORK/reports" "$SCAN" --evaluate "$REPORT" 2>&1); rc=$?
-[[ $rc == 1 && "$sum_before" == "$(cksum <"$REPORT")" ]] && { printf 'PASS  the shipped security/exceptions.tsv grants nothing and the report is not modified\n'; PASSED=$((PASSED + 1)); } ||
+[[ $rc == 1 && "$sum_before" == "$(cksum <"$REPORT")" ]] && { printf 'PASS  the shipped security/exceptions.tsv is valid, grants nothing to the synthetic report and the report is not modified\n'; PASSED=$((PASSED + 1)); } ||
   { printf 'FAIL  shipped exceptions file (exit %s)\n%s\n' "$rc" "$out"; FAILED=$((FAILED + 1)); }
 
 printf '\n%s passed, %s failed\n' "$PASSED" "$FAILED"
