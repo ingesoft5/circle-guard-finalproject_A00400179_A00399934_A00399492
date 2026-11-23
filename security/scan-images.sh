@@ -242,7 +242,8 @@ if [[ -n "$EVAL_REPORT" ]]; then
   evaluate "$EVAL_REPORT" "${CLASS:-own}" "$EVAL_REPORT" || rc=$?
   record "$rc"
 else
-  cg_require_docker
+  # A missing Docker/Compose is a scan that could not run: exit 2, never 1 (1 means "an image is blocked").
+  ( cg_require_docker ) || exit 2
   log "Trivy: $TRIVY_IMAGE"
   log "Umbral que bloquea: $TRIVY_SEVERITY_BLOCK · sin arreglo ignoradas: $TRIVY_IGNORE_UNFIXED · terceros bloquean: $TRIVY_BLOCK_THIRD_PARTY"
   [[ -n "$OWN_VERSION" ]] && scan_own "$OWN_VERSION"

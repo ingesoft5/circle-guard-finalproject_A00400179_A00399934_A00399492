@@ -15,13 +15,13 @@ se aplica al clúster. Este documento separa lo probado de lo pendiente.
 
 | # | Criterio | Implementación | Estado |
 |---|---|---|---|
-| 1 | Análisis de vulnerabilidades de imágenes con Trivy | `security/scan-images.sh` sobre 9 imágenes propias y 13 de terceros; SARIF/JSON | Implementado y probado en local; **integración Jenkins pendiente** |
-| 2 | Análisis de dependencias | SBOM de Gradle + Trivy; `security/scan-dependencies.sh` | Implementado y probado en local; **integración Jenkins pendiente** |
-| 3 | Informes como artefactos del pipeline | JSON, SARIF, SBOM y resumen por imagen | Implementado en local; falta archivarlos desde Jenkins |
-| 4 | Bloqueo por umbral de vulnerabilidades | Compuerta por severidad con excepciones y caducidad; 14 casos de prueba | Implementado y probado |
+| 1 | Análisis de vulnerabilidades de imágenes con Trivy | `security/scan-images.sh` (9 propias y 13 de terceros; SARIF/JSON) y, en k8s, `deploy/pipeline/scan-ecr-images.sh` (HU-11) | Integrado en el Jenkinsfile; **sin ejecución con los stages de HU-14 en Jenkins** |
+| 2 | Análisis de dependencias | SBOM de Gradle + Trivy; `security/scan-dependencies.sh` | Integrado en el Jenkinsfile (`SECURITY_GATE`, por defecto `report`); **sin ejecución en Jenkins** |
+| 3 | Informes como artefactos del pipeline | JSON, SARIF, SBOM y resumen; `cgSecurityScan` archiva `security/reports/**` | Implementado en el Jenkinsfile; **sin ejecución en Jenkins** |
+| 4 | Bloqueo por umbral de vulnerabilidades | Compuerta por severidad con excepciones que caducan; 29 + 14 casos de prueba | Probado; en CI informa (`report`) hasta aprobar las excepciones; los secretos y el CRITICAL de HU-11 sí bloquean |
 | 5 | Sin credenciales reales en el repositorio | `.gitignore`, `.gitleaks.toml` y Gitleaks en PASS | Cumplido |
 | 6 | Secretos en mecanismo seguro | SSM SecureString, `.env` 0600, `security/k8s/create-secrets.sh` y catálogo | Cumplido en Compose; despliegue K8s pendiente |
-| 7 | Credenciales protegidas en Jenkins | Credenciales `circleguard-*`; auditoría con `security/audit-jenkins-credentials.sh` | Cumplido |
+| 7 | Credenciales protegidas en Jenkins | Credenciales `circleguard-*`; auditoría estática con `security/audit-jenkins-credentials.sh` (0 violaciones) | Auditado de forma estática; **sin comprobar en el Jenkins real** |
 | 8 | RBAC en Kubernetes | Manifiestos en `security/k8s/rbac/`, matriz y pruebas; RBAC de Jenkins validado en un controlador real | Probado en simulación; **validación en el clúster pendiente** |
 | 9 | TLS en servicios expuestos | Terminador nginx y certificado de desarrollo; `security/tls/verify-tls.sh` | Probado con certificado de desarrollo; **Ingress TLS no desplegado** |
 | 10 | Certificados verificables | `openssl s_client` y verificador propio | Certificado de desarrollo verificable; producción pendiente |
@@ -49,25 +49,25 @@ se aplica al clúster. Este documento separa lo probado de lo pendiente.
 ### 2.3 RBAC y TLS
 
 - RBAC de Jenkins validado en un controlador real (`security/jenkins/validate-rbac-live.sh`).
-- Manifiestos de RBAC de K8s para `jenkins-deployer`, `prometheus`, `developer` y `admin`.
+- RBAC de K8s por ambiente (`security/k8s/rbac/` + `rbac-overlays/`): ServiceAccount `jenkins-deployer` y Roles `circleguard-deployer`, `circleguard-readonly` y `circleguard-secret-manager`; matriz en `security/k8s/rbac-matrix.txt` y namespaces con Pod Security Admission.
 - Terminador TLS con nginx y certificado de desarrollo; verificación con `openssl`.
 - Evidencia: [`fase6/`](../evidencias/hu-14/fase6/) y [`fase7/`](../evidencias/hu-14/fase7/).
 
 ### 2.4 Excepciones con caducidad
 
 - `security/exceptions.tsv` activo vacío y `security/exceptions.pending.tsv` con candidatas.
-- Cada excepción tiene responsable, motivo y fecha de revisión.
+- Hoy no hay ninguna excepción aprobada. Cuando exista, `exceptions.sh` exige responsable, motivo, fecha de aprobación y caducidad (30 días CRITICAL, 90 HIGH) y rechaza comodines y excepciones permanentes. `.trivyignore` de HU-11 no cumple esa política (sin responsable ni caducidad).
 - Evidencia: [`../evidencias/hu-14/excepciones.md`](../evidencias/hu-14/excepciones.md).
 
 ## 3. Lo que falta
 
 | Pendiente | Depende de | Impacto |
 |---|---|---|
-| Aplicar `security/jenkins/Jenkinsfile-security-stages.patch` | HU-11 | Trivy y dependencias no bloquean en CI todavía |
+| Aprobar las excepciones de `security/exceptions.pending.tsv` y pasar `SECURITY_GATE` a `enforce` (los stages ya están en el Jenkinsfile, por defecto en `report`) | Responsables de HU-09/HU-11 | Dependencias e IaC informan pero no bloquean; los secretos sí bloquean |
 | Desplegar RBAC en el clúster y capturar `kubectl auth can-i` | HU-10 (hecho) | El RBAC está probado en simulación, no en el clúster |
-| Aplicar el Ingress TLS de `security/k8s/tls/` | HU-10/HU-11 | El TLS está probado con certificado de desarrollo, no en prod |
+| Aplicar el TLS en el clúster (Traefik): `ensure-tls-secret.sh` y el componente `deploy/k8s/components/tls` | HU-10/HU-11 | El TLS está probado con certificado de desarrollo, no en el clúster |
 | Cerrar las 3 CRITICAL y 22 HIGH o declararlas como excepción | Matt | La compuerta las conoce, pero siguen abiertas |
-| Corregir el mapeo de estados del QR (`SUSPECT`, `PROBABLE`, `CONFIRMED`) | HU-12/HU-16 | El gateway podría dejar pasar estados reales |
+| Corregir el mapeo de estados del QR (`SUSPECT`, `PROBABLE`, `CONFIRMED`) en el gateway | HU-04 (gateway) | El gateway podría dejar pasar estados reales |
 
 ## 4. Pruebas
 
@@ -97,7 +97,7 @@ El umbral bloqueante es CRITICAL, tanto para IaC como para imágenes. `.trivyign
 
 | ID | Alcance | Justificación | Mitigación | Revisión |
 |---|---|---|---|---|
-| AWS-0104 | Egress 0.0.0.0/0 en nodos k3s y Jenkins | Los nodos descargan paquetes, imágenes y llaman a APIs de AWS | Ingress y administración restringidos a la IP del administrador (/32) | 2026-12-31 |
+| AWS-0104 | Egress 0.0.0.0/0 en nodos k3s y Jenkins | Los nodos descargan paquetes, imágenes y llaman a APIs de AWS | Ingress y administración restringidos a la IP del administrador (/32) | 2026-12-22 |
 | CVE-2026-22732 | spring-security-web 6.2.8 (auth, identity, promotion) | La corrección existe solo en 6.5.9 y 7.0.4. Exige un salto mayor de Spring Boot 3.2 | Servicios internos tras el Ingress. Actuator distinto de health bloqueado en el Ingress | 2026-12-31 |
 | CVE-2026-47884 | spring-webmvc 6.1.21 (varios servicios) | Corrección solo en 7.0.9. Mismo salto mayor | Igual que la anterior | 2026-12-31 |
 | CVE-2026-47892 | spring-webflux 6.1.21 (notification) | Corrección solo en 7.0.9 | Igual que la anterior | 2026-12-31 |
@@ -105,6 +105,8 @@ El umbral bloqueante es CRITICAL, tanto para IaC como para imágenes. `.trivyign
 | CVE-2026-113425, CVE-2026-121810, CVE-2026-123007, CVE-2026-123633 | nginx 1.30.6-r1 en la imagen web | Corrección en 1.30.7-r0 al refrescar la imagen base | Reconstruir la imagen con base actualizada | 2026-12-31 |
 
 Deuda técnica: subir Spring Boot a una versión con Spring Framework 7 y refrescar la imagen base de nginx. Al hacerlo, se eliminan las 8 entradas de CVE.
+
+**Estado frente a la política de HU-14 (`security/exceptions.tsv`).** Responsable de las excepciones de Trivy: Juan Esteban. Aprobadas el 2026-11-22, caducan el 2026-12-22 y se revisan cada 14 días. Las cuatro reglas AWS-0104 (egress) también constan en security/exceptions.tsv. Las 8 entradas de CVE de `.trivyignore` (Spring y nginx) **todavía no están en `exceptions.tsv`**: no tienen responsable registrado en el marco de HU-14 y su revisión (2026-12-31) supera los 30 días que la política permite para CRITICAL. Hasta migrarlas, el escaneo de dependencias de HU-14 sigue informando los CRITICAL de Spring sin excepción vigente.
 
 ## Limitaciones conocidas del pipeline
 

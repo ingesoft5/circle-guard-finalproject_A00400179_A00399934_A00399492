@@ -66,6 +66,23 @@ grep -q -- '--as=system:serviceaccount:circleguard:jenkins-deployer' "$KLOG" &&
 : >"$KLOG"; OUT=$(PATH="$BIN:$PATH" bash "$K8S/test-rbac.sh" 2>&1); RC=$?
 [[ $RC == 1 && "$OUT" == *"expected yes, got no"* ]] && ok "the live script fails when the cluster denies what the matrix allows" || bad "live mismatch (deny)" "$OUT"
 
+# --namespace: the environment namespace of HU-10 replaces the placeholder in the subject and in the namespace column
+: >"$KLOG"; PATH="$BIN:$PATH" FAKE_ALLOW_ALL=1 bash "$K8S/test-rbac.sh" --namespace circleguard-stage >/dev/null 2>&1
+grep -q -- '--as=system:serviceaccount:circleguard-stage:jenkins-deployer' "$KLOG" && grep -q -- '--namespace circleguard-stage' "$KLOG" &&
+  ! grep -q -- '--namespace circleguard$' "$KLOG" && ! grep -q -- 'serviceaccount:circleguard:' "$KLOG" &&
+  ok "--namespace rewrites the placeholder namespace for the subject and the namespace column" || bad "--namespace rewrite" "$(head -4 "$KLOG")"
+grep -q -- '--namespace observability' "$KLOG" && grep -q -- '--namespace kube-system' "$KLOG" &&
+  ok "other namespaces of the matrix (observability, kube-system) are checked as written" || bad "other namespaces" "$(head -4 "$KLOG")"
+
+# the three overlays set the HU-10 namespaces and keep the contract intact (kustomize is not needed: they are plain declarations)
+for env in dev stage prod; do
+  grep -q "^namespace: circleguard-$env$" "$K8S/rbac-overlays/$env/kustomization.yaml" && grep -q '^  - ../../rbac$' "$K8S/rbac-overlays/$env/kustomization.yaml" &&
+    ok "overlay $env targets namespace circleguard-$env" || bad "overlay $env" "$(cat "$K8S/rbac-overlays/$env/kustomization.yaml" 2>&1)"
+done
+
+# the pods have no rights: the matrix must say so for the default ServiceAccount
+grep -q '^sa:circleguard:default *get *secrets .* no$' "$K8S/rbac-matrix.txt" && ok "the matrix checks that the default ServiceAccount cannot read secrets" || bad "default SA rows" "missing"
+
 OUT=$(PATH="/usr/bin:/bin" bash "$K8S/test-rbac.sh" 2>&1); RC=$?
 [[ $RC == 2 ]] && ok "without kubectl or a cluster it reports an error (exit 2), never a pass" || bad "no kubectl" "$OUT"
 

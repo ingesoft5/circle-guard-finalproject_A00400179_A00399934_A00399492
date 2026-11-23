@@ -1,0 +1,48 @@
+# FASE 11 · Integración de los stages de HU-14 y HU-15 en el Jenkinsfile de HU-11 (2026-11-22)
+# Sintaxis Groovy con un intérprete real (groovy:4.0-jdk21, GroovyShell.parse)
+SYNTAX OK    Jenkinsfile
+SYNTAX OK    jenkins/vars/cgSecurityScan.groovy
+SYNTAX OK    jenkins/vars/cgZapBaseline.groovy
+SYNTAX OK    jenkins/vars/cgPerformanceTest.groovy
+
+# Stages del Jenkinsfile (orden)
+112 Checkout
+125 Prepare
+149 Security: IaC scan
+161 Security: secrets, dependencies and governed IaC
+177 Terraform checks
+198 Build
+210 Unit tests and coverage
+225 SonarQube quality gate
+238 Integration tests
+251 Package
+263 E2E Playwright
+275 ECR build and push
+289 Security: Trivy images
+302 Package images
+316 Security: local image scan
+331 Publish images
+351 Publish artifacts
+371 Rollback
+391 Terraform apply dev
+406 Deploy dev
+421 Smoke dev
+434 E2E dev
+453 ZAP baseline dev
+469 Performance dev
+486 Stop dev
+499 Terraform apply stage
+515 Deploy stage
+532 Smoke stage
+545 E2E stage
+564 Stop stage
+577 Approve prod
+595 Terraform apply prod
+614 Deploy prod
+633 Smoke prod
+650 Tag release
+674 Release notes
+690 GitHub release
+
+# Auditoría de credenciales (security/audit-jenkins-credentials.sh)
+RESULT: PASS · 0 violaciones, 0 aviso(s). Archivos auditados: Jenkinsfile jenkins/vars/cgDetectChanges.groovy jenkins/vars/cgGradle.groovy jenkins/vars/cgIntegrationTests.groovy jenkins/vars/cgNotify.groovy jenkins/vars/cgPackage.groovy jenkins/vars/cgPerformanceTest.groovy jenkins/vars/cgPublish.groovy jenkins/vars/cgSecurityScan.groovy jenkins/vars/cgSonar.groovy jenkins/vars/cgUnitTests.groovy jenkins/vars/cgZapBaseline.groovy

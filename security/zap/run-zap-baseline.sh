@@ -72,5 +72,5 @@ docker run --rm -v "$volume":/zap/wrk:ro --entrypoint sh "$ZAP_IMAGE" -c 'tar -C
 echo "Informes en $REPORT_DIR"
 
 gate_rc=0
-"$ROOT_DIR/security/zap/evaluate-zap.sh" "$REPORT_DIR/zap-report.json" | tee "$REPORT_DIR/gate.txt" || gate_rc=${PIPESTATUS[0]}
+bash "$ROOT_DIR/security/zap/evaluate-zap.sh" "$REPORT_DIR/zap-report.json" | tee "$REPORT_DIR/gate.txt" || gate_rc=${PIPESTATUS[0]}
 exit "$gate_rc"

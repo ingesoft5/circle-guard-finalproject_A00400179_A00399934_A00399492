@@ -3,6 +3,8 @@ kind: Kustomization
 namespace: circleguard-stage
 resources:
 - ../../base
+components:
+- ../../components/tls
 labels:
 - pairs:
     environment: stage

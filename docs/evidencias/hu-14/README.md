@@ -37,7 +37,7 @@ paso de Jenkins y el despliegue de RBAC/TLS en el clúster siguen pendientes.
 
 ## Pendiente para cerrar
 
-1. Aplicar `security/jenkins/Jenkinsfile-security-stages.patch` en el `Jenkinsfile` (HU-11).
-2. Desplegar `security/k8s/rbac/` y capturar `kubectl auth can-i`.
-3. Aplicar `security/k8s/tls/ingress-tls.yaml` y verificar el certificado en el clúster.
-4. Cerrar o declarar las 3 CRITICAL y 22 HIGH.
+1. ~~Integrar los stages de seguridad en el `Jenkinsfile`~~ — **hecho** sobre el Jenkinsfile de HU-11 (sintaxis Groovy y auditoría de credenciales verificadas: [fase11/01-jenkinsfile-integrado.txt](fase11/01-jenkinsfile-integrado.txt)).
+2. Con el kubeconfig de cada ambiente: `bash security/k8s/fetch-kubeconfig.sh <env>` y luego `bash security/k8s/test-rbac.sh --namespace circleguard-<env>` (requiere la cuenta AWS del proyecto).
+3. Con el clúster: `bash security/k8s/tls/ensure-tls-secret.sh` y verificar el certificado (el Ingress es de Traefik; el componente TLS de `deploy/k8s/components/tls` añade `spec.tls` a los overlays). `security/k8s/tls/ingress-tls.yaml` es una referencia de ingress-nginx y no se aplica.
+4. Aprobar o corregir las excepciones de `security/exceptions.pending.tsv` (responsable, justificación y caducidad); entonces pasar `SECURITY_GATE` a `enforce`.
