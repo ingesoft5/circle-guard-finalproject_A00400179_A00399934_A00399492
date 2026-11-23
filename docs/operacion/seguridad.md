@@ -90,3 +90,23 @@ se aplica al clúster. Este documento separa lo probado de lo pendiente.
 | RBAC demasiado amplio para que “funcione” | Revisar `kubectl auth can-i --list` y quitar permisos de Secrets |
 | Secretos en logs de Jenkins | Enmascarar credenciales; no imprimir el entorno completo |
 | Estados reales del QR sin bloquear | Corregir el mapeo antes de la demo o declararlo como hallazgo crítico |
+
+## Excepciones de Trivy (.trivyignore)
+
+El umbral bloqueante es CRITICAL, tanto para IaC como para imágenes. `.trivyignore` tiene 9 entradas. Cada una se justifica y tiene fecha de revisión.
+
+| ID | Alcance | Justificación | Mitigación | Revisión |
+|---|---|---|---|---|
+| AWS-0104 | Egress 0.0.0.0/0 en nodos k3s y Jenkins | Los nodos descargan paquetes, imágenes y llaman a APIs de AWS | Ingress y administración restringidos a la IP del administrador (/32) | 2026-12-31 |
+| CVE-2026-22732 | spring-security-web 6.2.8 (auth, identity, promotion) | La corrección existe solo en 6.5.9 y 7.0.4. Exige un salto mayor de Spring Boot 3.2 | Servicios internos tras el Ingress. Actuator distinto de health bloqueado en el Ingress | 2026-12-31 |
+| CVE-2026-47884 | spring-webmvc 6.1.21 (varios servicios) | Corrección solo en 7.0.9. Mismo salto mayor | Igual que la anterior | 2026-12-31 |
+| CVE-2026-47892 | spring-webflux 6.1.21 (notification) | Corrección solo en 7.0.9 | Igual que la anterior | 2026-12-31 |
+| CVE-2026-111497 | brotli-libs en la imagen web | Corrección en 1.2.1-r0 al refrescar la imagen base | Reconstruir la imagen con base actualizada | 2026-12-31 |
+| CVE-2026-113425, CVE-2026-121810, CVE-2026-123007, CVE-2026-123633 | nginx 1.30.6-r1 en la imagen web | Corrección en 1.30.7-r0 al refrescar la imagen base | Reconstruir la imagen con base actualizada | 2026-12-31 |
+
+Deuda técnica: subir Spring Boot a una versión con Spring Framework 7 y refrescar la imagen base de nginx. Al hacerlo, se eliminan las 8 entradas de CVE.
+
+## Limitaciones conocidas del pipeline
+
+- Las imágenes se publican en ECR antes del escaneo con Trivy. Una imagen bloqueada puede quedar en el registro aunque el pipeline se detenga. Pendiente: publicar con tag temporal y promover tras el escaneo.
+- Con `DEPLOY_MODE=k8s`, el E2E con Playwright no corre en el agente, que no tiene Node. La promoción entre ambientes se apoya en smoke tests de readiness.
