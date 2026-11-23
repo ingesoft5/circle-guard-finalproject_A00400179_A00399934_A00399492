@@ -1,0 +1,7 @@
+serviceaccount/jenkins-deployer created
+role.rbac.authorization.k8s.io/circleguard-deployer created
+role.rbac.authorization.k8s.io/circleguard-readonly created
+role.rbac.authorization.k8s.io/circleguard-secret-manager created
+rolebinding.rbac.authorization.k8s.io/circleguard-platform-admins created
+rolebinding.rbac.authorization.k8s.io/circleguard-viewers created
+rolebinding.rbac.authorization.k8s.io/jenkins-deployer created
