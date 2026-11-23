@@ -147,12 +147,7 @@ pipeline {
     }
 
     stage('Security: IaC scan') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Security: IaC scan') } }
       steps {
         sh './deploy/pipeline/scan-iac.sh'
       }
@@ -161,9 +156,7 @@ pipeline {
     stage('Security: secrets, dependencies and governed IaC') {
       // HU-14: secretos versionables (siempre bloquea), vulnerabilidades de las bibliotecas Java y configuración insegura de Terraform y
       // Kubernetes con excepciones que caducan (security/exceptions.tsv). Complementa al escaneo CRITICAL de HU-11.
-      when {
-        expression { cgNoRollback() }
-      }
+      when { expression { cgRun('Security: secrets, dependencies and governed IaC') } }
       steps {
         script {
           boolean enforce = params.SECURITY_GATE == 'enforce'
@@ -175,14 +168,7 @@ pipeline {
     }
 
     stage('Terraform checks') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          expression { params.RUN_TERRAFORM }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Terraform checks') } }
       steps {
         script {
           if (!params.ADMIN_CIDR?.trim()) {
@@ -196,24 +182,14 @@ pipeline {
     }
 
     stage('Build') {
-      when {
-        allOf {
-          expression { env.SELECTED_SERVICES }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Build') } }
       steps {
         script { cgGradle('classes testClasses', env.SELECTED_SERVICES.split(',') as List) }
       }
     }
 
     stage('Unit tests and coverage') {
-      when {
-        allOf {
-          expression { env.SELECTED_SERVICES }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Unit tests and coverage') } }
       steps {
         // HU-04 still owns the base test fixes: publish the result but do not block the CD demo.
         catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
@@ -223,91 +199,49 @@ pipeline {
     }
 
     stage('SonarQube quality gate') {
-      when {
-        allOf {
-          expression { env.SELECTED_SERVICES }
-          expression { params.RUN_SONAR }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('SonarQube quality gate') } }
       steps {
         script { cgSonar(services: env.SELECTED_SERVICES.split(',') as List, installation: 'sonarqube') }
       }
     }
 
     stage('Integration tests') {
-      when {
-        allOf {
-          expression { env.SELECTED_SERVICES }
-          expression { params.RUN_INTEGRATION }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Integration tests') } }
       steps {
         script { cgIntegrationTests(env.SELECTED_SERVICES.split(',') as List) }
       }
     }
 
     stage('Package') {
-      when {
-        allOf {
-          expression { env.SELECTED_SERVICES }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Package') } }
       steps {
         script { cgPackage(env.SELECTED_SERVICES.split(',') as List) }
       }
     }
 
     stage('E2E Playwright') {
-      when {
-        allOf {
-          expression { params.RUN_E2E_LOCAL }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('E2E Playwright') } }
       steps {
         sh './deploy/e2e-local.sh'
       }
     }
 
     stage('ECR build and push') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          expression { params.BUILD_IMAGES }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('ECR build and push') } }
       steps {
         sh "./deploy/ecr/build-push.sh '${env.VERSION}'"
       }
     }
 
     stage('Security: Trivy images') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Security: Trivy images') } }
       steps {
         sh "./deploy/pipeline/scan-ecr-images.sh '${env.VERSION}'"
       }
     }
 
     stage('Package images') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE != 'k8s' }
-          expression { params.BUILD_IMAGES }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Package images') } }
       steps {
         sh "./deploy/build-images.sh '${env.VERSION}'"
       }
@@ -315,28 +249,14 @@ pipeline {
 
     stage('Security: local image scan') {
       // HU-14: Trivy sobre las 9 imágenes construidas localmente (modo ssh/Compose), antes de publicarlas. En k8s las cubre HU-11 en ECR.
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE != 'k8s' }
-          expression { params.BUILD_IMAGES }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Security: local image scan') } }
       steps {
         script { cgSecurityScan(kind: 'images', version: env.VERSION, enforce: params.SECURITY_GATE == 'enforce') }
       }
     }
 
     stage('Publish images') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE != 'k8s' }
-          expression { params.PUBLISH_IMAGES }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Publish images') } }
       steps {
         withCredentials([usernamePassword(
           credentialsId: 'circleguard-registry',
@@ -349,13 +269,7 @@ pipeline {
     }
 
     stage('Publish artifacts') {
-      when {
-        allOf {
-          expression { env.SELECTED_SERVICES }
-          anyOf { branch 'dev'; branch 'main' }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Publish artifacts') } }
       steps {
         script {
           cgPublish(
@@ -389,27 +303,14 @@ pipeline {
     }
 
     stage('Terraform apply dev') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          expression { params.RUN_TERRAFORM }
-          expression { params.TERRAFORM_APPLY }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Terraform apply dev') } }
       steps {
         sh "./deploy/pipeline/terraform-env.sh 'dev' apply"
       }
     }
 
     stage('Deploy dev') {
-      when {
-        allOf {
-          expression { cgDevMainOrForced() }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Deploy dev') } }
       steps {
         script {
           env.TARGET_ENV = 'dev'
@@ -419,27 +320,14 @@ pipeline {
     }
 
     stage('Smoke dev') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Smoke dev') } }
       steps {
         sh "./deploy/pipeline/smoke-k8s.sh 'dev'"
       }
     }
 
     stage('E2E dev') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE != 'k8s' }
-          expression { cgDevMainOrForced() }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('E2E dev') } }
       steps {
         script {
           env.TARGET_ENV = 'dev'
@@ -452,13 +340,7 @@ pipeline {
 
     stage('ZAP baseline dev') {
       // HU-15: análisis dinámico pasivo del cliente web de dev. Si supera el umbral, el build falla y no se promociona a stage.
-      when {
-        allOf {
-          expression { cgDevMainOrForced() }
-          expression { params.RUN_ZAP }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('ZAP baseline dev') } }
       steps {
         script {
           cgZapBaseline(target: params.E2E_URL_DEV, env: 'dev', network: params.ADV_DOCKER_NETWORK, enforce: params.ZAP_GATE == 'enforce')
@@ -468,13 +350,7 @@ pipeline {
 
     stage('Performance dev') {
       // HU-15: Locust (validación de acceso y envío de cuestionarios) contra los objetivos de tests/performance/targets.json. Solo dev.
-      when {
-        allOf {
-          expression { cgDevMainOrForced() }
-          expression { params.RUN_PERF }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Performance dev') } }
       steps {
         script {
           cgPerformanceTest(host: params.E2E_URL_DEV, env: 'dev', credentialsId: params.PERF_CREDENTIALS_ID,
@@ -484,29 +360,14 @@ pipeline {
     }
 
     stage('Stop dev') {
-      when {
-        allOf {
-          expression { params.SEQUENTIAL_ENVS }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Stop dev') } }
       steps {
         script { stopEnv('dev') }
       }
     }
 
     stage('Terraform apply stage') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          expression { params.RUN_TERRAFORM }
-          expression { params.TERRAFORM_APPLY }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Terraform apply stage') } }
       steps {
         sh "./deploy/pipeline/terraform-env.sh 'stage' apply"
       }
@@ -514,13 +375,7 @@ pipeline {
 
     stage('Deploy stage') {
       // Promotion to stage is gated by the dev E2E result.
-      when {
-        allOf {
-          expression { cgDevMainOrForced() }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Deploy stage') } }
       steps {
         script {
           env.TARGET_ENV = 'stage'
@@ -530,27 +385,14 @@ pipeline {
     }
 
     stage('Smoke stage') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Smoke stage') } }
       steps {
         sh "./deploy/pipeline/smoke-k8s.sh 'stage'"
       }
     }
 
     stage('E2E stage') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE != 'k8s' }
-          expression { cgDevMainOrForced() }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('E2E stage') } }
       steps {
         script {
           env.TARGET_ENV = 'stage'
@@ -562,29 +404,14 @@ pipeline {
     }
 
     stage('Stop stage') {
-      when {
-        allOf {
-          expression { params.SEQUENTIAL_ENVS }
-          expression { cgNoRollback() }
-          expression { cgDevMainOrForced() }
-        }
-      }
+      when { expression { cgRun('Stop stage') } }
       steps {
         script { stopEnv('stage') }
       }
     }
 
     stage('Approve prod') {
-      when {
-        allOf {
-          anyOf {
-            branch 'main'
-            expression { params.FORCE_PROD }
-          }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Approve prod') } }
       steps {
         timeout(time: 24, unit: 'HOURS') {
           input message: "¿${params.TERRAFORM_APPLY ? 'Aplicar Terraform y desplegar' : 'Desplegar'} ${env.VERSION} a prod?", ok: 'Desplegar a prod', submitter: 'admin'
@@ -593,35 +420,14 @@ pipeline {
     }
 
     stage('Terraform apply prod') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          expression { params.RUN_TERRAFORM }
-          expression { params.TERRAFORM_APPLY }
-          anyOf {
-            branch 'main'
-            expression { params.FORCE_PROD }
-          }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Terraform apply prod') } }
       steps {
         sh "./deploy/pipeline/terraform-env.sh 'prod' apply"
       }
     }
 
     stage('Deploy prod') {
-      when {
-        allOf {
-          anyOf {
-            branch 'main'
-            expression { params.FORCE_PROD }
-          }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Deploy prod') } }
       steps {
         script {
           env.TARGET_ENV = 'prod'
@@ -631,33 +437,14 @@ pipeline {
     }
 
     stage('Smoke prod') {
-      when {
-        allOf {
-          expression { params.DEPLOY_MODE == 'k8s' }
-          anyOf {
-            branch 'main'
-            expression { params.FORCE_PROD }
-          }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Smoke prod') } }
       steps {
         sh "./deploy/pipeline/smoke-k8s.sh 'prod'"
       }
     }
 
     stage('Tag release') {
-      when {
-        allOf {
-          anyOf {
-            branch 'main'
-            expression { params.FORCE_PROD }
-          }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Tag release') } }
       steps {
         script {
           if (params.PUSH_TAG) {
@@ -672,33 +459,14 @@ pipeline {
     }
 
     stage('Release notes') {
-      when {
-        allOf {
-          anyOf {
-            branch 'main'
-            expression { params.FORCE_PROD }
-          }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('Release notes') } }
       steps {
         sh "./deploy/release-notes.sh '${env.VERSION}'"
       }
     }
 
     stage('GitHub release') {
-      when {
-        allOf {
-          anyOf {
-            branch 'main'
-            expression { params.FORCE_PROD }
-          }
-          expression { params.PUSH_TAG }
-          expression { !params.SKIP_E2E }
-          expression { cgNoRollback() }
-        }
-      }
+      when { expression { cgRun('GitHub release') } }
       steps {
         withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
           sh "./deploy/github-release.sh '${env.VERSION}'"
@@ -804,4 +572,55 @@ def cgNoRollback() {
 
 def cgDevMainOrForced() {
   return env.BRANCH_NAME in ['dev', 'main'] || params.FORCE_PROD
+}
+
+def cgRun(String stage) {
+  if (params.ROLLBACK_VERSION?.trim()) {
+    return false
+  }
+  boolean k8s = params.DEPLOY_MODE == 'k8s'
+  boolean devMain = env.BRANCH_NAME in ['dev', 'main']
+  boolean forced = devMain || params.FORCE_PROD
+  boolean main = env.BRANCH_NAME == 'main' || params.FORCE_PROD
+  boolean e2e = !params.SKIP_E2E
+  boolean services = env.SELECTED_SERVICES ? true : false
+  boolean tf = params.RUN_TERRAFORM
+  boolean apply = params.TERRAFORM_APPLY
+  switch (stage) {
+    case 'Security: IaC scan': return k8s
+    case 'Security: secrets, dependencies and governed IaC': return true
+    case 'Terraform checks': return k8s && tf && forced
+    case 'Build':
+    case 'Unit tests and coverage':
+    case 'Package': return services
+    case 'SonarQube quality gate': return services && params.RUN_SONAR
+    case 'Integration tests': return services && params.RUN_INTEGRATION
+    case 'E2E Playwright': return params.RUN_E2E_LOCAL
+    case 'ECR build and push': return k8s && params.BUILD_IMAGES && forced
+    case 'Security: Trivy images': return k8s && forced
+    case 'Package images':
+    case 'Security: local image scan': return !k8s && params.BUILD_IMAGES && forced
+    case 'Publish images': return !k8s && params.PUBLISH_IMAGES && forced
+    case 'Publish artifacts': return services && devMain
+    case 'Terraform apply dev': return k8s && tf && apply && forced
+    case 'Deploy dev': return forced
+    case 'Smoke dev': return k8s && forced
+    case 'E2E dev': return !k8s && forced && e2e
+    case 'ZAP baseline dev': return forced && params.RUN_ZAP
+    case 'Performance dev': return forced && params.RUN_PERF
+    case 'Stop dev': return params.SEQUENTIAL_ENVS && forced
+    case 'Terraform apply stage': return k8s && tf && apply && e2e && forced
+    case 'Deploy stage': return forced && e2e
+    case 'Smoke stage': return k8s && forced
+    case 'E2E stage': return !k8s && forced && e2e
+    case 'Stop stage': return params.SEQUENTIAL_ENVS && forced
+    case 'Approve prod':
+    case 'Deploy prod':
+    case 'Tag release':
+    case 'Release notes': return main && e2e
+    case 'Terraform apply prod': return k8s && tf && apply && main && e2e
+    case 'Smoke prod': return k8s && main && e2e
+    case 'GitHub release': return main && params.PUSH_TAG && e2e
+    default: return false
+  }
 }
