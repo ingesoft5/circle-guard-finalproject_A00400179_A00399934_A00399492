@@ -55,8 +55,8 @@ se aplica al clúster. Este documento separa lo probado de lo pendiente.
 
 ### 2.4 Excepciones con caducidad
 
-- `security/exceptions.tsv` activo vacío y `security/exceptions.pending.tsv` con candidatas.
-- Hoy no hay ninguna excepción aprobada. Cuando exista, `exceptions.sh` exige responsable, motivo, fecha de aprobación y caducidad (30 días CRITICAL, 90 HIGH) y rechaza comodines y excepciones permanentes. `.trivyignore` de HU-11 no cumple esa política (sin responsable ni caducidad).
+- `security/exceptions.tsv`: 54 excepciones activas de IaC (2 CRITICAL AWS-0104 aprobadas por juanes y 52 HIGH aprobadas por matthew el 2026-11-23, caducan el 2026-12-23); `security/exceptions.pending.tsv` conserva las candidatas de dependencias (Spring) sin aprobar.
+- Hay 54 excepciones aprobadas (todas de IaC). `exceptions.sh` exige responsable, motivo, fecha de aprobación y caducidad (30 días CRITICAL, 90 HIGH) y rechaza comodines y excepciones permanentes. `.trivyignore` de HU-11 no cumple esa política (sin responsable ni caducidad).
 - Evidencia: [`../evidencias/hu-14/excepciones.md`](../evidencias/hu-14/excepciones.md).
 
 ## 3. Lo que falta
@@ -98,15 +98,15 @@ El umbral bloqueante es CRITICAL, tanto para IaC como para imágenes. `.trivyign
 | ID | Alcance | Justificación | Mitigación | Revisión |
 |---|---|---|---|---|
 | AWS-0104 | Egress 0.0.0.0/0 en nodos k3s y Jenkins | Los nodos descargan paquetes, imágenes y llaman a APIs de AWS | Ingress y administración restringidos a la IP del administrador (/32) | 2026-12-22 |
-| CVE-2026-22732 | spring-security-web 6.2.8 (auth, identity, promotion) | La corrección existe solo en 6.5.9 y 7.0.4. Exige un salto mayor de Spring Boot 3.2 | Servicios internos tras el Ingress. Actuator distinto de health bloqueado en el Ingress | 2026-12-31 |
-| CVE-2026-47884 | spring-webmvc 6.1.21 (varios servicios) | Corrección solo en 7.0.9. Mismo salto mayor | Igual que la anterior | 2026-12-31 |
-| CVE-2026-47892 | spring-webflux 6.1.21 (notification) | Corrección solo en 7.0.9 | Igual que la anterior | 2026-12-31 |
-| CVE-2026-111497 | brotli-libs en la imagen web | Corrección en 1.2.1-r0 al refrescar la imagen base | Reconstruir la imagen con base actualizada | 2026-12-31 |
-| CVE-2026-113425, CVE-2026-121810, CVE-2026-123007, CVE-2026-123633 | nginx 1.30.6-r1 en la imagen web | Corrección en 1.30.7-r0 al refrescar la imagen base | Reconstruir la imagen con base actualizada | 2026-12-31 |
+| CVE-2026-22732 | spring-security-web 6.2.8 (auth, identity, promotion) | La corrección existe solo en 6.5.9 y 7.0.4. Exige un salto mayor de Spring Boot 3.2 | Servicios internos tras el Ingress. Actuator distinto de health bloqueado en el Ingress | 2026-12-22 |
+| CVE-2026-47884 | spring-webmvc 6.1.21 (varios servicios) | Corrección solo en 7.0.9. Mismo salto mayor | Igual que la anterior | 2026-12-22 |
+| CVE-2026-47892 | spring-webflux 6.1.21 (notification) | Corrección solo en 7.0.9 | Igual que la anterior | 2026-12-22 |
+| CVE-2026-111497 | brotli-libs en la imagen web | Corrección en 1.2.1-r0 al refrescar la imagen base | Reconstruir la imagen con base actualizada | 2026-12-22 |
+| CVE-2026-113425, CVE-2026-121810, CVE-2026-123007, CVE-2026-123633 | nginx 1.30.6-r1 en la imagen web | Corrección en 1.30.7-r0 al refrescar la imagen base | Reconstruir la imagen con base actualizada | 2026-12-22 |
 
 Deuda técnica: subir Spring Boot a una versión con Spring Framework 7 y refrescar la imagen base de nginx. Al hacerlo, se eliminan las 8 entradas de CVE.
 
-**Estado frente a la política de HU-14 (`security/exceptions.tsv`).** Responsable de las excepciones de Trivy: Juan Esteban. Aprobadas el 2026-11-22, caducan el 2026-12-22 y se revisan cada 14 días. Las cuatro reglas AWS-0104 (egress) también constan en security/exceptions.tsv. Las 8 entradas de CVE de `.trivyignore` (Spring y nginx) **todavía no están en `exceptions.tsv`**: no tienen responsable registrado en el marco de HU-14 y su revisión (2026-12-31) supera los 30 días que la política permite para CRITICAL. Hasta migrarlas, el escaneo de dependencias de HU-14 sigue informando los CRITICAL de Spring sin excepción vigente.
+**Estado frente a la política de HU-14.** IaC: los 62 hallazgos CRITICAL/HIGH están cubiertos por excepciones vigentes por regla y recurso (siguen contados, no ocultos) y el gate de IaC pasa. Dependencias: las CVE de Spring y nginx de `.trivyignore` (caducan el 2026-12-22, a 30 días) **todavía no están en `exceptions.tsv`**, así que el escaneo de dependencias de HU-14 las sigue informando como bloqueantes; por eso `SECURITY_GATE` se queda en `report`. Responsable de las excepciones de Trivy de HU-11: Juan Esteban.
 
 ## Limitaciones conocidas del pipeline
 
