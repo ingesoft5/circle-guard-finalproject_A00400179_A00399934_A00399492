@@ -90,3 +90,5 @@ se aplica al clúster. Este documento separa lo probado de lo pendiente.
 | RBAC demasiado amplio para que “funcione” | Revisar `kubectl auth can-i --list` y quitar permisos de Secrets |
 | Secretos en logs de Jenkins | Enmascarar credenciales; no imprimir el entorno completo |
 | Estados reales del QR sin bloquear | Corregir el mapeo antes de la demo o declararlo como hallazgo crítico |
+
+Responsable de las excepciones de Trivy: Juan Esteban. Aprobadas el 2026-11-22, caducan el 2026-12-22 y se revisan cada 14 días. Las cuatro reglas AWS-0104 (egress) también constan en security/exceptions.tsv.

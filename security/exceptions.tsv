@@ -1,3 +1,5 @@
 # HU-14 · Active vulnerability exceptions (TSV, tab separated). Rules: security/lib/exceptions.sh and docs/seguridad/hu-14.md.
-# Empty on purpose: there is no approved exception yet. Candidates wait in exceptions.pending.tsv until an owner and a justification exist.
+# CRITICAL: maximo 30 dias y revision cada 14 dias. Responsable y justificacion obligatorios.
 id	package	scope	severity	owner	justification	approved	last_review	expires
+AWS-0104	module.ci_server	iac:infra/terraform/modules/ci-server/main.tf	CRITICAL	juanes	Egress 0.0.0.0/0 necesario para ECR, SSM y repositorios de paquetes; sin NAT ni VPC endpoints en el presupuesto del curso. Ingreso limitado por SG a la IP del administrador.	2026-11-22	2026-11-22	2026-12-22
+AWS-0104	module.compute	iac:infra/terraform/modules/compute/main.tf	CRITICAL	juanes	Egress 0.0.0.0/0 necesario para ECR, SSM y repositorios de paquetes; sin NAT ni VPC endpoints en el presupuesto del curso. Ingreso limitado por SG a la IP del administrador.	2026-11-22	2026-11-22	2026-12-22
