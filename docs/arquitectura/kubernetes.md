@@ -28,32 +28,90 @@ Blue-Green/rollback de HU-16.
 | Pods `Ready` | `kubectl get pods` con `1/1 Running` | Cumplido (evidencia e2.2) |
 | HPA (rúbrica C3) | `HorizontalPodAutoscaler` con CPU/memoria | Cumplido (9 HPA) |
 
-## 2. Estructura propuesta
+## 2. Estructura real
 
 ```text
 deploy/k8s/
 ├── base/
-│   ├── namespace.yaml
-│   ├── auth/            deployment.yaml · service.yaml
-│   ├── identity/
-│   ├── form/
-│   ├── promotion/
-│   ├── notification/
-│   ├── gateway/
-│   ├── dashboard/
-│   ├── file/
-│   ├── web/
-│   └── middleware/      postgres · neo4j · redis · kafka · openldap
+│   ├── apps/            auth · identity · form · promotion · notification · gateway · dashboard · file · web
+│   ├── middleware/      postgres · neo4j · zookeeper · kafka · redis · openldap
+│   ├── configmap.yaml · hpa.yaml · ingress.yaml · init-db.sql · nginx.conf
+│   └── kustomization.yaml
+├── components/tls/      parche de Ingress con TLS (componente de Kustomize)
 ├── overlays/
-│   ├── dev/             kustomization.yaml · configmap.yaml · patch-replicas.yaml
-│   ├── stage/
-│   └── prod/            hpa.yaml · patch-resources.yaml
-└── observability/       prometheus · grafana · alertmanager · jaeger · loki
+│   ├── dev/             namespace.yaml · kustomization.yaml (circleguard-dev)
+│   ├── stage/           namespace.yaml · kustomization.yaml (circleguard-stage)
+│   └── prod/            namespace.yaml · kustomization.yaml (circleguard-prod, gateway con 2 réplicas mínimas)
+├── observability/       all-in-one.yaml · grafana/{service-overview,business}.json
+├── deploy.sh            namespace, ecr-pull, secretos, kustomize, rollout status
+└── secrets.sh           secretos de la aplicación desde SSM Parameter Store
 ```
 
-La alternativa es un chart Helm con `values-dev.yaml`, `values-stage.yaml` y `values-prod.yaml`. El
-equipo debe elegir **una** y documentarla; Kustomize es más simple para tres ambientes y no exige
-templating.
+La decisión es **Kustomize** y no Helm: tres ambientes casi iguales no justifican un motor de
+plantillas. Cada ambiente es un `overlay` que fija el namespace, la etiqueta `environment` y los
+valores propios del ConfigMap. Las imágenes usan los marcadores `__REGISTRY__` y `__TAG__`, que
+`deploy.sh` sustituye con la versión `0.3.0-<sha>` publicada en ECR.
+
+## 2.1 Diagrama
+
+```mermaid
+flowchart TB
+    jenkins["Jenkins · deploy/k8s/deploy.sh"]
+    ecr[("ECR · 9 imágenes 0.3.0-sha")]
+    ssm[("SSM Parameter Store<br/>kubeconfig y app-secrets")]
+
+    subgraph nodo["Nodo k3s por ambiente · dev, stage, prod"]
+        subgraph ns["namespace circleguard-ENV"]
+            ing["Ingress · Traefik"]
+            web["web · nginx :8080"]
+            subgraph apps["Servicios · Deployment + HPA + sondas"]
+                gw[gateway]
+                au[auth]
+                id[identity]
+                fo[form]
+                pr[promotion]
+                no[notification]
+                fi[file]
+                da[dashboard]
+            end
+            subgraph mw["Middleware · StatefulSet"]
+                pg[(PostgreSQL)]
+                n4[(Neo4j)]
+                rd[(Redis)]
+                kf[Kafka + ZooKeeper]
+                ld[OpenLDAP]
+            end
+            sec["Secret circleguard-secrets<br/>ConfigMap circleguard-config"]
+        end
+        subgraph obs["namespace observability"]
+            prom[Prometheus] --> graf[Grafana]
+            jae[Jaeger]
+            loki[Loki + Promtail]
+        end
+    end
+
+    jenkins -- "kubectl apply -k overlays/ENV" --> ns
+    jenkins -- "lee kubeconfig" --> ssm
+    ecr -- "pull con ecr-pull" --> apps
+    ssm -- "secrets.sh" --> sec
+    ing --> web
+    web -- "proxy por ruta /auth, /identity, ..." --> apps
+    au --> id
+    au --> ld
+    au --> pg
+    id --> pg
+    fo --> pg
+    fo -- evento --> kf
+    kf --> pr
+    pr --> n4
+    gw --> rd
+    prom -. "scrape /actuator/prometheus" .-> apps
+```
+
+Cada ambiente es un nodo k3s independiente creado por Terraform (`envs/dev`, `envs/stage`,
+`envs/prod`). El aislamiento entre ambientes es por **nodo y por namespace**, no solo por
+namespace. Los 9 HPA escalan por CPU al 70 %. Las sondas y los límites de recursos están en cada
+manifiesto de `base/apps/`.
 
 ## 3. Contrato de nombres y configuración
 
