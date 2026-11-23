@@ -21,7 +21,7 @@
 | 9 | Healthcheck de la aplicación | `04-dev-health.log` | Cumplido |
 | 10 | Stage desplegado | `05-stage-deploy.log`, `06-stage-resources.log` | Cumplido |
 | 11 | Prod desplegado | `07-prod-deploy.log`, `08-prod-resources.log` | Cumplido |
-| 12 | Despliegue desde Jenkins | — | Pendiente (HU-11) |
+| 12 | Despliegue desde Jenkins | [`../e2.3-pipeline/`](../e2.3-pipeline) | Cumplido (HU-11) |
 
 ## Archivos
 
