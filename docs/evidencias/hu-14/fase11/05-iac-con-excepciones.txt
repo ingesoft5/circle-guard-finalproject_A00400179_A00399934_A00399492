@@ -1,0 +1,13 @@
+# IaC con las excepciones aprobadas el 2026-11-23 (2026-11-23)
+Trivy: aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c
+Rutas: infra/terraform deploy/k8s security/k8s · umbral que bloquea: CRITICAL,HIGH
+PASS  iac  C=4   H=58  M=70  L=131 U=0    bloquean: 0 · con excepción vigente: 62
+RESULT: PASS · ningún hallazgo de IaC supera el umbral (CRITICAL,HIGH). 
+
+# Excepciones activas por regla
+2  AWS-0104 juanes 2026-12-22
+2  AWS-0132 matthew 2026-12-23
+1  AWS-0164 matthew 2026-12-23
+22  KSV-0014 matthew 2026-12-23
+1  KSV-0056 matthew 2026-12-23
+26  KSV-0118 matthew 2026-12-23

@@ -14,8 +14,11 @@
 # iac_extract <report.json>: one line per finding: severity<TAB>id<TAB>resource<TAB>file<TAB>title
 iac_extract() {
   awk '
+    # A message may quote lists (KSV-0056: resources ["services", ...] and the verb "*"); the exceptions file forbids wildcard and
+    # bracket characters in an identity, so they are removed here, the same way on both sides of the comparison.
+    function clean(s) { gsub(/\\"/, "", s); gsub(/[][*?|"\\]/, "", s); return s }
     function flush() {
-      if (id != "") printf "%s\t%s\t%s\t%s\t%s\n", sev, id, (res != "" ? res : msg), target, title
+      if (id != "") printf "%s\t%s\t%s\t%s\t%s\n", sev, id, (res != "" ? res : clean(msg)), target, title
       id = ""; res = ""; msg = ""; sev = ""; title = ""
     }
     function value(line,   v) { v = line; sub(/^[^:]*: *"/, "", v); sub(/",?$/, "", v); return v }
