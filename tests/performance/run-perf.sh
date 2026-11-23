@@ -66,7 +66,7 @@ run_step() { # run_step <scenario> <class> <users> [duration] [subdirectory of t
   prefix="${sub:+$sub/}$scenario-u$users"
   mkdir -p "$OUT/${sub:-.}"
   echo "==> $scenario with $users users, $duration${sub:+ ($sub, not measured)}"
-  docker run --rm "${NET_ARGS[@]}" -v "$HERE":/perf:ro -v "$OUT":/out \
+  docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp "${NET_ARGS[@]}" -v "$HERE":/perf:ro -v "$OUT":/out \
     -e PERF_SCENARIO="$scenario" -e PERF_TARGET_ENV -e PERF_USERNAME -e PERF_PASSWORD \
     -e PERF_ACCESS_RPS_PER_USER -e PERF_SURVEY_RPS_PER_USER \
     "$LOCUST_IMAGE" -f /perf/locustfile.py "$class" --headless --host "$HOST" --users "$users" --spawn-rate "$SPAWN" \
@@ -78,7 +78,7 @@ run_step() { # run_step <scenario> <class> <users> [duration] [subdirectory of t
 
 if ((SEED)); then
   echo "==> seeding the questionnaire"
-  docker run --rm "${NET_ARGS[@]}" -v "$HERE":/perf:ro -e PERF_TARGET_ENV --entrypoint python3 "$LOCUST_IMAGE" /perf/seed_questionnaire.py "$HOST"
+  docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp "${NET_ARGS[@]}" -v "$HERE":/perf:ro -e PERF_TARGET_ENV --entrypoint python3 "$LOCUST_IMAGE" /perf/seed_questionnaire.py "$HOST"
 fi
 
 for scenario in "${scenarios[@]}"; do
@@ -88,7 +88,7 @@ for scenario in "${scenarios[@]}"; do
   for users in $STEPS; do run_step "$scenario" "$class" "$users"; done
 done
 
-py() { docker run --rm -v "$HERE":/perf:ro -v "$OUT":/out --entrypoint python3 "$LOCUST_IMAGE" "$@"; }
+py() { docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$HERE":/perf:ro -v "$OUT":/out --entrypoint python3 "$LOCUST_IMAGE" "$@"; }
 py /perf/charts.py --results /out --out /out/charts
 rc=0
 py /perf/evaluate.py --targets /perf/targets.json --results /out --out-json /out/evaluation.json --out-md /out/evaluation.md \
