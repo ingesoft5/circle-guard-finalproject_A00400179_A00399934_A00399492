@@ -1,5 +1,5 @@
 SUITE                      RESULT
-test-gate.sh               PASS  14 passed, 0 failed
+test-gate.sh               PASS  17 passed, 0 failed
 test-exceptions.sh         PASS  29 passed, 0 failed
 test-iac-gate.sh           PASS  23 passed, 0 failed
 test-zap-gate.sh           PASS  13 passed, 0 failed

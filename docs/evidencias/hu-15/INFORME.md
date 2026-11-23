@@ -140,3 +140,16 @@ El total de pruebas JUnit pasa de 302 a 347 (2 + 32 + 11 nuevas), sin fallos.
 - El override `QR_EXPIRATION=60000` cambia la configuración respecto al repositorio (H1). El consumidor de promotion y el lag de Kafka no se midieron.
 - ZAP baseline es pasivo y su rastreo dura 1 minuto.
 - **Integración con Jenkins aplicada pero no ejecutada:** los stages «ZAP baseline dev» y «Performance dev» y sus parámetros están en el [Jenkinsfile](../../../Jenkinsfile) (sintaxis Groovy y auditoría de credenciales verificadas), apagados por defecto (`RUN_ZAP`, `RUN_PERF` = false); no se ha ejecutado ningún build en Jenkins con ellos.
+
+## Medición en el clúster de dev desde Jenkins (build #10)
+
+Ejecutada por Juan Esteban en el Jenkins de AWS contra el Ingress de dev (rama HU14, `FORCE_PROD`; dos escalones de 2 min, 10 y 100 usuarios; credencial `perf-test-user`). Registro: [pipeline-10.log](../hu-14/fase11/pipeline-10.log) (tras integrar la rama).
+
+| Flujo (100 usuarios) | p95 | Throughput | Errores | Veredicto |
+|---|---|---|---|---|
+| `POST /gateway/gate/validate` | **230 ms** (objetivo ≤ 300) | 189,7 req/s (objetivo ≥ 200) | 0,00 % | p95 y errores cumplen; throughput **no** |
+| `POST /form/surveys` | **280 ms** (objetivo ≤ 800) | 48,4 req/s (objetivo ≥ 50) | 0,17 % | p95 y errores cumplen; throughput **no** |
+
+ZAP baseline sobre el mismo ambiente: sin alertas High (`RESULT: PASS`).
+
+**Lectura honesta.** Los objetivos de latencia y errores se cumplen con holgura en el clúster (mucho mejor que en Compose local con 0,5 CPU: p95 460 ms y 2 700 ms). El throughput queda al 95 % y 97 % del objetivo, pero **la carga ofrecida es exactamente el objetivo** (2 y 0,5 req/s por usuario × 100 = 200 y 50): con tiempos de respuesta de 18 ms (mediana) el sistema no estaba saturado, así que la diferencia es el retraso de pacing del generador (`constant_throughput`), no falta de capacidad. Con la carga ofrecida igual al objetivo, «throughput ≥ objetivo» no es una prueba de capacidad. **No se cambió el objetivo ni se declara cumplido**: el veredicto sigue siendo NOT MET. Para que la medida sea concluyente hay que repetir ofreciendo más del objetivo (por ejemplo `PERF_ACCESS_RPS_PER_USER=2.5` y `PERF_SURVEY_RPS_PER_USER=0.65`, un 25 % más) y comprobar si el throughput alcanzado supera el objetivo; esa repetición está pendiente. El build #9 no midió porque el escalón de 100 usuarios se colgó en el host de CI (`NOT MEASURED`, no es un fallo de la aplicación).
