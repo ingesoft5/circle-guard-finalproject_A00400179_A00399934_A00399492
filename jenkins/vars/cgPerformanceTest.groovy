@@ -22,7 +22,7 @@ def call(Map cfg = [:]) {
         error('cgPerformanceTest needs host and credentialsId')
     }
     String out = "tests/performance/results/build-${env.BUILD_NUMBER ?: 'local'}"
-    String command = "./tests/performance/run-perf.sh --host '${host}' --steps '${steps}' --duration '${duration}' --out '${out}'"
+    String command = "bash ./tests/performance/run-perf.sh --host '${host}' --steps '${steps}' --duration '${duration}' --out '${out}'"
     if (network) {
         command += " --network '${network}'"
     }

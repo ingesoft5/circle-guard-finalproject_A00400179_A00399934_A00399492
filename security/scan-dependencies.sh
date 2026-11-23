@@ -41,15 +41,20 @@ if [[ "${CG_SKIP_GRADLE:-false}" != "true" ]]; then
   for service in "${SERVICES[@]}"; do tasks+=(":services:$service:cgDependencySbom"); done
   cg_info "==> Gradle: resolving the runtime dependencies of ${#SERVICES[@]} service(s)"
   "$GRADLE" --no-daemon --console=plain -q --project-cache-dir "$PROJECT_CACHE" \
-    --init-script "$ROOT_DIR/security/gradle/dependency-sbom.init.gradle.kts" "${tasks[@]}" >&2
+    --init-script "$ROOT_DIR/security/gradle/dependency-sbom.init.gradle.kts" "${tasks[@]}" >&2 || {
+    printf 'ERROR: Gradle no pudo resolver las dependencias; el escaneo no se ejecutó.
+' >&2
+    exit 2
+  }
 fi
 
 args=()
 for service in "${SERVICES[@]}"; do
   sbom="$ROOT_DIR/services/$service/build/security/sbom.cdx.json"
-  [[ -s "$sbom" ]] || cg_die "No se generó el SBOM de $service ($sbom)."
+  [[ -s "$sbom" ]] || { printf 'ERROR: No se generó el SBOM de %s (%s); el escaneo no se ejecutó.
+' "$service" "$sbom" >&2; exit 2; }
   cp "$sbom" "$SBOM_DIR/$service.cdx.json"
   args+=(--sbom "$SBOM_DIR/$service.cdx.json=$service")
 done
 
-exec "$ROOT_DIR/security/scan-images.sh" "${args[@]}" --class own
+exec bash "$ROOT_DIR/security/scan-images.sh" "${args[@]}" --class own

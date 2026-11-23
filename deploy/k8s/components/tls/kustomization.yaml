@@ -1,0 +1,17 @@
+# HU-14 · HTTPS on the Traefik ingress of HU-10 (k3s ships Traefik; the Ingress "circleguard" already uses ingressClassName: traefik).
+# Adds the tls section to that Ingress. The certificate is the Secret "circleguard-tls" of the environment namespace; it is NOT in the
+# repository. Create it with security/k8s/tls/ensure-tls-secret.sh <env> (self-signed, for the public IP of the node) or let
+# cert-manager issue it once HU-09 provides a DNS name (security/k8s/tls/certificate.yaml).
+# If the Secret does not exist yet the Ingress is still created: HTTP keeps working and Traefik serves its own default certificate
+# on HTTPS until the Secret appears. HTTP is not redirected here (a redirect needs a Traefik Middleware that has to be tried in the cluster).
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+  - target:
+      kind: Ingress
+      name: circleguard
+    patch: |-
+      - op: add
+        path: /spec/tls
+        value:
+          - secretName: circleguard-tls

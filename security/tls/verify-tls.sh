@@ -29,8 +29,9 @@ command -v openssl >/dev/null 2>&1 || { echo "ERROR: se necesita openssl" >&2; e
 [[ -z "$CA" || -f "$CA" ]] || { echo "ERROR: no existe $CA" >&2; exit 2; }
 
 CA_ARGS=(); [[ -n "$CA" ]] && CA_ARGS=(-CAfile "$CA")
+TMO=(); if command -v timeout >/dev/null 2>&1; then TMO=(timeout 15); elif command -v gtimeout >/dev/null 2>&1; then TMO=(gtimeout 15); fi
 sclient() { # sclient <extra args...>; the endpoint answers or the call fails
-  timeout 15 openssl s_client -connect "$HOST:$PORT" -servername "$NAME" "$@" </dev/null 2>&1
+  ${TMO[@]+"${TMO[@]}"} openssl s_client -connect "$HOST:$PORT" -servername "$NAME" "$@" </dev/null 2>&1
 }
 
 if ! sclient -brief >/dev/null 2>&1 && ! sclient >/dev/null 2>&1; then
@@ -44,7 +45,7 @@ result() { # result <description> <0|1>
 
 # The chain is valid only if the handshake succeeds WITH -verify_return_error (openssl then exits non-zero on any verification error),
 # and the name is checked separately on the leaf certificate. Never infer success from text in the output.
-if sclient "${CA_ARGS[@]}" -verify_return_error -tls1_2 >/dev/null 2>&1; then chain=0; else chain=1; fi
+if sclient ${CA_ARGS[@]+"${CA_ARGS[@]}"} -verify_return_error -tls1_2 >/dev/null 2>&1; then chain=0; else chain=1; fi
 leaf=$(sclient -showcerts </dev/null | awk '/BEGIN CERTIFICATE/{f=1} f{print} /END CERTIFICATE/{exit}')
 if [[ -n "$leaf" ]] && openssl x509 -noout -checkhost "$NAME" <<<"$leaf" 2>/dev/null | grep -q 'does match certificate'; then host=0; else host=1; fi
 result "the certificate chain validates$([[ -n "$CA" ]] && echo " against $(basename "$CA")")" "$chain"
@@ -65,7 +66,8 @@ done
 
 if command -v curl >/dev/null 2>&1; then
   CURL_CA=(); [[ -n "$CA" ]] && CURL_CA=(--cacert "$CA")
-  headers=$(curl -s -m 15 -I "${CURL_CA[@]}" --resolve "$NAME:$PORT:$HOST" "https://$NAME:$PORT/" 2>/dev/null || true)
+  CT_HOST=$HOST; [[ "$HOST" == *:* ]] && CT_HOST="[$HOST]"
+  headers=$(curl -s -m 15 -I ${CURL_CA[@]+"${CURL_CA[@]}"} --connect-to "$NAME:$PORT:$CT_HOST:$PORT" "https://$NAME:$PORT/" 2>/dev/null || true)
   if grep -qi '^strict-transport-security:' <<<"$headers"; then r=0; else r=1; fi
   result "the HTTPS answer carries Strict-Transport-Security" "$r"
 fi

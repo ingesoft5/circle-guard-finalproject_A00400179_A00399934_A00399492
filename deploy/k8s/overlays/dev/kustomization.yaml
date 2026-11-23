@@ -3,6 +3,8 @@ kind: Kustomization
 namespace: circleguard-dev
 resources:
 - ../../base
+components:
+- ../../components/tls
 labels:
 - pairs:
     environment: dev

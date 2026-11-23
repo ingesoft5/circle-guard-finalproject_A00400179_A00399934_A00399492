@@ -1,0 +1,9 @@
+# HU-14 · RBAC of one environment. The files in this folder are the CONTRACT (namespace "circleguard" is a placeholder that the
+# overlays (security/k8s/rbac-overlays/) rewrite to circleguard-dev, circleguard-stage or circleguard-prod, the namespaces of HU-10 deploy/k8s/overlays/*).
+# Apply one environment with:   kubectl apply -k security/k8s/rbac-overlays/dev
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - serviceaccounts.yaml
+  - roles.yaml
+  - rolebindings.yaml
