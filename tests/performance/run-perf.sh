@@ -53,6 +53,7 @@ command -v docker >/dev/null || die "Docker is required."
 
 [[ -n "$OUT" ]] || OUT="$HERE/results/$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "$OUT"
+OUT=$(cd "$OUT" && pwd)
 NET_ARGS=(); [[ -z "$NETWORK" ]] || NET_ARGS=(--network "$NETWORK")
 scenarios=(access survey); [[ "$SCENARIO" == both ]] || scenarios=("$SCENARIO")
 
