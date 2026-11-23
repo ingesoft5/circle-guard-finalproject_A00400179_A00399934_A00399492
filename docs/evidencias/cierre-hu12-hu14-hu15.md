@@ -17,7 +17,7 @@ Estado a 2026-11-22, con `dev` que ya contiene HU-09, HU-10, HU-11, HU-13, HU-16
 |---|---|
 | Documento principal (todas las fases, matriz y dependencias) | [../seguridad/hu-14.md](../seguridad/hu-14.md) |
 | Resumen operativo (matriz E2.6) | [../operacion/seguridad.md](../operacion/seguridad.md) |
-| Índice de evidencias | [hu-14/README.md](hu-14/README.md) |
+| Índice de evidencias | [hu-14/README.md](hu-14/README.md) · texto para el informe: [informe-hu12-hu14-hu15.md](informe-hu12-hu14-hu15.md) |
 | Imágenes (Trivy), compuerta y bloqueo controlado | [hu-14/fase2/](hu-14/fase2/) |
 | Dependencias | [hu-14/fase3/](hu-14/fase3/) y [hu-14/correcciones/](hu-14/correcciones/) |
 | Secretos (Gitleaks) y archivos sensibles | [hu-14/fase4/](hu-14/fase4/) · escaneo actual: [hu-14/fase11/03-secretos.txt](hu-14/fase11/03-secretos.txt) |
