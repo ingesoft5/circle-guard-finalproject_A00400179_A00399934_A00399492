@@ -740,3 +740,39 @@ toma como evidencia la ejecución reportada en el documento y se recomienda repe
 
 **Consecuencias.** Las observaciones se asignan a HU-10/HU-11 (variables de despliegue) y a la
 revisión de cierre de HU-12. No bloquean el merge ya hecho, pero sí el cierre formal de la HU.
+
+## D-36 · Las excepciones de seguridad las aprueba una persona
+
+- **Fecha:** 2026-11-23
+- **Historia:** HU-14 (Sprint 2 · E2.6)
+- **Estado:** Aceptada
+
+**Contexto.** El marco de excepciones exige responsable, justificación, fecha de aprobación y caducidad (30 días en CRITICAL, 90 en HIGH; sin comodines ni permanentes). La IA preparó las candidatas con `PENDIENTE`.
+
+**Decisión.** La IA no aprueba excepciones: genera las filas candidatas y redacta la justificación técnica, y una persona las aprueba con su nombre. Matthew aprobó los HIGH de IaC (KSV-0014, KSV-0118, KSV-0056, AWS-0132 y AWS-0164) a 30 días; Juan Esteban aprobó AWS-0104. Se rechazó añadir esos IDs a `.trivyignore`: ignora por regla en todo el repositorio, ocultaría futuras violaciones y no cambia el gate de HU-11, que bloquea solo CRITICAL.
+
+**Consecuencias.** El escaneo de IaC pasa con 62 hallazgos cubiertos y ninguno oculto (siguen contados). Las 3 CRITICAL y 22 HIGH de dependencias de Spring siguen sin excepción; por eso `SECURITY_GATE` se queda en `report`.
+
+## D-37 · Un escaneo que no se ejecutó sale con código 2
+
+- **Fecha:** 2026-11-23
+- **Historia:** HU-14 (Sprint 2 · E2.6)
+- **Estado:** Aceptada
+
+**Contexto.** En el build #10 de Jenkins el agente no tenía `docker compose`; el escaneo de dependencias terminó con código 1 y el pipeline lo trató como «hallazgos sobre el umbral» (UNSTABLE) en lugar de un error. Fue un defecto de la IA, detectado por la ejecución real.
+
+**Decisión.** Una herramienta ausente, un Gradle que falla o un SBOM que no se generó salen con código 2, que siempre falla el build. El código 1 queda reservado a «hay hallazgos». Se añadieron tres pruebas que fallan con el código anterior.
+
+**Consecuencias.** Un escaneo que no corrió nunca cuenta como aprobado ni como hallazgo. El agente de Jenkins necesita el plugin `docker compose`.
+
+## D-38 · Los objetivos de rendimiento no se cambian después de medir
+
+- **Fecha:** 2026-11-23
+- **Historia:** HU-15 (Sprint 2 · E2.7)
+- **Estado:** Aceptada
+
+**Contexto.** En el clúster, a 100 usuarios, el p95 y los errores cumplen pero el throughput no (189,7 de 200 y 48,4 de 50). La IA supuso que era el pacing del generador porque la carga ofrecida era igual al objetivo y propuso ofrecer 25 % más. La repetición dio 192,3 y 48,7.
+
+**Decisión.** Los objetivos (`tests/performance/targets.json`) no se tocan. La hipótesis del pacing quedó refutada por el dato y se corrigió en el informe: hay un techo de capacidad cercano a 190 y 49 req/s cuya causa (servicio, nodo único o generador) no está separada. El paso de Jenkins ofrece 25 % más de carga por defecto.
+
+**Consecuencias.** HU-15 declara el throughput como NOT MET. Para cerrar la causa hay que medir CPU del nodo y del agente durante la prueba o repartir la carga en varios procesos de Locust.
