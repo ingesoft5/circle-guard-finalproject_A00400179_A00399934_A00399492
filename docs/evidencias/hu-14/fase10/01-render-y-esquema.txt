@@ -1,0 +1,16 @@
+# HU-14 FASE 10 · render y esquema (2026-11-21). kubectl v1.31.0 (registry.k8s.io/kubectl), kubeconform v0.7.0 estricto, Kubernetes 1.31.0
+kustomize deploy/k8s/overlays/dev: exit 0, 43 resources 
+  kubeconform dev    Summary: 43 resources found in 1 file - Valid: 43, Invalid: 0, Errors: 0, Skipped: 0
+kustomize deploy/k8s/overlays/stage: exit 0, 43 resources 
+  kubeconform stage  Summary: 43 resources found in 1 file - Valid: 43, Invalid: 0, Errors: 0, Skipped: 0
+kustomize deploy/k8s/overlays/prod: exit 0, 43 resources 
+  kubeconform prod   Summary: 43 resources found in 1 file - Valid: 43, Invalid: 0, Errors: 0, Skipped: 0
+kustomize security/k8s/rbac-overlays/dev: exit 0, 7 resources 
+  kubeconform rbac-dev    Summary: 7 resources found in 1 file - Valid: 7, Invalid: 0, Errors: 0, Skipped: 0
+kustomize security/k8s/rbac-overlays/stage: exit 0, 7 resources 
+  kubeconform rbac-stage  Summary: 7 resources found in 1 file - Valid: 7, Invalid: 0, Errors: 0, Skipped: 0
+kustomize security/k8s/rbac-overlays/prod: exit 0, 7 resources 
+  kubeconform rbac-prod   Summary: 7 resources found in 1 file - Valid: 7, Invalid: 0, Errors: 0, Skipped: 0
+  namespaces en el RBAC de prod: 8 apariciones de circleguard-prod, 0 del marcador circleguard
+  gateway de prod, minReplicas: 2
+  Ingress de dev con tls: circleguard-tls

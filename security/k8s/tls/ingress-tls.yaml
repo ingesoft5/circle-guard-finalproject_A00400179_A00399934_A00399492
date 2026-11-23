@@ -1,3 +1,7 @@
+# NOTE (2026-11-21): this file assumes ingress-nginx, but the cluster of HU-10 (k3s) uses TRAEFIK. For the web client use
+# deploy/k8s/components/tls (applied by the overlays) and security/k8s/tls/ensure-tls-secret.sh. This file stays as a reference,
+# for example for the Grafana Ingress of HU-13, and is not applied.
+#
 # HU-14 · HTTPS for the services exposed by Kubernetes. PREPARED, NOT APPLIED: it needs the cluster and the ingress controller of
 # HU-10 (and the DNS and public IP that HU-09 provides). Nothing here has been deployed or tested against a cluster.
 #

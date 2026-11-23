@@ -1,0 +1,41 @@
+FAIL  sa:circleguard-dev:jenkins-deployer get deployments in circleguard-dev: expected yes, got no
+FAIL  sa:circleguard-dev:jenkins-deployer patch deployments in circleguard-dev: expected yes, got no
+FAIL  sa:circleguard-dev:jenkins-deployer create deployments in circleguard-dev: expected yes, got no
+FAIL  sa:circleguard-dev:jenkins-deployer update services in circleguard-dev: expected yes, got no
+FAIL  sa:circleguard-dev:jenkins-deployer patch configmaps in circleguard-dev: expected yes, got no
+FAIL  sa:circleguard-dev:jenkins-deployer get pods/log in circleguard-dev: expected yes, got no
+FAIL  sa:circleguard-dev:jenkins-deployer patch statefulsets in circleguard-dev: expected yes, got no
+FAIL  sa:circleguard-dev:jenkins-deployer create horizontalpodautoscalers in circleguard-dev: expected yes, got no
+PASS  sa:circleguard-dev:jenkins-deployer delete deployments in circleguard-dev: no
+PASS  sa:circleguard-dev:jenkins-deployer get secrets in circleguard-dev: no
+PASS  sa:circleguard-dev:jenkins-deployer create secrets in circleguard-dev: no
+PASS  sa:circleguard-dev:jenkins-deployer create pods/exec in circleguard-dev: no
+PASS  sa:circleguard-dev:jenkins-deployer delete pods in circleguard-dev: no
+PASS  sa:circleguard-dev:jenkins-deployer get deployments in observability: no
+PASS  sa:circleguard-dev:jenkins-deployer get deployments in kube-system: no
+PASS  sa:circleguard-dev:jenkins-deployer create rolebindings in circleguard-dev: no
+FAIL  group:circleguard-viewers get pods in circleguard-dev: expected yes, got no
+FAIL  group:circleguard-viewers list deployments in circleguard-dev: expected yes, got no
+FAIL  group:circleguard-viewers get pods/log in circleguard-dev: expected yes, got no
+FAIL  group:circleguard-viewers get horizontalpodautoscalers in circleguard-dev: expected yes, got no
+PASS  group:circleguard-viewers get secrets in circleguard-dev: no
+PASS  group:circleguard-viewers list secrets in circleguard-dev: no
+PASS  group:circleguard-viewers create deployments in circleguard-dev: no
+PASS  group:circleguard-viewers update configmaps in circleguard-dev: no
+PASS  group:circleguard-viewers create pods/exec in circleguard-dev: no
+PASS  group:circleguard-viewers get pods in observability: no
+FAIL  group:circleguard-platform-admins get secrets in circleguard-dev: expected yes, got no
+FAIL  group:circleguard-platform-admins create secrets in circleguard-dev: expected yes, got no
+FAIL  group:circleguard-platform-admins update secrets in circleguard-dev: expected yes, got no
+PASS  group:circleguard-platform-admins list secrets in circleguard-dev: no
+PASS  group:circleguard-platform-admins delete secrets in circleguard-dev: no
+PASS  group:circleguard-platform-admins get deployments in circleguard-dev: no
+PASS  group:circleguard-platform-admins get secrets in observability: no
+PASS  sa:circleguard-dev:default get pods in circleguard-dev: no
+PASS  sa:circleguard-dev:default get secrets in circleguard-dev: no
+PASS  sa:circleguard-dev:default get configmaps in circleguard-dev: no
+PASS  sa:circleguard-dev:default list services in circleguard-dev: no
+PASS  sa:circleguard-dev:default create deployments in circleguard-dev: no
+
+Matrix: 23 of 38 rows as expected
+RESULT: FAIL

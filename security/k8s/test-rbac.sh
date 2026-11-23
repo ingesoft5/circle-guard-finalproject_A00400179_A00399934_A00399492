@@ -2,19 +2,23 @@
 # HU-14 · Verifies the RBAC of a REAL cluster against security/k8s/rbac-matrix.txt using `kubectl auth can-i` with impersonation.
 # Run it after applying security/k8s/rbac/ (HU-10 provides the cluster). It changes nothing in the cluster.
 #
-#   security/k8s/test-rbac.sh [--context <kube-context>]
+#   security/k8s/test-rbac.sh [--context <kube-context>] [--namespace circleguard-dev]
 #
+# --namespace  the environment namespace of HU-10 (circleguard-dev, -stage or -prod). The word "circleguard" in the matrix stands for it;
+#              other namespaces of the matrix (observability, kube-system) are checked as written. Default: circleguard.
 # Requires: kubectl, and a kubeconfig identity allowed to impersonate (for example a cluster administrator).
+# The kubeconfig: KUBECONFIG, or fetch one with security/k8s/fetch-kubeconfig.sh <env>.
 # Exit code: 0 = every row matches; 1 = at least one row differs; 2 = usage or connection error.
 set -Eeuo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 MATRIX="$HERE/rbac-matrix.txt"
-CTX_ARGS=()
+CTX_ARGS=() NS=circleguard
 while (($#)); do
   case "$1" in
     --context) CTX_ARGS=(--context "${2:?Falta el contexto}"); shift 2 ;;
-    -h|--help) sed -n '2,9p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --namespace) NS=${2:?Falta el namespace}; shift 2 ;;
+    -h|--help) sed -n '2,13p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "ERROR: argumento desconocido $1" >&2; exit 2 ;;
   esac
 done
@@ -24,6 +28,7 @@ kubectl "${CTX_ARGS[@]}" version >/dev/null 2>&1 || { echo "ERROR: no hay conexi
 rows=0 bad=0
 while read -r subject verb resource group sub namespace expected; do
   [[ -z "${subject:-}" || "$subject" == \#* ]] && continue
+  subject=${subject/#sa:circleguard:/sa:$NS:}; [[ "$namespace" == circleguard ]] && namespace=$NS
   rows=$((rows + 1))
   target=$resource; [[ "$group" != "-" ]] && target="$resource.$group"
   args=(auth can-i "$verb" "$target" --namespace "$namespace")

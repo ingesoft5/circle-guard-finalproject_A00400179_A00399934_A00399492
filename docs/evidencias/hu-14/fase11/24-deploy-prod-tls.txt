@@ -1,0 +1,125 @@
+Desplegando 0.3.0-c6ac037 en prod (circleguard-prod)
+namespace/circleguard-prod configured
+Secretos de prod leídos desde SSM
+secret/circleguard-secrets unchanged
+secret/ecr-pull configured
+configmap/circleguard-config configured
+configmap/postgres-init-75fhc7866k unchanged
+configmap/web-nginx-mgkbt5h7g9 created
+service/auth unchanged
+service/dashboard unchanged
+service/file unchanged
+service/form unchanged
+service/gateway unchanged
+service/identity unchanged
+service/kafka unchanged
+service/neo4j unchanged
+service/notification unchanged
+service/openldap unchanged
+service/postgres unchanged
+service/promotion unchanged
+service/redis unchanged
+service/web unchanged
+service/zookeeper unchanged
+deployment.apps/auth configured
+deployment.apps/dashboard configured
+deployment.apps/file configured
+deployment.apps/form configured
+deployment.apps/gateway configured
+deployment.apps/identity configured
+deployment.apps/notification configured
+deployment.apps/promotion configured
+deployment.apps/web configured
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "kafka" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "kafka" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "kafka" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "kafka" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+statefulset.apps/kafka configured
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "neo4j" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "neo4j" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "neo4j" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "neo4j" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+statefulset.apps/neo4j configured
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "openldap" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "openldap" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "openldap" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "openldap" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+statefulset.apps/openldap configured
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "postgres" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "postgres" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "postgres" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "postgres" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+statefulset.apps/postgres configured
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "redis" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "redis" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "redis" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "redis" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+statefulset.apps/redis configured
+Warning: would violate PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "zookeeper" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "zookeeper" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "zookeeper" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "zookeeper" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+statefulset.apps/zookeeper configured
+horizontalpodautoscaler.autoscaling/auth unchanged
+horizontalpodautoscaler.autoscaling/dashboard unchanged
+horizontalpodautoscaler.autoscaling/file unchanged
+horizontalpodautoscaler.autoscaling/form unchanged
+horizontalpodautoscaler.autoscaling/gateway unchanged
+horizontalpodautoscaler.autoscaling/identity unchanged
+horizontalpodautoscaler.autoscaling/notification unchanged
+horizontalpodautoscaler.autoscaling/promotion unchanged
+horizontalpodautoscaler.autoscaling/web unchanged
+ingress.networking.k8s.io/circleguard configured
+partitioned roll out complete: 1 new pods have been updated...
+partitioned roll out complete: 1 new pods have been updated...
+partitioned roll out complete: 1 new pods have been updated...
+partitioned roll out complete: 1 new pods have been updated...
+partitioned roll out complete: 1 new pods have been updated...
+partitioned roll out complete: 1 new pods have been updated...
+Waiting for deployment "auth" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "auth" rollout to finish: 1 old replicas are pending termination...
+deployment "auth" successfully rolled out
+Waiting for deployment "identity" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "identity" rollout to finish: 1 old replicas are pending termination...
+deployment "identity" successfully rolled out
+deployment "dashboard" successfully rolled out
+deployment "file" successfully rolled out
+deployment "form" successfully rolled out
+Waiting for deployment "gateway" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "gateway" rollout to finish: 1 old replicas are pending termination...
+deployment "gateway" successfully rolled out
+deployment "notification" successfully rolled out
+Waiting for deployment "promotion" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "promotion" rollout to finish: 1 old replicas are pending termination...
+deployment "promotion" successfully rolled out
+deployment "web" successfully rolled out
+NAME                                READY   STATUS    RESTARTS        AGE
+pod/auth-759fdcc6f5-x5cz5           1/1     Running   0               114s
+pod/dashboard-6b67cdd587-fnnxc      1/1     Running   0               114s
+pod/file-7b75f58b47-lmn9z           1/1     Running   0               114s
+pod/form-576546449c-lst5r           1/1     Running   0               113s
+pod/gateway-6dc447f848-428r5        1/1     Running   0               113s
+pod/gateway-6dc447f848-xrnrm        1/1     Running   0               111s
+pod/identity-5b758fb7d9-8pxnz       1/1     Running   0               112s
+pod/kafka-0                         1/1     Running   7 (4h48m ago)   42h
+pod/neo4j-0                         1/1     Running   3 (4h50m ago)   42h
+pod/notification-568d9d9c59-pf28s   1/1     Running   0               112s
+pod/openldap-0                      1/1     Running   3 (18h ago)     42h
+pod/postgres-0                      1/1     Running   3 (18h ago)     42h
+pod/promotion-c8fd859f9-tzggw       1/1     Running   0               111s
+pod/redis-0                         1/1     Running   3 (18h ago)     42h
+pod/web-644b9fbf47-mk6xp            1/1     Running   0               111s
+pod/zookeeper-0                     1/1     Running   3 (18h ago)     42h
+
+NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+service/auth           ClusterIP   10.43.14.123    <none>        8180/TCP   42h
+service/dashboard      ClusterIP   10.43.206.65    <none>        8084/TCP   42h
+service/file           ClusterIP   10.43.216.196   <none>        8085/TCP   42h
+service/form           ClusterIP   10.43.31.127    <none>        8086/TCP   42h
+service/gateway        ClusterIP   10.43.143.144   <none>        8087/TCP   42h
+service/identity       ClusterIP   10.43.7.73      <none>        8083/TCP   42h
+service/kafka          ClusterIP   10.43.158.117   <none>        9092/TCP   42h
+service/neo4j          ClusterIP   10.43.19.106    <none>        7687/TCP   42h
+service/notification   ClusterIP   10.43.202.215   <none>        8082/TCP   42h
+service/openldap       ClusterIP   10.43.77.235    <none>        389/TCP    42h
+service/postgres       ClusterIP   10.43.2.215     <none>        5432/TCP   42h
+service/promotion      ClusterIP   10.43.215.235   <none>        8088/TCP   42h
+service/redis          ClusterIP   10.43.69.151    <none>        6379/TCP   42h
+service/web            ClusterIP   10.43.77.225    <none>        8080/TCP   42h
+service/zookeeper      ClusterIP   10.43.80.49     <none>        2181/TCP   42h
+
+NAME                                    CLASS     HOSTS   ADDRESS       PORTS     AGE
+ingress.networking.k8s.io/circleguard   traefik   *       10.30.1.182   80, 443   42h
+
+NAME                                               REFERENCE                 TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/auth           Deployment/auth           cpu: <unknown>/70%   1         2         1          42h
+horizontalpodautoscaler.autoscaling/dashboard      Deployment/dashboard      cpu: 4%/70%          1         2         1          42h
+horizontalpodautoscaler.autoscaling/file           Deployment/file           cpu: 4%/70%          1         2         1          42h
+horizontalpodautoscaler.autoscaling/form           Deployment/form           cpu: 3%/70%          1         2         1          42h
+horizontalpodautoscaler.autoscaling/gateway        Deployment/gateway        cpu: 4%/70%          2         2         2          42h
+horizontalpodautoscaler.autoscaling/identity       Deployment/identity       cpu: 5%/70%          1         2         1          42h
+horizontalpodautoscaler.autoscaling/notification   Deployment/notification   cpu: <unknown>/70%   1         2         1          42h
+horizontalpodautoscaler.autoscaling/promotion      Deployment/promotion      cpu: 7%/70%          1         2         1          42h
+horizontalpodautoscaler.autoscaling/web            Deployment/web            cpu: 5%/70%          1         2         1          42h

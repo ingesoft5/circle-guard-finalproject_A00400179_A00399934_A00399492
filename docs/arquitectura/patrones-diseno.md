@@ -187,7 +187,7 @@ Con `@ConfigurationProperties`, el *relaxed binding* de variables de entorno **e
 | Valores agrupados y tipados (`Duration`, `float`), fáciles de validar y probar | Ahora **el despliegue debe definir la URL** (`CIRCLEGUARD_IDENTITYSERVICE_URL=http://identity:8083`) |
 | El comportamiento cambia solo con la configuración (probado) | Más parámetros = más superficie de mala configuración |
 
-**Acción pendiente fuera de HU-12.** Compose y Kubernetes pertenecen a otras historias (HU-10 y HU-11): quien las mantenga debe añadir `CIRCLEGUARD_IDENTITYSERVICE_URL` al servicio `auth`. Algo análogo ocurre con `dashboard → promotion` (`circleguard.promotion-service.url`).
+**Resuelto fuera de HU-12 (2026-11-21).** Compose (`docker-compose.common.yml`, HU-13) y el ConfigMap de Kubernetes (`deploy/k8s/base/configmap.yaml`, HU-10, commit `842acda`) ya definen `CIRCLEGUARD_IDENTITYSERVICE_URL=http://identity:8083` y `CIRCLEGUARD_PROMOTIONSERVICE_URL=http://promotion:8088` (el segundo para `dashboard → promotion`, `circleguard.promotion-service.url`). En Compose el login de extremo a extremo se verificó en local; en el clúster **no se ha podido verificar** porque la infraestructura está apagada.
 
 **Alternativa descartada.** *Feature Toggle*: el único flag existente no lo lee ninguna lógica, así que no aportaba valor real a este caso.
 

@@ -1,0 +1,12 @@
+# Render con kubectl v1.31.0 y kubeconform v0.7.0 estricto tras el merge con dev (2026-11-22)
+deploy/k8s/overlays/dev             43 recursos | Summary: 43 resources found in 1 file - Valid: 43, Invalid: 0, Errors: 0, Skipped: 0
+security/k8s/rbac-overlays/dev       7 recursos | Summary: 7 resources found in 1 file - Valid: 7, Invalid: 0, Errors: 0, Skipped: 0
+deploy/k8s/overlays/stage           43 recursos | Summary: 43 resources found in 1 file - Valid: 43, Invalid: 0, Errors: 0, Skipped: 0
+security/k8s/rbac-overlays/stage     7 recursos | Summary: 7 resources found in 1 file - Valid: 7, Invalid: 0, Errors: 0, Skipped: 0
+deploy/k8s/overlays/prod            43 recursos | Summary: 43 resources found in 1 file - Valid: 43, Invalid: 0, Errors: 0, Skipped: 0
+security/k8s/rbac-overlays/prod      7 recursos | Summary: 7 resources found in 1 file - Valid: 7, Invalid: 0, Errors: 0, Skipped: 0
+
+TLS en overlays: 3/3; ENVIRONMENT por overlay:
+ CG_ENVIRONMENT: dev  ENVIRONMENT: dev  (dev)
+ CG_ENVIRONMENT: stage  ENVIRONMENT: stage  (stage)
+ CG_ENVIRONMENT: prod  ENVIRONMENT: prod  (prod)
