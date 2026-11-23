@@ -1,0 +1,37 @@
+# Validación del stack real de Docker Compose con las imágenes reconstruidas (2026-11-16/17)
+# Proyecto Compose aislado (circleguard-hu14val), credenciales aleatorias fuera del repositorio, puertos alternativos.
+# Comandos: deploy/compose-env.sh dev + docker compose up -d (los mismos pasos de deploy/compose-up.sh, con reintento en psql).
+
+## Imágenes NUEVAS (1.0.0-hu14fix: alternativas A y B aplicadas)
+- 15 de 15 contenedores en estado healthy (8 servicios, web, postgres, neo4j, kafka, zookeeper, redis, openldap).
+- Imagen de auth: Alpine 3.22.8, OpenJDK 21.0.13, usuario 10001 (no root).
+- /actuator/health por servicio:
+    identity, dashboard, file, form, gateway, notification, promotion -> UP [200]
+    auth -> DOWN [503]  (ver "Hallazgo" más abajo); /actuator/health/liveness UP [200], /readiness UP [200]
+- Login con credenciales incorrectas (auth, puerto interno) -> 401 (esperado).
+- Login del usuario de prueba sembrado por Flyway -> 401 (no se esperaba; ver "Hallazgo").
+- Métrica resilience4j_circuitbreaker_state presente, estado "closed" = 1.0 (integración de HU-12 con HU-13).
+- web /healthz -> 200.
+- Líneas ERROR en los logs de arranque, sin contar el exportador OTLP (necesita el colector de HU-13): 0 en los 8 servicios.
+- Parada con deploy/compose-down.sh (sin eliminar volúmenes): 0 contenedores restantes.
+
+## Imágenes ANTERIORES (1.0.0-hu14scan: antes de A y B), misma prueba
+- 15 de 15 contenedores healthy.
+- Login del usuario de prueba sembrado -> 401 (igual que con las nuevas).
+- Métrica del circuit breaker "closed" = 1.0; web /healthz 200; líneas ERROR (sin exportador OTLP): 0 en los 8 servicios.
+- No se capturó la tabla de /actuator/health de este stack (un error transitorio de WSL cortó esa consulta).
+
+## Hallazgos (no causados por A, B ni por la corrección de HU-04/HU-13)
+1. auth /actuator/health = DOWN: el indicador de LDAP de Actuator (HU-13) intenta conectar con localhost:389 porque
+   services/circleguard-auth-service/src/main/java/com/circleguard/auth/security/SecurityConfig.java:59 fija
+   contextSource.setUrl("ldap://localhost:389"), ignorando SPRING_LDAP_URLS=ldap://openldap:389 de Compose.
+   El healthcheck de Docker de auth no usa ese endpoint y sigue en healthy; liveness y readiness están UP.
+   [CORREGIDO 2026-11-20 en HU-12: SecurityConfig lee spring.ldap.*; health de auth UP. Ver docs/evidencias/hu-12/auth-ldap-configurable.md]
+2. [CORREGIDO 2026-11-20] El 401 del usuario de prueba NO era un defecto del servicio: era un error de MI prueba. Extraje la
+   contraseña del comentario de V3__fix_user_passwords.sql buscando "password is" en minúsculas, y el comentario dice
+   "Password is": la extracción quedó vacía y se envió una contraseña vacía. Se comprobó con bcrypt que el hash de la
+   migración coincide con la palabra del comentario. Repetido con la extracción insensible a mayúsculas el login da 200
+   con token, directo y por el proxy del cliente web (ver 06-login-extremo-a-extremo.txt). Las líneas de arriba que
+   dicen "401 (no se esperaba)" corresponden a la prueba defectuosa.
+3. deploy/compose-up.sh (HU-02) falla de forma intermitente: Postgres se declara healthy mientras termina su inicialización
+   y el psql siguiente da "the database system is starting up". No se modificó.

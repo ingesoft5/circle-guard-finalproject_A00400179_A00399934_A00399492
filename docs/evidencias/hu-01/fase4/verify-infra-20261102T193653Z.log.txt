@@ -1,0 +1,77 @@
+# Copia enmascarada para evidencia de HU-01 (fase 4, 2026-11-02)
+# Original: infra/logs/verify-infra-20261102T193653Z.log · sha256 8c28d732661ee40f6ca719a94f206d8e7d35579eb9703e9563d6bf4d16507cb0 · 5391 bytes · intacto (ignorado por Git)
+# Propósito: Paso 11: verify-infra.sh completo (pass=53 fail=0 pendiente=5)
+# Enmascarado: número de cuenta AWS, identificadores únicos de IAM, mensaje de autorización
+#   codificado y último octeto de IP públicas.
+# Secretos: Gitleaks sobre las copias (ACTIVO=0); la comparación en memoria de los 35 valores de
+#   SSM (0 apariciones) cubrió los registros originales escritos hasta las 19:43 UTC.
+# Filtrado: ninguno.
+# Formato: espacios al final de línea eliminados; extensión .txt para poder versionar la copia.
+19:36:53 INFO      registro de la ejecución: infra/logs/verify-infra-20261102T193653Z.log (modo solo-lectura, destino aws)
+19:36:56 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793647628 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+19:37:04 PASS      ci: Docker activo
+19:37:06 PASS      ci: parada automática programada (circleguard-autostop.timer en espera)
+19:37:08 INFO      ci: temporizador de parada: Mon 2026-11-02 23:28:14 UTC 3h 51min - - circleguard-autostop.timer circleguard-autostop.service
+19:37:10 PASS      ci: swap de seguridad activo
+19:37:12 INFO      ci: memoria en uso 3214 de 7776 MiB · swap 0 de 2047 MiB
+19:37:20 PASS      nexus: Docker activo
+19:37:22 PASS      nexus: parada automática programada (circleguard-autostop.timer en espera)
+19:37:21 INFO      nexus: temporizador de parada: Mon 2026-11-02 23:33:13 UTC 3h 55min - - circleguard-autostop.timer circleguard-autostop.service
+19:37:23 PASS      nexus: swap de seguridad activo
+19:37:24 INFO      nexus: memoria en uso 2863 de 7776 MiB · swap 0 de 2047 MiB
+19:37:29 PASS      jenkins: /login en el host
+19:37:31 PASS      jenkins: contenedor saludable
+19:37:35 INFO      jenkins: memoria por contenedor: cg-jenkins: 417.6MiB / 7.594GiB (5.37%)
+19:37:46 PASS      jenkins: UI NO expuesta a Internet (puerto 8080)
+19:37:49 PASS      jenkins: UI accesible por túnel SSH
+19:37:56 PASS      sonarqube: estado del sistema
+19:37:57 PASS      sonarqube: contenedor saludable
+19:37:59 PASS      sonarqube: base de datos saludable
+19:38:07 INFO      sonarqube: memoria por contenedor: cg-sonarqube: 1.999GiB / 7.594GiB (26.32%) · cg-sonarqube-db: 123.8MiB / 7.594GiB (1.59%)
+19:38:09 PASS      sonarqube: acceso anónimo denegado
+19:38:17 PASS      sonarqube: UI NO expuesta a Internet (puerto 9000)
+19:38:21 PASS      sonarqube: UI accesible por túnel SSH
+19:38:26 PASS      nexus: API de estado
+19:38:28 PASS      nexus: contenedor saludable
+19:38:32 INFO      nexus: memoria por contenedor: cg-nexus: 2.194GiB / 7.594GiB (28.89%)
+19:38:34 PENDING   nexus: EULA de Community Edition PENDIENTE de la decisión del equipo: no se pueden descargar ni subir componentes y circleguard-docker no existe
+19:38:35 PASS      nexus: conector Docker sin publicar mientras el EULA está pendiente
+19:38:45 PASS      nexus: UI NO expuesta a Internet (puerto 8081)
+19:38:47 PASS      nexus: UI accesible por túnel SSH
+19:38:58 PASS      nexus: registro Docker NO expuesto a Internet
+19:39:07 PASS      env-dev: subred propia 10.20.10.0/24
+19:39:11 PASS      env-dev: grupo de seguridad propio (sg-02fffa3397e1d9ef4)
+19:39:16 PASS      env-dev: ninguna regla hacia ni desde env-stage
+19:39:19 PASS      env-dev: ninguna regla hacia ni desde env-prod
+19:39:25 PASS      env-dev: sus reglas solo referencian a ci y nexus
+19:39:25 PENDING   env-dev: aislamiento CONFIGURADO (subred y grupo de seguridad), no verificado con tráfico: HU-01 no crea servidores de ambiente
+19:39:32 PASS      env-stage: subred propia 10.20.20.0/24
+19:39:36 PASS      env-stage: grupo de seguridad propio (sg-0cc234f54c37f7422)
+19:39:41 PASS      env-stage: ninguna regla hacia ni desde env-dev
+19:39:43 PASS      env-stage: ninguna regla hacia ni desde env-prod
+19:39:49 PASS      env-stage: sus reglas solo referencian a ci y nexus
+19:39:49 PENDING   env-stage: aislamiento CONFIGURADO (subred y grupo de seguridad), no verificado con tráfico: HU-01 no crea servidores de ambiente
+19:39:56 PASS      env-prod: subred propia 10.20.30.0/24
+19:39:59 PASS      env-prod: grupo de seguridad propio (sg-0b47c8afe1b536692)
+19:40:06 PASS      env-prod: ninguna regla hacia ni desde env-dev
+19:40:09 PASS      env-prod: ninguna regla hacia ni desde env-stage
+19:40:15 PASS      env-prod: sus reglas solo referencian a ci y nexus
+19:40:15 PENDING   env-prod: aislamiento CONFIGURADO (subred y grupo de seguridad), no verificado con tráfico: HU-01 no crea servidores de ambiente
+19:40:24 PENDING   aislamiento entre ambientes: no hay servidores de ambiente (HU-01), así que no se prueba con tráfico; la configuración se comprueba con --health
+19:40:31 PASS      permitido: ci -> nexus:8081
+19:40:43 PASS      aislamiento: nexus -> ci:8080 bloqueado
+19:40:55 PASS      aislamiento: nexus -> ci:9000 bloqueado
+19:41:04 PASS      credenciales: POSTGRES_USER distinto en dev, stage y prod
+19:41:11 PASS      credenciales: POSTGRES_PASSWORD distinto en dev, stage y prod
+19:41:18 PASS      credenciales: NEO4J_PASSWORD distinto en dev, stage y prod
+19:41:24 PASS      credenciales: LDAP_ADMIN_PASSWORD distinto en dev, stage y prod
+19:41:31 PASS      credenciales: CG_JWT_SECRET distinto en dev, stage y prod
+19:41:39 PASS      credenciales: CG_QR_SECRET distinto en dev, stage y prod
+19:41:48 PASS      credenciales: CG_VAULT_SECRET distinto en dev, stage y prod
+19:41:55 PASS      credenciales: CG_VAULT_SALT distinto en dev, stage y prod
+19:42:01 PASS      credenciales: CG_VAULT_HASH_SALT distinto en dev, stage y prod
+19:42:04 PASS      credenciales: .env de jenkins con permisos 0600 root
+19:42:08 PASS      credenciales: .env de sonarqube con permisos 0600 root
+19:42:12 PASS      credenciales: .env de nexus con permisos 0600 root
+19:43:31 PASS      credenciales: ningún secreto gestionado aparece en el repositorio
+19:43:31 SUMMARY   verify-infra pass=53 fail=0 pendiente=5

@@ -1,0 +1,39 @@
+# 07 · Versionado semántico y tag
+
+Build: http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/6/
+Commit: dd825e6
+Fecha: 2026-11-08
+Etapa: Tag release
+Estado: SUCCESS
+
+El CI ejecutó tag-release.sh con PUSH_TAG=false y el tag v0.1.0 quedó en el workspace. Para que el tag sea durable se recreó en el repositorio de entrega en el mismo commit dd825e6 y se publica en GitHub.
+
+
+## Salida del CI
+
+[Pipeline] { (Tag release)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
++ PUSH_TAG=0 ./deploy/tag-release.sh 0.1.0
+PUSH_TAG=0: tag v0.1.0 creado localmente; no se publica en origin.
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+
+## Tag en el repositorio
+
+$ git tag -n v0.1.0
+v0.1.0          CircleGuard 0.1.0
+
+$ git show --stat --oneline v0.1.0
+tag v0.1.0
+
+CircleGuard 0.1.0
+dd825e6 fix(jenkins): eliminar volumenes de dev/stage al promover
+ Jenkinsfile            |  2 +-
+ deploy/compose-down.sh | 17 +++++++++++++----
+ 2 files changed, 14 insertions(+), 5 deletions(-)
+
+GitHub: https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492/releases/tag/v0.1.0

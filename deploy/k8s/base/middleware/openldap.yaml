@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: openldap
+  labels:
+    app: openldap
+    app.kubernetes.io/part-of: circleguard
+spec:
+  serviceName: openldap
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openldap
+  template:
+    metadata:
+      labels:
+        app: openldap
+        app.kubernetes.io/part-of: circleguard
+    spec:
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      containers:
+      - name: openldap
+        image: osixia/openldap:1.5.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: tcp
+          containerPort: 389
+        env:
+        - name: LDAP_ORGANISATION
+          value: "CircleGuard"
+        - name: LDAP_DOMAIN
+          value: "circleguard.edu"
+        - name: LDAP_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: circleguard-secrets
+              key: LDAP_ADMIN_PASSWORD
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            memory: 256Mi
+        startupProbe:
+          tcpSocket:
+            port: tcp
+          periodSeconds: 10
+          failureThreshold: 30
+        readinessProbe:
+          tcpSocket:
+            port: tcp
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: tcp
+          periodSeconds: 20
+          failureThreshold: 6
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/ldap
+        - name: config
+          mountPath: /etc/ldap/slapd.d
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+  - metadata:
+      name: config
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap
+  labels:
+    app: openldap
+    app.kubernetes.io/part-of: circleguard
+spec:
+  type: ClusterIP
+  selector:
+    app: openldap
+  ports:
+  - name: tcp
+    port: 389
+    targetPort: tcp

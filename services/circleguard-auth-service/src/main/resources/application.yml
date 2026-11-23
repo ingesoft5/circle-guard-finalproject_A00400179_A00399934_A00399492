@@ -3,8 +3,8 @@ spring:
     name: circleguard-auth-service
   datasource:
     url: jdbc:postgresql://localhost:5432/circleguard_auth
-    username: admin
-    password: password
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -16,15 +16,63 @@ spring:
     urls: ldap://localhost:389
     base: dc=circleguard,dc=edu
     username: cn=admin,dc=circleguard,dc=edu
-    password: admin
+    password: ${LDAP_ADMIN_PASSWORD}
 
 jwt:
-  secret: "my-super-secret-dev-key-32-chars-long-12345678"
+  secret: "${CG_JWT_SECRET}"
   expiration: 3600000
 
 qr:
-  secret: "my-qr-secret-key-for-dev-1234567890"
-  expiration: 300
+  secret: "${CG_QR_SECRET}"
+  # HU-15 fix: this value is in MILLISECONDS (QrTokenService adds it to System.currentTimeMillis()). It used to say 300, so a QR
+  # lived 300 ms and the gate rejected it under load. 60000 = 60 s, what the API reports ("expiresIn") and the web client expects.
+  expiration: 60000
+
+# HU-12: identity-service client (circuit breaker + external configuration). These are the defaults for
+# local development; a container or cluster must override the URL, for example with
+# CIRCLEGUARD_IDENTITYSERVICE_URL=http://identity:8083. No credentials here.
+circleguard:
+  identity-service:
+    url: http://localhost:8083
+    connect-timeout: 2s
+    read-timeout: 3s
+    circuit-breaker:
+      failure-rate-threshold: 50
+      sliding-window-size: 10
+      minimum-number-of-calls: 5
+      wait-duration-in-open-state: 10s
+      permitted-calls-in-half-open-state: 3
 
 server:
   port: 8180
+
+# HU-13: Actuator, Prometheus, OpenTelemetry and trace-correlated logs.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: ${MANAGEMENT_HEALTH_DETAILS:never}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${ENVIRONMENT:dev}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLE_RATE:1.0}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

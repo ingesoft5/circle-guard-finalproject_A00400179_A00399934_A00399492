@@ -1,0 +1,7 @@
+20:46:07 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:46:17 PENDING   aislamiento entre ambientes: ningún servidor de ambiente en ejecución, así que no se prueba con tráfico (infra/test-isolation.sh); la configuración se comprueba con --health
+20:46:24 PASS      permitido: ci -> nexus:8081
+20:46:32 PASS      permitido: ci -> nexus:8082 (registro)
+20:46:42 PASS      aislamiento: nexus -> ci:8080 bloqueado
+20:46:53 PASS      aislamiento: nexus -> ci:9000 bloqueado
+20:46:53 SUMMARY   verify-infra pass=4 fail=0 pendiente=1

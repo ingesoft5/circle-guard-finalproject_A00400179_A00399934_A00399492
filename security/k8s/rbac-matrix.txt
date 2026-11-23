@@ -1,0 +1,50 @@
+# HU-14 · Expected permissions (the contract of security/k8s/rbac/). Used by two checks:
+#   security/k8s/rbac-check.py   offline simulation of the manifests (no cluster)
+#   security/k8s/test-rbac.sh    `kubectl auth can-i --as ...` against a real cluster (HU-10), with --namespace circleguard-<env>
+#
+# <subject> <verb> <resource> <apiGroup|-> <subresource|-> <namespace> <yes|no>
+# "circleguard" stands for the environment namespace: test-rbac.sh --namespace circleguard-dev rewrites it (subject and namespace columns).
+#   subject: sa:<namespace>:<name> or group:<name>      apiGroup "-" = the core group
+#
+# --- Jenkins deploy identity: rolls out and rolls back, but cannot touch secrets, delete, exec or leave the namespace
+sa:circleguard:jenkins-deployer  get     deployments  apps  -      circleguard    yes
+sa:circleguard:jenkins-deployer  patch   deployments  apps  -      circleguard    yes
+sa:circleguard:jenkins-deployer  create  deployments  apps  -      circleguard    yes
+sa:circleguard:jenkins-deployer  update  services     -     -      circleguard    yes
+sa:circleguard:jenkins-deployer  patch   configmaps   -     -      circleguard    yes
+sa:circleguard:jenkins-deployer  get     pods         -     log    circleguard    yes
+sa:circleguard:jenkins-deployer  patch   statefulsets  apps  -     circleguard    yes
+sa:circleguard:jenkins-deployer  create  horizontalpodautoscalers autoscaling - circleguard yes
+sa:circleguard:jenkins-deployer  delete  deployments  apps  -      circleguard    no
+sa:circleguard:jenkins-deployer  get     secrets      -     -      circleguard    no
+sa:circleguard:jenkins-deployer  create  secrets      -     -      circleguard    no
+sa:circleguard:jenkins-deployer  create  pods         -     exec   circleguard    no
+sa:circleguard:jenkins-deployer  delete  pods         -     -      circleguard    no
+sa:circleguard:jenkins-deployer  get     deployments  apps  -      observability  no
+sa:circleguard:jenkins-deployer  get     deployments  apps  -      kube-system    no
+sa:circleguard:jenkins-deployer  create  rolebindings rbac.authorization.k8s.io - circleguard no
+# --- Team read-only access
+group:circleguard-viewers        get     pods         -     -      circleguard    yes
+group:circleguard-viewers        list    deployments  apps  -      circleguard    yes
+group:circleguard-viewers        get     pods         -     log    circleguard    yes
+group:circleguard-viewers        get     horizontalpodautoscalers autoscaling - circleguard yes
+group:circleguard-viewers        get     secrets      -     -      circleguard    no
+group:circleguard-viewers        list    secrets      -     -      circleguard    no
+group:circleguard-viewers        create  deployments  apps  -      circleguard    no
+group:circleguard-viewers        update  configmaps   -     -      circleguard    no
+group:circleguard-viewers        create  pods         -     exec   circleguard    no
+group:circleguard-viewers        get     pods         -     -      observability  no
+# --- Platform administrators: manage secrets, nothing else
+group:circleguard-platform-admins  get     secrets      -   -      circleguard    yes
+group:circleguard-platform-admins  create  secrets      -   -      circleguard    yes
+group:circleguard-platform-admins  update  secrets      -   -      circleguard    yes
+group:circleguard-platform-admins  list    secrets      -   -      circleguard    no
+group:circleguard-platform-admins  delete  secrets      -   -      circleguard    no
+group:circleguard-platform-admins  get     deployments  apps -     circleguard    no
+group:circleguard-platform-admins  get     secrets      -   -      observability  no
+# --- The pods: HU-10 mounts no API token and the "default" ServiceAccount is not bound to anything, so a compromised pod can do nothing
+sa:circleguard:default           get     pods         -     -      circleguard    no
+sa:circleguard:default           get     secrets      -     -      circleguard    no
+sa:circleguard:default           get     configmaps   -     -      circleguard    no
+sa:circleguard:default           list    services     -     -      circleguard    no
+sa:circleguard:default           create  deployments  apps  -      circleguard    no

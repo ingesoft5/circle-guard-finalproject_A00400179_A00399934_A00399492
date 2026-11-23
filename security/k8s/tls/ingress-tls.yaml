@@ -1,0 +1,75 @@
+# NOTE (2026-11-21): this file assumes ingress-nginx, but the cluster of HU-10 (k3s) uses TRAEFIK. For the web client use
+# deploy/k8s/components/tls (applied by the overlays) and security/k8s/tls/ensure-tls-secret.sh. This file stays as a reference,
+# for example for the Grafana Ingress of HU-13, and is not applied.
+#
+# HU-14 · HTTPS for the services exposed by Kubernetes. PREPARED, NOT APPLIED: it needs the cluster and the ingress controller of
+# HU-10 (and the DNS and public IP that HU-09 provides). Nothing here has been deployed or tested against a cluster.
+#
+# Secret names (the answer to "which TLS secrets exist"):
+#   circleguard-tls   namespace circleguard      certificate of the web client
+#   grafana-tls       namespace observability    certificate of Grafana (HU-13)
+# A TLS Secret must live in the same namespace as the Ingress that uses it, hence two Ingresses. The Secrets are NOT in this file or
+# in the repository: cert-manager creates them (see certificate.yaml), or they are created from files kept outside Git:
+#   kubectl -n circleguard create secret tls circleguard-tls --cert=fullchain.pem --key=server.key
+#
+# Placeholders: replace the *.example.invalid host names with the real ones (the .invalid suffix is reserved and can never resolve).
+# Assumes ingress-nginx; the annotations below are specific to it.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: circleguard-web
+  namespace: circleguard
+  labels: { app.kubernetes.io/part-of: circleguard }
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/hsts: "true"
+    nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
+    nginx.ingress.kubernetes.io/proxy-body-size: "25m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - circleguard.example.invalid
+      secretName: circleguard-tls
+  rules:
+    - host: circleguard.example.invalid
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: observability
+  labels: { app.kubernetes.io/part-of: circleguard }
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/hsts: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - grafana.example.invalid
+      secretName: grafana-tls
+  rules:
+    - host: grafana.example.invalid
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000

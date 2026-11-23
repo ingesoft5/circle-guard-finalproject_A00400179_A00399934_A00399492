@@ -1,0 +1,36 @@
+# Registro de uso de IA generativa (IAG)
+
+Este directorio conserva, para cada historia de usuario, los **prompts** enviados a la IA, una
+síntesis de las **respuestas** y las **decisiones** tomadas con su justificación. El proyecto usa
+el **Nivel 3 (colaboración con IAG)** descrito en `Proyecto_Final_CircleGuard.tex`: la IA apoya el
+trabajo, pero el equipo revisa, entiende y puede explicar cada resultado.
+
+## Reglas
+
+- No se guardan secretos, contraseñas, tokens ni rutas personales sensibles.
+- Cada sesión tiene fecha, rama, herramienta y modelo.
+- Cada decisión tiene contexto, alternativas, decisión y consecuencias.
+- Los archivos generados se enlazan desde la sesión.
+- El registro se versiona con el código; no se edita retroactivamente (si una decisión cambia, se
+  añade una nueva entrada que reemplaza a la anterior).
+
+## Índice
+
+| Fecha | Historia | Sesión | Decisiones |
+|---|---|---|---|
+| 2026-11-02 | HU-02 · Imágenes Docker inmutables | [Sesión](sesiones/2026-11-02-hu-02.md) | [D-01 a D-11](decisiones.md) |
+| 2026-11-05 | HU-06 · Entrega continua y promoción | [Sesión](sesiones/2026-11-05-hu-06.md) | [D-12 a D-25](decisiones.md) (D-21/D-22 en HU-07) |
+| 2026-11-08 | HU-06 · Ejecución real en AWS | [Sesión](sesiones/2026-11-08-hu-06-ejecucion.md) | Evidencias de build #6 y rollback #13 |
+| 2026-11-08 | HU-07 · Rollback, notificaciones y release notes | [Sesión](sesiones/2026-11-08-hu-07.md) | D-21, D-22 y ejecución real #17–#21 |
+| 2026-11-07/08 | HU-04 · Pruebas unitarias y de integración | [Sesión](sesiones/2026-11-08-hu-04.md) | Cobertura ≥ 60 %, integración con Testcontainers, build #10 |
+| 2026-11-08 | HU-08 · Documentación y bitácora de IAG | [Sesión](sesiones/2026-11-08-hu-08.md) | README general, diagramas y anexo |
+| 2026-11-21 | HU-13/HU-16/HU-17 · Cierre del Sprint 2 | [Sesión](sesiones/2026-11-21-cierre-sprint2.md) | D-29, D-30 y D-33 |
+| 2026-11-16/23 | HU-12/HU-14/HU-15 · Autenticación, seguridad y pruebas avanzadas | [Sesión](sesiones/2026-11-23-hu-12-14-15.md) | D-36, D-37 y D-38 |
+
+El **anexo consolidado**, con el método de verificación y la reflexión crítica, está en
+[`../../IAG_REGISTRO.md`](../../IAG_REGISTRO.md). Allí también se declaran las historias sin sesión
+registrada (HU-01, HU-03 y HU-09).
+
+## Plantilla
+
+Use [`plantilla-sesion.md`](plantilla-sesion.md) para las próximas historias.

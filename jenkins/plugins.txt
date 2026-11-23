@@ -1,0 +1,44 @@
+# CircleGuard · Jenkins pipeline plugins (HU-04/HU-06)
+#
+# This file is the proposed HU-04 plugin set for the Jenkins image. It is NOT wired
+# into infra/bootstrap/jenkins/plugins.txt yet: HU-01 only installs Configuration
+# as Code. To use it, merge these entries into the HU-01 plugin list and rebuild the
+# Jenkins image (see jenkins/README.md).
+#
+# Versions are intentionally omitted so jenkins-plugin-cli resolves the latest
+# version compatible with Jenkins 2.580.2. Pin them after validating the image.
+
+# Configuration as Code (already present in HU-01)
+configuration-as-code:2144.ve8c697101488
+
+# Pipeline and multibranch
+workflow-aggregator
+workflow-multibranch
+pipeline-stage-view
+pipeline-utility-steps
+
+# SCM and GitHub
+git
+github
+github-branch-source
+
+# Credentials
+credentials-binding
+plain-credentials
+ssh-credentials
+ssh-agent
+
+# Tests and quality
+junit
+sonar
+
+# E2E / Node tool
+nodejs
+
+# Docker agents (only if the Jenkins agent builds images with Docker)
+# docker-workflow
+
+# Build hygiene
+timestamper
+ws-cleanup
+build-timeout

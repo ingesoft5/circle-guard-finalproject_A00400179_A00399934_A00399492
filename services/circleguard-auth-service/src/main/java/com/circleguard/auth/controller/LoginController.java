@@ -3,6 +3,7 @@ package com.circleguard.auth.controller;
 import com.circleguard.auth.service.JwtTokenService;
 import com.circleguard.auth.client.IdentityClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class LoginController {
 
     private final AuthenticationManager authManager;
@@ -23,18 +25,19 @@ public class LoginController {
         String username = request.get("username");
         String password = request.get("password");
         
-        System.out.println("Login attempt for user: " + username + " (pass length: " + (password != null ? password.length() : 0) + ")");
+        // Never log anything derived from the password (not even its length).
+        log.info("Login attempt for user: {}", username);
 
         try {
             // 1. Authenticate (Dual-Chain)
             Authentication auth = authManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
-            System.out.println("Authentication successful for: " + username);
+            log.info("Authentication successful for: {}", username);
 
             // 2. Anonymize (Fetch/Create Anonymous ID from Identity Service)
             UUID anonymousId = identityClient.getAnonymousId(username);
-            System.out.println("Anonymous ID retrieved: " + anonymousId);
+            log.debug("Anonymous ID retrieved: {}", anonymousId);
 
             // 3. Issue Token
             String token = jwtService.generateToken(anonymousId, auth);
@@ -45,11 +48,14 @@ public class LoginController {
                     "anonymousId", anonymousId.toString()
             ));
         } catch (org.springframework.security.core.AuthenticationException e) {
-            System.err.println("Authentication failed for " + username + ": " + e.getMessage());
+            log.warn("Authentication failed for {}: {}", username, e.getMessage());
             return ResponseEntity.status(401).body(Map.of("message", "Invalid username or password"));
+        } catch (IdentityClient.IdentityServiceUnavailableException e) {
+            // HU-12: fail fast and say so; the circuit breaker already protects the thread pool.
+            log.warn("Identity service unavailable during login for {}: {}", username, e.getMessage());
+            return ResponseEntity.status(503).body(Map.of("message", "Identity service unavailable, please retry shortly"));
         } catch (Exception e) {
-            System.err.println("Unexpected error during login for " + username + ":");
-            e.printStackTrace();
+            log.error("Unexpected error during login for {}", username, e);
             return ResponseEntity.status(500).body(Map.of("message", "Internal server error: " + e.getMessage()));
         }
     }

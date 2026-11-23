@@ -1,0 +1,8 @@
+# Lectura de la cuota de vCPU (L-1216C47A) en us-east-2 · bootstrap-quota.sh --plan (solo lectura)
+# Origen: infra/logs/bootstrap-quota-20261103T201403Z.log (ignorado por Git), copiado sin cambios.
+# sha256 del original: 5b335a1a75f423625b46cfac073e5fc29ebf3717d8fdca705ed472914e73c345
+
+20:14:03 INFO      registro de la ejecución: infra/logs/bootstrap-quota-20261103T201403Z.log (modo plan, destino aws)
+20:14:09 INFO      cuota actual en us-east-2: 16.0 vCPU (ajustable: True) · valor por defecto de AWS: 5.0 · objetivo: 10
+20:14:11 UNCHANGED la cuota ya es de 16.0 vCPU
+20:14:11 SUMMARY   bootstrap-quota created=0 updated=0 unchanged=1 planned=0

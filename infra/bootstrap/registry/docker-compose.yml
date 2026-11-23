@@ -1,0 +1,29 @@
+# Docker registry of CircleGuard (HU-01): CNCF Distribution 3.0 (Apache 2.0, no EULA) on the nexus
+# server while the Nexus EULA is pending (REGISTRY_BACKEND=distribution; trade-offs in
+# docs/arquitectura/registro-artefactos.md). TLS and htpasswd users are prepared on the host by
+# prepare.sh before the container starts. Variables come from the .env that
+# infra/bootstrap-registry.sh writes next to this file (mode 0600, never versioned).
+name: circleguard-registry
+
+services:
+  registry:
+    image: registry:3.0.0
+    container_name: cg-registry
+    restart: ${RESTART_POLICY:-unless-stopped}
+    ports:
+      - "${BIND_ADDRESS:?Defina BIND_ADDRESS}:${REGISTRY_HOST_PORT:?Defina REGISTRY_HOST_PORT}:5000"
+    volumes:
+      - registry-data:/var/lib/registry
+      - ./config.yml:/etc/distribution/config.yml:ro
+      - ./auth:/auth:ro
+      - ./tls:/tls:ro
+    healthcheck:
+      # Debug server on the container's loopback only (config.yml); /v2/ itself requires credentials.
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:5001/debug/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  registry-data:

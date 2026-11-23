@@ -1,0 +1,11 @@
+PASS  the certificate chain validates against prod-ca.pem
+PASS  the certificate matches the name '18.190.106.207.sslip.io'
+PASS  the certificate does not expire within 14 days (expires: Feb 21 00:02:32 2027 GMT)
+PASS  TLS 1.3 is accepted
+PASS  TLS 1.2 is accepted
+PASS  TLS 1.1 is rejected
+PASS  TLS 1.0 is rejected
+PASS  the HTTPS answer carries Strict-Transport-Security
+
+8 passed, 0 failed
+RESULT: PASS

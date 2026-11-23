@@ -1,0 +1,13 @@
+{
+  "@programName": "ZAP",
+  "@version": "synthetic",
+  "site": [
+    {
+      "@name": "http://synthetic.invalid",
+      "alerts": [
+        {"pluginid": "90002", "alertRef": "90002", "alert": "Synthetic medium finding", "name": "Synthetic medium finding", "riskcode": "2", "confidence": "2", "riskdesc": "Medium (Medium)", "instances": [{"uri": "http://synthetic.invalid/", "method": "GET"}], "count": "1"},
+        {"pluginid": "90003", "alertRef": "90003", "alert": "Synthetic low finding", "name": "Synthetic low finding", "riskcode": "1", "confidence": "2", "riskdesc": "Low (Medium)", "instances": [{"uri": "http://synthetic.invalid/", "method": "GET"}], "count": "1"}
+      ]
+    }
+  ]
+}

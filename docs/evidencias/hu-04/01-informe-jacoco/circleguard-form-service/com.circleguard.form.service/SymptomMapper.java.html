@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SymptomMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-form-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.form.service</a> &gt; <span class="el_source">SymptomMapper.java</span></div><h1>SymptomMapper.java</h1><pre class="source lang-java linenums">package com.circleguard.form.service;
+
+import com.circleguard.form.model.HealthSurvey;
+import com.circleguard.form.model.Questionnaire;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+
+@Component
+<span class="fc" id="L10">public class SymptomMapper {</span>
+
+    /**
+     * Determines if the survey responses indicate symptoms.
+     * Logic: If any question containing keywords (fever, cough) has a 'YES' response.
+     */
+    public boolean hasSymptoms(HealthSurvey survey, Questionnaire questionnaire) {
+<span class="pc bpc" id="L17" title="3 of 6 branches missed.">        if (survey.getResponses() == null || questionnaire == null || questionnaire.getQuestions() == null) {</span>
+<span class="nc" id="L18">            return false;</span>
+        }
+
+<span class="fc" id="L21">        Map&lt;String, Object&gt; responses = survey.getResponses();</span>
+        
+<span class="fc" id="L23">        return questionnaire.getQuestions().stream()</span>
+<span class="fc" id="L24">                .filter(q -&gt; responses.containsKey(q.getId().toString()))</span>
+<span class="fc" id="L25">                .anyMatch(q -&gt; {</span>
+<span class="fc" id="L26">                    String answer = String.valueOf(responses.get(q.getId().toString()));</span>
+<span class="fc" id="L27">                    String text = q.getText().toLowerCase();</span>
+                    
+<span class="fc bfc" id="L29" title="All 2 branches covered.">                    if (&quot;YES&quot;.equalsIgnoreCase(answer)) {</span>
+<span class="pc bpc" id="L30" title="5 of 6 branches missed.">                        return text.contains(&quot;fever&quot;) || text.contains(&quot;cough&quot;) || text.contains(&quot;breathing&quot;);</span>
+                    }
+                    
+                    // For multi-choice, if anything is selected (assuming selecting anything indicates symptoms)
+<span class="pc bpc" id="L34" title="7 of 8 branches missed.">                    if (q.getType().toString().contains(&quot;CHOICE&quot;) &amp;&amp; answer != null &amp;&amp; !answer.isEmpty() &amp;&amp; !&quot;[]&quot;.equals(answer)) {</span>
+<span class="nc" id="L35">                        return text.contains(&quot;symptoms&quot;);</span>
+                    }
+                    
+<span class="fc" id="L38">                    return false;</span>
+                });
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

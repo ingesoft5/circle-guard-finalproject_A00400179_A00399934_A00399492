@@ -1,0 +1,88 @@
+03:46:32 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793934112 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+
+Estimación On-Demand (precios de referencia 2026-11-02; verificar con --prices)
+  rol        tipo         EC2 h    IPv4 h   EBS mes    total h   día 24h   mes 730h
+  ci         m7i-flex.large  0.0958    0.0050      2.40     0.1040      2.50      75.95
+  nexus      m7i-flex.large  0.0958    0.0050      2.00     0.1035      2.48      75.55
+  env-dev    t3.small    0.0208    0.0050      0.80     0.0269      0.65      19.63
+  env-stage  t3.small    0.0208    0.0050      0.80     0.0269      0.65      19.63
+  env-prod   t3.small    0.0208    0.0050      0.80     0.0269      0.65      19.63
+  TOTAL                                        6.80     0.2882      6.92     210.41
+  Detenidas solo se cobra el EBS: 0.22 USD/día (la IPv4 automática se libera). Sin NAT Gateway ni Elastic IP.
+  Transferencia de salida a Internet: 0.09 USD/GB (reserva de 3 GB = 0.27 USD); la entrada no se cobra.
+  Parada automática de los hosts a las 4 h del arranque: una sesión olvidada cuesta como máximo 1.12 USD.
+
+03:46:34 INFO      vCPU con todos los servidores encendidos: 10 (QUOTA_VCPU_TARGET=10; cuota real: infra/bootstrap-quota.sh)
+03:46:58 INFO      estimación local (no es un límite de facturación): acumulado 1.09 + esta ejecución (4 h y EBS nuevo por 45 días) 1.39 + transferencia 0.27 = 2.75 de 15 USD
+03:47:08 INFO      vCPU encendidas tras esta ejecución: 4 de 5 (límite configurado, no la cuota)
+03:47:10 INFO      tipo m7i-flex.large ofrecido en us-east-2a
+03:47:12 INFO      tipo t3.small ofrecido en us-east-2a
+03:47:13 INFO      AMI Ubuntu 24.04: ami-0fc53b217ec1ad816 (dispositivo raíz /dev/sda1)
+03:47:15 UNCHANGED instancia circleguard-ci (i-0802315f63ba2f6cc) detenida (para iniciarla: --apply --approve ci)
+03:47:16 UNCHANGED instancia circleguard-nexus (i-04404084d9394ef13) detenida (para iniciarla: --apply --approve nexus)
+03:47:39 UPDATED   instancia circleguard-env-dev (i-09dd58896a6e461a7) iniciada (FACTURABLE desde ahora)
+03:47:41 UNCHANGED circleguard-env-dev: créditos de CPU en modo standard (sin cargos por ráfagas)
+03:47:42 UNCHANGED circleguard-env-dev: IMDSv2 obligatorio
+03:47:44 UNCHANGED instancia circleguard-env-stage (i-007d7c86d6848eaf6) detenida (para iniciarla: --apply --approve env-stage)
+03:48:12 CREATED   instancia circleguard-env-prod (i-01a3fdafe5d4b27d5) t3.small creada (FACTURABLE desde ahora)
+03:48:12 SUMMARY   bootstrap-servers created=1 updated=1 unchanged=5 planned=0
+03:48:14 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793936812 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+03:48:20 INFO      SSH disponible en env-dev (i-09dd58896a6e461a7)
+03:48:23 UNCHANGED env-dev: Docker 29.9.3 y Compose 5.7.0 instalados
+03:48:23 UNCHANGED env-dev: /etc/docker/daemon.json con rotación de logs (10 MB x 3) y registro privado de 10.20.0.0/24
+03:48:23 UNCHANGED env-dev: servicio docker habilitado y activo
+03:48:23 UNCHANGED env-dev: /opt/circleguard
+03:48:23 UNCHANGED env-dev: swap /swapfile activo (2 GiB)
+03:48:23 UNCHANGED env-dev: vm.swappiness=10
+03:48:23 UNCHANGED env-dev: parada automática programada (circleguard-autostop.timer en espera, 4 h desde su activación)
+03:48:58 UNCHANGED env-dev: /opt/circleguard/dev/.env (0600, contenido no mostrado)
+03:49:00 UNCHANGED env-dev: el host solo contiene las credenciales de dev (9 variables)
+03:49:00 SUMMARY   bootstrap-env-dev created=0 updated=0 unchanged=9 planned=0
+03:49:02 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793936812 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+03:49:08 INFO      SSH disponible en env-prod (i-01a3fdafe5d4b27d5)
+03:50:47 INFO        env-prod: Running kernel seems to be up-to-date.
+03:50:47 INFO        env-prod: No services need to be restarted.
+03:50:47 INFO        env-prod: No containers need to be restarted.
+03:50:47 INFO        env-prod: No user sessions are running outdated binaries.
+03:50:47 INFO        env-prod: No VM guests are running outdated hypervisor (qemu) binaries on this host.
+03:50:47 INFO        env-prod: Running kernel seems to be up-to-date.
+03:50:47 INFO        env-prod: No services need to be restarted.
+03:50:47 INFO        env-prod: No containers need to be restarted.
+03:50:47 INFO        env-prod: No user sessions are running outdated binaries.
+03:50:47 INFO        env-prod: No VM guests are running outdated hypervisor (qemu) binaries on this host.
+03:50:47 CREATED   env-prod: Docker 29.9.3 y Compose 5.7.0 instalados desde el repositorio oficial de Docker
+03:50:47 UPDATED   env-prod: /etc/docker/daemon.json con rotación de logs (10 MB x 3) y registro privado de 10.20.0.0/24
+03:50:47 UNCHANGED env-prod: servicio docker habilitado y activo
+03:50:47 CREATED   env-prod: /opt/circleguard
+03:50:47 CREATED   env-prod: swap /swapfile de 2 GiB activo
+03:50:47 UPDATED   env-prod: vm.swappiness=10 (el swap solo se usa bajo presión de memoria)
+03:50:47 UPDATED   env-prod: parada automática a las 4 h (circleguard-autostop.timer)
+03:51:26 CREATED   env-prod: /opt/circleguard/prod/.env (0600, contenido no mostrado)
+03:51:28 UNCHANGED env-prod: el host solo contiene las credenciales de prod (9 variables)
+03:51:28 SUMMARY   bootstrap-env-prod created=4 updated=3 unchanged=2 planned=0
+03:51:31 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793936812 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+03:51:37 PASS      env-dev: Docker activo
+03:51:38 PASS      env-dev: parada automática programada (circleguard-autostop.timer en espera)
+03:51:40 INFO      env-dev: temporizador de parada: Fri 2026-11-06 07:47:32 UTC 3h 55min - - circleguard-autostop.timer circleguard-autostop.service
+03:51:42 PASS      env-dev: swap de seguridad activo
+03:51:43 INFO      env-dev: memoria en uso 414 de 1905 MiB · swap 0 de 2047 MiB
+03:51:47 PASS      env-prod: Docker activo
+03:51:48 PASS      env-prod: parada automática programada (circleguard-autostop.timer en espera)
+03:51:50 INFO      env-prod: temporizador de parada: Fri 2026-11-06 07:50:46 UTC 3h 58min - - circleguard-autostop.timer circleguard-autostop.service
+03:51:52 PASS      env-prod: swap de seguridad activo
+03:51:53 INFO      env-prod: memoria en uso 450 de 1905 MiB · swap 0 de 2047 MiB
+03:51:53 INFO      jenkins: su servidor ci está fuera de --roles; se omite
+03:51:53 INFO      sonarqube: su servidor ci está fuera de --roles; se omite
+03:51:53 INFO      nexus: su servidor nexus está fuera de --roles; se omite
+03:51:53 INFO      registry: su servidor nexus está fuera de --roles; se omite
+03:52:01 PASS      env-dev: Docker activo
+03:52:02 PASS      env-dev: plugin Compose disponible
+03:52:03 PASS      env-dev: .env propio con permisos 0600 root
+03:52:05 PASS      env-dev: .env pertenece al ambiente
+03:52:14 PASS      env-prod: Docker activo
+03:52:16 PASS      env-prod: plugin Compose disponible
+03:52:17 PASS      env-prod: .env propio con permisos 0600 root
+03:52:19 PASS      env-prod: .env pertenece al ambiente
+03:52:30 PASS      aislamiento: env-dev -> env-prod:22 bloqueado
+03:52:46 PASS      aislamiento: env-prod -> env-dev:22 bloqueado
+03:52:46 SUMMARY   verify-infra pass=16 fail=0 pendiente=0

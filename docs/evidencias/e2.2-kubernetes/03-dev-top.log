@@ -1,0 +1,18 @@
+NAME                                        CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+ip-10-10-1-110.us-east-2.compute.internal   105m         5%       4091Mi          52%         
+NAME                            CPU(cores)   MEMORY(bytes)   
+auth-848bfd9bbf-qsc68           2m           235Mi           
+dashboard-bb45bd48-cthk7        2m           183Mi           
+file-77cdfb44cc-jnf5l           2m           120Mi           
+form-78fd9b8d6-qtbpj            2m           219Mi           
+gateway-69f66cc7cb-54n8v        3m           145Mi           
+identity-67489657c-nxxwd        2m           223Mi           
+kafka-0                         8m           352Mi           
+neo4j-0                         6m           480Mi           
+notification-546c5987fb-hj25m   4m           188Mi           
+openldap-0                      1m           12Mi            
+postgres-0                      6m           137Mi           
+promotion-5dbb59fd86-8ql6x      8m           297Mi           
+redis-0                         3m           3Mi             
+web-6cd57479d5-fp5fc            1m           2Mi             
+zookeeper-0                     2m           75Mi            

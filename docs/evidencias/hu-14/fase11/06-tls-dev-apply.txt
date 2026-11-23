@@ -1,0 +1,2 @@
+Secret circleguard-tls en el namespace circleguard-dev · certificado autofirmado para DNS:18.224.41.57.sslip.io · 90 días
+Secret circleguard-tls aplicado en circleguard-dev. Verifíquelo con security/tls/verify-tls.sh.

@@ -1,0 +1,5 @@
+environment        = "stage"
+vpc_cidr           = "10.20.0.0/16"
+public_subnet_cidr = "10.20.1.0/24"
+instance_type      = "m7i-flex.large"
+ci_cidr            = "13.184.160.31/32"

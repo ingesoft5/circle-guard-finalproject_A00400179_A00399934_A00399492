@@ -1,0 +1,8 @@
+# Sintaxis Groovy (groovy:4.0-jdk21, GroovyShell.parse). broken.groovy es un archivo roto a propósito: debe fallar.
+SYNTAX OK    Jenkinsfile.original
+SYNTAX OK    Jenkinsfile.patched
+SYNTAX OK    cgSecurityScan.groovy
+SYNTAX ERROR broken.groovy (MultipleCompilationErrorsException)
+
+# git apply --check del parche sobre el Jenkinsfile real:
+OK

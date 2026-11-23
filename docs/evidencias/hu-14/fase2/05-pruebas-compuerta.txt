@@ -1,0 +1,17 @@
+PASS  own image without vulnerabilities passes (exit 0)
+PASS  own image with only MEDIUM/LOW passes at the default threshold (exit 0)
+PASS  own image with a HIGH vulnerability is blocked (exit 1)
+PASS  own image with a CRITICAL vulnerability is blocked (exit 1)
+PASS  counts every severity of a mixed report (exit 1)
+PASS  threshold CRITICAL only: a HIGH no longer blocks (exit 0)
+PASS  threshold CRITICAL only: a CRITICAL still blocks (exit 1)
+PASS  threshold MEDIUM: a MEDIUM blocks (exit 1)
+PASS  third-party image with HIGH is reported but does not block (exit 0)
+PASS  third-party image blocks when the policy says so (exit 1)
+PASS  a report that is not Trivy JSON is an error, never a pass (exit 2)
+PASS  an empty report is an error, never a pass (exit 2)
+PASS  a missing report is an error, never a pass (exit 2)
+PASS  an unknown severity in the policy is rejected (config error) (exit 2)
+
+14 passed, 0 failed
+test-gate exit=0

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtAuthenticationFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">circleguard-auth-service</a> &gt; <a href="index.source.html" class="el_package">com.circleguard.auth.security</a> &gt; <span class="el_source">JwtAuthenticationFilter.java</span></div><h1>JwtAuthenticationFilter.java</h1><pre class="source lang-java linenums">package com.circleguard.auth.security;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.security.Key;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final Key key;
+
+<span class="fc" id="L27">    public JwtAuthenticationFilter(@Value(&quot;${jwt.secret}&quot;) String secret) {</span>
+<span class="fc" id="L28">        this.key = Keys.hmacShaKeyFor(secret.getBytes());</span>
+<span class="fc" id="L29">    }</span>
+
+    @Override
+    protected void doFilterInternal(@jakarta.annotation.Nonnull HttpServletRequest request, 
+                                    @jakarta.annotation.Nonnull HttpServletResponse response, 
+                                    @jakarta.annotation.Nonnull FilterChain filterChain)
+            throws ServletException, IOException {
+<span class="fc" id="L36">        String header = request.getHeader(&quot;Authorization&quot;);</span>
+
+<span class="fc bfc" id="L38" title="All 4 branches covered.">        if (header != null &amp;&amp; header.startsWith(&quot;Bearer &quot;)) {</span>
+<span class="fc" id="L39">            String token = header.substring(7);</span>
+            try {
+<span class="fc" id="L41">                Claims claims = Jwts.parserBuilder()</span>
+<span class="fc" id="L42">                        .setSigningKey(key)</span>
+<span class="fc" id="L43">                        .build()</span>
+<span class="fc" id="L44">                        .parseClaimsJws(token)</span>
+<span class="fc" id="L45">                        .getBody();</span>
+
+<span class="fc" id="L47">                String subject = claims.getSubject();</span>
+                @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L49">                List&lt;String&gt; permissions = (List&lt;String&gt;) claims.get(&quot;permissions&quot;, List.class);</span>
+
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">                if (subject != null) {</span>
+<span class="fc" id="L52">                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">                            subject, null, permissions != null ? permissions.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()) : List.of()</span>
+                    );
+<span class="fc" id="L55">                    SecurityContextHolder.getContext().setAuthentication(auth);</span>
+                }
+<span class="fc" id="L57">            } catch (Exception e) {</span>
+                // Invalid token - clear context just in case
+<span class="fc" id="L59">                SecurityContextHolder.clearContext();</span>
+<span class="fc" id="L60">            }</span>
+        }
+
+<span class="fc" id="L63">        filterChain.doFilter(request, response);</span>
+<span class="fc" id="L64">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,778 @@
+# Decisiones asistidas por IAG
+
+Registro de decisiones de arquitectura e ingeniería tomadas con apoyo de la IA. Cada entrada
+indica el contexto, las alternativas consideradas y las consecuencias. Las decisiones se
+numeran y no se reescriben: si cambian, se añade una nueva entrada.
+
+---
+
+## D-01 · Estrategia de ramas y destino del PR
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada
+
+**Contexto.** `main` solo tiene el commit inicial; `origin/dev` y
+`origin/HU-02_Imágenes-Docker-inmutables` apuntan al mismo commit que
+`origin/HU01_Infraestructura_nube_bash` (`3632068`). No existía ningún PR abierto.
+
+**Decisión.** El PR de HU-02 se hace **desde `HU-02_Imágenes-Docker-inmutables` hacia `dev`**.
+Cuando `dev` tenga el merge, se crea la rama de HU-06 **desde ese nuevo `dev`**.
+
+**Alternativas.** PR de HU-02 hacia `main` (arrastraría los 12 commits de HU-01 mientras no se
+integre); PR apilado contra la rama de HU-01 (más frágil al cerrar la primera).
+
+**Consecuencias.** Como `dev` ya contiene HU-01, el PR de HU-02 mostrará solo sus propios commits.
+HU-01 debe integrarse a `dev`/`main` por su cuenta; no es un prerrequisito del PR de HU-02.
+
+---
+
+## D-02 · Portabilidad: WSL es solo el equipo de desarrollo
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada
+
+**Contexto.** El equipo trabaja en Windows con WSL, pero el producto debe desplegarse en 7
+computadoras y en los hosts de ambiente (Linux).
+
+**Decisión.** Los scripts son **Bash portable** y no usan rutas de WSL, PowerShell ni supuestos de
+Windows. Requisitos: Docker Engine/Desktop con Compose v2.20+ y Bash. En el equipo de desarrollo se
+puede usar WSL; en los hosts, Linux.
+
+**Alternativas.** Scripts específicos para WSL (no portables); scripts de PowerShell (no funcionan
+en los hosts Linux).
+
+**Consecuencias.** `deploy/*.sh` se prueban con `bash -n` y se documentan para WSL, Linux y Git
+Bash. Las rutas de secretos se pasan por variables (`CG_ENV_FILE`, `CG_APP_ENV_FILE`). El registro
+local escucha en `127.0.0.1` y no se expone.
+
+---
+
+## D-03 · EULA de Nexus: se deja pendiente y se usa un registro equivalente
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada (decisión del equipo)
+
+**Contexto.** Nexus Community Edition exige aceptar el EULA de Sonatype antes de permitir
+descargar o subir componentes. HU-01 lo deja en `NEXUS_ACCEPT_EULA=false` y el bootstrap reporta
+`PLAN`. Sin EULA no se crea el repositorio `circleguard-docker` ni se puede publicar.
+
+**Decisión.** **No se acepta el EULA todavía.** Para evidenciar la publicación se usa
+`deploy/registry/` con `registry:2.8.3` (API OCI estándar) en `127.0.0.1:5000`, sin autenticación
+y solo para evidencias. Nexus sigue siendo el registro oficial y su configuración declarativa
+(`writePolicy: allow_once`) queda lista para cuando el equipo acepte.
+
+**Alternativas.** Aceptar el EULA ahora (decisión legal/del equipo, no técnica); usar el
+`admin` de Nexus (mala práctica); no evidenciar la publicación (incumple el criterio).
+
+**Consecuencias.** La evidencia se etiqueta como "registro equivalente". El día que se acepte el
+EULA hay que crear usuarios de push/pull en Nexus y volver a publicar con
+`IMAGE_REGISTRY=<nexus>:8082`. El EULA es un acuerdo de licencia, no un bug: mientras esté
+pendiente, Nexus no acepta artefactos.
+
+---
+
+## D-04 · No modificar el código base
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada
+
+**Contexto.** El equipo pidió expresamente no tocar el código base en esta historia.
+
+**Decisión.**
+- Los servicios se conectan al middleware con variables `SPRING_*` desde Compose; no se editan
+  `application.yml` ni el Gradle.
+- No se añade Actuator.
+- El cliente web se adapta **dentro del Dockerfile**: `sed` reescribe las URLs
+  `http://localhost:<puerto>` por rutas del mismo origen (`/auth`, `/identity`, ...). El
+  repositorio no cambia; la imagen resultante es agnóstica al host.
+- No se versiona `gradle/wrapper/gradle-wrapper.jar`: el builder usa la imagen
+  `gradle:8.14-jdk21`, que fija la misma versión que el wrapper.
+
+**Alternativas.** Editar los YAML y `Config.ts` (más limpio a largo plazo, pero prohibido en esta
+historia); usar `latest` o tags flotantes (prohibido por el criterio).
+
+**Consecuencias.** Los healthchecks son sondas HTTP, no Actuator. La reproducibilidad byte a byte
+de los JAR queda pendiente. El cambio de URLs del web es una transformación de build documentada.
+
+---
+
+## D-05 · Compose: base común + tres overrides
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada
+
+**Contexto.** El criterio pide "un archivo Docker Compose por cada ambiente" y el proyecto
+sugiere `deploy/{compose,k8s}/`.
+
+**Decisión.** `docker-compose.common.yml` contiene el stack completo y los healthchecks;
+`docker-compose.dev.yml`, `.stage.yml` y `.prod.yml` contienen solo las diferencias (puertos,
+límites, política de reinicio). El despliegue combina `common + <env>`.
+
+**Alternativas.** Tres archivos autónomos (duplicación y deriva); un único archivo con perfiles
+(no cumple "un archivo por ambiente").
+
+**Consecuencias.** Hay un archivo por ambiente y una sola fuente de verdad para los servicios.
+`deploy/compose-up.sh <env>` construye la invocación y valida los archivos.
+
+---
+
+## D-06 · Healthchecks sin Actuator
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada (con limitación)
+
+**Contexto.** Los 8 servicios no tienen `spring-boot-starter-actuator` y no se puede tocar el
+código base.
+
+**Decisión.** Sondas HTTP a `/` que aceptan `2xx`, `3xx`, `400`, `401`, `403` y `404`; el
+middleware usa sus herramientas nativas. `web` espera a los 8 servicios `healthy`.
+
+**Alternativas.** Añadir Actuator (mejor, pero toca el código base); comprobar solo el puerto TCP
+(más débil); no poner healthchecks (incumple el criterio).
+
+**Consecuencias.** La sonda demuestra que el proceso acepta HTTP, no que sus dependencias estén
+sanas. Se documenta como limitación y se recomienda Actuator en una historia posterior.
+
+---
+
+## D-07 · Versionado semántico obligatorio y bases fijadas por digest
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada
+
+**Contexto.** El criterio prohíbe `latest` y pide imágenes reproducibles.
+
+**Decisión.** `deploy/lib.sh` valida `MAJOR.MINOR.PATCH` y rechaza `latest` antes de Docker. Cada
+imagen lleva etiquetas OCI (`version`, `revision`, `created`, `source`). Las bases se fijan con
+`tag@sha256` y el cliente web instala con `npm ci`.
+
+**Alternativas.** Tags flotantes (no reproducibles); versión manual sin validación (riesgo de
+`latest`).
+
+**Consecuencias.** `stage.env` y `prod.env` dejan `IMAGE_TAG` vacío: Compose falla en vez de usar
+un tag flotante. La reproducibilidad byte a byte de los JAR sigue pendiente (timestamps de Gradle).
+
+---
+
+## D-08 · Nombres y registro de las imágenes
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada
+
+**Decisión.**
+
+```
+${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/circleguard-<servicio>:<semver>
+${IMAGE_REGISTRY}/${IMAGE_NAMESPACE}/circleguard-web:<semver>
+```
+
+`IMAGE_NAMESPACE` por defecto es `circleguard`. Para Nexus, `IMAGE_REGISTRY=<host>:8082`.
+
+**Consecuencias.** El mismo nombre funciona en `registry:2` y en el repositorio Docker de Nexus.
+El repositorio Nexus usa `allow_once`, así que un tag publicado no se puede sobrescribir.
+
+---
+
+## D-09 · Evidencias diferidas hasta tener Docker
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada
+
+**Contexto.** No hay Docker en Windows ni en WSL; tampoco servidores de ambiente creados.
+
+**Decisión.** Se implementan y validan estáticamente los archivos; las salidas reales de
+`docker build`, `docker inspect`, el catálogo del registro y los healthchecks se generan cuando
+Docker esté instalado. `docs/evidencias/hu-02/README.md` deja los comandos exactos.
+
+**Consecuencias.** La historia no se considera cerrada hasta capturar esas salidas. No se
+inventan evidencias.
+
+---
+
+## D-10 · Registro local sin autenticación y solo en loopback
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada (temporal)
+
+**Contexto.** `registry:2` se usa solo para evidencias, no para producción.
+
+**Decisión.** Publicar en `127.0.0.1:5000`, sin TLS ni autenticación. El registro oficial
+(Nexus) usará autenticación y usuarios de push/pull.
+
+**Consecuencias.** No debe exponerse a la red. Si se necesita en otra máquina, se accede por túnel
+SSH o se usa Nexus.
+
+---
+
+## D-11 · Prod con el web en loopback hasta E2.6
+
+- **Fecha:** 2026-11-02
+- **Historia:** HU-02
+- **Estado:** Aceptada
+
+**Contexto.** No hay TLS/ingress y el criterio de HU-02 no lo incluye.
+
+**Decisión.** En `prod`, el cliente web se publica en `127.0.0.1:3000`. El acceso será por túnel
+SSH o por un proxy inverso con TLS que llegará en E2.6.
+
+**Consecuencias.** Prod no queda abierto a Internet. La usabilidad final depende del ingress de
+la siguiente entrega.
+
+---
+
+## D-12 · Pipeline de HU-06 en código, independiente de AWS
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Contexto.** No hay Jenkins con plugins, ni Docker en el equipo de desarrollo, ni hosts de
+ambiente con capacidad para el stack completo.
+
+**Decisión.** Implementar el `Jenkinsfile` y los scripts de `deploy/` como código portable, con
+modos `local` y `ssh`, parámetros para construir/publicar imágenes y un destino de despliegue
+configurable. La ejecución end-to-end se hará cuando HU-04 y los hosts estén listos.
+
+**Alternativas.** Esperar a tener AWS/Jenkins para escribir el pipeline (pierde tiempo); simular
+las evidencias (no es aceptable).
+
+**Consecuencias.** El pipeline se puede revisar y probar por partes. Las evidencias de ejecución
+quedan pendientes y deben capturarse antes de cerrar HU-06.
+
+---
+
+## D-13 · Mapeo de ramas dev y main
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Contexto.** HU-06 dice “merge a `main`”, pero el equipo integra en `dev` y publica desde `main`.
+
+**Decisión.** `dev` despliega dev y stage automáticamente; `main` añade la aprobación manual, prod y
+el tag. `FORCE_PROD=true` permite probar el flujo desde otra rama.
+
+**Consecuencias.** El flujo respeta la rama de integración del equipo y el criterio de aprobación
+antes de prod. Las evidencias deben mostrar una ejecución en `dev` y otra en `main`.
+
+---
+
+## D-14 · `pollSCM` en lugar de webhook
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada (temporal)
+
+**Contexto.** Jenkins solo escucha en `127.0.0.1`; GitHub no puede llamarlo. HU-01 advierte que un
+webhook exige TLS o un relé.
+
+**Decisión.** Usar `pollSCM('H/5 * * * *')`. Cuando exista TLS/relé (E2.6/HU-04), cambiar a
+webhook.
+
+**Consecuencias.** El despliegue ocurre en ≤ 5 minutos, no instantáneamente. Se documenta como
+limitación.
+
+---
+
+## D-15 · Tests base no bloqueantes
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada (temporal)
+
+**Contexto.** Los 10 fallos base de HU-01 (Testcontainers, seguridad de tests, middleware y JWT)
+siguen existiendo y no son de HU-06.
+
+**Decisión.** La etapa ejecuta `./gradlew test --continue`, publica JUnit y deja el build
+`UNSTABLE` sin bloquear el despliegue. No se ocultan: se archivan y se notifican.
+
+**Alternativas.** Bloquear todo el pipeline hasta corregirlos (impide avanzar HU-06); ignorarlos
+(peor).
+
+**Consecuencias.** El pipeline puede desplegar con un build `UNSTABLE`. HU-04/E1.6 debe corregir
+los 10 tests y volver la etapa bloqueante.
+
+---
+
+## D-16 · Build y publicación de imágenes opcionales
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Contexto.** `crane` publica y descarga, pero no construye; el Jenkins de HU-01 no tiene Docker ni
+un agente de build.
+
+**Decisión.** Parámetros `BUILD_IMAGES` y `PUBLISH_IMAGES` (por defecto `true`). Si el Jenkins no
+tiene Docker, se pueden desactivar y usar imágenes ya publicadas; la construcción queda en HU-04.
+
+**Consecuencias.** El pipeline se puede usar para promoción/rollback sin Docker en el controlador.
+La evidencia de build de imágenes sigue siendo de HU-04.
+
+---
+
+## D-17 · Trazabilidad JSON + historial TSV
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Decisión.** `deploy/releases/<env>.json` guarda la última versión (ambiente, versión, commit,
+fecha, actor, evento) y `history.tsv` el historial append-only. Jenkins archiva ambos.
+
+**Alternativas.** Solo un artefacto de Jenkins (se pierde al limpiar builds); una rama de releases
+(más compleja).
+
+**Consecuencias.** La trazabilidad es legible y versionable. Si se quiere fuente de verdad en Git,
+el equipo puede hacer que Jenkins commitee los archivos.
+
+---
+
+## D-18 · Rollback reutiliza deploy y valida imágenes
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Decisión.** `rollback.sh` rechaza la versión actual, verifica las 9 imágenes con
+`docker manifest inspect`/`crane manifest` y llama a `deploy.sh` con evento `rollback`.
+
+**Consecuencias.** No se redespliega una versión inexistente. La verificación remota se delega al
+host cuando `DEPLOY_MODE=ssh`.
+
+---
+
+## D-19 · Notificaciones Discord/Slack no fatales
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Decisión.** `notify.sh` usa `DISCORD_WEBHOOK_URL` o `SLACK_WEBHOOK_URL`; si no hay webhook o
+falla el envío, informa y termina en 0. El pipeline lo llama en `post`.
+
+**Consecuencias.** Un fallo de notificación no tumba un despliegue. La evidencia de la
+notificación se captura por separado.
+
+---
+
+## D-20 · E2E de humo como gate de stage
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada (ampliable)
+
+**Contexto.** No había pruebas E2E.
+
+**Decisión.** `tests/e2e-playwright` verifica que el web responde y que `/healthz` está en 200.
+`deploy/e2e.sh` es el gate antes de stage.
+
+**Consecuencias.** Hay un gate real y ejecutable; la cobertura funcional (login, cuestionario, QR)
+se amplía en la siguiente iteración.
+
+---
+
+## D-21 · Plantilla y política de cambio
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-07
+- **Estado:** Aceptada
+
+**Decisión.** `docs/operaciones/solicitud-cambio.md` y `politica-aprobacion.md` definen tipos
+(Estándar/Normal/Mayor/Emergencia), aprobadores, evidencias y rollback. `.github/PULL_REQUEST_TEMPLATE.md`
+enlaza el checklist.
+
+**Consecuencias.** Todo cambio Normal/Mayor tiene trazabilidad y aprobación. La política se revisa
+en el tablero ágil.
+
+---
+
+## D-22 · Release notes desde Conventional Commits
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-07
+- **Estado:** Aceptada
+
+**Decisión.** `release-notes.sh` agrupa `feat`, `fix`, `perf` y otros entre el tag anterior y el
+nuevo, enlaza PR `(#N)` y actualiza `docs/release-notes/vX.Y.Z.md` + `CHANGELOG.md`.
+
+**Alternativas.** `semantic-release` (Node, más dependencias); notas manuales (no trazables).
+
+**Consecuencias.** Las notas se generan del historial real. El tag `vX.Y.Z` se crea antes con
+`tag-release.sh`.
+
+---
+
+## D-23 · Wrapper de Gradle versionado
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Aceptada
+
+**Contexto.** `*.jar` estaba ignorado y `gradle/wrapper/gradle-wrapper.jar` no se versionaba; un
+clon limpio no podía ejecutar `./gradlew` y Jenkins no podía compilar.
+
+**Decisión.** Versionar el wrapper de Gradle 8.14 (43 KiB, `GradleWrapperMain` verificado) con una
+excepción en `.gitignore`, y normalizar `gradlew`/`Jenkinsfile` a LF.
+
+**Consecuencias.** Jenkins y cualquier host con JDK 21 pueden ejecutar `./gradlew` sin instalar
+Gradle. La imagen de build de HU-02 sigue usando `gradle:8.14-jdk21` para las imágenes.
+
+---
+
+## D-24 · Capacidad y cuota de ambientes pendientes
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-06
+- **Estado:** Pendiente (decisión del equipo)
+
+**Contexto.** HU-01 creó hosts `t3.small` (2 GiB) y `QUOTA_VCPU_LIMIT=5`. El stack completo tiene
+15 contenedores; `ci` + `nexus` + un ambiente = 6 vCPU.
+
+**Decisión.** No se fuerza un cambio de infraestructura en HU-06. El pipeline soporta `local` y
+`ssh`; la evidencia real en AWS queda condicionada a:
+1. redimensionar los hosts de ambiente (por ejemplo `m7i-flex.large`), y
+2. subir `QUOTA_VCPU_LIMIT`/cuota (la cuenta tiene 16 vCPU reales).
+
+**Consecuencias.** HU-06 puede validarse con Docker local, pero la demostración AWS completa
+requiere aprobación de costo y cuota. Se documenta como bloqueo, no se simula.
+
+---
+
+## D-25 · El registro oficial pasa a CNCF Distribution
+
+- **Fecha:** 2026-11-05
+- **Historia:** HU-01 (impacto en HU-02/HU-06)
+- **Estado:** Aceptada; reemplaza D-03 y D-10 en lo relativo a Nexus
+
+**Contexto.** El equipo decidió el 2026-11-03 no aceptar el EULA de Nexus y usar CNCF Distribution
+3.0 en el host `nexus` (`REGISTRY_BACKEND=distribution`, TLS + htpasswd, usuario `ci`).
+
+**Decisión.** El registro de imágenes es Distribution; Nexus queda instalado sin uso. Para AWS,
+`IMAGE_REGISTRY=<ip-privada-nexus>:8082`. `deploy/registry/` (`registry:2`) queda solo como
+equivalente local de evidencias.
+
+**Consecuencias.** La publicación ya no depende del EULA. Jenkins usa `crane` para publicar y
+descargar sin el socket de Docker.
+
+---
+
+# Sprint 2
+
+Las entradas D-26 a D-35 se abren al iniciar el Sprint 2 (2026-11-16). **D-29 (Blue-Green) fue
+aceptada por el equipo el 2026-11-16.** D-26, D-27 y D-28 están en implementación dentro de HU-13.
+D-30 sigue como propuesta hasta que HU-16 despliegue el rollback en Kubernetes. Cada decisión
+incluye una sección **Evidencia en código** con `archivo:línea`; si la implementación aún no
+existe, se indica la ruta planificada y se reemplaza por la línea real al mergear.
+
+## D-26 · Observabilidad: stack Prometheus + Grafana + Alertmanager + Jaeger + Loki
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-13 (Sprint 2 · E2.5)
+- **Estado:** Aceptada (implementación en curso, HU-13)
+
+**Contexto.** El proyecto no tiene Actuator, Micrometer ni ningún backend de métricas. El criterio
+E2.5 pide métricas técnicas y de negocio, al menos tres alertas probadas, trazas distribuidas por
+`form → Kafka → promotion → notification` y logs centralizados.
+
+**Decisión.** Un único namespace `observability` con Prometheus (scrape por anotaciones),
+Alertmanager, Grafana (dashboards por servicio y de negocio), Jaeger (colector + UI, OTLP) y Loki +
+Promtail para logs. Se descarta ELK porque Elasticsearch pide ≈ 1 GiB de heap y el clúster de
+trabajo es pequeño (2 vCPU / 8 GiB); Loki indexa etiquetas, no el texto completo, y cubre el
+criterio con mucha menos memoria.
+
+**Alternativas.**
+- ELK: cumple, pero la huella de memoria y la operación (JVM, disco, `vm.max_map_count`) no caben
+  con holgura en el presupuesto del curso.
+- Solo Prometheus + Grafana: no cumple trazas ni logs.
+- SaaS (Grafana Cloud): excelente, pero introduce una cuenta y una dependencia externa que el
+  curso no evalúa.
+
+**Consecuencias.** El stack se prueba primero con Compose y luego se porta a Kubernetes. La
+evidencia debe incluir dashboards, alerta disparada, traza E2E y consulta de logs. Si el clúster no
+tiene recursos, Loki y Jaeger comparten nodo y se documenta la limitación.
+
+**Evidencia en código.**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Stack local | `deploy/observability/docker-compose.yml:16` | Servicio Prometheus y dependencias |
+| Scrape Compose | `deploy/observability/prometheus/prometheus.compose.yml:1` | Targets por DNS de servicio |
+| Stack K8s | `deploy/k8s/observability/all-in-one.yaml:46` | ConfigMap de Prometheus |
+| Dashboard de negocio | `deploy/observability/grafana/dashboards/business.json:1` | Promociones, check-ins y contención |
+
+## D-27 · Instrumentación común: Actuator + Micrometer + OpenTelemetry
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-13 (Sprint 2 · E2.5)
+- **Estado:** Aceptada (implementación en curso, HU-13)
+
+**Contexto.** Los healthchecks actuales son sondas HTTP a `/` porque la decisión D-04 (HU-02) no
+permitía tocar el código base. Esa restricción ya no aplica: HU-10 necesita sondas de Actuator y
+HU-13 necesita métricas.
+
+**Decisión.** Añadir a los ocho servicios `spring-boot-starter-actuator`,
+`micrometer-registry-prometheus` y el starter de OpenTelemetry. Exponer
+`/actuator/health/liveness`, `/actuator/health/readiness` y `/actuator/prometheus`. Activar la
+observación de Spring Kafka (`spring.kafka.template.observation-enabled` y
+`listener.observation-enabled`) para que el `traceId` viaje en las cabeceras del mensaje.
+
+**Alternativas.** Instrumentar solo promotion y notification (menos cobertura, no permite comparar
+servicios); usar el agente Java de OpenTelemetry sin starter (válido, pero más difícil de explicar y
+de versionar con Gradle).
+
+**Consecuencias.** Aumenta el tamaño de las imágenes y el consumo de memoria; se mitiga con
+`JAVA_TOOL_OPTIONS` y límites de recursos. Los endpoints de Actuator deben quedar protegidos o
+expuestos solo dentro del clúster.
+
+**Evidencia en código.**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Dependencias (8 servicios) | `services/circleguard-auth-service/build.gradle.kts:15` | Actuator, Micrometer y OTel |
+| Circuit Breaker a Micrometer | `services/circleguard-auth-service/build.gradle.kts:31` | `resilience4j-micrometer` |
+| Configuración común | `services/circleguard-promotion-service/src/main/resources/application.yml:46` | `management`, trazas y logs |
+| Promociones | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/service/HealthStatusService.java:144` | Contador `circleguard.promotions` |
+| Check-ins | `services/circleguard-gateway-service/src/main/java/com/circleguard/gateway/service/QrValidationService.java:55` | Contador `circleguard.checkins` |
+| Notificaciones | `services/circleguard-notification-service/src/main/java/com/circleguard/notification/service/NotificationDispatcher.java:47` | Contador `circleguard.notifications` |
+| Circuit Breaker a Micrometer | `services/circleguard-auth-service/src/main/java/com/circleguard/auth/config/ObservabilityConfig.java:4` | `TaggedCircuitBreakerMetrics` sobre el registry |
+| Registry compartido | `services/circleguard-auth-service/src/main/java/com/circleguard/auth/client/IdentityClient.java:79` | El breaker real se registra para métricas |
+| Endpoint OTLP en Compose | `deploy/compose/docker-compose.common.yml:49` | Trazas al collector |
+
+## D-28 · Logs centralizados con Loki en lugar de ELK
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-13 (Sprint 2 · E2.5)
+- **Estado:** Aceptada (implementación en curso, HU-13)
+
+**Contexto.** El criterio admite ELK o una alternativa compatible.
+
+**Decisión.** Loki + Promtail, con retención de 7 días y etiquetas `service`, `level` y `traceId`.
+Los servicios escriben logs JSON a stdout; Promtail los recolecta del nodo.
+
+**Consecuencias.** Las consultas son por etiquetas y búsqueda de texto, no SQL. La retención corta
+obliga a exportar la evidencia el mismo día de la demostración.
+
+**Evidencia en código.**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Loki local | `deploy/observability/loki/loki-config.yml:1` | Retención 168 h y schema v13 |
+| Promtail local | `deploy/observability/promtail/promtail-config.yml:1` | Recolección por socket Docker |
+| Loki K8s | `deploy/k8s/observability/all-in-one.yaml:513` | ConfigMap de Loki |
+| Promtail K8s | `deploy/k8s/observability/all-in-one.yaml:641` | ConfigMap de Promtail |
+
+## D-29 · Despliegue: Blue-Green en producción y RollingUpdate en dev/stage
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-16 (Sprint 2 · E2.8), con impacto en HU-10/HU-11
+- **Estado:** Aceptada (decisión del equipo, 2026-11-16)
+
+**Contexto.** El criterio E2.8 pide un rollback real en Kubernetes. El proyecto tiene ocho
+servicios, un clúster pequeño y un pipeline con aprobación manual. El bonus de la rúbrica menciona
+*canary* con service mesh, pero no es obligatorio.
+
+**Decisión.** `dev` y `stage` usan `RollingUpdate` (el valor por defecto de Kubernetes, con
+`maxUnavailable: 0`). `prod` usa **Blue-Green**: se despliega la versión nueva con un Deployment
+`<servicio>-green`, se valida con probes y un smoke test, y se conmuta el `Service` de `blue` a
+`green`; el Deployment anterior se conserva para volver con un solo cambio de selector.
+
+**Alternativas.**
+- **Canary** con NGINX Ingress (`canary-by-header`/`canary-weight`) o Istio/Flagger: es la opción
+  más fina, pero exige dividir tráfico, medir tasas de error por versión y automatizar el análisis.
+  Con un equipo de tres personas y un clúster de 2 vCPU es fácil que la demostración falle por
+  infraestructura y no por el producto. Istio además duplica la complejidad operativa.
+- **Solo RollingUpdate:** cumple disponibilidad, pero el rollback es menos evidente y no permite
+  comparar dos versiones al mismo tiempo.
+- **Recreate:** produce caída; no sirve para la demo.
+
+**Consecuencias.** Blue-Green duplica solo el servicio que se está desplegando, no todo el stack.
+La base de datos debe ser compatible hacia atrás (expand-contract) porque ambas versiones conviven
+unos minutos. Kafka y Redis también deben tolerar los dos contratos. La evidencia de rollback es
+`kubectl rollout undo` o el cambio de selector, con logs y captura del estado `Ready`.
+
+**Evidencia en código (implementación actual).**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Aprobación manual de prod | `Jenkinsfile:361` | El stage `Approve prod` exige input humano |
+| Despliegue a prod | `Jenkinsfile:379` | `Deploy prod` ocurre después de la aprobación |
+| Registro de la versión | `deploy/deploy.sh:62` | Llama a `record-release.sh` tras desplegar |
+| Registro JSON | `deploy/record-release.sh:33` | Ambiente, versión, commit, fecha, actor y evento |
+| Historial append-only | `deploy/record-release.sh:45` | Historial TSV de deploys y rollbacks |
+| Rollback | `deploy/rollback.sh:49` | Redespliega con `EVENT=rollback` |
+| Notificación | `deploy/deploy.sh:64` | Avisa éxito o rollback |
+
+**Evidencia planificada (HU-16; se completan las líneas al implementar).**
+
+| Artefacto | Ruta planificada | Qué demostrará |
+|---|---|---|
+| Deployment azul/verde | `deploy/k8s/base/<svc>/deployment.yaml` | Dos colores por servicio |
+| Selector del Service | `deploy/k8s/base/<svc>/service.yaml` | El selector apunta a `version: blue` o `green` |
+| Conmutación | `deploy/k8s/scripts/switch-color.sh` | Cambia el selector y valida endpoints |
+| Stage de Jenkins | `Jenkinsfile` (nuevo stage) | Despliega el color inactivo y conmuta tras el smoke test |
+
+## D-30 · Registro de cambios por ambiente con digest y aprobación
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-16 (Sprint 2 · E2.8)
+- **Estado:** Propuesta (implementación parcial en HU-16)
+
+**Contexto.** HU-06/HU-07 ya dejaron `deploy/releases/<env>.json` y `history.tsv` con versión,
+commit, fecha, actor y evento. E2.8 pide además identificar la aprobación y el resultado.
+
+**Decisión.** Extender el registro con `image_digest`, `approved_by`, `approval_ref` (URL o captura
+de Jenkins), `result` y `rollback_of`. Mantener un archivo por ambiente y un historial
+append-only. Los tags semánticos siguen creándose en `main`.
+
+**Consecuencias.** El registro deja de ser solo un puntero de versión y se convierte en la
+evidencia de auditoría. Si Jenkins no puede escribir en Git, se archiva como artefacto del build y
+se copia al repositorio al cerrar la historia.
+
+**Evidencia en código (campos actuales).**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| JSON por ambiente | `deploy/record-release.sh:33` | Bloque `environment/version/commit/deployed_at/deployed_by/event` |
+| Historial | `deploy/record-release.sh:45` | Encabezado TSV y append por evento |
+| Consulta de versión | `deploy/lib.sh:34` | Lee primero la copia persistente y luego el repo |
+| Rollback registrado | `deploy/rollback.sh:49` | Redespliegue con `EVENT=rollback` |
+
+Los campos nuevos (`image_digest`, `approved_by`, `approval_ref`, `result`, `rollback_of`) se
+agregan en HU-16; la línea exacta se actualizará en ese PR.
+
+## D-31 · Documentación por criterio de rúbrica, con evidencia enlazada
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-17 (Sprint 2 · E2.9)
+- **Estado:** Aceptada (consolida la práctica de HU-08)
+
+**Contexto.** La rúbrica asigna 2 % a documentación completa y exige que sea coherente con lo
+desplegado, no una carpeta de capturas sin índice.
+
+**Decisión.** Cada criterio de la rúbrica tiene un documento dueño en `docs/`, un estado
+(`Implementado`, `Parcial`, `Pendiente`) y un enlace a la evidencia. `docs/README.md` es el índice
+único. Los documentos no prometen lo que no existe: lo pendiente se marca con su HU y su bloqueo.
+
+**Consecuencias.** La documentación se puede auditar en cinco minutos. El costo es mantener el
+estado actualizado; por eso la columna de estado se revisa al cerrar cada HU.
+
+## D-32 · Nomenclatura Sprint 2 para evitar la colisión de HU-09
+
+- **Fecha:** 2026-11-16
+- **Historia:** Transversal
+- **Estado:** Aceptada
+
+**Contexto.** El Sprint 1 tuvo una HU-09 (branching y Conventional Commits) y el Sprint 2 también
+tiene una HU-09 (Terraform, PDDZ-64). Dos historias distintas con el mismo número confunden el
+tablero, los commits y la sustentación.
+
+**Decisión.** En documentos y exposición se usa `HU-09 (S1)` para branching y `HU-09 (S2)` para
+Terraform; para el resto, `HU-13 (S2)`, `HU-16 (S2)`, etc. Los mensajes de commit conservan el
+prefijo `hu-13`, `hu-16`, `hu-17` y el ID de Jira (`PDDZ-68`, `PDDZ-71`, `PDDZ-72`).
+
+**Consecuencias.** Se elimina la ambigüedad sin renombrar ramas ni romper el historial.
+
+## D-33 · Presupuesto del Sprint 2 sin gasto nuevo no aprobado
+
+- **Fecha:** 2026-11-16
+- **Historia:** Transversal
+- **Estado:** Aceptada (hereda D-24)
+
+**Contexto.** El presupuesto absoluto del proyecto es 15 USD y el acumulado estimado ronda 3 USD.
+Terraform, Kubernetes y observabilidad pueden crear recursos facturables.
+
+**Decisión.** Todo recurso nuevo se crea con `terraform plan` revisado y aprobación explícita; el
+clúster de trabajo se apaga al terminar cada sesión. La observabilidad se ejecuta primero en local
+y luego en el clúster, nunca en un recurso dedicado sin aprobación.
+
+**Consecuencias.** La demostración puede requerir encender el clúster 30–60 minutos antes. El
+costo real se contrasta en Billing y se registra en `docs/operacion/analisis-costos.md`.
+
+## D-34 · DLT con deserialización tolerante queda como mejora posterior
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-12 (Sprint 2 · E2.4)
+- **Estado:** Aceptada (limitación documentada)
+
+**Contexto.** La revisión de HU-12 encontró que un mensaje cuyo JSON no se puede deserializar sigue
+bloqueando la partición porque el consumidor usa `JsonDeserializer` directamente.
+
+**Decisión.** No se amplía HU-12: el criterio pide un tercer patrón probado, no un framework de
+mensajería completo. Se documenta la limitación y se propone `ErrorHandlingDeserializer` como
+mejora de una historia posterior.
+
+**Consecuencias.** Los mensajes malformados en el sentido de tipos (`ClassCastException`) sí van al
+DLT; los JSON inválidos, no. La sustentación debe distinguir ambos casos.
+
+**Evidencia en código.**
+
+| Artefacto | Archivo:línea | Qué demuestra |
+|---|---|---|
+| Manejador con DLT | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/config/KafkaErrorHandlingConfig.java:54` | `DeadLetterPublishingRecoverer` y reintentos |
+| Excepciones no reintentables | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/config/KafkaErrorHandlingConfig.java:58` | Datos y reglas de negocio van directo al DLT |
+| Listener sin `catch` | `services/circleguard-promotion-service/src/main/java/com/circleguard/promotion/listener/SurveyListener.java:23` | La excepción llega al manejador |
+
+## D-35 · Revisión de HU-12: se acepta con observaciones de integración
+
+- **Fecha:** 2026-11-16
+- **Historia:** HU-12 (Sprint 2 · E2.4)
+- **Estado:** Aceptada
+
+**Contexto.** El PR #14 integró HU-12 en `dev` con el inventario de patrones, Circuit Breaker,
+External Configuration y Dead Letter Topic.
+
+**Decisión.** Se acepta el cumplimiento de los nueve criterios con tres observaciones: (1) Compose
+y Kubernetes deben definir `CIRCLEGUARD_IDENTITYSERVICE_URL=http://identity:8083` o el login falla
+dentro del contenedor; (2) falta la entrada en `application.yml` que haga visible la configuración;
+(3) la suite no se pudo re-ejecutar en esta revisión por falta del toolchain JDK 21, así que se
+toma como evidencia la ejecución reportada en el documento y se recomienda repetirla en Jenkins.
+
+**Consecuencias.** Las observaciones se asignan a HU-10/HU-11 (variables de despliegue) y a la
+revisión de cierre de HU-12. No bloquean el merge ya hecho, pero sí el cierre formal de la HU.
+
+## D-36 · Las excepciones de seguridad las aprueba una persona
+
+- **Fecha:** 2026-11-23
+- **Historia:** HU-14 (Sprint 2 · E2.6)
+- **Estado:** Aceptada
+
+**Contexto.** El marco de excepciones exige responsable, justificación, fecha de aprobación y caducidad (30 días en CRITICAL, 90 en HIGH; sin comodines ni permanentes). La IA preparó las candidatas con `PENDIENTE`.
+
+**Decisión.** La IA no aprueba excepciones: genera las filas candidatas y redacta la justificación técnica, y una persona las aprueba con su nombre. Matthew aprobó los HIGH de IaC (KSV-0014, KSV-0118, KSV-0056, AWS-0132 y AWS-0164) a 30 días; Juan Esteban aprobó AWS-0104. Se rechazó añadir esos IDs a `.trivyignore`: ignora por regla en todo el repositorio, ocultaría futuras violaciones y no cambia el gate de HU-11, que bloquea solo CRITICAL.
+
+**Consecuencias.** El escaneo de IaC pasa con 62 hallazgos cubiertos y ninguno oculto (siguen contados). Las 3 CRITICAL y 22 HIGH de dependencias de Spring siguen sin excepción; por eso `SECURITY_GATE` se queda en `report`.
+
+## D-37 · Un escaneo que no se ejecutó sale con código 2
+
+- **Fecha:** 2026-11-23
+- **Historia:** HU-14 (Sprint 2 · E2.6)
+- **Estado:** Aceptada
+
+**Contexto.** En el build #10 de Jenkins el agente no tenía `docker compose`; el escaneo de dependencias terminó con código 1 y el pipeline lo trató como «hallazgos sobre el umbral» (UNSTABLE) en lugar de un error. Fue un defecto de la IA, detectado por la ejecución real.
+
+**Decisión.** Una herramienta ausente, un Gradle que falla o un SBOM que no se generó salen con código 2, que siempre falla el build. El código 1 queda reservado a «hay hallazgos». Se añadieron tres pruebas que fallan con el código anterior.
+
+**Consecuencias.** Un escaneo que no corrió nunca cuenta como aprobado ni como hallazgo. El agente de Jenkins necesita el plugin `docker compose`.
+
+## D-38 · Los objetivos de rendimiento no se cambian después de medir
+
+- **Fecha:** 2026-11-23
+- **Historia:** HU-15 (Sprint 2 · E2.7)
+- **Estado:** Aceptada
+
+**Contexto.** En el clúster, a 100 usuarios, el p95 y los errores cumplen pero el throughput no (189,7 de 200 y 48,4 de 50). La IA supuso que era el pacing del generador porque la carga ofrecida era igual al objetivo y propuso ofrecer 25 % más. La repetición dio 192,3 y 48,7.
+
+**Decisión.** Los objetivos (`tests/performance/targets.json`) no se tocan. La hipótesis del pacing quedó refutada por el dato y se corrigió en el informe: hay un techo de capacidad cercano a 190 y 49 req/s cuya causa (servicio, nodo único o generador) no está separada. El paso de Jenkins ofrece 25 % más de carga por defecto.
+
+**Consecuencias.** HU-15 declara el throughput como NOT MET. Para cerrar la causa hay que medir CPU del nodo y del agente durante la prueba o repartir la carga en varios procesos de Locust.

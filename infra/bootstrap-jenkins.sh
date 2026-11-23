@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# HU-01 · Jenkins on the ci server (shared with SonarQube): prepares the host (Docker Engine +
+# Compose), publishes the Compose stack and the JCasC configuration, writes its .env from the
+# secret manager and verifies that Jenkins started configured (no setup wizard, managed admin,
+# no anonymous access). Access is role based (HU-14): administrator, developer and viewer, each with its
+# own password from the secret manager (see casc/jenkins.yaml).
+# Jenkins only listens on 127.0.0.1 of its host: administrators use infra/tunnel.sh jenkins.
+# The container also gets the registry address and the "ci" user of the registry (from the secret
+# manager), used by crane to publish and pull images (verify-infra.sh --registry).
+# Idempotent. It does not create AWS resources: the instance must already exist.
+
+# shellcheck source=bootstrap/lib/common.sh
+source "$(dirname "${BASH_SOURCE[0]}")/bootstrap/lib/common.sh"
+# shellcheck source=bootstrap/lib/aws.sh
+source "$INFRA_DIR/bootstrap/lib/aws.sh"
+# shellcheck source=bootstrap/lib/remote.sh
+source "$INFRA_DIR/bootstrap/lib/remote.sh"
+
+usage() {
+  cat <<'EOF'
+Uso: infra/bootstrap-jenkins.sh [--plan | --apply] [--target aws|local]
+  --target aws    (por defecto) instancia EC2 "ci" en ejecución, por SSH.
+  --target local  Docker Desktop de esta máquina, en 127.0.0.1 (validación gratuita).
+EOF
+}
+
+cg_parse_flags "$@"
+cg_load_config
+cg_start_log bootstrap-jenkins
+
+if [[ "$CG_TARGET" == local ]]; then
+  RESTART=no
+  # Docker Desktop: containers reach ports published on the workstation through this name.
+  REGISTRY_ADDRESS="host.docker.internal:$LOCAL_NEXUS_DOCKER_HOST_PORT"
+else
+  RESTART=unless-stopped
+  # Private IP of the nexus server (kept across stop/start), reached through the security groups.
+  cg_target_preflight
+  nexus_ip=$(cg_find_instances nexus | awk '{print $5}' | head -1)
+  REGISTRY_ADDRESS=""
+  if nz "$nexus_ip"; then
+    REGISTRY_ADDRESS="$nexus_ip:$NEXUS_DOCKER_PORT"
+  else
+    warn "no existe la instancia nexus: Jenkins queda sin dirección del registro hasta la próxima ejecución"
+  fi
+fi
+# TOOL_* are read by cg_tool_bootstrap (bootstrap/lib/remote.sh). The URL is the one seen
+# through the SSH tunnel, so it does not change when the instance gets a new public IP.
+# Nested containers of the DinD daemon need a resolver that is not Docker's embedded 127.0.0.11:
+# the VPC resolver in AWS, a public resolver for the local Docker Desktop target.
+if [[ -z "${DIND_DNS:-}" ]]; then
+  if [[ "$CG_TARGET" == local ]]; then DIND_DNS=8.8.8.8; else DIND_DNS=10.20.0.2; fi
+fi
+# shellcheck disable=SC2034
+TOOL_NETWORK=cg-ci
+# shellcheck disable=SC2034
+TOOL_FILES=(docker-compose.yml Dockerfile plugins.txt casc/jenkins.yaml)
+# shellcheck disable=SC2034
+TOOL_SECRETS=(JENKINS_ADMIN_PASSWORD JENKINS_DEV_PASSWORD JENKINS_VIEWER_PASSWORD)
+# shellcheck disable=SC2034
+TOOL_SHARED_SECRETS=("tools/registry REGISTRY_CI_PASSWORD")
+# shellcheck disable=SC2034
+TOOL_ENV=(
+  "BIND_ADDRESS=127.0.0.1"
+  "RESTART_POLICY=$RESTART"
+  "JENKINS_HTTP_PORT=$JENKINS_HTTP_PORT"
+  "JENKINS_ADMIN_USER=admin"
+  "JENKINS_DEV_USER=ci-developer"
+  "JENKINS_VIEWER_USER=ci-viewer"
+  "CG_JENKINS_URL=http://localhost:${JENKINS_HTTP_PORT}/"
+  "CG_LIBRARY_REMOTE=${CG_LIBRARY_REMOTE:-https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git}"
+  "REGISTRY_ADDRESS=$REGISTRY_ADDRESS"
+  "REGISTRY_CI_USER=ci"
+  "DIND_DNS=$DIND_DNS"
+)
+# Optional: where the shared pipeline library is fetched from (default in docker-compose.yml: the GitHub
+# repository). Setting CG_LIBRARY_REMOTE lets a branch that is not pushed yet be validated with a
+# repository inside the controller (see docs/evidencias/hu-04).
+if [[ -n "${CG_LIBRARY_REMOTE:-}" ]]; then TOOL_ENV+=("CG_LIBRARY_REMOTE=$CG_LIBRARY_REMOTE"); fi
+
+cg_tool_bootstrap jenkins
+cg_summary bootstrap-jenkins

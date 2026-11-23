@@ -1,0 +1,60 @@
+# Comprobaciones unitarias de HU-01 (sin AWS) · 20261103T231039Z
+# Base: commit 3afca6f más cambios locales: roles y ENV_SERVERS, orden del registro, vCPU, guarda de cuota (AWS simulado),
+# daemon.json, Compose (puertos y validez de los cuatro stacks), comprobación de idempotencia de bootstrap-env.sh en test-isolation.sh
+# (registros de fases simulados) y planes de test-isolation.sh y test-idempotency.sh.
+# Repetidas tras los últimos cambios: textos de test-isolation.sh y aws.env (límite de vCPU frente a la cuota real) y
+# orden de las copias enmascaradas en test-idempotency.sh (probado aparte en *-orden-evidencias-local.txt).
+# sha256: f72411f9db33b5a6ba6003c5969078773c156104c941bff4f936ac48bf1d0eb8  infra/test-isolation.sh
+# sha256: 01aaf8ec9ebb9d9dde14b3d8f794a0bbcbbfbe22ffeed7eb01e70d69650d2375  infra/test-idempotency.sh
+
+== Roles y registro
+PASS  por defecto (decisión del 2026-11-03): ci, nexus y los tres ambientes
+PASS  ENV_SERVERS vacío: topología B
+PASS  ENV_SERVERS=dev,prod añade sus roles
+PASS  ENV_SERVERS sin duplicados
+PASS  ENV_SERVERS inválido se rechaza
+PASS  REGISTRY_BACKEND inválido se rechaza
+PASS  tipo, disco y vCPU de env-dev
+PASS  nivel de red de env-prod y del registro
+PASS  el registro vive en el servidor nexus
+PASS  orden con distribution: Nexus libera el 8082 y después el registro lo toma
+PASS  orden con nexus: se retira el registro y después Nexus toma el 8082
+PASS  tipo sin vCPU conocidas se rechaza
+== Vista previa de vCPU (bootstrap-servers.sh)
+PASS  configuración actual: 10 vCPU con todo encendido = QUOTA_VCPU_TARGET, sin aviso
+PASS  objetivo menor que lo configurado: aviso
+== Guarda de cuota (bootstrap-servers.sh, QUOTA_VCPU_LIMIT=5)
+PASS  dos servidores (4 vCPU): permitido
+PASS  uno encendido y uno nuevo (4 vCPU): permitido
+PASS  tres servidores (6 vCPU): rechazado antes de llamar a AWS
+PASS  --approve all (10 vCPU): rechazado
+PASS  dos encendidos y otro aprobado (6 vCPU): rechazado
+== daemon.json (setup-docker.sh)
+PASS  sin CIDR: idéntico al daemon.json desplegado el 2026-11-02 (los hosts no cambiarían)
+PASS  con CIDR: JSON válido con insecure-registries
+PASS  con CIDR: conserva la rotación de logs
+PASS  CIDR inválido se rechaza
+== Compose
+PASS  Nexus con distribution: conector solo en 127.0.0.1:18082
+PASS  Nexus con nexus: conector en el puerto del registro
+PASS  Nexus sin NEXUS_DOCKER_BIND (.env anterior): conector en loopback por defecto
+PASS  registro en AWS: 0.0.0.0:8082 (el grupo de seguridad limita a ci y ambientes)
+PASS  registro sin variables: Compose se niega
+== Planes sin AWS
+PASS  test-isolation --plan: cinco fases de dos servidores
+PASS  test-isolation --plan: parada final obligatoria
+PASS  test-isolation --phases=4,5: solo esas dos fases
+PASS  test-isolation --phases inválido se rechaza
+== Idempotencia de bootstrap-env.sh en test-isolation.sh (registros de fases simulados)
+PASS  segundas ejecuciones sin cambios: PASS para dev, stage y prod
+PASS  un UPDATED en una ejecución posterior: FAIL
+== docker compose config de los cuatro stacks (valores ficticios, sin desplegar)
+PASS  compose de jenkins válido con sus variables
+PASS  compose de sonarqube válido con sus variables
+PASS  compose de nexus válido con sus variables
+PASS  compose de registry válido con sus variables
+== test-idempotency.sh --plan (sin AWS)
+PASS  el plan describe 9 pasos, incluida la recuperación, y la parada obligatoria
+PASS  el plan no abre ningún registro de ejecución
+
+RESULTADO: 40 PASS, 0 FAIL

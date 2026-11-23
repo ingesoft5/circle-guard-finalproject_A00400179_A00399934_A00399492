@@ -1,0 +1,33 @@
+# 02 · E2E en dev
+
+Build: http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/6/
+Commit: dd825e6
+Fecha: 2026-11-08
+Etapa: E2E dev
+Estado: SUCCESS
+
+Playwright ejecutado contra el web de dev antes de promover a stage.
+
+[Pipeline] { (E2E dev)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
++ ./deploy/e2e.sh dev
+
+added 3 packages in 1s
+
+Running 2 tests using 1 worker
+
+  ✓  1 [chromium] › tests/smoke.spec.ts:4:3 › CircleGuard smoke › la aplicación web responde y sirve el shell (1.4s)
+  ✓  2 [chromium] › tests/smoke.spec.ts:10:3 › CircleGuard smoke › el healthcheck del proxy responde (38ms)
+
+  2 passed (2.7s)
+E2E OK para dev en http://dind:3000
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage

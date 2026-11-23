@@ -1,0 +1,65 @@
+# HU-14 · Roles with differentiated permissions, namespaced (the overlays in security/k8s/rbac-overlays/ set circleguard-dev / -stage / -prod, the HU-10 namespaces).
+# Ready to apply with kubectl apply -k security/k8s/rbac-overlays/<env>; NOT applied yet (needs the cluster of HU-09/HU-10 and a cluster admin).
+# No wildcard verbs or resources, no ClusterRole, no cluster-admin. Three roles, three purposes:
+#   circleguard-deployer        what Jenkins needs to roll out and roll back: workloads, services, configuration. NO secrets, NO delete, NO exec.
+#   circleguard-readonly        what a person needs to look at the system. NO secrets, NO exec, no writes.
+#   circleguard-secret-manager  create and rotate Secrets only (security/k8s/create-secrets.sh). Cannot list or delete them and sees nothing else.
+# Separating "deploy" from "manage secrets" means that a stolen Jenkins deploy token cannot read or change a credential.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: circleguard-deployer
+  namespace: circleguard
+  labels: { app.kubernetes.io/part-of: circleguard }
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["services", "configmaps", "serviceaccounts"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  # HU-10 applies one Ingress and no NetworkPolicy, so the deployer gets Ingress only (least privilege; Trivy KSV-0056 flags what is left,
+  # which the rollout needs: services and ingresses).
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "events"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments/rollback", "deployments/scale"]
+    verbs: ["create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: circleguard-readonly
+  namespace: circleguard
+  labels: { app.kubernetes.io/part-of: circleguard }
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "services", "configmaps", "events", "serviceaccounts"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "networkpolicies"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["autoscaling"]
+    resources: ["horizontalpodautoscalers"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: circleguard-secret-manager
+  namespace: circleguard
+  labels: { app.kubernetes.io/part-of: circleguard }
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "create", "update", "patch"]

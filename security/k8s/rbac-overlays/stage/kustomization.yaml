@@ -1,0 +1,6 @@
+# HU-14 · RBAC of the stage environment (namespace circleguard-stage, created by HU-10 deploy/k8s/overlays/stage/namespace.yaml).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: circleguard-stage
+resources:
+  - ../../rbac

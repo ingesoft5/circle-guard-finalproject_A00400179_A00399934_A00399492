@@ -1,0 +1,26 @@
+CRITICAL CVE-2026-22732     spring-security-web      6.2.8      -> 6.5.9, 7.0.4
+CRITICAL CVE-2026-47892     spring-webflux           6.1.21     -> 7.0.9
+CRITICAL CVE-2026-47884     spring-webmvc            6.1.21     -> 7.0.9
+HIGH     CVE-2026-68494     jackson-core             2.15.4     -> 2.18.8, 2.21.4
+HIGH     CVE-2026-89425     jackson-core             2.15.4     -> 2.21.7, 2.22.3, 2.18.11
+HIGH     CVE-2026-54512     jackson-databind         2.15.4     -> 2.18.8, 3.1.4, 2.21.4
+HIGH     CVE-2026-54513     jackson-databind         2.15.4     -> 2.18.8, 2.21.4, 3.1.4
+HIGH     CVE-2026-68497     jackson-databind         2.15.4     -> 2.18.10, 2.21.6, 2.22.2
+HIGH     CVE-2026-91776     jackson-databind         2.15.4     -> 2.18.11, 2.21.7, 2.22.3
+HIGH     CVE-2026-91777     jackson-databind         2.15.4     -> 2.21.7, 2.18.11, 2.22.3
+HIGH     CVE-2024-47554     commons-io               2.7        -> 2.14.0
+HIGH     CVE-2026-40984     micrometer-core          1.12.4     -> 1.16.6, 1.15.12
+HIGH     CVE-2026-35554     kafka-clients            3.6.1      -> 3.9.2, 4.0.2, 4.1.2
+HIGH     CVE-2025-12183     lz4-java                 1.8.0      -> 1.8.1
+HIGH     CVE-2025-66566     lz4-java                 1.8.0      -> sin arreglo
+HIGH     CVE-2026-106451    lz4-java                 1.8.0      -> sin arreglo
+HIGH     CVE-2026-42198     postgresql               42.6.2     -> 42.7.11
+HIGH     CVE-2025-22235     spring-boot              3.2.4      -> 3.3.11, 3.4.5
+HIGH     CVE-2026-22733     spring-boot-starter-actuator 3.2.4      -> 4.0.4, 3.5.12
+HIGH     CVE-2026-41720     spring-ldap-core         3.2.2      -> 4.0.4, 3.3.8
+HIGH     CVE-2025-22228     spring-security-crypto   6.2.8      -> 6.3.8, 6.4.4, 6.2.10, 6.1.14, 6.0.16, 5.8.18, 5.7.16
+HIGH     CVE-2025-41249     spring-core              6.1.21     -> 6.2.11
+HIGH     CVE-2026-41850     spring-expression        6.1.21     -> 7.0.8, 6.2.19
+HIGH     CVE-2026-41842     spring-webflux           6.1.21     -> 7.0.8, 6.2.19
+HIGH     CVE-2026-41842     spring-webmvc            6.1.21     -> 7.0.8, 6.2.19
+HIGH     CVE-2026-41845     spring-webmvc            6.1.21     -> 7.0.8, 6.2.19

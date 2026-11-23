@@ -1,0 +1,4 @@
+20:46:55 INFO      identidad AWS assumed-role/circleguard-hu01-operator/botocore-session-1793737267 · capacidad operate · cuenta ****3303 · región us-east-2 · zona us-east-2a
+20:47:06 PASS      registry: el usuario ci publica y descarga una imagen (ci -> 10.20.0.221:8082)
+20:47:19 PASS      registry: Jenkins (contenedor cg-jenkins) se autentica, publica y descarga con crane
+20:47:19 SUMMARY   verify-infra pass=2 fail=0 pendiente=0

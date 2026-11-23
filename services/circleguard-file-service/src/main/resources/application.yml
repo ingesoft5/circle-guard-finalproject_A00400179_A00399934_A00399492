@@ -6,8 +6,39 @@ spring:
 # aws:
 #   s3:
 #     endpoint: http://localhost:9000
-#     access-key: minioadmin
-#     secret-key: minioadmin
+#     access-key: ${MINIO_ACCESS_KEY}
+#     secret-key: ${MINIO_SECRET_KEY}
 
 server:
   port: 8085
+
+# HU-13: Actuator, Prometheus, OpenTelemetry and trace-correlated logs.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: ${MANAGEMENT_HEALTH_DETAILS:never}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${ENVIRONMENT:dev}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5,0.95,0.99
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLE_RATE:1.0}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

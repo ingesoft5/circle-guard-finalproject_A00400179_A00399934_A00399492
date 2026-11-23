@@ -1,0 +1,21 @@
+# Plugins of HU-01 (Configuration as Code), HU-03/HU-04 (pipeline, coverage) and HU-06 (CD).
+configuration-as-code:2144.ve8c697101488
+workflow-aggregator
+workflow-multibranch
+pipeline-stage-view
+pipeline-utility-steps
+git
+github
+github-branch-source
+credentials-binding
+plain-credentials
+junit
+# HU-04: JaCoCo coverage with quality gates, and HTML reports published per build.
+coverage
+htmlpublisher
+sonar
+timestamper
+ws-cleanup
+build-timeout
+# HU-14: role-based authorization (administrator, developer, viewer).
+role-strategy:928.vc60b_edb_fea_e1

@@ -1,0 +1,73 @@
+# 03 · Promoción a stage
+
+Build: http://localhost:8080/job/circleguard-hu06-v2/job/HU-06-run/6/
+Commit: dd825e6
+Fecha: 2026-11-08
+Etapa: Deploy stage
+Estado: SUCCESS
+
+Stage se despliega solo después de que E2E dev pasa. El fragmento muestra la creación de volúmenes, el init de bases y el resultado final.
+
+[Pipeline] { (Deploy stage)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $CG_ENV_FILE
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
++ ./deploy/deploy.sh stage 0.1.0
+CircleGuard deploy
+  environment: stage
+
+... (fragmento; log completo en console-build-6.txt) ...
+
+ Container circleguard-stage-openldap-1  Waiting
+ Container circleguard-stage-identity-1  Waiting
+ Container circleguard-stage-postgres-1  Waiting
+ Container circleguard-stage-file-1  Waiting
+ Container circleguard-stage-kafka-1  Waiting
+ Container circleguard-stage-notification-1  Healthy
+ Container circleguard-stage-promotion-1  Healthy
+ Container circleguard-stage-redis-1  Healthy
+ Container circleguard-stage-auth-1  Healthy
+ Container circleguard-stage-identity-1  Healthy
+ Container circleguard-stage-openldap-1  Healthy
+ Container circleguard-stage-file-1  Healthy
+ Container circleguard-stage-zookeeper-1  Healthy
+ Container circleguard-stage-kafka-1  Healthy
+ Container circleguard-stage-form-1  Healthy
+ Container circleguard-stage-postgres-1  Healthy
+ Container circleguard-stage-dashboard-1  Healthy
+ Container circleguard-stage-gateway-1  Healthy
+ Container circleguard-stage-neo4j-1  Healthy
+ Container circleguard-stage-web-1  Healthy
+NAME                               IMAGE                                                                                                     COMMAND                  SERVICE        CREATED         STATUS                        PORTS
+circleguard-stage-auth-1           10.20.0.106:8082/circleguard/circleguard-auth-service:0.1.0                                               "java -jar /app/app.…"   auth           2 minutes ago   Up 2 minutes (healthy)        8180/tcp
+circleguard-stage-dashboard-1      10.20.0.106:8082/circleguard/circleguard-dashboard-service:0.1.0                                          "java -jar /app/app.…"   dashboard      2 minutes ago   Up 2 minutes (healthy)        8084/tcp
+circleguard-stage-file-1           10.20.0.106:8082/circleguard/circleguard-file-service:0.1.0                                               "java -jar /app/app.…"   file           2 minutes ago   Up 2 minutes (healthy)        8085/tcp
+circleguard-stage-form-1           10.20.0.106:8082/circleguard/circleguard-form-service:0.1.0                                               "java -jar /app/app.…"   form           2 minutes ago   Up About a minute (healthy)   8086/tcp
+circleguard-stage-gateway-1        10.20.0.106:8082/circleguard/circleguard-gateway-service:0.1.0                                            "java -jar /app/app.…"   gateway        2 minutes ago   Up 2 minutes (healthy)        8087/tcp
+circleguard-stage-identity-1       10.20.0.106:8082/circleguard/circleguard-identity-service:0.1.0                                           "java -jar /app/app.…"   identity       2 minutes ago   Up 2 minutes (healthy)        8083/tcp
+circleguard-stage-kafka-1          confluentinc/cp-kafka:7.6.0@sha256:24cdd3a7fa89d2bed150560ebea81ff1943badfa61e51d66bb541a6b0d7fb047       "/etc/confluent/dock…"   kafka          2 minutes ago   Up 2 minutes (healthy)        9092/tcp
+circleguard-stage-neo4j-1          neo4j:5.26.32-community@sha256:249a1ec6e3c52d82101a5ed33d6ed2b5ed5b0017b21a28c0bfebc335e87fb177           "tini -g -- /startup…"   neo4j          2 minutes ago   Up 2 minutes (healthy)        7473-7474/tcp, 7687/tcp
+circleguard-stage-notification-1   10.20.0.106:8082/circleguard/circleguard-notification-service:0.1.0                                       "java -jar /app/app.…"   notification   2 minutes ago   Up About a minute (healthy)   8082/tcp
+circleguard-stage-openldap-1       osixia/openldap:1.5.0                                                                                     "/container/tool/run"    openldap       2 minutes ago   Up 2 minutes (healthy)        389/tcp, 636/tcp
+circleguard-stage-postgres-1       postgres:16.15@sha256:5db6dac2ef5dcff512f4f00a009c3c332b9f2f28f24277175bf3e4a3d02ef83a                    "docker-entrypoint.s…"   postgres       3 minutes ago   Up 3 minutes (healthy)        5432/tcp
+circleguard-stage-promotion-1      10.20.0.106:8082/circleguard/circleguard-promotion-service:0.1.0                                          "java -jar /app/app.…"   promotion      2 minutes ago   Up About a minute (healthy)   8088/tcp
+circleguard-stage-redis-1          redis:7.2.5-alpine@sha256:6aaf3f5e6bc8a592fbfe2cccf19eb36d27c39d12dab4f4b01556b7449e7b1f44                "docker-entrypoint.s…"   redis          2 minutes ago   Up 2 minutes (healthy)        6379/tcp
+circleguard-stage-web-1            10.20.0.106:8082/circleguard/circleguard-web:0.1.0                                                        "/docker-entrypoint.…"   web            2 minutes ago   Up 6 seconds (healthy)        0.0.0.0:3000->8080/tcp
+circleguard-stage-zookeeper-1      confluentinc/cp-zookeeper:7.6.0@sha256:9babd1c0beaf93189982bdbb9fe4bf194a2730298b640c057817746c19838866   "/etc/confluent/dock…"   zookeeper      2 minutes ago   Up 2 minutes (healthy)        2181/tcp, 2888/tcp, 3888/tcp
+Trazabilidad actualizada: /var/jenkins_home/workspace/circleguard-hu06-v2_HU-06-run/deploy/releases/stage.json
+Copia persistente:        /var/jenkins_home/.circleguard/releases/stage.json
+Notificación omitida: defina DISCORD_WEBHOOK_URL o SLACK_WEBHOOK_URL.
+OK: stage desplegado en 0.1.0
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage

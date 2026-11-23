@@ -1,0 +1,479 @@
+Started by user juanes
+Connecting to https://api.github.com using ju4n3s0/****** (Login)
+Obtained Jenkinsfile from af89396004714c25142b26dcd021bbec229c0c7a
+Loading library circleguard@dev:jenkins/
+Attempting to resolve dev from remote references...
+ > git --version # timeout=10
+ > git --version # 'git version 2.50.1'
+using GIT_ASKPASS to set credentials Login
+ > git ls-remote -h -- https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git # timeout=10
+Found match: refs/heads/dev revision a586b4d5c6cc8cd6489bb77b15d197d38b8b74e0
+The recommended git tool is: NONE
+using credential github-login
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/circleguard_HU-11_Pipeline@libs/91f2639c690a8c341c6785f75f019ee8595443c5046a8c2d719060eaf3bb5bb3/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git # timeout=10
+Fetching without tags
+Fetching upstream changes from https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.50.1'
+using GIT_ASKPASS to set credentials Login
+ > git fetch --no-tags --force --progress -- https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+Checking out Revision a586b4d5c6cc8cd6489bb77b15d197d38b8b74e0 (dev)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f a586b4d5c6cc8cd6489bb77b15d197d38b8b74e0 # timeout=10
+Commit message: "Merge pull request #22 from ingesoft5/HU-13-evidencia-observabilidad"
+ > git rev-list --no-walk af89396004714c25142b26dcd021bbec229c0c7a # timeout=10
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/circleguard_HU-11_Pipeline
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+The recommended git tool is: NONE
+using credential github-login
+Cloning the remote Git repository
+Cloning with configured refspecs honoured and without tags
+Cloning repository https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git
+ > git init /var/lib/jenkins/workspace/circleguard_HU-11_Pipeline # timeout=10
+Fetching upstream changes from https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.50.1'
+using GIT_ASKPASS to set credentials Login
+ > git fetch --no-tags --force --progress -- https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git +refs/heads/HU-11_Pipeline:refs/remotes/origin/HU-11_Pipeline # timeout=10
+ > git config remote.origin.url https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/HU-11_Pipeline:refs/remotes/origin/HU-11_Pipeline # timeout=10
+Avoid second fetch
+Checking out Revision af89396004714c25142b26dcd021bbec229c0c7a (HU-11_Pipeline)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f af89396004714c25142b26dcd021bbec229c0c7a # timeout=10
+Commit message: "fix(ci): disable local e2e by default and sanitize run 29 log"
+ > git rev-list --no-walk af89396004714c25142b26dcd021bbec229c0c7a # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] timestamps
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Checkout)
+[Pipeline] checkout
+[2026-11-22T21:56:27.613Z] The recommended git tool is: NONE
+[2026-11-22T21:56:27.613Z] using credential github-login
+[2026-11-22T21:56:27.617Z]  > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/circleguard_HU-11_Pipeline/.git # timeout=10
+[2026-11-22T21:56:27.620Z] Fetching changes from the remote Git repository
+[2026-11-22T21:56:27.621Z]  > git config remote.origin.url https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git # timeout=10
+[2026-11-22T21:56:27.648Z] Fetching without tags
+[2026-11-22T21:56:27.648Z] Fetching upstream changes from https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git
+[2026-11-22T21:56:27.648Z]  > git --version # timeout=10
+[2026-11-22T21:56:27.652Z]  > git --version # 'git version 2.50.1'
+[2026-11-22T21:56:27.652Z] using GIT_ASKPASS to set credentials Login
+[2026-11-22T21:56:27.655Z]  > git fetch --no-tags --force --progress -- https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492.git +refs/heads/HU-11_Pipeline:refs/remotes/origin/HU-11_Pipeline # timeout=10
+[2026-11-22T21:56:27.760Z] Checking out Revision af89396004714c25142b26dcd021bbec229c0c7a (HU-11_Pipeline)
+[2026-11-22T21:56:27.760Z]  > git config core.sparsecheckout # timeout=10
+[2026-11-22T21:56:27.763Z]  > git checkout -f af89396004714c25142b26dcd021bbec229c0c7a # timeout=10
+[2026-11-22T21:56:27.883Z] Commit message: "fix(ci): disable local e2e by default and sanitize run 29 log"
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-22T21:56:28.822Z] + git fetch --tags --force origin +refs/heads/dev:refs/remotes/origin/dev
+[2026-11-22T21:56:29.072Z] From https://github.com/ingesoft5/circle-guard-finalproject_A00400179_A00399934_A00399492
+[2026-11-22T21:56:29.072Z]  * [new branch]      dev        -> origin/dev
+[2026-11-22T21:56:29.072Z]  * [new tag]         v0.1.0     -> v0.1.0
+[2026-11-22T21:56:29.072Z]  * [new tag]         v0.2.0     -> v0.2.0
+[Pipeline] sh
+[2026-11-22T21:56:29.369Z] + git diff --name-only c6ac037159ae39a50bcae2bbf3a90d64ec83c8e1...HEAD
+[Pipeline] echo
+[2026-11-22T21:56:29.402Z] Servicios a procesar: circleguard-auth-service,circleguard-identity-service,circleguard-promotion-service,circleguard-notification-service,circleguard-form-service,circleguard-file-service,circleguard-gateway-service,circleguard-dashboard-service
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Prepare)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-22T21:56:29.825Z] + git fetch --tags --force
+[Pipeline] sh
+[2026-11-22T21:56:30.099Z] + ./deploy/next-version.sh
+[Pipeline] echo
+[2026-11-22T21:56:30.131Z] CircleGuard version: 0.3.0-af89396
+[Pipeline] sh
+[2026-11-22T21:56:30.396Z] + ./deploy/current-version.sh dev
+[2026-11-22T21:56:30.396Z] 0.3.0-c6ac037
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Security: IaC scan)
+Stage "Security: IaC scan" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Terraform checks)
+Stage "Terraform checks" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+Stage "Build" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Unit tests and coverage)
+Stage "Unit tests and coverage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (SonarQube quality gate)
+Stage "SonarQube quality gate" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Integration tests)
+Stage "Integration tests" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Package)
+Stage "Package" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (E2E Playwright)
+Stage "E2E Playwright" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (ECR build and push)
+Stage "ECR build and push" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Security: Trivy images)
+Stage "Security: Trivy images" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Package images)
+Stage "Package images" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish images)
+Stage "Publish images" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Publish artifacts)
+Stage "Publish artifacts" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Rollback)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
+[2026-11-22T21:56:32.170Z] + ./deploy/k8s/deploy.sh dev 0.3.0-3f92511
+[2026-11-22T21:56:32.721Z] Desplegando 0.3.0-3f92511 en dev (circleguard-dev)
+[2026-11-22T21:56:32.971Z] namespace/circleguard-dev unchanged
+[2026-11-22T21:56:33.522Z] Secretos de dev leídos desde SSM
+[2026-11-22T21:56:33.522Z] secret/circleguard-secrets unchanged
+[2026-11-22T21:56:34.072Z] secret/ecr-pull configured
+[2026-11-22T21:56:34.323Z] configmap/circleguard-config unchanged
+[2026-11-22T21:56:34.579Z] configmap/postgres-init-75fhc7866k unchanged
+[2026-11-22T21:56:34.579Z] configmap/web-nginx-c876766m9g unchanged
+[2026-11-22T21:56:34.579Z] service/auth unchanged
+[2026-11-22T21:56:34.579Z] service/dashboard unchanged
+[2026-11-22T21:56:34.830Z] service/file unchanged
+[2026-11-22T21:56:34.830Z] service/form unchanged
+[2026-11-22T21:56:34.830Z] service/gateway unchanged
+[2026-11-22T21:56:34.830Z] service/identity unchanged
+[2026-11-22T21:56:35.080Z] service/kafka unchanged
+[2026-11-22T21:56:35.080Z] service/neo4j unchanged
+[2026-11-22T21:56:35.080Z] service/notification unchanged
+[2026-11-22T21:56:35.080Z] service/openldap unchanged
+[2026-11-22T21:56:35.331Z] service/postgres unchanged
+[2026-11-22T21:56:35.331Z] service/promotion unchanged
+[2026-11-22T21:56:35.331Z] service/redis unchanged
+[2026-11-22T21:56:35.331Z] service/web unchanged
+[2026-11-22T21:56:35.581Z] service/zookeeper unchanged
+[2026-11-22T21:56:35.581Z] deployment.apps/auth configured
+[2026-11-22T21:56:35.581Z] deployment.apps/dashboard configured
+[2026-11-22T21:56:35.581Z] deployment.apps/file configured
+[2026-11-22T21:56:35.581Z] deployment.apps/form configured
+[2026-11-22T21:56:35.832Z] deployment.apps/gateway configured
+[2026-11-22T21:56:35.832Z] deployment.apps/identity configured
+[2026-11-22T21:56:35.832Z] deployment.apps/notification configured
+[2026-11-22T21:56:36.082Z] deployment.apps/promotion configured
+[2026-11-22T21:56:36.082Z] deployment.apps/web configured
+[2026-11-22T21:56:36.332Z] statefulset.apps/kafka configured
+[2026-11-22T21:56:36.332Z] statefulset.apps/neo4j configured
+[2026-11-22T21:56:36.883Z] statefulset.apps/openldap configured
+[2026-11-22T21:56:36.883Z] statefulset.apps/postgres configured
+[2026-11-22T21:56:37.133Z] statefulset.apps/redis configured
+[2026-11-22T21:56:37.133Z] statefulset.apps/zookeeper configured
+[2026-11-22T21:56:37.133Z] horizontalpodautoscaler.autoscaling/auth unchanged
+[2026-11-22T21:56:37.384Z] horizontalpodautoscaler.autoscaling/dashboard unchanged
+[2026-11-22T21:56:37.384Z] horizontalpodautoscaler.autoscaling/file unchanged
+[2026-11-22T21:56:37.384Z] horizontalpodautoscaler.autoscaling/form unchanged
+[2026-11-22T21:56:37.634Z] horizontalpodautoscaler.autoscaling/gateway unchanged
+[2026-11-22T21:56:37.634Z] horizontalpodautoscaler.autoscaling/identity unchanged
+[2026-11-22T21:56:37.634Z] horizontalpodautoscaler.autoscaling/notification unchanged
+[2026-11-22T21:56:37.634Z] horizontalpodautoscaler.autoscaling/promotion unchanged
+[2026-11-22T21:56:37.634Z] horizontalpodautoscaler.autoscaling/web unchanged
+[2026-11-22T21:56:37.634Z] ingress.networking.k8s.io/circleguard unchanged
+[2026-11-22T21:56:37.884Z] partitioned roll out complete: 1 new pods have been updated...
+[2026-11-22T21:56:37.884Z] partitioned roll out complete: 1 new pods have been updated...
+[2026-11-22T21:56:37.884Z] partitioned roll out complete: 1 new pods have been updated...
+[2026-11-22T21:56:38.135Z] partitioned roll out complete: 1 new pods have been updated...
+[2026-11-22T21:56:38.135Z] partitioned roll out complete: 1 new pods have been updated...
+[2026-11-22T21:56:38.135Z] partitioned roll out complete: 1 new pods have been updated...
+[2026-11-22T21:56:38.385Z] Waiting for deployment "auth" rollout to finish: 1 old replicas are pending termination...
+[2026-11-22T21:57:59.628Z] Waiting for deployment "auth" rollout to finish: 1 old replicas are pending termination...
+[2026-11-22T21:57:59.628Z] deployment "auth" successfully rolled out
+[2026-11-22T21:57:59.628Z] deployment "identity" successfully rolled out
+[2026-11-22T21:57:59.628Z] deployment "dashboard" successfully rolled out
+[2026-11-22T21:57:59.628Z] deployment "file" successfully rolled out
+[2026-11-22T21:57:59.628Z] deployment "form" successfully rolled out
+[2026-11-22T21:57:59.628Z] deployment "gateway" successfully rolled out
+[2026-11-22T21:57:59.628Z] Waiting for deployment "notification" rollout to finish: 1 old replicas are pending termination...
+[2026-11-22T21:58:07.652Z] Waiting for deployment "notification" rollout to finish: 1 old replicas are pending termination...
+[2026-11-22T21:58:07.652Z] deployment "notification" successfully rolled out
+[2026-11-22T21:58:07.652Z] Waiting for deployment "promotion" rollout to finish: 1 old replicas are pending termination...
+[2026-11-22T21:58:17.528Z] Waiting for deployment "promotion" rollout to finish: 1 old replicas are pending termination...
+[2026-11-22T21:58:17.528Z] deployment "promotion" successfully rolled out
+[2026-11-22T21:58:17.528Z] deployment "web" successfully rolled out
+[2026-11-22T21:58:17.528Z] NAME                               READY   STATUS        RESTARTS       AGE
+[2026-11-22T21:58:17.528Z] pod/auth-d5c7f7c5-fl2cq            1/1     Running       0              102s
+[2026-11-22T21:58:17.528Z] pod/dashboard-69579fd64b-vn9fd     1/1     Running       0              102s
+[2026-11-22T21:58:17.528Z] pod/file-5c48dbb7ff-rf8fk          1/1     Running       0              102s
+[2026-11-22T21:58:17.528Z] pod/form-649bdbc696-8mczj          1/1     Running       0              102s
+[2026-11-22T21:58:17.528Z] pod/gateway-6cdfc56b78-crxbt       1/1     Running       0              102s
+[2026-11-22T21:58:17.528Z] pod/identity-69bf54bdd7-fvnbt      1/1     Running       0              101s
+[2026-11-22T21:58:17.528Z] pod/kafka-0                        1/1     Running       7 (162m ago)   41h
+[2026-11-22T21:58:17.528Z] pod/neo4j-0                        1/1     Running       3 (164m ago)   40h
+[2026-11-22T21:58:17.528Z] pod/notification-666f7d766-jrnk5   1/1     Running       0              101s
+[2026-11-22T21:58:17.528Z] pod/openldap-0                     1/1     Running       3 (16h ago)    41h
+[2026-11-22T21:58:17.528Z] pod/postgres-0                     1/1     Running       3 (16h ago)    41h
+[2026-11-22T21:58:17.528Z] pod/promotion-5fdb4bdf76-4knpf     1/1     Running       0              101s
+[2026-11-22T21:58:17.528Z] pod/promotion-844d66994b-r247c     1/1     Terminating   0              118m
+[2026-11-22T21:58:17.528Z] pod/redis-0                        1/1     Running       3 (16h ago)    41h
+[2026-11-22T21:58:17.528Z] pod/web-8656cc899d-8q2pq           1/1     Running       0              101s
+[2026-11-22T21:58:17.528Z] pod/zookeeper-0                    1/1     Running       3 (16h ago)    41h
+[2026-11-22T21:58:17.528Z] 
+[2026-11-22T21:58:17.528Z] NAME                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+[2026-11-22T21:58:17.528Z] service/auth           ClusterIP   10.43.198.159   <none>        8180/TCP   41h
+[2026-11-22T21:58:17.528Z] service/dashboard      ClusterIP   10.43.188.167   <none>        8084/TCP   41h
+[2026-11-22T21:58:17.528Z] service/file           ClusterIP   10.43.255.230   <none>        8085/TCP   41h
+[2026-11-22T21:58:17.528Z] service/form           ClusterIP   10.43.215.220   <none>        8086/TCP   41h
+[2026-11-22T21:58:17.528Z] service/gateway        ClusterIP   10.43.142.192   <none>        8087/TCP   41h
+[2026-11-22T21:58:17.528Z] service/identity       ClusterIP   10.43.86.145    <none>        8083/TCP   41h
+[2026-11-22T21:58:17.528Z] service/kafka          ClusterIP   10.43.156.1     <none>        9092/TCP   41h
+[2026-11-22T21:58:17.528Z] service/neo4j          ClusterIP   10.43.136.118   <none>        7687/TCP   41h
+[2026-11-22T21:58:17.528Z] service/notification   ClusterIP   10.43.126.110   <none>        8082/TCP   41h
+[2026-11-22T21:58:17.528Z] service/openldap       ClusterIP   10.43.235.120   <none>        389/TCP    41h
+[2026-11-22T21:58:17.528Z] service/postgres       ClusterIP   10.43.161.35    <none>        5432/TCP   41h
+[2026-11-22T21:58:17.528Z] service/promotion      ClusterIP   10.43.243.148   <none>        8088/TCP   41h
+[2026-11-22T21:58:17.528Z] service/redis          ClusterIP   10.43.232.202   <none>        6379/TCP   41h
+[2026-11-22T21:58:17.528Z] service/web            ClusterIP   10.43.100.212   <none>        8080/TCP   41h
+[2026-11-22T21:58:17.528Z] service/zookeeper      ClusterIP   10.43.189.241   <none>        2181/TCP   41h
+[2026-11-22T21:58:17.528Z] 
+[2026-11-22T21:58:17.528Z] NAME                                    CLASS     HOSTS   ADDRESS       PORTS   AGE
+[2026-11-22T21:58:17.528Z] ingress.networking.k8s.io/circleguard   traefik   *       10.10.1.110   80      41h
+[2026-11-22T21:58:17.528Z] 
+[2026-11-22T21:58:17.528Z] NAME                                               REFERENCE                 TARGETS              MINPODS   MAXPODS   REPLICAS   AGE
+[2026-11-22T21:58:17.528Z] horizontalpodautoscaler.autoscaling/auth           Deployment/auth           cpu: <unknown>/70%   1         2         1          41h
+[2026-11-22T21:58:17.528Z] horizontalpodautoscaler.autoscaling/dashboard      Deployment/dashboard      cpu: <unknown>/70%   1         2         1          41h
+[2026-11-22T21:58:17.528Z] horizontalpodautoscaler.autoscaling/file           Deployment/file           cpu: 4%/70%          1         2         1          41h
+[2026-11-22T21:58:17.528Z] horizontalpodautoscaler.autoscaling/form           Deployment/form           cpu: <unknown>/70%   1         2         1          41h
+[2026-11-22T21:58:17.528Z] horizontalpodautoscaler.autoscaling/gateway        Deployment/gateway        cpu: <unknown>/70%   1         2         1          41h
+[2026-11-22T21:58:17.528Z] horizontalpodautoscaler.autoscaling/identity       Deployment/identity       cpu: <unknown>/70%   1         2         1          41h
+[2026-11-22T21:58:17.528Z] horizontalpodautoscaler.autoscaling/notification   Deployment/notification   cpu: 4%/70%          1         2         1          41h
+[2026-11-22T21:58:17.528Z] horizontalpodautoscaler.autoscaling/promotion      Deployment/promotion      cpu: 3%/70%          1         2         1          41h
+[2026-11-22T21:58:17.528Z] horizontalpodautoscaler.autoscaling/web            Deployment/web            cpu: 5%/70%          1         2         1          41h
+[Pipeline] sh
+[2026-11-22T21:58:17.803Z] + ./deploy/record-release.sh dev 0.3.0-3f92511 rollback jenkins
+[2026-11-22T21:58:17.803Z] Trazabilidad actualizada: /var/lib/jenkins/workspace/circleguard_HU-11_Pipeline/deploy/releases/dev.json
+[2026-11-22T21:58:17.803Z] Copia persistente:        /var/lib/jenkins/.circleguard/releases/dev.json
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Terraform apply dev)
+Stage "Terraform apply dev" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy dev)
+Stage "Deploy dev" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Smoke dev)
+Stage "Smoke dev" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (E2E dev)
+Stage "E2E dev" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Stop dev)
+Stage "Stop dev" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Terraform apply stage)
+Stage "Terraform apply stage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy stage)
+Stage "Deploy stage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Smoke stage)
+Stage "Smoke stage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (E2E stage)
+Stage "E2E stage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Stop stage)
+Stage "Stop stage" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Approve prod)
+Stage "Approve prod" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Terraform apply prod)
+Stage "Terraform apply prod" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy prod)
+Stage "Deploy prod" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Smoke prod)
+Stage "Smoke prod" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Tag release)
+Stage "Tag release" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Release notes)
+Stage "Release notes" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (GitHub release)
+Stage "GitHub release" skipped due to when conditional
+[Pipeline] getContext
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] archiveArtifacts
+[2026-11-22T21:58:19.619Z] Archiving artifacts
+[Pipeline] script
+[Pipeline] {
+[Pipeline] catchError
+[Pipeline] {
+[Pipeline] junit
+[2026-11-22T21:58:19.724Z] Recording test results
+[2026-11-22T21:58:19.724Z] No test report files were found. Configuration error?
+[2026-11-22T21:58:19.728Z] None of the test reports contained any result
+[2026-11-22T21:58:19.728Z] [Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // catchError
+[Pipeline] catchError
+[Pipeline] {
+[Pipeline] publishHTML
+[2026-11-22T21:58:19.832Z] [htmlpublisher] Archiving HTML reports...
+[2026-11-22T21:58:19.832Z] [htmlpublisher] Archiving at BUILD level /var/lib/jenkins/workspace/circleguard_HU-11_Pipeline/tests/e2e-playwright/playwright-report to Playwright_20E2E
+[2026-11-22T21:58:19.832Z] [htmlpublisher] Specified HTML directory '/var/lib/jenkins/workspace/circleguard_HU-11_Pipeline/tests/e2e-playwright/playwright-report' does not exist.
+[2026-11-22T21:58:19.832Z] [htmlpublisher] Copying recursive using current thread
+[Pipeline] }
+[Pipeline] // catchError
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+[2026-11-22T21:58:19.990Z] Masking supported pattern matches of $DISCORD_WEBHOOK_URL
+[Pipeline] {
+[Pipeline] sh
+[2026-11-22T21:58:20.284Z] + ./deploy/notify.sh success ci 0.3.0-af89396 'Pipeline completado'
+[2026-11-22T21:58:20.284Z] Notificación enviada.
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] cleanWs
+[2026-11-22T21:58:20.420Z] [WS-CLEANUP] Deleting project workspace...
+[2026-11-22T21:58:20.421Z] [WS-CLEANUP] Deferred wipeout is used...
+[2026-11-22T21:58:20.436Z] [WS-CLEANUP] done
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timestamps
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+
+GitHub has been notified of this commit’s build result
+
+Finished: SUCCESS

@@ -1,0 +1,15 @@
+{
+  "SchemaVersion": 2,
+  "ArtifactName": "synthetic-fixture",
+  "Results": [
+    {
+      "Target": "synthetic",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "SYNTHETIC-0001",
+          "Severity": "CRITICAL"
+        }
+      ]
+    }
+  ]
+}
