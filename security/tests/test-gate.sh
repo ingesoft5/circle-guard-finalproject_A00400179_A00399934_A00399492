@@ -39,5 +39,18 @@ check "an empty report is an error, never a pass"                      2 "ERROR"
 check "a missing report is an error, never a pass"                     2 "ERROR"       -- --evaluate "$FIX/does-not-exist.json" --class own
 check "an unknown severity in the policy is rejected (config error)"      2 "desconocida" TRIVY_SEVERITY_BLOCK=SEVERE -- --evaluate "$FIX/high.json" --class own
 
+# A scan that could not run must exit 2 (the pipeline fails the build), never 1 (which means "findings" and only marks UNSTABLE in report
+# mode). Found in Jenkins build #10: the agent had no 'docker compose' plugin and the dependency scan was reported as "findings".
+FAKEBIN=$(mktemp -d); trap 'rm -rf "$FAKEBIN"' EXIT
+printf '#!/usr/bin/env bash\n[[ "${1:-}" == compose ]] && exit 1\nexit 0\n' >"$FAKEBIN/docker"; chmod +x "$FAKEBIN/docker"
+check "Docker without the compose plugin is an error (2), not a finding (1)" 2 "docker compose" PATH="$FAKEBIN:$PATH" -- --own 1.0.0
+DEPS="$HERE/../scan-dependencies.sh"
+out=$(env SECURITY_REPORT_DIR="${TMPDIR:-/tmp}/cg-gate-test-deps" CG_GRADLE=/bin/false "$DEPS" 2>&1); rc=$?
+if [[ "$rc" == 2 && "$out" == *"no se ejecutó"* ]]; then printf 'PASS  a failing Gradle is an error (2), not a finding (1) (exit %s)\n' "$rc"; PASSED=$((PASSED + 1))
+else printf 'FAIL  failing Gradle: expected exit 2, got %s\n%s\n' "$rc" "$out"; FAILED=$((FAILED + 1)); fi
+out=$(env SECURITY_REPORT_DIR="${TMPDIR:-/tmp}/cg-gate-test-deps" CG_SKIP_GRADLE=true "$DEPS" circleguard-nonexistent-service 2>&1); rc=$?
+if [[ "$rc" == 2 && "$out" == *"no se ejecutó"* ]]; then printf 'PASS  a missing SBOM is an error (2), not a finding (1) (exit %s)\n' "$rc"; PASSED=$((PASSED + 1))
+else printf 'FAIL  missing SBOM: expected exit 2, got %s\n%s\n' "$rc" "$out"; FAILED=$((FAILED + 1)); fi
+
 printf '\n%s passed, %s failed\n' "$PASSED" "$FAILED"
 ((FAILED == 0))

@@ -16,3 +16,4 @@ CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-identity-servi
 CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-notification-service	CRITICAL	PENDIENTE	PENDIENTE			
 CVE-2026-47884	org.springframework:spring-webmvc	deps:circleguard-promotion-service	CRITICAL	PENDIENTE	PENDIENTE			
 CVE-2026-47892	org.springframework:spring-webflux	deps:circleguard-notification-service	CRITICAL	PENDIENTE	PENDIENTE			
+# IaC (security/scan-iac.sh --candidates): the CRITICAL findings of the Terraform of HU-09 (AWS-0104, unrestricted egress; 4 occurrences, 2 distinct resources). Owner: the HU-09 team. The 58 HIGH ones: security/scan-iac.sh --candidates
