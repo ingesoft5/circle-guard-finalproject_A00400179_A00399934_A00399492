@@ -40,6 +40,26 @@ Todas las versiones notables de CircleGuard. Formato basado en
 
 <!-- releases -->
 
+## [v1.0.0] - 2026-11-25
+
+### Added
+
+- Terraform con seis módulos y los ambientes dev, stage, prod y tools; estado remoto en S3 con bloqueo en DynamoDB.
+- Kubernetes con Kustomize: 8 servicios, cliente web y middleware por ambiente, con HPA, sondas e Ingress.
+- Pipeline de Jenkins con Terraform, ECR, Trivy, despliegue a dev y stage, aprobación a prod, tag y notificación.
+- Patrones de diseño, observabilidad, escaneos de seguridad, pruebas avanzadas y rollback en Kubernetes.
+- Documentación de cierre, guía de sustentación y registro de sesiones de IAG.
+
+### Changed
+
+- El gate de seguridad queda en modo `report` hasta cerrar las dependencias vulnerables.
+- Excepciones de IaC aprobadas por regla, con vencimiento a 30 días.
+
+### Known issues
+
+- El escaneo de dependencias deja el build en UNSTABLE.
+- El caudal a 100 usuarios queda por debajo del objetivo.
+
 ## [v0.2.0] - 2026-11-08
 
 - Fecha: 2026-11-08
